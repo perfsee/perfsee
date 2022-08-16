@@ -44,7 +44,7 @@ const config = {
       jsx: true,
     },
     ecmaVersion: 2020,
-    project: ['tsconfig.json', 'tools/tsconfig.json', 'tsconfigs/tsconfig.eslint.json'],
+    project: ['tsconfig.json', 'tools/tsconfig.json', 'tsconfigs/tsconfig.eslint.json', 'docs/tsconfig.json'],
   },
   settings: {
     react: {

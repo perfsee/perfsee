@@ -20,7 +20,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install
+        run: yarn install && yarn docs install
       - name: Cache lint result
         uses: actions/cache@v3
         with:

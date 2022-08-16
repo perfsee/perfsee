@@ -29,9 +29,18 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl: 'https://github.com/perfsee/perfsee/tree/main/docs/',
-          routeBasePath: '/',
+          routeBasePath: '/docs',
         },
         blog: false,
+        pages: {
+          path: 'src/pages',
+          routeBasePath: '/',
+          include: ['**/*.{js,jsx,ts,tsx,md,mdx}'],
+          exclude: ['**/_*.{js,jsx,ts,tsx,md,mdx}', '**/_*/**', '**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**'],
+          rehypePlugins: [],
+          beforeDefaultRemarkPlugins: [],
+          beforeDefaultRehypePlugins: [],
+        },
       },
     ],
   ],
@@ -117,7 +126,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Perfsee. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Perfsee.`,
       },
       prism: {
         theme: lightCodeTheme,
