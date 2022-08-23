@@ -15,6 +15,16 @@ limitations under the License.
 */
 
 import {
+  BlockOutlined,
+  DeleteOutlined,
+  DesktopOutlined,
+  EditOutlined,
+  GlobalOutlined,
+  LinkOutlined,
+  RollbackOutlined,
+  StopOutlined,
+} from '@ant-design/icons'
+import {
   DefaultButton,
   Dialog,
   DialogFooter,
@@ -27,12 +37,12 @@ import {
 } from '@fluentui/react'
 import { useCallback, FC, memo } from 'react'
 
-import { ColorButton } from '@perfsee/components/color-button'
+import { ColorButton, TooltipWithEllipsis } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 
 import { DeleteProgress } from '../../shared'
 
-import { ButtonWrapper, WarningText, StyledDesc } from './style'
+import { ButtonWrapper, WarningText, StyledDesc, OperationItemWrap, PagePropertyWrap, PagePropertyIcon } from './style'
 
 export enum DialogVisible {
   Off = 0,
@@ -121,32 +131,35 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
 
   return (
     <ButtonWrapper>
-      <DefaultButton
-        styles={hideDeleteButton ? undefined : { root: { marginRight: '12px' } }}
-        onClick={onClickEditButton}
-      >
-        Edit
-      </DefaultButton>
+      <OperationItemWrap onClick={onClickEditButton}>
+        <div>
+          <EditOutlined />
+        </div>
+        <span>Edit</span>
+      </OperationItemWrap>
       {showDisableButton && (
-        <DefaultButton
-          styles={hideDeleteButton ? undefined : { root: { marginRight: '12px' } }}
-          onClick={onClickDisableButton}
-        >
-          Disable
-        </DefaultButton>
+        <OperationItemWrap onClick={onClickDisableButton}>
+          <div>
+            <StopOutlined />
+          </div>
+          <span>Disable</span>
+        </OperationItemWrap>
       )}
       {showRestoreButton && (
-        <DefaultButton
-          styles={hideDeleteButton ? undefined : { root: { marginRight: '12px' } }}
-          onClick={onClickRestoreButton}
-        >
-          Restore
-        </DefaultButton>
+        <OperationItemWrap onClick={onClickRestoreButton}>
+          <div>
+            <RollbackOutlined />
+          </div>
+          <span>Restore</span>
+        </OperationItemWrap>
       )}
       {!hideDeleteButton && (
-        <ColorButton color={SharedColors.red10} onClick={onClickDeleteButton}>
-          Delete
-        </ColorButton>
+        <OperationItemWrap color={SharedColors.red10} onClick={onClickDeleteButton}>
+          <div>
+            <DeleteOutlined />
+          </div>
+          <span>Delete</span>
+        </OperationItemWrap>
       )}
     </ButtonWrapper>
   )
@@ -234,3 +247,37 @@ export const CountBlock: FC<CountBlockProps> = ({ count, title }) => {
     </StyledDesc>
   )
 }
+
+export enum PagePropertyType {
+  Link,
+  Profile,
+  Environment,
+  Competitor,
+}
+
+type PagePropertyProps = {
+  type: PagePropertyType
+  value: string
+}
+
+const PagePropertyIconMap = {
+  [PagePropertyType.Link]: <LinkOutlined />,
+  [PagePropertyType.Profile]: <DesktopOutlined />,
+  [PagePropertyType.Environment]: <GlobalOutlined />,
+  [PagePropertyType.Competitor]: <BlockOutlined />,
+}
+
+export const PagePropertyItem: FC<PagePropertyProps> = memo(({ type, value }) => {
+  const icon = PagePropertyIconMap[type]
+
+  if (!value) {
+    return null
+  }
+
+  return (
+    <PagePropertyWrap>
+      <PagePropertyIcon>{icon}</PagePropertyIcon>
+      <TooltipWithEllipsis content={value} />
+    </PagePropertyWrap>
+  )
+})

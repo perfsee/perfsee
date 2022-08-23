@@ -22,8 +22,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { SharedColors } from '@perfsee/dls'
 
 import { DeleteProgress, EnvSchema, PropertyModule } from '../../../shared'
+import { SettingCards } from '../cards'
 import { ButtonOperators, DeleteContent, SettingDialogs, CountBlock, DialogVisible } from '../settings-common-comp'
-import { EllipsisText, NormalToken, StyledDesc } from '../style'
+import { EllipsisText, PropertyItemWrap, StyledDesc } from '../style'
 
 import { EnvEditForm } from './env-edit-form'
 
@@ -92,7 +93,7 @@ export const SettingsEnvironments = () => {
       const headerCount = item.headers.length
       const cookieCount = item.cookies.length
       return (
-        <Stack tokens={NormalToken} horizontal horizontalAlign="space-between">
+        <PropertyItemWrap>
           <EllipsisText>
             <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
             <CountBlock title="cookie" count={cookieCount} />
@@ -108,7 +109,7 @@ export const SettingsEnvironments = () => {
             clickDisableButton={onDisableEnv}
             clickRestoreButton={onRestoreEnv}
           />
-        </Stack>
+        </PropertyItemWrap>
       )
     },
     [onDisableEnv, onRestoreEnv, openDeleteModal, openEditModal],
@@ -165,6 +166,8 @@ export const SettingsEnvironments = () => {
       <Stack horizontalAlign="end">
         <PrimaryButton onClick={onClickCreate}>Create Environment</PrimaryButton>
       </Stack>
+      <SettingCards items={envItems} onRenderCell={onRenderCell} />
+
       <List items={envItems} onRenderCell={onRenderCell} />
       {competitor}
       {disabled}
