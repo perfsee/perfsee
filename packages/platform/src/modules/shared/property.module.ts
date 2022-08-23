@@ -206,6 +206,8 @@ export class PropertyModule extends EffectModule<State> {
     if (flag) {
       state.profiles = [...state.profiles, payload]
     }
+
+    state.profileMap.set(payload.id, payload)
   }
 
   @ImmerReducer()
@@ -221,6 +223,8 @@ export class PropertyModule extends EffectModule<State> {
     if (flag) {
       state.environments = [...state.environments, payload]
     }
+
+    state.envMap.set(payload.id, payload)
   }
 
   @ImmerReducer()
@@ -237,21 +241,26 @@ export class PropertyModule extends EffectModule<State> {
       return page
     })
     state.pages = isNew ? [...pages, payload] : pages
+
+    state.pageMap.set(payload.id, payload)
   }
 
   @ImmerReducer()
   removeProfile(state: Draft<State>, payload: number) {
     state.profiles = state.profiles.filter((profile) => profile.id !== payload)
+    state.profileMap.delete(payload)
   }
 
   @ImmerReducer()
   removePage(state: Draft<State>, payload: number) {
     state.pages = state.pages.filter((page) => page.id !== payload)
+    state.pageMap.delete(payload)
   }
 
   @ImmerReducer()
   removeEnvironment(state: Draft<State>, payload: number) {
     state.environments = state.environments.filter((env) => env.id !== payload)
+    state.envMap.delete(payload)
   }
 
   @ImmerReducer()

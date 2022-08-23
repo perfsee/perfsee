@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { List, Separator } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
+import { SettingCards } from '../cards'
 import { emptyRelation } from '../helper'
 import { DialogVisible, RightCreateButton, SettingDialogs, DeleteContent } from '../settings-common-comp'
 import { PageEditForm } from '../settings-pages/page-edit-form'
@@ -131,32 +131,13 @@ export const SettingsE2e = () => {
     )
   }, [e2eTest?.name, deleteProgress, onDeletePage, closeDeleteModal])
 
-  const { disableList, e2eList } = useMemo(() => {
-    const disableList: PageSchema[] = []
-    const e2eList: PageSchema[] = []
-    pages.forEach((p) => {
-      if (p.isE2e) {
-        if (p.disable) {
-          disableList.push(p)
-        } else {
-          e2eList.push(p)
-        }
-      }
-    })
-    return { disableList, e2eList }
-  }, [pages])
+  const e2ePages = useMemo(() => pages.filter((page) => page.isE2e), [pages])
 
   return (
     <div>
       <RightCreateButton text="Create a new E2E test" onClick={onCreateE2eTest} />
-      {!!pageRelationMap.size && <List items={e2eList} onRenderCell={onRenderCell} />}
-      {!!pageRelationMap.size && !!disableList.length && (
-        <>
-          <Separator />
-          <h3>Disabled Pages</h3>
-          <List items={disableList} onRenderCell={onRenderCell} />
-        </>
-      )}
+      {!!pageRelationMap.size && <SettingCards items={e2ePages} onRenderCell={onRenderCell} />}
+
       <SettingDialogs
         type={'E2E Test'}
         onCloseDialog={closeModal}
