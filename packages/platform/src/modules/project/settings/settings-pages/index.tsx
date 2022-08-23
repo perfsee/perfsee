@@ -14,24 +14,46 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { List, Separator, Stack } from '@fluentui/react'
+import { IContextualMenuProps, PrimaryButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useMemo, useState, FC, useEffect } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 
-import { ColorButton, TooltipWithEllipsis } from '@perfsee/components'
-import { SharedColors } from '@perfsee/dls'
+import { SearchSelect } from '@perfsee/components'
 
 import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
+import { SettingCards } from '../cards'
 import { emptyRelation } from '../helper'
-import { DeleteContent, SettingDialogs, RightCreateButton, DialogVisible } from '../settings-common-comp'
-import { NormalToken } from '../style'
+import { DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
 
 import { CompetitorPageEditForm } from './competitor-page-edit-form'
 import { PageEditForm } from './page-edit-form'
 import { PageListCell } from './page-list-cell'
 
+const PageTypeFilters = {
+  all: {
+    key: 'all',
+    text: 'All',
+    selector: () => true,
+  },
+  normal: {
+    key: 'normal',
+    text: 'Page',
+    selector: (page: PageSchema) => !page.isCompetitor,
+  },
+  competitor: {
+    key: 'competitor',
+    text: 'Competitor Page',
+    selector: (page: PageSchema) => page.isCompetitor,
+  },
+  disabled: {
+    key: 'disabled',
+    text: 'Disabled',
+    selector: (page: PageSchema) => page.disable,
+  },
+}
+
 export const SettingsPages = () => {
-  const [{ pages, hasCompetitorEnv, pageRelationMap, deleteProgress }, dispatcher] = useModule(PropertyModule, {
+  const [{ pages, pageRelationMap, hasCompetitorEnv, deleteProgress }, dispatcher] = useModule(PropertyModule, {
     selector: (state) => ({
       pages: state.pages,
       pageRelationMap: state.pageRelationMap,
@@ -47,6 +69,11 @@ export const SettingsPages = () => {
 
   const [page, setPage] = useState<Partial<PageSchema>>({})
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
+  const [filterKey, setFilterKey] = useState<keyof typeof PageTypeFilters>('all')
+
+  const onChangeFilterKey = useCallback((key: string) => {
+    setFilterKey(key as keyof typeof PageTypeFilters)
+  }, [])
 
   const onCreatePage = useCallback(() => {
     setPage({ isCompetitor: false })
@@ -57,6 +84,27 @@ export const SettingsPages = () => {
     setPage({ isCompetitor: true })
     setDialogVisible(DialogVisible.Edit)
   }, [])
+
+  const closeModal = useCallback(() => {
+    setDialogVisible(DialogVisible.Off)
+  }, [])
+
+  const closeDeleteModal = useCallback(() => {
+    closeModal()
+    dispatcher.setDeleteProgress({ type: 'page', progress: DeleteProgress.None })
+  }, [closeModal, dispatcher])
+
+  const onUpdatePage = useCallback(
+    (payload: UpdatePagePayload) => {
+      dispatcher.updateOrCreatePage(payload)
+      closeModal()
+    },
+    [closeModal, dispatcher],
+  )
+
+  const onDeletePage = useCallback(() => {
+    page.id && dispatcher.deletePage(page.id)
+  }, [dispatcher, page])
 
   const openEditModal = useCallback((p?: PageSchema) => {
     if (p) {
@@ -90,27 +138,6 @@ export const SettingsPages = () => {
     setDialogVisible(DialogVisible.Delete)
   }, [])
 
-  const closeModal = useCallback(() => {
-    setDialogVisible(DialogVisible.Off)
-  }, [])
-
-  const closeDeleteModal = useCallback(() => {
-    closeModal()
-    dispatcher.setDeleteProgress({ type: 'page', progress: DeleteProgress.None })
-  }, [closeModal, dispatcher])
-
-  const onUpdatePage = useCallback(
-    (payload: UpdatePagePayload) => {
-      dispatcher.updateOrCreatePage(payload)
-      closeModal()
-    },
-    [closeModal, dispatcher],
-  )
-
-  const onDeletePage = useCallback(() => {
-    page.id && dispatcher.deletePage(page.id)
-  }, [dispatcher, page])
-
   const onRenderCell = useCallback(
     (item?: PageSchema) => {
       if (!item) return null
@@ -127,27 +154,39 @@ export const SettingsPages = () => {
     [onClickDisable, onClickRestore, openDeleteModal, openEditModal],
   )
 
-  const { tempList, competitorList, disableList, pageList } = useMemo(() => {
-    const tempList: PageSchema[] = []
-    const competitorList: PageSchema[] = []
-    const disableList: PageSchema[] = []
-    const pageList: PageSchema[] = []
-    pages.forEach((p) => {
-      if (p.isE2e) {
-        return
-      }
-      if (p.disable) {
-        disableList.push(p)
-      } else if (p.isCompetitor) {
-        competitorList.push(p)
-      } else if (p.isTemp) {
-        tempList.push(p)
-      } else {
-        pageList.push(p)
-      }
-    })
-    return { tempList, competitorList, disableList, pageList }
-  }, [pages])
+  const menuProps = useMemo<IContextualMenuProps>(
+    () => ({
+      items: [
+        {
+          key: 'page',
+          text: 'page',
+          iconProps: { iconName: 'desktop' },
+          onClick: onCreatePage,
+        },
+        {
+          key: 'competitor',
+          text: 'competitor page',
+          iconProps: { iconName: 'competitor' },
+          disabled: !hasCompetitorEnv,
+          onClick: onCreateCompetitor,
+        },
+      ],
+    }),
+    [hasCompetitorEnv, onCreateCompetitor, onCreatePage],
+  )
+
+  const typeOptions = useMemo(() => Object.values(PageTypeFilters), [])
+
+  const pageList = useMemo(() => {
+    const allPages = pages.filter((page) => !page.isE2e && !page.isTemp)
+    const selector = PageTypeFilters[filterKey]?.selector
+
+    if (selector) {
+      return allPages.filter(selector)
+    }
+
+    return allPages
+  }, [filterKey, pages])
 
   const editContent = useMemo(() => {
     if (page.isCompetitor) {
@@ -171,20 +210,20 @@ export const SettingsPages = () => {
 
   return (
     <div>
-      <RightCreateButton text="Create Page" onClick={onCreatePage} />
-      {!!pageRelationMap.size && <List items={pageList} onRenderCell={onRenderCell} />}
-      <Separator />
-      <RightCreateButton
-        disabled={!hasCompetitorEnv}
-        text="Create Competitor Page"
-        tooltipContent="Create a competitor environment first."
-        onClick={onCreateCompetitor}
-      />
-      {!!pageRelationMap.size && <List items={competitorList} onRenderCell={onRenderCell} />}
-      <Separator />
-      <h3>Disabled Pages</h3>
-      {!!pageRelationMap.size && !!disableList.length && <List items={disableList} onRenderCell={onRenderCell} />}
-      <TempPageList list={tempList} clickDeleteButton={openDeleteModal} />
+      <Stack horizontal horizontalAlign="space-between">
+        <PrimaryButton text="Create" iconProps={{ iconName: 'plus' }} menuProps={menuProps} />
+        <Stack horizontal horizontalAlign="space-between" tokens={{ childrenGap: '12px' }}>
+          <SearchSelect
+            title="Type"
+            value={filterKey}
+            options={typeOptions}
+            selectOptions={typeOptions}
+            onChange={onChangeFilterKey}
+          />
+        </Stack>
+      </Stack>
+      {!!pageRelationMap.size && <SettingCards items={pageList} onRenderCell={onRenderCell} />}
+
       <SettingDialogs
         type={page.isCompetitor ? 'Competitor Page' : 'Page'}
         visible={visible}
@@ -194,41 +233,5 @@ export const SettingsPages = () => {
         isCreate={!page.id}
       />
     </div>
-  )
-}
-
-type TempPageProps = {
-  list: PageSchema[]
-  clickDeleteButton: (item: PageSchema) => void
-}
-const TempPageList: FC<TempPageProps> = ({ list, clickDeleteButton }) => {
-  const onClick = useCallback(
-    (item: PageSchema) => {
-      return () => clickDeleteButton(item)
-    },
-    [clickDeleteButton],
-  )
-
-  const onRenderTempCell = useCallback(
-    (item?: PageSchema) => {
-      if (!item) return null
-
-      return (
-        <Stack tokens={NormalToken} horizontal horizontalAlign="space-between" verticalAlign="center">
-          <TooltipWithEllipsis content={item.url}>{item.url}</TooltipWithEllipsis>
-          <ColorButton color={SharedColors.red10} onClick={onClick(item)}>
-            Delete
-          </ColorButton>
-        </Stack>
-      )
-    },
-    [onClick],
-  )
-  return (
-    <>
-      <Separator />
-      <h3>Temporary Pages</h3>
-      <List items={list} onRenderCell={onRenderTempCell} />
-    </>
   )
 }

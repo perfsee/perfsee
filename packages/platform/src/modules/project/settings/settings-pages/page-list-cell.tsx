@@ -14,14 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Icon, SharedColors, Stack, TooltipHost } from '@fluentui/react'
+import { CloseCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { useTheme } from '@emotion/react'
+import { TooltipHost } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
+import { compact } from 'lodash'
 import { FC } from 'react'
 
 import { PageSchema, PropertyModule } from '@perfsee/platform/modules/shared'
 
-import { ButtonOperators, CountBlock } from '../settings-common-comp'
-import { EllipsisText, NormalToken, StyledDesc } from '../style'
+import { ButtonOperators, PagePropertyItem, PagePropertyType } from '../settings-common-comp'
+import { EllipsisText } from '../style'
+
+import {
+  PageCard,
+  PageCardTop,
+  PageHeaderInfo,
+  PageHeaderLink,
+  PageHeaderWrap,
+  PageIcon,
+  PageInfos,
+  PageName,
+} from './style'
+import WebIcon from './web.svg'
 
 type Props = {
   page: PageSchema
@@ -33,8 +48,13 @@ type Props = {
 
 export const PageListCell: FC<Props> = (props) => {
   const { page } = props
-  const pageRelationMap = useModuleState(PropertyModule, {
-    selector: (state) => state.pageRelationMap,
+  const { pageRelationMap, pageMap, profileMap, envMap } = useModuleState(PropertyModule, {
+    selector: (state) => ({
+      pageRelationMap: state.pageRelationMap,
+      pageMap: state.pageMap,
+      profileMap: state.profileMap,
+      envMap: state.envMap,
+    }),
     dependencies: [],
   })
 
@@ -42,21 +62,29 @@ export const PageListCell: FC<Props> = (props) => {
   if (!relation) {
     return null
   }
-  const envCount = relation.envIds.length
-  const profileCount = relation.profileIds.length
-  const competitorCount = relation.competitorIds.length
+
+  const envs = compact(relation.envIds.map((envId) => envMap.get(envId)?.name))
+  const profiles = compact(relation.profileIds.map((profileId) => profileMap.get(profileId)?.name))
+  const competitors = compact(relation.competitorIds.map((pageId) => pageMap.get(pageId)?.name))
 
   return (
-    <Stack tokens={NormalToken} horizontal horizontalAlign="space-between" verticalAlign="center">
-      <EllipsisText>
-        <PageHeader warning={!envCount || !profileCount} item={page} disable={page.disable} />
-        <div>
-          <CountBlock title="Environment" count={envCount} />
-          <CountBlock title="Profile" count={profileCount} />
-          <CountBlock title="Competitor" count={competitorCount} />
-        </div>
-        <StyledDesc>{page.url}</StyledDesc>
-      </EllipsisText>
+    <PageCard>
+      <PageCardTop>
+        <PageIcon disable={page.disable} error={!envs.length || !profiles.length}>
+          {page.disable ? <StopOutlined /> : !envs.length || !profiles.length ? <CloseCircleOutlined /> : <WebIcon />}
+        </PageIcon>
+        <PageInfos>
+          <EllipsisText>
+            <PageHeader warning={!envs.length || !profiles.length} item={page} disable={page.disable} />
+            <div>
+              {/* <PagePropertyItem type={PagePropertyType.Link} value={page.url} /> */}
+              <PagePropertyItem type={PagePropertyType.Environment} value={envs.join(', ') || '-'} />
+              <PagePropertyItem type={PagePropertyType.Profile} value={profiles.join(', ') || '-'} />
+              <PagePropertyItem type={PagePropertyType.Competitor} value={competitors.join(', ')} />
+            </div>
+          </EllipsisText>
+        </PageInfos>
+      </PageCardTop>
       <ButtonOperators
         item={page}
         clickDeleteButton={props.openDeleteModal}
@@ -66,21 +94,28 @@ export const PageListCell: FC<Props> = (props) => {
         showDisableButton={!page.disable}
         showRestoreButton={page.disable}
       />
-    </Stack>
+    </PageCard>
   )
 }
 
 const PageHeader: FC<{ item: PageSchema; warning: boolean; disable: boolean }> = ({ item, warning, disable }) => {
+  const theme = useTheme()
+
   return (
-    <h4>
-      <span style={disable ? { color: SharedColors.gray10 } : warning ? { color: SharedColors.red10 } : undefined}>
-        {item.name}
-      </span>
-      {warning && (
-        <TooltipHost content="This page is unavailable because of missing environment or profile.">
-          <Icon styles={{ root: { color: SharedColors.red10, marginLeft: '4px' } }} iconName="warning" />
-        </TooltipHost>
-      )}
-    </h4>
+    <PageHeaderWrap>
+      <PageHeaderInfo>
+        <PageName>
+          <TooltipHost
+            styles={{
+              root: { color: disable ? theme.colors.disabled : warning ? theme.colors.error : theme.text.color },
+            }}
+            content={item.name}
+          >
+            {item.name}
+          </TooltipHost>
+        </PageName>
+      </PageHeaderInfo>
+      <PageHeaderLink>{item.url}</PageHeaderLink>
+    </PageHeaderWrap>
   )
 }
