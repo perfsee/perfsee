@@ -17,6 +17,7 @@ limitations under the License.
 import { readFileSync } from 'fs'
 
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin'
 import webpack from 'webpack'
 
 import { PerfseePlugin } from '@perfsee/webpack'
@@ -29,6 +30,14 @@ export function getFrontendConfig() {
   const pkg = getPackage('@perfsee/platform')
   return {
     resolve: { mainFields: ['esnext', 'browser', 'module', 'main'] },
+    module: {
+      rules: [
+        {
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
+        },
+      ],
+    },
     plugins: [
       new HtmlWebpackPlugin({
         favicon: pathToRoot('assets', 'favicon.ico'),
@@ -49,6 +58,19 @@ export function getFrontendConfig() {
         severOptions: {
           publicPath: getPackage('@perfsee/plugin-utils').relative('public'),
         },
+      }),
+      new MonacoWebpackPlugin({
+        languages: ['javascript', 'typescript'],
+        features: [
+          '!accessibilityHelp',
+          '!dnd',
+          '!colorPicker',
+          '!dropIntoEditor',
+          '!fontZoom',
+          '!gotoError',
+          '!gotoLine',
+          '!links',
+        ],
       }),
     ],
   } as webpack.Configuration

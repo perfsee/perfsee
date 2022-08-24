@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DialogFooter, PrimaryButton, DefaultButton, Stack } from '@fluentui/react'
+import { DialogFooter, PrimaryButton, DefaultButton, Stack, Label } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useState, useMemo } from 'react'
 
 import { MultiSelector, RequiredTextField, URLTextField } from '@perfsee/components'
+import { MonacoEditor } from '@perfsee/platform/modules/components'
 
 import { CompetitorMaxCount, PageRelation, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { disableSavePage, emptyRelation } from '../helper'
@@ -65,6 +66,10 @@ export const PageEditForm = (props: FromProps) => {
 
   const onEnvChange = useCallback((ids: number[]) => {
     setRelation((rel) => ({ ...rel, envIds: ids }))
+  }, [])
+
+  const onE2EScriptChange = useCallback((value: string) => {
+    setPage((page) => ({ ...page, e2eScript: value }))
   }, [])
 
   const onSaveButtonClick = useCallback(() => {
@@ -118,19 +123,15 @@ export const PageEditForm = (props: FromProps) => {
           required={false}
           label="Competitor Page"
           tips={`Every time the page performance got measured,
-          the competitor page will be measured at the same time for comparison.
-          The maximum number of competitors is ${CompetitorMaxCount}.`}
+            the competitor page will be measured at the same time for comparison.
+            The maximum number of competitors is ${CompetitorMaxCount}.`}
         />
       )}
       {isE2e && (
-        <RequiredTextField
-          label="Script"
-          multiline
-          data-type="e2eScript"
-          onChange={onChange}
-          maxLength={65535}
-          defaultValue={page.e2eScript ?? ''}
-        />
+        <>
+          <Label required>Script</Label>
+          <MonacoEditor value={page.e2eScript ?? ''} onChange={onE2EScriptChange} />
+        </>
       )}
 
       <DialogFooter>
