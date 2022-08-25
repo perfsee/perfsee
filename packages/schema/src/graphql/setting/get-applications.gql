@@ -1,0 +1,14 @@
+query getApplications($pagination: PaginationInput) {
+  applications(pagination: $pagination) {
+    pageInfo {
+      totalCount
+    }
+    edges {
+      node {
+        id
+        username
+        createdAt
+      }
+    }
+  }
+}

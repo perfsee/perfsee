@@ -1,0 +1,10 @@
+{
+  "name": "@perfsee/schema",
+  "version": "0.0.1",
+  "description": "graphql schema",
+  "main": "esm/index.js",
+  "private": true,
+  "sideEffects": false,
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0"
+}

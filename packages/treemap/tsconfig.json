@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "esm",
+    "target": "ES2020"
+  },
+  "include": ["./src/**/*", "./src/text/OpenSans-Regular.json"],
+  "references": []
+}

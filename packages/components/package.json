@@ -1,0 +1,33 @@
+{
+  "name": "@perfsee/components",
+  "version": "0.0.1",
+  "description": "frontend components for perfsee platform",
+  "private": true,
+  "main": "esm/index.js",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@fluentui/react": "^8.81.1",
+    "@fluentui/theme": "^2.6.7",
+    "@perfsee/dls": "^0.0.1",
+    "@perfsee/schema": "^0.0.1",
+    "@perfsee/shared": "^0.0.1",
+    "@perfsee/treemap": "^0.0.1",
+    "@mdx-js/react": "^2.1.2",
+    "@sigi/core": "^2.12.1",
+    "@sigi/react": "^2.12.2",
+    "dayjs": "^1.11.3",
+    "echarts": "^5.3.3",
+    "immer": "^9.0.15",
+    "lodash": "^4.17.21",
+    "query-string": "^7.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^5.2.1",
+    "react-router-dom": "^5.3.0",
+    "rxjs": "^7.5.6"
+  }
+}

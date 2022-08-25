@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "esm",
+    "target": "ES2020"
+  },
+  "include": ["./src/**/*", "./global.d.ts"],
+  "references": [{ "path": "../dls" }, { "path": "../schema" }, { "path": "../shared" }, { "path": "../treemap" }]
+}

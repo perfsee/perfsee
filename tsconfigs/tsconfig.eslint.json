@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true
+  },
+  "include": ["../.eslintrc.js", "../commitlint.config.js", "../ormconfig.js", "../rollup.config.js"]
+}

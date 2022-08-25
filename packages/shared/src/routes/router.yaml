@@ -1,0 +1,42 @@
+base: /
+paths:
+  notFound: /404
+  status: /status
+  license: /license
+  applications: /applications
+  accessToken: /access-token
+  me:
+    base: /me
+    paths:
+      editPassword: /edit-password
+      resetPassword: /reset-password
+  login: /login
+  importGithub: /import/github
+  register: /register
+  project:
+    base: /projects/:projectId
+    paths:
+      feature: /:feature?
+      home: /home
+      statistics:
+        base: /statistics
+        paths:
+          artifacts: /artifacts
+          snapshots: /snapshots
+      bundle:
+        base: /bundle
+        paths:
+          detail: /:bundleId
+          jobBundleContent: /:bundleId/bundle-content
+      lab:
+        base: /lab
+        paths:
+          report: /reports/:reportId/:tabName?
+      competitor:
+        base: /competitor
+        paths:
+          report: /reports/:tabName
+      source: /source
+      report: /report
+      settings: /settings/:settingName?
+      jobTrace: /jobs/:type/:entityId

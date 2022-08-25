@@ -1,0 +1,11 @@
+query authorizedApplications($projectId: ID!) {
+  project(id: $projectId) {
+    authorizedApplications {
+      app {
+        id
+        username
+      }
+      permissions
+    }
+  }
+}

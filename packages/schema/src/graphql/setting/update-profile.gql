@@ -1,0 +1,7 @@
+#import './fragments/profile-fields.gql'
+
+mutation updateProfile($projectId: ID!, $profileInput: UpdateProfileInput!) {
+  updateOrCreateProfile(projectId: $projectId, input: $profileInput) {
+    ...profileFields
+  }
+}

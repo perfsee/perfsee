@@ -1,0 +1,10 @@
+fragment pageFields on Page {
+	id
+	name
+	url
+	isCompetitor
+	isTemp
+	disable
+	isE2e
+	e2eScript
+}

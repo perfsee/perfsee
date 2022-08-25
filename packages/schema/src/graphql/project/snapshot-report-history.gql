@@ -1,0 +1,25 @@
+query snapshotReportHistory($projectId: ID!, $filter: SnapshotReportFilter!) {
+  project(id: $projectId) {
+    snapshotReports(filter: $filter) {
+      id
+      metrics
+      createdAt
+      page {
+        id
+        name
+      }
+      environment {
+        id
+        name
+      }
+      profile {
+        id
+        name
+      }
+      snapshot {
+        id
+        title
+      }
+    }
+  }
+}

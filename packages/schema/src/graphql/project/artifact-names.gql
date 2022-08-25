@@ -1,0 +1,5 @@
+query recentArtifactNames($projectId: ID!) {
+  project(id: $projectId) {
+    artifactNames
+  }
+}

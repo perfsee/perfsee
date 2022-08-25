@@ -1,0 +1,18 @@
+query vscodeArtifacts($projectId: ID!, $pagination: PaginationInput, $branch: String) {
+  project(id: $projectId) {
+    artifacts(pagination: $pagination, branch: $branch) {
+      edges {
+        node {
+          id
+          hash
+          branch
+        }
+      }
+      pageInfo {
+        totalCount
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+}

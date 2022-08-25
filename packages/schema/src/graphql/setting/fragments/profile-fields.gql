@@ -1,0 +1,7 @@
+fragment profileFields on Profile {
+    id
+    name
+    device
+    bandWidth
+    disable
+}

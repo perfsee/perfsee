@@ -1,0 +1,7 @@
+query reportMetrics($projectId: ID!, $reportId: Int!) {
+  project(id: $projectId) {
+    snapshotReport(reportId: $reportId) {
+      metrics
+    }
+  }
+}

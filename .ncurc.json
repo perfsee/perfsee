@@ -1,0 +1,22 @@
+{
+  "upgrade": true,
+  "packageFile": "**/package.json",
+  "packageManager": "yarn",
+  "reject": [
+    "@perfsee/*",
+    "@types/webpack",
+    "@types/vscode",
+    "@types/node",
+    "@types/node-fetch",
+    "react-router",
+    "react-router-dom",
+    "@types/react-router",
+    "@types/react-router-dom",
+    "scheduler",
+    "path-to-regexp",
+    "node-fetch",
+    "chalk",
+    "file-type",
+    "graphql"
+  ]
+}

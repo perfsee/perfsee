@@ -1,0 +1,12 @@
+mutation updateTimer($projectId: ID!, $input: UpdateTimerInput!) {
+  updateTimer(projectId: $projectId, input: $input) {
+    schedule
+    hour
+    timeOfDay
+    nextTriggerTime
+    monitorType
+    profileIds
+    pageIds
+    envIds
+  }
+}

@@ -1,0 +1,117 @@
+---
+bodyClass: bg-gray-100
+---
+
+<extends src="src/layouts/main.html">
+  <block name="template">
+    <table class="w-full">
+      <tr>
+        <td class="text-base text-left py-16 px-48 sm:px-24 leading-24">
+          <p class="text-gray-400 m-0 mb-16 text-xl">Bundle</p>
+          <p class="text-3xl sm:leading-32 text-black font-semibold m-0 mb-16">#[[- bundleId ]]</p>
+          <p class="text-gray-500 m-0 mb-32">[[- statusMessage ]]</p>
+
+          <table class="w-full">
+            <tr>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Branch:</p>
+                <p class="text-gray-600 m-0 mb-16">[[- branch ]]</p>
+              </td>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Commit:</p>
+                <p class="text-gray-600 m-0 mb-16"><a href="[[- commitLink ]]"
+                    class="no-underline border-0 border-b border-solid border-gray-300 text-gray-600">[[-
+                    commitHash.substring(0, 8) ]]</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Date:</p>
+                <p class="text-gray-600 m-0 mb-16">[[- date.toISOString() ]]</p>
+              </td>
+            </tr>
+          </table>
+
+          <table class="w-full mt-16 mb-32">
+            <tr>
+              <td align="center">
+                <a href="[[- reportLink ]]"
+                  class="inline-block py-16 px-24 text-sm leading-none no-underline text-white font-semibold rounded bg-blue-600 hover:bg-blue-800">
+                  <!--[if mso]><i style="letter-spacing: 27px; mso-font-width: -100%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
+                  <span style="mso-text-raise: 13pt;">View in Perfsee</span>
+                  <!--[if mso]><i style="letter-spacing: 27px; mso-font-width: -100%;">&nbsp;</i><![endif]-->
+                </a>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+    [[ entryPoints.slice(0, 3).forEach((entryPoint) => { ]]
+
+    <table class="w-full bg-gray-100">
+      <tr>
+        <td class="text-base text-left px-48 sm:px-24 leading-48">
+          <p class="m-0"><a href="[[- entryPoint.reportLink ]]"
+              class="text-base text-gray-500 no-underline border-0 border-b border-solid border-gray-300">📍 Entry
+              Point: <span class="font-semibold">[[- entryPoint.name ]]</span></a></p>
+        </td>
+      </tr>
+    </table>
+
+    <table class="w-full">
+      <tr>
+        <td class="text-base text-left py-16 px-48 sm:px-24 leading-24">
+          <table class="w-full">
+            <tr>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Bundle Size:</p>
+                <p class="text-gray-600 m-0 mb-16">[[- sizeText(entryPoint.bundleSize, entryPoint.baselineBundleSize) ]]
+                </p>
+              </td>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Initial Size:</p>
+                <p class="text-gray-600 m-0 mb-16">[[- sizeText(entryPoint.initialSize, entryPoint.baselineInitialSize)
+                  ]]</p>
+              </td>
+            </tr>
+          </table>
+
+          [[ if (!!entryPoint.warnings) { ]]
+
+          <table class="w-full">
+            <tr>
+              <td valign="top" class="w-full pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Warnings:</p>
+
+                [[ entryPoint.warnings.forEach((warning, index) => { ]]
+
+                <p class="text-gray-600 m-0 mb-8">[[- index + 1 ]]. [[- warning ]]</p>
+
+                [[ }) ]]
+              </td>
+            </tr>
+          </table>
+
+          [[ } ]]
+        </td>
+      </tr>
+    </table>
+
+    [[ }) ]]
+
+    [[ if (entryPoints.length > 3) { ]]
+
+    <table class="w-full">
+      <tr>
+        <td class="text-base text-left py-16 px-48 sm:px-24 leading-24">
+          ... and more
+        </td>
+      </tr>
+    </table>
+
+    [[ } ]]
+  </block>
+</extends>

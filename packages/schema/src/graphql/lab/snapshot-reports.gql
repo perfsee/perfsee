@@ -1,0 +1,27 @@
+query snapshotReports($projectId: ID!, $snapshotId: Int!) {
+  project(id: $projectId) {
+    snapshot(snapshotId: $snapshotId) {
+      snapshotReports {
+        id
+        failedReason
+        status
+        performanceScore
+        page {
+          id
+          name
+          isCompetitor
+          isE2e
+        }
+        profile {
+          id
+          name
+        }
+        environment {
+          id
+          name
+        }
+        flameChartStorageKey
+      }
+    }
+  }
+}

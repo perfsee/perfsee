@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2020",
+    "target": "ES2020",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "rootDir": "."
+  },
+  "include": ["."],
+  "references": [
+    {
+      "path": "../packages/plugins/webpack"
+    },
+    {
+      "path": "../examples"
+    }
+  ]
+}

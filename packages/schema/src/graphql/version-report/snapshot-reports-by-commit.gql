@@ -1,0 +1,29 @@
+query snapshotReportsByCommit($projectId: ID!, $hash: String!) {
+  project(id: $projectId) {
+   snapshotReports(filter: { hash: $hash }) {
+      id
+      failedReason
+      status
+      host
+      lighthouseStorageKey
+      performanceScore
+      createdAt
+      metrics
+      page {
+        id
+        name
+        isCompetitor
+        url
+      }
+      profile {
+        id
+        name
+        device
+      }
+      environment {
+        id
+        name
+      }
+    }
+  }
+}

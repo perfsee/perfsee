@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "ES2020",
+    "module": "CommonJS"
+  },
+  "references": [{ "path": "../../bundle-analyzer" }, { "path": "../../utils" }],
+  "include": ["./src/**/*"]
+}

@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "commonjs",
+    "composite": true,
+    "outDir": "dist"
+  },
+  "include": ["."],
+  "references": [
+    {
+      "path": "../packages/plugins/rollup"
+    },
+    {
+      "path": "../packages/plugins/esbuild"
+    },
+    {
+      "path": "../packages/plugins/webpack"
+    }
+  ]
+}

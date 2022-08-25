@@ -1,0 +1,272 @@
+{
+  "name": "perfsee-vscode",
+  "displayName": "Perfsee",
+  "description": "Perfsee official vscode extension.",
+  "icon": "images/logo.png",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "private": true,
+  "version": "0.0.1",
+  "publisher": "perfsee",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "perfsee.open",
+        "title": "Open frame key on text editor."
+      },
+      {
+        "command": "perfsee.openIssue",
+        "title": "Open issue on tree view."
+      },
+      {
+        "command": "perfsee.refresh",
+        "title": "Clear cache and rescan projects.",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "perfsee.togglePerformance",
+        "title": "Toggle performance information after the line in the text editor."
+      },
+      {
+        "command": "perfsee.changeVersion",
+        "title": "Change project version"
+      },
+      {
+        "command": "perfsee.changeRoot",
+        "title": "Change project root"
+      },
+      {
+        "command": "perfsee.login",
+        "title": "Login to Perfsee Platform",
+        "icon": "$(account)"
+      },
+      {
+        "command": "perfsee.openStatsNode",
+        "title": "Open stats node",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "perfsee.openFlamechart",
+        "title": "Open in flamechart",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "perfsee.hiddenProfile",
+        "title": "Hidden this profile.",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "perfsee.showProfile",
+        "title": "Restore hidden this profile.",
+        "icon": "$(eye-closed)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "perfsee",
+          "title": "Perfsee",
+          "icon": "images/logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "perfsee": [
+        {
+          "id": "perfseeProjects",
+          "name": "Projects"
+        },
+        {
+          "id": "perfseeIssues",
+          "name": "Issues"
+        },
+        {
+          "id": "perfseePerformance",
+          "name": "Performance"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "perfseeProjects",
+        "contents": "Loading...",
+        "when": "!perfsee:projectsViewsWelcome"
+      },
+      {
+        "view": "perfseeProjects",
+        "contents": "Please Login, click the button below and complete the login in the browser window.\n[Login](command:perfsee.login)\nTo learn more about how to use perfsee [read our docs](https://perfsee.com/#TODO:LINK).",
+        "when": "perfsee:projectsViewsWelcome == login"
+      },
+      {
+        "view": "perfseeProjects",
+        "contents": "No Project in worksapce.",
+        "when": "perfsee:projectsViewsWelcome == noProject"
+      },
+      {
+        "view": "perfseeIssues",
+        "contents": "No Issues in worksapce.",
+        "when": "!perfsee:issuesViewsWelcome"
+      },
+      {
+        "view": "perfseeIssues",
+        "contents": "Please Login, click the button below and complete the login in the browser window.\n[Login](command:perfsee.login)\nTo learn more about how to use perfsee [read our docs](https://perfsee.com/#TODO:LINK).",
+        "when": "perfsee:projectsViewsWelcome == login"
+      },
+      {
+        "view": "perfseeIssues",
+        "contents": "No Project in worksapce.",
+        "when": "perfsee:issuesViewsWelcome == noProject"
+      },
+      {
+        "view": "perfseePerformance",
+        "contents": "No Performance Information.",
+        "when": "!perfsee:performanceViewsWelcome"
+      },
+      {
+        "view": "perfseePerformance",
+        "contents": "No Project in worksapce.",
+        "when": "perfsee:performanceViewsWelcome == noProject"
+      },
+      {
+        "view": "perfseePerformance",
+        "contents": "Please Login, click the button below and complete the login in the browser window.\n[Login](command:perfsee.login)\nTo learn more about how to use perfsee [read our docs](https://perfsee.com/#TODO:LINK).",
+        "when": "perfsee:performanceViewsWelcome == login"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "perfsee.refresh",
+          "when": "view == perfseeProjects || view == perfseeIssues || view == perfseePerformance",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "perfsee.openFlamechart",
+          "when": "view == perfseeProjects && viewItem == 'profile' || viewItem == 'filtered-profile' || view == perfseeIssues && viewItem == 'issue' || view == perfseePerformance && viewItem == 'profile-call-detail'",
+          "group": "inline"
+        },
+        {
+          "command": "perfsee.openStatsNode",
+          "when": "view == perfseePerformance && viewItem == 'profile-stats-node(file)'",
+          "group": "inline"
+        },
+        {
+          "command": "perfsee.hiddenProfile",
+          "when": "view == perfseeProjects && viewItem == 'profile'",
+          "group": "inline"
+        },
+        {
+          "command": "perfsee.showProfile",
+          "when": "view == perfseeProjects && viewItem == 'filtered-profile'",
+          "group": "inline"
+        }
+      ]
+    },
+    "colors": [
+      {
+        "id": "perfsee.trailingLineBackgroundColor",
+        "description": "Specifies the background color of the annotation following lines.",
+        "defaults": {
+          "dark": "#00000000",
+          "light": "#00000000",
+          "highContrast": "#00000000"
+        }
+      },
+      {
+        "id": "perfsee.trailingLineForegroundColor",
+        "description": "Specifies the foreground color of the annotation following lines.",
+        "defaults": {
+          "dark": "#99999999",
+          "light": "#99999999",
+          "highContrast": "#999999FF"
+        }
+      },
+      {
+        "id": "perfsee.slower",
+        "description": "",
+        "defaults": {
+          "dark": "#cc3333",
+          "light": "#ad1f1f",
+          "highContrast": "#ad1f1f"
+        }
+      },
+      {
+        "id": "perfsee.slow",
+        "description": "",
+        "defaults": {
+          "dark": "#cc8033",
+          "light": "#ad661f",
+          "highContrast": "#ad661f"
+        }
+      },
+      {
+        "id": "perfsee.medium",
+        "description": "",
+        "defaults": {
+          "dark": "#cccc33",
+          "light": "#adad1f",
+          "highContrast": "#adad1f"
+        }
+      }
+    ],
+    "configuration": {
+      "title": "Perfsee",
+      "properties": {
+        "perfsee.project.version": {
+          "type": "object",
+          "default": {},
+          "description": "Version configuration for projects."
+        },
+        "perfsee.project.root": {
+          "type": "object",
+          "default": {},
+          "description": "Root path configuration for projects."
+        },
+        "perfsee.url": {
+          "type": "string",
+          "default": "https://perfsee.com",
+          "description": "Perfsee server URL."
+        },
+        "perfsee.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable debug logging."
+        },
+        "perfsee.performance": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show performance information after the line in the text editor."
+        },
+        "perfsee.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto refresh project information. (need reload)"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@perfsee/flamechart": "^0.0.1",
+    "@perfsee/shared": "^0.0.1",
+    "@perfsee/dls": "^0.0.1",
+    "@perfsee/schema": "^0.0.1",
+    "@perfsee/utils": "^0.0.1",
+    "@types/diff": "^5.0.2",
+    "@types/vscode": "^1.50.0",
+    "diff": "^5.1.0",
+    "graphql": "^15.6.1",
+    "isomorphic-git": "^1.18.3",
+    "lodash": "^4.17.21",
+    "node-fetch": "^2.6.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

@@ -1,0 +1,28 @@
+query vscodeSnapshotReports($projectId: ID!, $snapshotId: Int!) {
+  project(id: $projectId) {
+    snapshot(snapshotId: $snapshotId) {
+      snapshotReports {
+        id
+        failedReason
+        status
+        performanceScore
+        page {
+          id
+          name
+        }
+        profile {
+          id
+          name
+        }
+        environment {
+          id
+          name
+        }
+        snapshot {
+          id
+        }
+        flameChartStorageKey
+      }
+    }
+  }
+}

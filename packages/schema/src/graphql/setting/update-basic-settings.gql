@@ -1,0 +1,17 @@
+#import '../project/fragments/project-fields.gql'
+
+mutation updateBasicSettings($projectId: ID!, $settingsInput: UpdateSettingInput!, $projectInput: UpdateProjectInput!) {
+  updateProjectSettings(projectId: $projectId, input: $settingsInput) {
+    labMessageSource
+    bundleMessageFilter
+    bundleMessageSource
+    bundleMessageBranches
+    messageTargetType
+    messageTarget {
+      userEmails
+    }
+  }
+  updateProject(projectId: $projectId, input: $projectInput) {
+    ...projectFields
+  }
+}

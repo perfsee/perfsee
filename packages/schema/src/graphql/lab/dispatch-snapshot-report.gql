@@ -1,0 +1,3 @@
+mutation dispatchSnapshotReport($projectId: ID!, $reportId: Int!) {
+  dispatchSnapshotReport(projectId: $projectId, snapshotReportId: $reportId)
+}

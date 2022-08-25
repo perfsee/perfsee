@@ -1,0 +1,3 @@
+mutation deleteAccessToken($name: String!){
+  deleteToken(name: $name)
+}

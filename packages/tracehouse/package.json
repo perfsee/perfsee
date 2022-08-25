@@ -1,0 +1,14 @@
+{
+  "name": "@perfsee/tracehouse",
+  "version": "0.0.1",
+  "description": "Chrome trace event parser",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "keywords": ["perfsee", "Lighthouse", "Chrome"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "devDependencies": {
+    "lighthouse": "^9.6.3"
+  }
+}

@@ -1,0 +1,1311 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""artifact contains the information of all bundled static files."""
+type Artifact {
+  id: Int!
+
+  """artifact name"""
+  name: String!
+
+  """git commit hash"""
+  hash: String!
+
+  """git branch"""
+  branch: String!
+
+  """user uploaded the build"""
+  issuer: String!
+
+  """the build file key in storage"""
+  buildKey: String!
+
+  """status of bundle analyzing progress"""
+  status: BundleJobStatus!
+
+  """reason for failed analyzing"""
+  failedReason: String
+
+  """the report file key in storage"""
+  reportKey: String
+
+  """the content file key in storage"""
+  contentKey: String
+
+  """bundle audit score"""
+  score: Int
+
+  """time spent to analyze the build"""
+  duration: Int!
+
+  """version of the tool for uploading the build"""
+  appVersion: String!
+
+  """toolkit used to build the bundle"""
+  toolkit: String
+
+  """artifact created timestamp"""
+  createdAt: DateTime!
+
+  """artifact updated timestamp"""
+  updatedAt: DateTime!
+
+  """baseline artifact"""
+  baseline: Artifact
+
+  """all entry points of given artifact"""
+  entrypoints: [ArtifactEntrypoint!]
+}
+
+enum BundleJobStatus {
+  Pending
+  Running
+  Passed
+  Failed
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type FileSize {
+  raw: Int!
+  gzip: Int!
+  brotli: Int!
+}
+
+"""brief history data of artifact per entrypoint"""
+type ArtifactEntrypoint {
+  """git branch"""
+  branch: String!
+
+  """git commit hash"""
+  hash: String!
+
+  """artifact name"""
+  artifactName: String!
+
+  """entrypoint name"""
+  entrypoint: String!
+
+  """total size of the entrypoint"""
+  size: FileSize!
+
+  """total initial size of the entrypoint"""
+  initialSize: FileSize!
+
+  """total size of the baseline entrypoint"""
+  baselineSize: FileSize
+
+  """total initial size of the baseline entrypoint"""
+  baselineInitialSize: FileSize
+
+  """bundle audit score"""
+  score: Int
+
+  """artifact created timestamp"""
+  createdAt: DateTime!
+  artifactId: Int!
+}
+
+type Project {
+  """
+  project unique id, contains only lowercase letters "a-z", numbers "0-9", hyphen "-", underscore "_"
+  """
+  id: ID!
+
+  """repository namespace"""
+  namespace: String!
+
+  """repository name"""
+  name: String!
+
+  """repository remote host"""
+  host: GitHost!
+
+  """artifact baseline branch name"""
+  artifactBaselineBranch: String!
+
+  """is the project public to everyone"""
+  isPublic: Boolean!
+
+  """project created timestamp"""
+  createdAt: DateTime!
+
+  """owners of this project"""
+  owners: [User!]!
+
+  """get artifact by id"""
+  artifact(
+    """artifact id"""
+    id: Int!
+  ): Artifact!
+  artifactNames: [String!]!
+
+  """get artifacts by git commit hash"""
+  artifactByCommit(
+    """git commit hash to match"""
+    hash: String!
+  ): Artifact
+
+  """paginated artifact of given project"""
+  artifacts(
+    pagination: PaginationInput = {first: 10}
+
+    """git branch filter"""
+    branch: String
+
+    """name filter"""
+    name: String
+  ): PaginatedArtifacts!
+
+  """all artifact historical data"""
+  artifactHistory(
+    from: DateTime
+    to: DateTime
+
+    """max length of records returned"""
+    length: Int
+
+    """branch filter"""
+    branch: String = "master"
+
+    """name filter"""
+    name: String
+  ): [ArtifactEntrypoint!]!
+  artifactCount: Int!
+  recentBranches: [String!]!
+
+  """get app versions by project"""
+  appVersions(
+    from: DateTime
+    to: DateTime
+
+    """max length of records returned"""
+    length: Int
+  ): [AppVersion!]!
+  job(jobType: JobType!, entityId: Int!): Job!
+
+  """time usage information of project"""
+  timeUsage(input: TimeUsageInput!): TimeUsage!
+
+  """get project settings"""
+  setting: Setting!
+
+  """snapshot detail"""
+  snapshot(snapshotId: Int!): Snapshot!
+
+  """paginated snapshots"""
+  snapshots(
+    pagination: PaginationInput = {first: 10}
+    trigger: SnapshotTrigger
+
+    """Git commit hash filter"""
+    hash: String
+
+    """only returns snapshots that has commit hash related"""
+    hashRequired: Boolean
+  ): PaginatedSnapshots!
+  snapshotCount: Int!
+
+  """All pages created in project"""
+  pages: [Page!]!
+
+  """pageId with profileIds, envIds, competitorIds"""
+  pageRelations: [PageRelation!]!
+  snapshotReport(reportId: Int!): SnapshotReport!
+
+  """get snapshot reports with filters"""
+  snapshotReports(filter: SnapshotReportFilter!): [SnapshotReport!]!
+
+  """all environments in the project"""
+  environments: [Environment!]!
+
+  """all profiles in the project"""
+  profiles: [Profile!]!
+
+  """paginated source issues"""
+  sourceIssues(
+    pagination: PaginationInput = {first: 10}
+
+    """git commit hash"""
+    hash: String
+  ): PaginatedSourceIssues!
+
+  """all versions that have source issues in recent 3 months"""
+  issueCommits: [String!]!
+  sourceIssueById(issueId: Int!): SourceIssue
+
+  """get project schedule task setting"""
+  timer: Timer
+  authorizedApplications: [ProjectAuthorizedApplicationsNode!]!
+}
+
+enum GitHost {
+  Github
+  Gitlab
+}
+
+input PaginationInput {
+  """returns the first n elements from the list."""
+  first: Int = 10
+
+  """ignore the first n elements from the list."""
+  skip: Int = 0
+
+  """returns the elements in the list that come after the specified cursor."""
+  after: String
+}
+
+"""available job types"""
+enum JobType {
+  All
+  BundleAnalyze
+  LabAnalyze
+  E2EAnalyze
+  SourceAnalyze
+}
+
+input TimeUsageInput {
+  """The start of the time range"""
+  from: DateTime!
+
+  """The end of the time range"""
+  to: DateTime!
+}
+
+enum SnapshotTrigger {
+  Api
+  Scheduler
+}
+
+input SnapshotReportFilter {
+  """
+  only return result with id in given snapshot report ids. If `ids` is set, all other filter options will be ignored
+  """
+  ids: [Int!]
+  envId: Int
+  profileId: Int
+  pageId: Int
+  from: DateTime
+  to: DateTime
+  length: Int
+  withCompetitor: Boolean
+  hash: String
+}
+
+"""a group of page performance reports"""
+type Snapshot {
+  id: Int!
+
+  """snapshot created timestamp"""
+  createdAt: DateTime!
+
+  """snapshot job start time"""
+  startedAt: DateTime
+
+  """snapshot job status"""
+  status: SnapshotStatus!
+
+  """snapshot job failure reason"""
+  failedReason: String
+
+  """snapshot creator"""
+  issuer: String
+
+  """git commit hash"""
+  hash: String
+
+  """snapshot title"""
+  title: String
+
+  """by which the snapshot triggered"""
+  trigger: SnapshotTrigger!
+
+  """get reports with given snapshot id"""
+  snapshotReports: [SnapshotReport!]!
+  snapshotReport(reportId: Int!): SnapshotReport!
+}
+
+enum SnapshotStatus {
+  Pending
+  Running
+  Completed
+  Scheduled
+  Failed
+}
+
+"""page performance report"""
+type SnapshotReport {
+  id: Int!
+
+  """report created timestamp"""
+  createdAt: DateTime!
+
+  """job status"""
+  status: SnapshotStatus!
+
+  """
+  lighthouse result key in storage, you may fetch the result with this key from storage service
+  """
+  lighthouseStorageKey: String
+
+  """
+  screen cast key in storage, you may fetch screen cast with this key from storage service
+  """
+  screencastStorageKey: String
+
+  """
+  js coverage data key in storage, you can fetch result with this key at storage service
+  """
+  jsCoverageStorageKey: String
+
+  """
+  chrome track events key in storage, you may fetch track events with this key from storage service
+  """
+  traceEventsStorageKey: String
+
+  """
+  flame chart raw data key in storage, you may fetch flame chart detail with this key from storage service
+  """
+  flameChartStorageKey: String
+
+  """
+  source coverage data key in storage, you may fetch flame chart detail with this key from storage service
+  """
+  sourceCoverageStorageKey: String
+
+  """key metrics data"""
+  metrics: JSON!
+
+  """failure reason if report job failed"""
+  failedReason: String
+
+  """lighthouse performance score"""
+  performanceScore: Int
+
+  """only exists in dynamic host jobs"""
+  host: String
+
+  """the environment this report used"""
+  environment: Environment!
+
+  """the profile this report used"""
+  profile: Profile!
+
+  """the page this report used"""
+  page: Page!
+
+  """the snapshot of this report"""
+  snapshot: Snapshot!
+
+  """found performance issues"""
+  issues: [SourceIssue!]!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+type User {
+  username: String!
+  email: String!
+  firstName: String
+  lastName: String
+  avatarUrl: String
+
+  """issue created timestamp"""
+  createdAt: DateTime!
+
+  """is application"""
+  isApp: Boolean!
+  isAdmin: Boolean!
+  starredProjects: [ID!]!
+  connectedAccounts: [Account!]!
+  accessTokens: [AccessToken!]!
+}
+
+type Application {
+  username: String!
+
+  """issue created timestamp"""
+  createdAt: DateTime!
+  id: Int!
+
+  """projects that application can access"""
+  authorizedProjects: [ApplicationAuthorizedProjectsNode!]!
+}
+
+type ApplicationSetting {
+  registrationToken: String!
+  jobZones: [String!]!
+  defaultJobZone: String!
+  updatedAt: DateTime!
+}
+
+"""project page asset"""
+type Page {
+  id: Int!
+
+  """page alias name"""
+  name: String!
+
+  """page url"""
+  url: String!
+
+  """is competitor page"""
+  isCompetitor: Boolean!
+
+  """is temporary page"""
+  isTemp: Boolean!
+
+  """is e2e test"""
+  isE2e: Boolean!
+
+  """e2e script"""
+  e2eScript: String
+
+  """Disable scanning of this page"""
+  disable: Boolean!
+}
+
+"""device information used to measure pages"""
+type Profile {
+  id: Int!
+
+  """profile alias name"""
+  name: String!
+
+  """simulator device name"""
+  device: String!
+
+  """bandwidth limit"""
+  bandWidth: String!
+
+  """Disable scanning of this profile"""
+  disable: Boolean!
+}
+
+"""environment used to measure pages"""
+type Environment {
+  id: Int!
+
+  """environment alias name"""
+  name: String!
+
+  """the geo location where the related pages should be audited at"""
+  zone: String!
+
+  """extra cookies add to requests"""
+  cookies: JSON!
+
+  """extra headers add to requests"""
+  headers: JSON!
+
+  """
+  tells whether this environment could be used in temporary pages and competitor pages auditing
+  """
+  isCompetitor: Boolean!
+
+  """Filtering environments when executing timed reminder tasks"""
+  needReminder: Boolean!
+
+  """Disable scanning of this environment"""
+  disable: Boolean!
+}
+
+"""message target setting"""
+type MessageTarget {
+  userEmails: [String!]!
+}
+
+"""project setting"""
+type Setting {
+  """what kind of source of bundle message would be sent"""
+  bundleMessageSource: BundleMessageSource!
+
+  """what kind of bundle message would be sent"""
+  bundleMessageFilter: BundleMessageFilter!
+
+  """branches where message should be sent if"""
+  bundleMessageBranches: [String!]!
+
+  """what kind of lab message would be sent"""
+  labMessageSource: LabMessageSource!
+
+  """what kind of chat will receive message"""
+  messageTargetType: MessageTargetType!
+
+  """who will receive message if target type is specified"""
+  messageTarget: MessageTarget!
+}
+
+enum BundleMessageSource {
+  All
+  Branch
+}
+
+enum BundleMessageFilter {
+  All
+  Warning
+  None
+}
+
+enum LabMessageSource {
+  All
+  Warning
+  None
+}
+
+enum MessageTargetType {
+  Issuer
+  Specified
+}
+
+"""snapshot measuring cornjob"""
+type Timer {
+  """schedule type"""
+  schedule: ScheduleType!
+
+  """Every x hour"""
+  hour: Int
+
+  """Time of day"""
+  timeOfDay: Int
+
+  """next evaluation time of this schedule task"""
+  nextTriggerTime: DateTime!
+
+  """related page ids"""
+  pageIds: JSON!
+
+  """related profile ids"""
+  profileIds: JSON!
+
+  """related environment ids"""
+  envIds: JSON!
+
+  """
+  whether only specific pages/profiles/envs will be measured when task triggered
+  """
+  monitorType: ScheduleMonitorType!
+}
+
+enum ScheduleType {
+  Off
+  Daily
+  Hourly
+  EveryXHour
+}
+
+enum ScheduleMonitorType {
+  All
+  Specified
+}
+
+"""source code performance issue found"""
+type SourceIssue {
+  id: Int!
+
+  """git commit hash"""
+  hash: String!
+
+  """source snapshot report id"""
+  snapshotReportId: Int!
+
+  """issue code"""
+  code: String!
+
+  """issue frame key, formatted in functionName:FilePath:line:col"""
+  frameKey: String!
+
+  """extra information to description given issue"""
+  info: JSON!
+
+  """issue created timestamp"""
+  createdAt: DateTime!
+  snapshotReport: SnapshotReport!
+}
+
+"""project scope jobs binding with artifacts/lab/source tasks"""
+type Job {
+  jobType: JobType!
+  createdAt: DateTime!
+  startedAt: DateTime
+  endedAt: DateTime
+  duration: Int
+  status: JobStatus!
+  trace(after: Int = -1): JobTrace!
+}
+
+enum JobStatus {
+  Pending
+  Running
+  Done
+  Canceled
+  Failed
+}
+
+type AccessToken {
+  name: String!
+  createdAt: DateTime!
+  lastUsedAt: DateTime!
+}
+
+"""Application version information"""
+type AppVersion {
+  id: Int!
+
+  """commit hash"""
+  hash: String!
+
+  """git branch"""
+  branch: String
+
+  """git tag"""
+  version: String
+
+  """version release exempted"""
+  exempted: Boolean!
+
+  """reason for exempting release"""
+  exemptedReason: String
+
+  """created time"""
+  createdAt: DateTime!
+}
+
+"""runner register tokens and infomations"""
+type Runner {
+  id: ID!
+  name: String!
+
+  """specific job type the runner will consume"""
+  jobType: JobType!
+
+  """last runner contacted timestamp"""
+  contactedAt: DateTime!
+
+  """whether runner is in active status"""
+  active: Boolean!
+
+  """runner version"""
+  version: String!
+
+  """the version of node runner running on"""
+  nodeVersion: String!
+
+  """runner platform"""
+  platform: String!
+
+  """runner arch"""
+  arch: String!
+
+  """zone info of runner"""
+  zone: String!
+
+  """extra runner infomations from register"""
+  extra: JSON
+
+  """created timestamp"""
+  createdAt: DateTime!
+  runningJobs: [Job!]!
+  runningJobCount: Int!
+  maxJobConcurrency: Int!
+  online: Boolean!
+}
+
+"""runner script"""
+type RunnerScript {
+  """runner script version, follow the semantic versioning spec"""
+  version: String!
+  description: String
+  sha256: String!
+  jobType: JobType!
+
+  """runner script zipped package key in storage"""
+  storageKey: String!
+
+  """size in bytes"""
+  size: Int!
+
+  """created timestamp"""
+  createdAt: DateTime!
+  enable: Boolean!
+}
+
+type PageInfo {
+  totalCount: Int!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type SearchUserResult {
+  username: String!
+  email: String!
+  avatarUrl: String!
+}
+
+type Account {
+  provider: ExternalAccount!
+  externUsername: String
+}
+
+enum ExternalAccount {
+  github
+}
+
+type ProjectEdge {
+  cursor: String!
+  node: Project!
+}
+
+type PaginatedProjects {
+  edges: [ProjectEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectIdVerificationResult {
+  ok: Boolean!
+  error: String
+}
+
+type GithubRepository {
+  id: Int!
+  name: String!
+  full_name: String!
+  private: Boolean!
+  default_branch: String!
+}
+
+type GithubRepositoryEdge {
+  cursor: String!
+  node: GithubRepository!
+}
+
+type PaginatedGithubRepositories {
+  edges: [GithubRepositoryEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GithubAccount {
+  login: String!
+  avatar_url: String!
+}
+
+type GithubInstallation {
+  id: Int!
+  account: GithubAccount!
+}
+
+type GithubInstallationEdge {
+  cursor: String!
+  node: GithubInstallation!
+}
+
+type PaginatedGithubInstallations {
+  edges: [GithubInstallationEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Zone {
+  """all available geo locations"""
+  all: [String!]!
+
+  """default geo location"""
+  default: String!
+}
+
+type RunnerEdge {
+  cursor: String!
+  node: Runner!
+}
+
+type PaginatedRunners {
+  edges: [RunnerEdge!]!
+  pageInfo: PageInfo!
+}
+
+type JobAggregation {
+  jobType: JobType!
+  count: Int!
+}
+
+type CategoryDateTimeUsage {
+  jobType: JobType!
+  data: JSON!
+}
+
+type TimeUsage {
+  """The total time usage in ms"""
+  total: Int!
+  detail: [CategoryDateTimeUsage!]!
+}
+
+type JobTrace {
+  hasMore: Boolean!
+  logs: JSON!
+  endCursor: Int!
+}
+
+type ArtifactEdge {
+  cursor: String!
+  node: Artifact!
+}
+
+type PaginatedArtifacts {
+  edges: [ArtifactEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PageRelation {
+  """page id"""
+  pageId: Int!
+
+  """related profile ids"""
+  profileIds: [Int!]!
+
+  """related environment ids"""
+  envIds: [Int!]!
+
+  """related competitor page ids"""
+  competitorIds: [Int!]!
+}
+
+type ConnectionType {
+  id: String!
+  title: String!
+  download: Int!
+  upload: Int!
+  latency: Int!
+  rtt: Int!
+}
+
+type DeviceType {
+  id: String!
+  value: String!
+}
+
+type SourceIssueEdge {
+  cursor: String!
+  node: SourceIssue!
+}
+
+type PaginatedSourceIssues {
+  edges: [SourceIssueEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SnapshotEdge {
+  cursor: String!
+  node: Snapshot!
+}
+
+type PaginatedSnapshots {
+  edges: [SnapshotEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CreateApplicationResult {
+  application: Application!
+  token: String!
+}
+
+type ApplicationProject {
+  """project id"""
+  id: ID!
+
+  """repository namespace"""
+  namespace: String!
+
+  """repository name"""
+  name: String!
+
+  """repository host"""
+  host: GitHost!
+}
+
+type ProjectAuthorizedApplicationsNode {
+  app: Application!
+  permissions: [Permission!]!
+}
+
+enum Permission {
+  All
+  Admin
+  Read
+}
+
+type ApplicationAuthorizedProjectsNode {
+  project: ApplicationProject!
+  permissions: [Permission!]!
+}
+
+type ApplicationEdge {
+  cursor: String!
+  node: Application!
+}
+
+type PaginatedApplications {
+  edges: [ApplicationEdge!]!
+  pageInfo: PageInfo!
+}
+
+"""message target setting"""
+input MessageTargetInput {
+  userEmails: [String!]!
+}
+
+type Query {
+  maintenanceMode: Boolean!
+
+  """get project by id"""
+  project(id: ID!): Project!
+
+  """Verify that the project id is available"""
+  verifyProjectId(id: ID!): ProjectIdVerificationResult!
+
+  """get project by repo"""
+  projectsByRepo(
+    """codebase host"""
+    host: GitHost!
+
+    """codebase namespace"""
+    namespace: String!
+
+    """codebase repo name"""
+    name: String!
+  ): [Project!]!
+
+  """paginated projects"""
+  projects(
+    pagination: PaginationInput = {first: 10}
+
+    """filter your starred projects"""
+    starred: Boolean = false
+
+    """search project with git namespace/name"""
+    query: String
+  ): PaginatedProjects!
+  user: User!
+  searchUsers(query: String!): [SearchUserResult!]!
+  pendingJobsAggregation: [JobAggregation!]!
+  runner(id: ID!): Runner!
+  runners(filter: RunnerQueryFilter!): PaginatedRunners!
+
+  """
+  List all installations of the github account connected by the current user. Throws if user is not connected to github account. 
+  NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.
+  """
+  githubInstallations(pagination: PaginationInput = {first: 10}): PaginatedGithubInstallations!
+
+  """
+  List all github repositories in the installation. Throws if user is not connected to github account. 
+  NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.
+  """
+  githubInstallationRepositories(installationId: Int!, pagination: PaginationInput = {first: 10}): PaginatedGithubRepositories!
+  connections: [ConnectionType!]!
+  devices: [DeviceType!]!
+  availableOAuthProviders: [ExternalAccount!]!
+  application(id: Int!): Application!
+  applications(pagination: PaginationInput = {first: 10}): PaginatedApplications!
+  applicationSetting: ApplicationSetting!
+  zone: Zone!
+  runnerScripts(jobType: JobType!): [RunnerScript!]!
+  activatedRunnerScripts(jobType: JobType!): RunnerScript
+}
+
+input RunnerQueryFilter {
+  """returns the first n elements from the list."""
+  first: Int = 10
+
+  """ignore the first n elements from the list."""
+  skip: Int = 0
+
+  """returns the elements in the list that come after the specified cursor."""
+  after: String
+
+  """filter runners with specific job type"""
+  jobType: JobType
+
+  """filter runners with zone"""
+  zone: String
+
+  """filter runners with status"""
+  active: Boolean
+
+  """filter runners with online status"""
+  online: Boolean
+}
+
+type Mutation {
+  setMaintenanceMode(isOpen: Boolean!): Boolean!
+  createProject(input: CreateProjectInput!): Project!
+  updateProject(projectId: ID!, input: UpdateProjectInput!): Project!
+  addProjectOwner(projectId: ID!, email: String!): Boolean!
+  toggleStarProject(projectId: ID!, star: Boolean!): Boolean!
+  assignAdmin(email: String!): Boolean!
+  disconnectAccount(provider: ExternalAccount!): Boolean!
+
+  """trigger artifact bundle analyze job"""
+  dispatchArtifactJob(
+    projectId: ID!
+
+    """artifact id"""
+    id: Int!
+  ): Boolean!
+  updateRunner(id: ID!, input: UpdateRunnerInput!): Runner!
+  deleteRunner(id: ID!): Boolean!
+
+  """update project settings"""
+  updateProjectSettings(projectId: ID!, input: UpdateSettingInput!): Setting!
+
+  """delete snapshot"""
+  deleteSnapshot(projectId: ID!, snapshotId: Int!): Boolean!
+  takeSnapshot(projectId: ID!, pageIds: [Int!], profileIds: [Int!], envIds: [Int!], title: String, commitHash: String): Snapshot!
+  takeTempSnapshot(projectId: ID!, url: String!, profileIds: [Int!]!, envId: Int!, title: String): Snapshot!
+  dispatchSnapshotReport(projectId: ID!, snapshotReportId: Int!): Boolean!
+
+  """
+  Set the commit hash associated with the snapshot, and the associated version cannot be modified. If the status of the snapshot is not completed will throw an error.
+  """
+  setSnapshotHash(projectId: ID!, snapshotId: Int!, hash: String!): Boolean!
+  createPage(projectId: ID!, input: CreatePageInput!): Page!
+  updatePage(projectId: ID!, input: UpdatePageInput!): Page!
+
+  """
+  Delete page with given id. NOTE: all snapshot report having the same page id will be deleted as well.
+  """
+  deletePage(projectId: ID!, pageId: Int!): Boolean!
+
+  """update environment"""
+  updateEnvironment(projectId: ID!, input: UpdateEnvironmentInput!): Environment!
+
+  """
+  Delete environment with given id. NOTE: All snapshot reports with same environment id will be deleted as well.
+  """
+  deleteEnvironment(
+    projectId: ID!
+
+    """id of environment to be deleted"""
+    envId: Int!
+  ): Boolean!
+
+  """create or update profile if id exists"""
+  updateOrCreateProfile(projectId: ID!, input: UpdateProfileInput!): Profile!
+
+  """
+  Delete profile with given id. NOTE: all snapshot report having the same profile id will be deleted as well.
+  """
+  deleteProfile(projectId: ID!, profileId: Int!): Boolean!
+  generateToken(name: String!): String!
+  deleteToken(name: String!): Boolean!
+
+  """update project schedule task setting"""
+  updateTimer(projectId: ID!, input: UpdateTimerInput!): Timer!
+  createApplication(name: String!): CreateApplicationResult!
+  authorizeApplication(projectId: ID!, applicationId: Int!, permissions: [Permission!]!): Boolean!
+  updateApplicationPermissions(projectId: ID!, applicationId: Int!, permissions: [Permission!]!): [Permission!]!
+  revokeApplicationPermissions(projectId: ID!, applicationId: Int!): Boolean!
+  resetRegistrationToken: String!
+  insertAvailableJobZones(zones: [String!]!): [String!]!
+  deleteAvailableJobZones(zones: [String!]!): [String!]!
+  setDefaultJobZone(zone: String!): String!
+  updateRunnerScript(jobType: JobType!, version: String!, input: UpdateRunnerScriptInput!): RunnerScript!
+}
+
+input CreateProjectInput {
+  host: GitHost!
+  namespace: String!
+  name: String!
+  id: String!
+  artifactBaselineBranch: String!
+}
+
+input UpdateProjectInput {
+  artifactBaselineBranch: String
+
+  """email list of owners"""
+  owners: [String!]
+}
+
+input UpdateRunnerInput {
+  name: String
+
+  """specific job type the runner will consume"""
+  jobType: JobType
+
+  """whether runner is in active status"""
+  active: Boolean
+}
+
+input UpdateSettingInput {
+  """what kind of source of bundle message would be sent"""
+  bundleMessageSource: BundleMessageSource
+
+  """what kind of bundle message would be sent"""
+  bundleMessageFilter: BundleMessageFilter
+
+  """branches where message should be sent if"""
+  bundleMessageBranches: [String!]
+
+  """what kind of lab message would be sent"""
+  labMessageSource: LabMessageSource
+
+  """what kind of chat will receive message"""
+  messageTargetType: MessageTargetType
+
+  """who will receive message if target type is specified"""
+  messageTarget: MessageTargetInput
+  owners: [String!]
+}
+
+input CreatePageInput {
+  """page alias name"""
+  name: String
+
+  """page url"""
+  url: String
+
+  """is competitor page"""
+  isCompetitor: Boolean
+
+  """is temporary page"""
+  isTemp: Boolean
+
+  """is e2e test"""
+  isE2e: Boolean
+
+  """e2e script"""
+  e2eScript: String
+
+  """Disable scanning of this page"""
+  disable: Boolean
+
+  """page related profile ids"""
+  profileIds: [Int!]!
+
+  """page related environment ids"""
+  envIds: [Int!]!
+
+  """page related competitor page ids"""
+  competitorIds: [Int!]!
+
+  """
+  used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`
+  """
+  connectPageId: Int
+}
+
+input UpdatePageInput {
+  """page alias name"""
+  name: String
+
+  """page url"""
+  url: String
+
+  """is competitor page"""
+  isCompetitor: Boolean
+
+  """is temporary page"""
+  isTemp: Boolean
+
+  """is e2e test"""
+  isE2e: Boolean
+
+  """e2e script"""
+  e2eScript: String
+
+  """Disable scanning of this page"""
+  disable: Boolean
+
+  """page related profile ids"""
+  profileIds: [Int!]
+
+  """page related environment ids"""
+  envIds: [Int!]
+
+  """page related competitor page ids"""
+  competitorIds: [Int!]
+
+  """
+  used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`
+  """
+  connectPageId: Int
+  id: Int!
+}
+
+input UpdateEnvironmentInput {
+  id: Int
+
+  """environment alias name"""
+  name: String
+
+  """the geo location where the related pages should be audited at"""
+  zone: String
+
+  """extra cookies add to requests"""
+  cookies: JSON
+
+  """extra headers add to requests"""
+  headers: JSON
+
+  """
+  tells whether this environment could be used in temporary pages and competitor pages auditing
+  """
+  isCompetitor: Boolean
+
+  """Filtering environments when executing timed reminder tasks"""
+  needReminder: Boolean
+
+  """Disable scanning of this environment"""
+  disable: Boolean
+}
+
+input UpdateProfileInput {
+  id: Int
+
+  """profile alias name"""
+  name: String
+
+  """simulator device name"""
+  device: String
+
+  """bandwidth limit"""
+  bandWidth: String
+
+  """Disable scanning of this profile"""
+  disable: Boolean
+}
+
+input UpdateTimerInput {
+  """schedule type"""
+  schedule: ScheduleType
+
+  """Every x hour"""
+  hour: Int
+
+  """Time of day"""
+  timeOfDay: Int
+
+  """related page ids"""
+  pageIds: JSON
+
+  """related profile ids"""
+  profileIds: JSON
+
+  """related environment ids"""
+  envIds: JSON
+
+  """
+  whether only specific pages/profiles/envs will be measured when task triggered
+  """
+  monitorType: ScheduleMonitorType
+}
+
+input UpdateRunnerScriptInput {
+  enable: Boolean
+}

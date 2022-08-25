@@ -1,0 +1,18 @@
+#import './fragments/runner.gql'
+
+query runners($filter: RunnerQueryFilter!) {
+  runners(filter: $filter) {
+    edges {
+      node {
+        ...runnerInfo
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+
+  applicationSetting {
+    registrationToken
+  }
+}

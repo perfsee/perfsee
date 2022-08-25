@@ -1,0 +1,9 @@
+fragment runnerScriptInfo on RunnerScript {
+  version
+  description
+  storageKey
+  jobType
+  size
+  createdAt
+  enable
+}

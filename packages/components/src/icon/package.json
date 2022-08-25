@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "main": "./mock.js",
+  "browser": "./index.ts",
+  "devDependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "lodash": "^4.17.21"
+  }
+}

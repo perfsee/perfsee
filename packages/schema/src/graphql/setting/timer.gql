@@ -1,0 +1,14 @@
+query timerSettings($projectId: ID!) {
+  project(id: $projectId) {
+    timer {
+      schedule
+      hour
+      timeOfDay
+      nextTriggerTime
+      monitorType
+      profileIds
+      pageIds
+      envIds
+    }
+  }
+}

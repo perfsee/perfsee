@@ -1,0 +1,92 @@
+<!DOCTYPE {{{ page.doctype || 'html' }}}>
+<html lang="{{ page.language || 'en' }}" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+  <meta charset="{{ page.charset || 'utf-8' }}">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings xmlns:o="urn:schemas-microsoft-com:office:office">
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <style>
+    td,th,div,p,a,h1,h2,h3,h4,h5,h6 {font-family: "Segoe UI", sans-serif; mso-line-height-rule: exactly;}
+  </style>
+  <![endif]-->
+  <title>[[- title ]]</title>
+  <if condition="page.css">
+    <style>
+      {
+          {
+            {
+            page.css
+          }
+        }
+      }
+    </style>
+  </if>
+  <block name="head"></block>
+</head>
+
+<body class="{{ page.bodyClass }}">
+  <div class="hidden">[[- title ]]&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &zwnj;
+    &#160;&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &zwnj;
+    &#160;&#847; &#847; &#847; &#847; &#847; </div>
+  <div role="article" aria-roledescription="email" aria-label="[[- title || '' ]]" lang="{{ page.language || 'en' }}">
+    <table class="w-full font-sans">
+      <tr>
+        <td align="center" class="bg-gray-100">
+          <table class="w-600 sm:w-full">
+            <tr>
+              <td class="p-48 sm:py-32 px-0 sm:px-24 text-left text-base">
+                <h4 class="m-0 mb-8 text-base font-normal text-gray-400">
+                  <a class="no-underline text-gray-400" href="[[- env.host ]]">Perfsee</a>
+                </h4>
+                <p class="m-0 text-2xl">[[- title ]]</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" class="sm:px-24">
+                <table class="w-full">
+                  <tr>
+                    <td class="bg-white text-gray-800 rounded py-32 shadow-xl border border-solid border-gray-300">
+                      <block name="template"></block>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="h-48"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-center text-gray-600 text-xs px-24">
+                      <p class="m-0 mb-4 uppercase">Powered by Perfsee</p>
+                      <p class="cursor-default">
+                        <a href="https://perfsee.com/#TODO:LINK"
+                          class="text-blue-500 no-underline hover:underline">Docs</a>
+                        &bull;
+                        <a href="[[- env.host ]]" class="text-blue-500 no-underline hover:underline">Perfsee</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>

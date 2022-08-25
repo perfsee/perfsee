@@ -1,0 +1,19 @@
+{
+  "name": "@perfsee/shared",
+  "version": "0.0.1",
+  "description": "shared stuff of perfsee",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "private": true,
+  "sideEffects": false,
+  "dependencies": {
+    "@perfsee/utils": "^0.0.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@perfsee/flamechart": "^0.0.1",
+    "@perfsee/bundle-analyzer": "^0.0.1",
+    "@perfsee/plugin-utils": "^0.0.1"
+  }
+}

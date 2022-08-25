@@ -1,0 +1,17 @@
+{
+  "name": "@perfsee/ori",
+  "version": "0.0.1",
+  "description": "Profile parsing service",
+  "private": true,
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "main": "./index.node",
+  "typings": "./index.d.ts",
+  "scripts": {
+    "build:rs": "napi build --release",
+    "debug:rs": "napi build"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.10.1"
+  }
+}

@@ -1,0 +1,16 @@
+query vscodeSnapshots($projectId: ID!, $pagination: PaginationInput, $trigger: SnapshotTrigger, $hash: String, $hashRequired: Boolean) {
+  project(id: $projectId) {
+    snapshots(pagination: $pagination, trigger: $trigger, hash: $hash, hashRequired: $hashRequired) {
+      edges {
+        cursor
+        node {
+          id
+          hash
+        }
+      }
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+}

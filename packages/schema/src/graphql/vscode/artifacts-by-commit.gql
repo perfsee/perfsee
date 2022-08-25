@@ -1,0 +1,9 @@
+query vscodeArtifactByCommit($projectId: ID!, $hash: String!) {
+  project(id: $projectId) {
+    artifactByCommit(hash: $hash) {
+      id
+      hash
+      branch
+    }
+  }
+}

@@ -1,0 +1,7 @@
+#import './fragments/runner.gql'
+
+mutation updateRunner($id: ID!, $input: UpdateRunnerInput!) {
+  updateRunner(id: $id, input: $input) {
+    ...runnerInfo
+  }
+}

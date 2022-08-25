@@ -1,0 +1,3 @@
+mutation deleteProfile($projectId: ID!, $id: Int!) {
+  deleteProfile(projectId: $projectId, profileId: $id)
+}

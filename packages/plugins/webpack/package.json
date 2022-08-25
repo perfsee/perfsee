@@ -1,0 +1,20 @@
+{
+  "name": "@perfsee/webpack",
+  "version": "0.0.1",
+  "description": "perfsee webpack plugin",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "keywords": ["webpack", "perfsee"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "CHANGELOG.md"],
+  "dependencies": {
+    "@perfsee/bundle-analyzer": "^0.0.1",
+    "@perfsee/plugin-utils": "^0.0.1",
+    "chalk": "^4.1.2",
+    "tslib": "^2.4.0"
+  },
+  "peerDependencies": {
+    "webpack": ">= 4"
+  }
+}

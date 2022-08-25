@@ -1,0 +1,34 @@
+query snapshotReportsByIds($projectId: ID!, $reportIds: [Int!]!) {
+  project(id: $projectId) {
+    snapshotReports(filter: { ids: $reportIds }) {
+      id
+      status
+      lighthouseStorageKey
+      screencastStorageKey
+      flameChartStorageKey
+      sourceCoverageStorageKey
+      traceEventsStorageKey
+      createdAt
+      host
+      page {
+        id
+        name
+        isE2e
+        url
+      }
+      environment {
+        id
+        name
+      }
+      profile {
+        id
+        name
+      }
+      failedReason
+      snapshot {
+        title
+        id
+      }
+    }
+  }
+}

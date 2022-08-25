@@ -1,0 +1,3 @@
+mutation deletePage($projectId: ID!, $id: Int!) {
+  deletePage(projectId: $projectId, pageId: $id)
+}

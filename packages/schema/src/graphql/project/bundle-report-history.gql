@@ -1,0 +1,22 @@
+query bundleHistory($projectId: ID!, $from: DateTime, $to: DateTime, $length: Int, $branch: String!, $name: String) {
+  project(id: $projectId) {
+    artifactHistory(from: $from, to: $to, length: $length, branch: $branch, name: $name) {
+      artifactId
+      hash
+      artifactName
+      entrypoint
+      size {
+        raw
+        gzip
+        brotli
+      }
+      baselineSize {
+        raw
+        gzip
+        brotli
+      }
+      createdAt
+      score
+    }
+  }
+}

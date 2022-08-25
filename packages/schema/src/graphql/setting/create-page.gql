@@ -1,0 +1,7 @@
+#import './fragments/page-fields.gql'
+
+mutation createPage($projectId: ID!, $pageInput: CreatePageInput!) {
+  createPage(input: $pageInput, projectId: $projectId) {
+    ...pageFields
+  }
+}

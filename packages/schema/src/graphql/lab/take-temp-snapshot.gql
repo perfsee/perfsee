@@ -1,0 +1,24 @@
+mutation takeTempSnapshot(
+  $projectId: ID!,
+  $url: String!,
+  $profileIds: [Int!]!,
+  $envId: Int!,
+  $title: String
+) {
+  takeTempSnapshot(
+    projectId: $projectId,
+    url: $url,
+    profileIds: $profileIds,
+    envId: $envId,
+    title: $title
+  ) {
+    id
+    trigger
+    status
+    startedAt
+    createdAt
+    failedReason
+    title
+    hash
+  }
+}

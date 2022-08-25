@@ -1,0 +1,22 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.documentsSidebar.category.Bundle Analysis": {
+    "message": "Bundle 功能手册",
+    "description": "The label for category Bundle 功能手册 in sidebar documentsSidebar"
+  },
+  "sidebar.documentsSidebar.category.Lab Analysis": {
+    "message": "Lab 功能手册",
+    "description": "The label for category Lab 功能手册 in sidebar documentsSidebar"
+  },
+  "sidebar.documentsSidebar.category.Source Analysis": {
+    "message": "Source 功能手册",
+    "description": "The label for category Source 功能手册 in sidebar documentsSidebar"
+  },
+  "sidebar.documentsSidebar.category.Project Settings": {
+    "message": "项目设置",
+    "description": "The label for category 平台设置 in sidebar documentsSidebar"
+  }
+}

@@ -1,0 +1,10 @@
+query pageRelations($projectId: ID!) {
+  project(id: $projectId) {
+    pageRelations {
+      pageId
+      profileIds
+      envIds
+      competitorIds
+    }
+  }
+}

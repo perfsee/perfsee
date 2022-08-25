@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    {
+      "name": "preset-default",
+      "params": {
+        "overrides": {
+          "removeAttrs": { "attrs": ["svg:height", "svg:width"] },
+          "removeViewBox": false
+        }
+      }
+    }
+  ]
+}

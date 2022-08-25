@@ -1,0 +1,19 @@
+query sourceIssueById($projectId: ID!, $issueId: Int!){
+  project(id: $projectId) {
+    sourceIssueById(issueId: $issueId) {
+      id
+      code
+      frameKey
+      hash
+      info
+      snapshotReport {
+        id
+        page {
+          name
+          url
+        }
+        flameChartStorageKey
+      }
+    }
+  }
+}

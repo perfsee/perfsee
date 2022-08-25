@@ -1,0 +1,22 @@
+{
+  "name": "@perfsee/bundle-analyzer",
+  "version": "0.0.1",
+  "description": "Bundle analyzer by perfsee",
+  "sideEffect": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "files": ["dist", "CHANGELOG.md"],
+  "dependencies": {
+    "@msgpack/msgpack": "^2.7.2",
+    "@perfsee/utils": "^0.0.1",
+    "acorn": "^8.7.1",
+    "acorn-walk": "^8.2.0",
+    "htmlparser2": "^8.0.1",
+    "lodash": "^4.17.21",
+    "query-string": "^7.1.1",
+    "tslib": "^2.4.0",
+    "tar": "^6.1.11"
+  }
+}

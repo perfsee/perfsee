@@ -1,0 +1,16 @@
+query GithubInstallationRepositories($pagination: PaginationInput!, $installationId: Int!) {
+  githubInstallationRepositories(pagination: $pagination, installationId: $installationId) {
+    edges {
+      node {
+        id
+        name
+        full_name
+        private
+        default_branch
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

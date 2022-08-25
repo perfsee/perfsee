@@ -1,0 +1,3 @@
+mutation deleteRunner($id: ID!) {
+  deleteRunner(id: $id)
+}

@@ -1,0 +1,9 @@
+#import './fragments/artifact.gql'
+
+query artifact($projectId: ID!, $id: Int!) {
+  project(id: $projectId) {
+    artifact(id: $id) {
+      ...artifact
+    }
+  }
+}

@@ -1,0 +1,10 @@
+fragment environmentFields on Environment {
+    id
+    name
+    cookies
+    headers
+    isCompetitor
+    disable
+    needReminder
+    zone
+}

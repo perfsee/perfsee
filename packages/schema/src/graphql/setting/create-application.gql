@@ -1,0 +1,10 @@
+mutation createApplication($name: String!) {
+  createApplication(name: $name) {
+    application {
+      id
+      username
+      createdAt
+    }
+    token
+  }
+}

@@ -1,0 +1,3 @@
+mutation generateAccessToken($name: String!){
+  generateToken(name: $name)
+}

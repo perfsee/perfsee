@@ -1,0 +1,7 @@
+#import './fragments/environment-fields.gql'
+
+mutation updateEnvironment($projectId: ID!, $envInput: UpdateEnvironmentInput!) {
+  updateEnvironment(projectId: $projectId, input: $envInput) {
+    ...environmentFields
+  }
+}

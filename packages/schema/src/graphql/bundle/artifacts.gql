@@ -1,0 +1,23 @@
+query artifacts($projectId: ID!, $pagination: PaginationInput, $branch: String, $name: String) {
+  project(id: $projectId) {
+    artifacts(pagination: $pagination, branch: $branch, name: $name) {
+      edges {
+        node {
+          id
+          hash
+          name
+          branch
+          status
+          duration
+          failedReason
+          score
+          createdAt
+          updatedAt
+        }
+      }
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+}

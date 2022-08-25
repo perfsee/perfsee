@@ -1,0 +1,12 @@
+mutation updateProjectSettings($projectId: ID!, $settingsInput: UpdateSettingInput!) {
+  updateProjectSettings(projectId: $projectId, input: $settingsInput) {
+    labMessageSource
+    bundleMessageFilter
+    bundleMessageSource
+    bundleMessageBranches
+    messageTargetType
+    messageTarget {
+      userEmails
+    }
+  }
+}

@@ -1,0 +1,88 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql
+    container_name: perfsee_mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=perfsee
+    volumes:
+      - ./.volumes/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+  redis:
+    image: redis
+    container_name: perfsee_redis
+    ports:
+      - 6379:6379
+
+  prepare:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+      target: install
+    depends_on:
+      - mysql
+    environment:
+      - MYSQL_HOST=mysql
+    command: yarn typeorm migration:run
+
+  server:
+    image: perfsee_prepare
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+      target: install
+    depends_on:
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_started
+      prepare:
+        condition: service_completed_successfully
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: development
+      MYSQL_HOST: mysql
+      REDIS_HOST: redis
+    volumes:
+      - .:/code
+      - /code/node_modules
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    command: yarn dev -p @perfsee/platform-server
+
+  job-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.runner
+      target: install
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/code
+      - /code/node_modules
+    network_mode: host
+    command: yarn dev -p @perfsee/job-runner
+
+  frontend:
+    image: perfsee_prepare
+    depends_on:
+      - server
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/code
+      - /code/node_modules
+    environment:
+      NODE_ENV: development
+      SERVER: http://server:3000
+    command: yarn dev -p @perfsee/platform

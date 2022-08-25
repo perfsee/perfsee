@@ -1,0 +1,14 @@
+fragment artifact on Artifact {
+  id
+  branch
+  name
+  hash
+  status
+  duration
+  failedReason
+  buildKey
+  reportKey
+  contentKey
+  score
+  createdAt
+}

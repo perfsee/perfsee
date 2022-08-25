@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "composite": true,
+    "outDir": "dist",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "rootDir": "./src"
+  },
+  "include": ["./src/**/*"]
+}

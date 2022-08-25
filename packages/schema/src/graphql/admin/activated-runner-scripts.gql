@@ -1,0 +1,11 @@
+query activatedRunnerScripts($jobType: JobType!) {
+  activatedRunnerScripts(jobType: $jobType) {
+    version
+    description
+    storageKey
+    jobType
+    size
+    createdAt
+    enable
+  }
+}

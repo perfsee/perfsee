@@ -1,0 +1,2057 @@
+---
+source: packages/ori/src/profile/chrome_profile.rs
+expression: profiles
+
+---
+[
+  {
+    "startTime": 433087550410,
+    "endTime": 433087830221,
+    "frames": [
+      {
+        "key": "(root)::0:0",
+        "name": "(root)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):native dummy.js:1:1",
+        "name": "(anonymous)",
+        "file": "native dummy.js",
+        "line": 1,
+        "col": 1
+      },
+      {
+        "key": "(anonymous):extensions::SafeBuiltins:1:1",
+        "name": "(anonymous)",
+        "file": "extensions::SafeBuiltins",
+        "line": 1,
+        "col": 1
+      },
+      {
+        "key": "(anonymous):extensions::SafeBuiltins:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::SafeBuiltins",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "saveBuiltin:extensions::SafeBuiltins:25:21",
+        "name": "saveBuiltin",
+        "file": "extensions::SafeBuiltins",
+        "line": 25,
+        "col": 21
+      },
+      {
+        "key": "makeCallable:extensions::SafeBuiltins:7:22",
+        "name": "makeCallable",
+        "file": "extensions::SafeBuiltins",
+        "line": 7,
+        "col": 22
+      },
+      {
+        "key": "(anonymous):extensions::SafeBuiltins:8:33",
+        "name": "(anonymous)",
+        "file": "extensions::SafeBuiltins",
+        "line": 8,
+        "col": 33
+      },
+      {
+        "key": "(program)::0:0",
+        "name": "(program)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(idle)::0:0",
+        "name": "(idle)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(garbage collector)::0:0",
+        "name": "(garbage collector)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:1:1",
+        "name": "(anonymous)",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 1,
+        "col": 1
+      },
+      {
+        "key": "La:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:35:467",
+        "name": "La",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 35,
+        "col": 467
+      },
+      {
+        "key": "get webstore::0:0",
+        "name": "get webstore",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):extensions::runtime:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::runtime",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "privates::0:0",
+        "name": "privates",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):extensions::binding:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::binding",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "(anonymous):extensions::event_bindings:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::event_bindings",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "(anonymous):extensions::sendRequest:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::sendRequest",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "(anonymous):extensions::schemaUtils:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::schemaUtils",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "(anonymous):extensions::json_schema:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::json_schema",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "expose:extensions::utils:98:16",
+        "name": "expose",
+        "file": "extensions::utils",
+        "line": 98,
+        "col": 16
+      },
+      {
+        "key": "target.(anonymous function):extensions::SafeBuiltins:10:36",
+        "name": "target.(anonymous function)",
+        "file": "extensions::SafeBuiltins",
+        "line": 10,
+        "col": 36
+      },
+      {
+        "key": "Apply::0:0",
+        "name": "Apply",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):extensions::messaging:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::messaging",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "generate:extensions::binding:199:21",
+        "name": "generate",
+        "file": "extensions::binding",
+        "line": 199,
+        "col": 21
+      },
+      {
+        "key": "shouldCheckUnprivileged:extensions::binding:209:37",
+        "name": "shouldCheckUnprivileged",
+        "file": "extensions::binding",
+        "line": 209,
+        "col": 37
+      },
+      {
+        "key": "(anonymous):extensions::binding:253:44",
+        "name": "(anonymous)",
+        "file": "extensions::binding",
+        "line": 253,
+        "col": 44
+      },
+      {
+        "key": "JSONSchemaValidator.addTypes:extensions::json_schema:174:50",
+        "name": "JSONSchemaValidator.addTypes",
+        "file": "extensions::json_schema",
+        "line": 174,
+        "col": 50
+      },
+      {
+        "key": "(anonymous):extensions::binding:271:46",
+        "name": "(anonymous)",
+        "file": "extensions::binding",
+        "line": 271,
+        "col": 46
+      },
+      {
+        "key": "(anonymous):extensions::binding:323:48",
+        "name": "(anonymous)",
+        "file": "extensions::binding",
+        "line": 323,
+        "col": 48
+      },
+      {
+        "key": "(anonymous):extensions::binding:397:45",
+        "name": "(anonymous)",
+        "file": "extensions::binding",
+        "line": 397,
+        "col": 45
+      },
+      {
+        "key": "Event:extensions::event_bindings:513:17",
+        "name": "Event",
+        "file": "extensions::event_bindings",
+        "line": 513,
+        "col": 17
+      },
+      {
+        "key": "privates.constructPrivate:extensions::utils:102:52",
+        "name": "privates.constructPrivate",
+        "file": "extensions::utils",
+        "line": 102,
+        "col": 52
+      },
+      {
+        "key": "EventImpl:extensions::event_bindings:213:21",
+        "name": "EventImpl",
+        "file": "extensions::event_bindings",
+        "line": 213,
+        "col": 21
+      },
+      {
+        "key": "addProperties:extensions::binding:425:27",
+        "name": "addProperties",
+        "file": "extensions::binding",
+        "line": 425,
+        "col": 27
+      },
+      {
+        "key": "forEach:extensions::utils:27:17",
+        "name": "forEach",
+        "file": "extensions::utils",
+        "line": 27,
+        "col": 17
+      },
+      {
+        "key": "runHooks_:extensions::binding:180:22",
+        "name": "runHooks_",
+        "file": "extensions::binding",
+        "line": 180,
+        "col": 22
+      },
+      {
+        "key": "(anonymous):extensions::binding:181:47",
+        "name": "(anonymous)",
+        "file": "extensions::binding",
+        "line": 181,
+        "col": 47
+      },
+      {
+        "key": "(anonymous):extensions::runtime:17:36",
+        "name": "(anonymous)",
+        "file": "extensions::runtime",
+        "line": 17,
+        "col": 36
+      },
+      {
+        "key": "l:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:38:261",
+        "name": "l",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 38,
+        "col": 261
+      },
+      {
+        "key": "publicClassPrototype.(anonymous function):extensions::utils:136:44",
+        "name": "publicClassPrototype.(anonymous function)",
+        "file": "extensions::utils",
+        "line": 136,
+        "col": 44
+      },
+      {
+        "key": "EventImpl.addListener:extensions::event_bindings:273:45",
+        "name": "EventImpl.addListener",
+        "file": "extensions::event_bindings",
+        "line": 273,
+        "col": 45
+      },
+      {
+        "key": "bb:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:58:162",
+        "name": "bb",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 58,
+        "col": 162
+      },
+      {
+        "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:65:10",
+        "name": "(anonymous)",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 65,
+        "col": 10
+      },
+      {
+        "key": "(anonymous):extensions::SafeBuiltins:66:47",
+        "name": "(anonymous)",
+        "file": "extensions::SafeBuiltins",
+        "line": 66,
+        "col": 47
+      },
+      {
+        "key": "(anonymous):chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:1:1",
+        "name": "(anonymous)",
+        "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
+        "line": 1,
+        "col": 1
+      },
+      {
+        "key": "insertTextScript:chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:31:26",
+        "name": "insertTextScript",
+        "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
+        "line": 31,
+        "col": 26
+      },
+      {
+        "key": "insertHeaderNode:chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:58:26",
+        "name": "insertHeaderNode",
+        "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
+        "line": 58,
+        "col": 26
+      },
+      {
+        "key": "appendChild::0:0",
+        "name": "appendChild",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous)::1:1",
+        "name": "(anonymous)",
+        "file": "",
+        "line": 1,
+        "col": 1
+      },
+      {
+        "key": "(anonymous)::7:14",
+        "name": "(anonymous)",
+        "file": "",
+        "line": 7,
+        "col": 14
+      },
+      {
+        "key": "listenForMessage:chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:25:26",
+        "name": "listenForMessage",
+        "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
+        "line": 25,
+        "col": 26
+      },
+      {
+        "key": "(anonymous):extensions::uncaught_exception_handler:1:10",
+        "name": "(anonymous)",
+        "file": "extensions::uncaught_exception_handler",
+        "line": 1,
+        "col": 10
+      },
+      {
+        "key": "(anonymous)::0:0",
+        "name": "(anonymous)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):http://127.0.0.1:8081/worker.html:1:9",
+        "name": "(anonymous)",
+        "file": "http://127.0.0.1:8081/worker.html",
+        "line": 1,
+        "col": 9
+      },
+      {
+        "key": "Worker::0:0",
+        "name": "Worker",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "cb:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:50:12",
+        "name": "cb",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 50,
+        "col": 12
+      },
+      {
+        "key": "$a:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:47:315",
+        "name": "$a",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 47,
+        "col": 315
+      },
+      {
+        "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:51:52",
+        "name": "(anonymous)",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 51,
+        "col": 52
+      },
+      {
+        "key": "setTimeout::0:0",
+        "name": "setTimeout",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:51:145",
+        "name": "(anonymous)",
+        "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
+        "line": 51,
+        "col": 145
+      },
+      {
+        "key": "worker.onmessage:http://127.0.0.1:8081/worker.html:20:30",
+        "name": "worker.onmessage",
+        "file": "http://127.0.0.1:8081/worker.html",
+        "line": 20,
+        "col": 30
+      },
+      {
+        "key": "apple:http://127.0.0.1:8081/worker.html:10:17",
+        "name": "apple",
+        "file": "http://127.0.0.1:8081/worker.html",
+        "line": 10,
+        "col": 17
+      },
+      {
+        "key": "banana:http://127.0.0.1:8081/worker.html:2:18",
+        "name": "banana",
+        "file": "http://127.0.0.1:8081/worker.html",
+        "line": 2,
+        "col": 18
+      },
+      {
+        "key": "postMessage::0:0",
+        "name": "postMessage",
+        "file": "",
+        "line": null,
+        "col": null
+      }
+    ],
+    "samples": [
+      [
+        1
+      ],
+      [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      [
+        2,
+        3,
+        4
+      ],
+      [
+        2,
+        3,
+        4,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        2,
+        3,
+        4
+      ],
+      [
+        2,
+        3,
+        4,
+        5
+      ],
+      [
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      [
+        10
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        10
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        10,
+        11,
+        12
+      ],
+      [
+        10,
+        11,
+        12,
+        13
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17,
+        14,
+        18
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17,
+        14,
+        18,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17,
+        14,
+        18,
+        14,
+        19
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        20,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        23
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14,
+        23,
+        20
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        25,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        27
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28,
+        21
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        29
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        29,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        30,
+        14
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        30,
+        31
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        30,
+        31,
+        32,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        30,
+        31,
+        32,
+        21,
+        22,
+        33
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        21,
+        22,
+        30
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        34
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        34,
+        35,
+        21,
+        22
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        36,
+        21,
+        22,
+        37
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        24,
+        36,
+        21,
+        22,
+        37,
+        38
+      ],
+      [
+        10
+      ],
+      [
+        10,
+        39
+      ],
+      [
+        10
+      ],
+      [
+        10,
+        40,
+        21,
+        22
+      ],
+      [
+        10,
+        40,
+        21,
+        22,
+        41
+      ],
+      [
+        10,
+        42
+      ],
+      [
+        10,
+        43
+      ],
+      [
+        10,
+        43,
+        7
+      ],
+      [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      [
+        2,
+        3,
+        44
+      ],
+      [
+        2,
+        3,
+        44,
+        7
+      ],
+      [
+        45
+      ],
+      [
+        45,
+        46
+      ],
+      [
+        45,
+        46,
+        47
+      ],
+      [
+        45,
+        46,
+        47,
+        48
+      ],
+      [
+        45,
+        46,
+        47
+      ],
+      [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      [
+        45,
+        46,
+        47,
+        48
+      ],
+      [
+        45,
+        51,
+        12
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        52
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        14,
+        17,
+        14,
+        18,
+        14,
+        19
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        14,
+        15,
+        14,
+        16,
+        53
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        14
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        14,
+        23,
+        21,
+        22
+      ],
+      [
+        45,
+        51,
+        12,
+        13
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28,
+        21
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28,
+        21,
+        22
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28,
+        21,
+        22,
+        9
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        26,
+        21,
+        22,
+        28,
+        21,
+        22
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        29,
+        14
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        21,
+        22,
+        30,
+        31,
+        32,
+        21,
+        22,
+        33
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        34,
+        35,
+        21
+      ],
+      [
+        45,
+        51,
+        12,
+        13,
+        24,
+        34,
+        35,
+        21,
+        7
+      ],
+      [
+        54,
+        55
+      ],
+      [
+        54,
+        55,
+        7
+      ],
+      [
+        56,
+        57
+      ],
+      [
+        56,
+        57,
+        7
+      ],
+      [
+        58,
+        59
+      ],
+      [
+        58,
+        59,
+        7
+      ],
+      [
+        60,
+        59
+      ],
+      [
+        60
+      ],
+      [
+        60,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        64
+      ],
+      [
+        8
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        64
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        8
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        8
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62,
+        63,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62,
+        63,
+        9
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62,
+        63,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62,
+        63,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        61,
+        62,
+        63
+      ],
+      [
+        61,
+        62,
+        63,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8
+      ],
+      [
+        8,
+        7
+      ]
+    ],
+    "weights": [
+      15061,
+      102,
+      92,
+      2618,
+      312,
+      295,
+      105,
+      306,
+      111,
+      109,
+      197,
+      110,
+      102,
+      1247,
+      141,
+      122,
+      6651,
+      598,
+      778,
+      660,
+      407,
+      139,
+      1146,
+      132,
+      791,
+      135,
+      669,
+      375,
+      134,
+      256,
+      135,
+      847,
+      133,
+      580,
+      153,
+      146,
+      744,
+      151,
+      147,
+      141,
+      146,
+      139,
+      142,
+      120,
+      146,
+      259,
+      149,
+      153,
+      251,
+      292,
+      295,
+      152,
+      159,
+      135,
+      133,
+      139,
+      137,
+      125,
+      142,
+      149,
+      126,
+      149,
+      141,
+      132,
+      160,
+      127,
+      132,
+      141,
+      135,
+      146,
+      141,
+      930,
+      132,
+      116,
+      27489,
+      542,
+      289,
+      103,
+      44,
+      145,
+      148,
+      145,
+      148,
+      121,
+      130,
+      254,
+      135,
+      122,
+      130,
+      141,
+      154,
+      123,
+      137,
+      257,
+      1577,
+      128,
+      289,
+      292,
+      126,
+      144,
+      291,
+      416,
+      523,
+      278,
+      81,
+      42,
+      641,
+      21,
+      117,
+      540,
+      511,
+      125,
+      136,
+      1062,
+      133,
+      1459,
+      261,
+      147,
+      4740,
+      145,
+      525,
+      221,
+      325,
+      399,
+      146,
+      391,
+      4008,
+      131,
+      1101,
+      146,
+      2910,
+      280,
+      420,
+      128,
+      1273,
+      146,
+      1062,
+      130,
+      129,
+      143,
+      1801,
+      1528,
+      108,
+      1632,
+      141,
+      1858,
+      1753,
+      1665,
+      1839,
+      1619,
+      146,
+      1674,
+      1448,
+      923,
+      136,
+      132,
+      1807,
+      136,
+      1693,
+      1749,
+      131,
+      282,
+      128,
+      1099,
+      136,
+      1572,
+      665,
+      128,
+      779,
+      1559,
+      131,
+      1556,
+      1568,
+      149,
+      1543,
+      100,
+      52452,
+      125,
+      88714,
+      1061
+    ]
+  },
+  {
+    "startTime": 433087639084,
+    "endTime": 433087830692,
+    "frames": [
+      {
+        "key": "(root)::0:0",
+        "name": "(root)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "onmessage:http://127.0.0.1:8081/worker.js:15:21",
+        "name": "onmessage",
+        "file": "http://127.0.0.1:8081/worker.js",
+        "line": 15,
+        "col": 21
+      },
+      {
+        "key": "alpha:http://127.0.0.1:8081/worker.js:9:15",
+        "name": "alpha",
+        "file": "http://127.0.0.1:8081/worker.js",
+        "line": 9,
+        "col": 15
+      },
+      {
+        "key": "gamma:http://127.0.0.1:8081/worker.js:1:15",
+        "name": "gamma",
+        "file": "http://127.0.0.1:8081/worker.js",
+        "line": 1,
+        "col": 15
+      },
+      {
+        "key": "(program)::0:0",
+        "name": "(program)",
+        "file": "",
+        "line": null,
+        "col": null
+      },
+      {
+        "key": "postMessage::0:0",
+        "name": "postMessage",
+        "file": "",
+        "line": null,
+        "col": null
+      }
+    ],
+    "samples": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2,
+        3,
+        4
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2,
+        3,
+        4
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        5,
+        4
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        5,
+        4
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2,
+        3,
+        4
+      ],
+      [
+        1
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        2,
+        3,
+        4
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        4
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        5,
+        4
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        4
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        4
+      ]
+    ],
+    "weights": [
+      4934,
+      1375,
+      3312,
+      270,
+      3587,
+      127,
+      128,
+      1478,
+      1685,
+      1652,
+      1999,
+      1618,
+      146,
+      1653,
+      1700,
+      256,
+      1625,
+      670,
+      134,
+      899,
+      2724,
+      132,
+      1571,
+      1849,
+      1753,
+      1764,
+      1442,
+      145,
+      1627,
+      1567,
+      1596,
+      1546,
+      144644
+    ]
+  }
+]

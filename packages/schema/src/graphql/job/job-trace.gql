@@ -1,0 +1,11 @@
+query jobTrace($projectId: ID!, $jobType: JobType!, $entityId: Int!, $after: Int!) {
+  project(id: $projectId) {
+    job(jobType: $jobType, entityId: $entityId) {
+      trace(after: $after) {
+        logs
+        hasMore
+        endCursor
+      }
+    }
+  }
+}

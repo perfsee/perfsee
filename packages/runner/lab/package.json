@@ -1,0 +1,28 @@
+{
+  "name": "@perfsee/job-runner-lab",
+  "version": "0.0.1",
+  "description": "Perfsee job runner lab",
+  "main": "./dist/index.js",
+  "private": true,
+  "dependencies": {
+    "@perfsee/shared": "^0.0.1",
+    "@perfsee/job-runner-shared": "^0.0.1",
+    "@perfsee/tracehouse": "^0.0.1",
+    "@perfsee/chrome-finder": "^0.0.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "lighthouse": "^9.6.3",
+    "lighthouse-logger": "^1.3.0",
+    "lodash": "^4.17.21",
+    "puppeteer-core": "^13.7.0",
+    "uuid": "^8.3.2",
+    "jimp": "^0.16.1",
+    "vm2": "^3.9.10"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.20",
+    "ts-node": "^10.9.1"
+  },
+  "peerDependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0"
+  }
+}

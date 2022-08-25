@@ -1,0 +1,9 @@
+query user {
+  user {
+    username
+    avatarUrl
+    email
+    starredProjects
+    isAdmin
+  }
+}

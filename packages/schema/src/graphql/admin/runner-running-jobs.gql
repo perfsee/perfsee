@@ -1,0 +1,11 @@
+query runnerRunningJobs($id: ID!) {
+  runner(id: $id) {
+    runningJobs {
+      jobType
+      createdAt
+      startedAt
+      endedAt
+      duration
+    }
+  }
+}

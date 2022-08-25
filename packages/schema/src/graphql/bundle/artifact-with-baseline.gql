@@ -1,0 +1,12 @@
+#import './fragments/artifact.gql'
+
+query artifactWithBaseline($projectId: ID!, $id: Int!) {
+  project(id: $projectId) {
+    artifact(id: $id) {
+      ...artifact
+      baseline {
+        ...artifact
+      }
+    }
+  }
+}

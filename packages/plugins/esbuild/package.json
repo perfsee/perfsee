@@ -1,0 +1,24 @@
+{
+  "name": "@perfsee/esbuild",
+  "version": "0.0.1",
+  "description": "perfsee esbuild plugin",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "keywords": ["esbuild", "perfsee"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "CHANGELOG.md"],
+  "dependencies": {
+    "@perfsee/bundle-analyzer": "^0.0.1",
+    "@perfsee/plugin-utils": "^0.0.1",
+    "lodash": "^4.17.21",
+    "chalk": "^4.1.2",
+    "tslib": "^2.4.0"
+  },
+  "peerDependencies": {
+    "esbuild": "> 0.10"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.49"
+  }
+}

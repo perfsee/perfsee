@@ -1,0 +1,3 @@
+mutation dispatchArtifactJob($projectId: ID!, $id: Int!) {
+  dispatchArtifactJob(projectId: $projectId, id: $id)
+}

@@ -1,0 +1,17 @@
+#import './fragments/profile-fields.gql'
+#import './fragments/environment-fields.gql'
+#import './fragments/page-fields.gql'
+
+query property($projectId: ID!) {
+  project(id: $projectId) {
+    pages {
+      ...pageFields
+    }
+    profiles {
+      ...profileFields
+    }
+    environments {
+      ...environmentFields
+    }
+  }
+}

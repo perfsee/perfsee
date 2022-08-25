@@ -1,0 +1,50 @@
+It might be possible that a single package gets included multiple times in a Webpack bundle due to different package versions.
+This situation may happen without any warning, resulting in extra bloat in your bundle and may lead to hard-to-find bugs.
+
+## Resolving duplicate packages in your bundle
+
+There are multiple ways you can go about resolving duplicate packages in your bundle, the right solution mostly depends on what tools you're using and on each particular case.
+
+### Webpack `resolve.alias`
+
+Add an entry in [`resolve.alias`](https://webpack.github.io/docs/configuration.html#resolve-alias) which will configure Webpack to route any package references to a single specified path.
+
+For example, if Lodash is duplicated in your bundle, the following configuration would render all Lodash imports to always refer to the Lodash instance found at `./node_modules/lodash`.
+
+```js
+alias: {
+  lodash: path.resolve(__dirname, 'node_modules/lodash'),
+}
+```
+
+**Note: Aliasing packages with different major versions may break your app. Use it only if you're sure that all required versions are compatible, at least in the context of your app**
+
+### Yarn `install --flat`
+
+Yarn allows [flat installations](https://yarnpkg.com/lang/en/docs/cli/install/#toc-yarn-install-flat) (`yarn install --flat`) which will only allow one version of each package to be installed.
+
+### Yarn resolutions
+
+If you want more control over your overridden dependency versions and don't feel like using `yarn install --flat`, yarn supports ["selective version resolution"](https://yarnpkg.com/lang/en/docs/selective-version-resolutions) which allows you to enforce specific versions for each dependency.
+
+**package.json**
+
+```json
+{
+  "dependencies": {
+    "lodash": "4.17.0",
+    "old-package-with-old-lodash": "*"
+  },
+  "resolutions": {
+    "old-package-with-old-lodash/lodash": "4.17.0"
+  }
+}
+```
+
+### NPM Dedupe
+
+If you use NPM and not Yarn, you can try running `npm dedupe`. NPM **may** leave multiple versions of the same package installed even if a single version satisfies each [semver](https://docs.npmjs.com/getting-started/semantic-versioning) of all of its dependants.
+
+### Bump your dependencies
+
+If your project is using an old version of a package and a dependency is using a newer version of that package, consider upgrading your project to use the newer version.

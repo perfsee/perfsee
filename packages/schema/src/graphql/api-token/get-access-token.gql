@@ -1,0 +1,9 @@
+query accessTokens {
+  user {
+    accessTokens {
+      name
+      createdAt
+      lastUsedAt
+    }
+  }
+}

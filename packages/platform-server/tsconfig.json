@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "ES2020",
+    "module": "CommonJS"
+  },
+  "references": [{ "path": "../server-common" }, { "path": "../shared" }, { "path": "../schema" }],
+  "include": ["./src/**/*", "./global.d.ts"]
+}

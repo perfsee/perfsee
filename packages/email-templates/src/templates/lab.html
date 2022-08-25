@@ -1,0 +1,118 @@
+---
+bodyClass: bg-gray-100
+---
+
+<extends src="src/layouts/main.html">
+  <block name="template">
+    <table class="w-full">
+      <tr>
+        <td class="text-base text-left py-16 px-48 sm:px-24 leading-24">
+          <p class="text-gray-400 m-0 mb-16 text-xl">Snapshot</p>
+          <p class="text-3xl sm:leading-32 text-black font-semibold m-0 mb-16">#[[- snapshotId ]]</p>
+          <p class="text-gray-500 m-0 mb-32">[[- statusMessage ]]</p>
+
+          <table class="w-full">
+            <tr>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Commit:</p>
+                <p class="text-gray-600 m-0 mb-16">[[- commit ?? 'unknown' ]]</p>
+              </td>
+              <td valign="top" class="w-1/2 pr-8">
+                <p class="text-gray-400 m-0 text-xs leading-normal">Created at:</p>
+                <p class="text-gray-600 m-0 mb-16">[[- createdAt.toISOString() ]]</p>
+              </td>
+            </tr>
+          </table>
+
+          <table class="w-full mt-16 mb-32">
+            <tr>
+              <td align="center">
+                <a href="[[- reportLink ]]"
+                  class="inline-block py-16 px-24 text-sm leading-none no-underline text-white font-semibold rounded bg-blue-600 hover:bg-blue-800">
+                  <!--[if mso]><i style="letter-spacing: 27px; mso-font-width: -100%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
+                  <span style="mso-text-raise: 13pt;">View in Perfsee</span>
+                  <!--[if mso]><i style="letter-spacing: 27px; mso-font-width: -100%;">&nbsp;</i><![endif]-->
+                </a>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+    [[ reports.slice(0, 4).forEach((report) => { ]]
+
+    <table class="w-full bg-gray-100">
+      <tr>
+        <td class="text-base text-left px-48 sm:px-24 leading-48">
+          <p class="m-0"><a href="[[- report.reportLink ]]"
+              class="text-base text-gray-500 no-underline border-0 border-b border-solid border-gray-300">
+              [[- report.icon ]] <span class="font-semibold">[[- report.pageName ]] - [[- report.profileName
+                ]]</span></a></p>
+        </td>
+      </tr>
+    </table>
+
+    <table class="w-full">
+      <tr>
+        <td class="text-base text-left py-16 px-48 sm:px-24 leading-24">
+          <table class="w-full">
+            <tr>
+              <td valign="top" class="w-9/12">
+                <table class="w-full">
+                  <tr>
+                    <td valign="top" class="w-1/2 pr-8">
+                      <p class="text-gray-400 m-0 text-xs leading-normal">FCP:</p>
+                      <p class="text-gray-600 m-0 mb-16">[[- report.FCP ]]</p>
+                    </td>
+                    <td valign="top" class="w-1/2 pr-8">
+                      <p class="text-gray-400 m-0 text-xs leading-normal">LCP:</p>
+                      <p class="text-gray-600 m-0 mb-16">[[- report.LCP ]]</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top" class="w-1/2 pr-8">
+                      <p class="text-gray-400 m-0 text-xs leading-normal">TTI:</p>
+                      <p class="text-gray-600 m-0 mb-16">[[- report.TTI ]]</p>
+                    </td>
+                    <td valign="top" class="w-1/2 pr-8">
+                      <p class="text-gray-400 m-0 text-xs leading-normal">CLS:</p>
+                      <p class="text-gray-600 m-0 mb-16">[[- report.CLS ]]</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td valign="top" align="center" class="w-3/12">
+                <table
+                  class="font-mono leading-none select-none w-52 h-52 my-8 text-lg font-semibold border-4 border-solid rounded-full"
+                  style="border-color: [[- report.scoreBorderColor ]]; color: [[- report.scoreColor ]]; background-color: [[- report.scoreBackgroundColor ]]">
+                  <tr>
+                    <td valign="center" align="center" class="w-full h-full">
+                      [[- report.scoreText ]]
+                    </td>
+                  </tr>
+                </table>
+                <p class="m-0 text-sm text-gray-600 font-semibold">Performance</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    [[ }) ]]
+
+    [[ if (reports.length > 4) { ]]
+
+    <table class="w-full">
+      <tr>
+        <td class="text-base text-left py-16 px-48 sm:px-24 leading-24">
+          ... and [[- reports.length - 4 ]] more [[- reports.length - 4 > 1 ? 'reports' : 'report' ]]
+        </td>
+      </tr>
+    </table>
+
+    [[ } ]]
+  </block>
+</extends>

@@ -1,0 +1,18 @@
+query settingProperty {
+  connections {
+    id
+    title
+    download
+    upload
+    latency
+    rtt
+  }
+  devices {
+    id
+    value
+  }
+  zone {
+    all
+    default
+  }
+}

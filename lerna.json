@@ -1,0 +1,7 @@
+{
+  "packages": ["packages/*", "examples/*", "packages/plugins/*", "packages/runner/*"],
+  "version": "independent",
+  "useWorkspaces": true,
+  "npmClient": "yarn",
+  "message": "chore: publish"
+}

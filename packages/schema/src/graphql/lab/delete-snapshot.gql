@@ -1,0 +1,3 @@
+mutation deleteSnapshot($projectId: ID!, $snapshotId: Int!) {
+  deleteSnapshot(projectId: $projectId, snapshotId: $snapshotId)
+}

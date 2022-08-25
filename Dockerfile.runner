@@ -1,0 +1,34 @@
+FROM perfsee_prepare AS install
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+  DEBIAN_FRONTEND="noninteractive" \
+  TZ="Asia/Shanghai" \
+  RUSTUP_HOME=/usr/local/rustup \
+  CARGO_HOME=/usr/local/cargo \
+  PATH=/usr/local/cargo/bin:$PATH
+
+COPY . /code
+WORKDIR /code
+RUN curl -sS https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+  echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
+  apt-get update && \
+  # common dev tools
+  apt-get install curl unzip libjpeg-dev libsecret-1-dev software-properties-common \
+  xvfb ffmpeg google-chrome-stable -y --no-install-recommends --fix-missing && \
+  apt-get autoremove -y && apt-get purge && apt-get autoclean && \
+  # rust
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+  # chrome-driver
+  export CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
+  mkdir -p /opt/chromedriver-$CHROMEDRIVER_VERSION && \
+  wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
+  unzip -qq chromedriver_linux64.zip -d /opt/chromedriver-$CHROMEDRIVER_VERSION && \
+  rm chromedriver_linux64.zip && \
+  chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver && \
+  ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver && \
+  yarn
+
+FROM install AS deploy
+ENV NODE_ENV=production
+RUN yarn build
+CMD ["node", "packages/job-runner/dist/index.js"]

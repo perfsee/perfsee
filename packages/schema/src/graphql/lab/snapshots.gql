@@ -1,0 +1,22 @@
+query snapshots($projectId: ID!, $pagination: PaginationInput, $trigger: SnapshotTrigger, $hash: String) {
+  project(id: $projectId) {
+    snapshots(pagination: $pagination, trigger: $trigger, hash: $hash) {
+      edges {
+        cursor
+        node {
+          id
+          trigger
+          status
+          startedAt
+          createdAt
+          failedReason
+          title
+          hash
+        }
+      }
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+}

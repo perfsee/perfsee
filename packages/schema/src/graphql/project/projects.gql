@@ -1,0 +1,16 @@
+query projects($input: PaginationInput!, $starred: Boolean!, $query: String) {
+  projects(pagination: $input, starred: $starred, query: $query) {
+    edges {
+      node {
+        id
+        host
+        namespace
+        name
+        isPublic
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

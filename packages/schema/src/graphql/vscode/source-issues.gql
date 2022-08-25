@@ -1,0 +1,27 @@
+query vscodeSourceIssues($projectId: ID!, $pagination: PaginationInput, $hash: String) {
+  project(id: $projectId) {
+    sourceIssues(pagination: $pagination, hash: $hash) {
+      edges {
+        cursor
+        node {
+          id
+          code
+          frameKey
+          hash
+          info
+          snapshotReport {
+            id
+            page {
+              name
+              url
+            }
+            flameChartStorageKey
+          }
+        }
+      }
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+}

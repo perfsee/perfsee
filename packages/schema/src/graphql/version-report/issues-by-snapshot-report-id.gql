@@ -1,0 +1,14 @@
+query issuesByReportId($projectId: ID!, $snapshotReportId: Int!) {
+  project(id: $projectId) {
+    snapshotReport(reportId: $snapshotReportId) {
+      issues {
+        id
+        snapshotReportId
+        frameKey
+        hash
+        info
+        code
+      }
+    }
+  }
+}

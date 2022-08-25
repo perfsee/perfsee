@@ -1,0 +1,15 @@
+fragment runnerInfo on Runner {
+  id
+  name
+  jobType
+  online
+  active
+  version
+  nodeVersion
+  platform
+  arch
+  zone
+  createdAt
+  maxJobConcurrency
+  runningJobCount
+}

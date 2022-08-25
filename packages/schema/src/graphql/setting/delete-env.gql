@@ -1,0 +1,3 @@
+mutation deleteEnvironment($projectId: ID!, $id: Int!) {
+  deleteEnvironment(projectId: $projectId, envId: $id)
+}

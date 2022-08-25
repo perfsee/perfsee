@@ -1,0 +1,15 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/esm": true,
+    "**/dist": true,
+    "yarn.lock": true,
+    "**/tmp": true,
+    "**/tsconfig.tsbuildinfo": true
+  },
+  "cSpell.words": ["Perfsee", "tsbuildinfo", "tsconfigs"]
+}

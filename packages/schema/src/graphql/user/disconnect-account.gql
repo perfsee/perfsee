@@ -1,0 +1,3 @@
+mutation disconnectAccount($provider: ExternalAccount!) {
+  disconnectAccount(provider: $provider)
+}

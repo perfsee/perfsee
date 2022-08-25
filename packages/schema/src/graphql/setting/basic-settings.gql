@@ -1,0 +1,14 @@
+query basicSettings($projectId: ID!) {
+  project(id: $projectId) {
+    setting {
+      labMessageSource
+      bundleMessageFilter
+      bundleMessageSource
+      bundleMessageBranches
+      messageTargetType
+      messageTarget {
+        userEmails
+      }
+    }
+  }
+}

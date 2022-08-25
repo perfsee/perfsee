@@ -1,0 +1,13 @@
+fragment projectFields on Project {
+  id
+  host
+  namespace
+  name
+  isPublic
+  artifactBaselineBranch
+  owners {
+    username
+    avatarUrl
+    email
+  }
+}

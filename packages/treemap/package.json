@@ -1,0 +1,23 @@
+{
+  "name": "@perfsee/treemap",
+  "version": "0.0.1",
+  "description": "Web tree map chart, based on webgl.",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "private": true,
+  "sideEffect": false,
+  "main": "esm/index.js",
+  "dependencies": {
+    "@types/d3-hierarchy": "^3.1.0",
+    "d3-hierarchy": "^3.1.2",
+    "twgl.js": "^4.24.0"
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  }
+}

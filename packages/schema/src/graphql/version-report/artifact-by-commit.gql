@@ -1,0 +1,25 @@
+query artifactByCommit($projectId: ID!, $hash: String!) {
+  project(id: $projectId) {
+    artifactByCommit(hash: $hash) {
+      id
+      branch
+      hash
+      createdAt
+      score
+      reportKey
+      entrypoints {
+        entrypoint
+        size {
+          raw
+          gzip
+          brotli
+        }
+        initialSize {
+          raw
+          gzip
+          brotli
+        }
+      }
+    }
+  }
+}

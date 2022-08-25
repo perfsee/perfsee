@@ -1,0 +1,7 @@
+When using `webpack` to bundle frontend projects, we always add hash to name of emitted assets so we can safely
+give them long term cache after user downloading.
+
+Generally, the hash added to filename is `content hash`(`[name].[contenthash:8].js`). In other words, the hash changes only if the file content changed.
+
+Under this condition, once new version released, users need to download new assets that has it's hash changed.
+And the total size of all new assets are cache invalidation size.

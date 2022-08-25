@@ -1,0 +1,7 @@
+query vscodeReportMetrics($projectId: ID!, $reportId: Int!) {
+  project(id: $projectId) {
+    snapshotReport(reportId: $reportId) {
+      metrics
+    }
+  }
+}

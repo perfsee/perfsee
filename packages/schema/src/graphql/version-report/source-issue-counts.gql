@@ -1,0 +1,9 @@
+query sourceIssuesCount($projectId: ID!, $hash: String) {
+  project(id: $projectId) {
+    sourceIssues(hash: $hash) {
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+}

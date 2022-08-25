@@ -1,0 +1,21 @@
+{
+  "name": "@perfsee/chrome-finder",
+  "version": "0.0.1",
+  "description": "Chrome executable bin finder",
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": "https://github.com/perfsee/perfsee",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "files": ["dist"],
+  "engines": {
+    "node": ">= 10.18.1"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^13.7.0"
+  },
+  "peerDependencies": {
+    "puppeteer-core": ">= 13"
+  }
+}

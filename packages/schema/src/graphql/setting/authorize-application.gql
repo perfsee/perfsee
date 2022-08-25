@@ -1,0 +1,3 @@
+mutation authorizeApplication($projectId: ID!, $applicationId: Int!, $permissions: [Permission!]!) {
+  authorizeApplication(permissions: $permissions, applicationId: $applicationId, projectId: $projectId)
+}

@@ -1,0 +1,11 @@
+query projectTimeUsages($projectId: ID!, $input: TimeUsageInput!) {
+  project(id: $projectId) {
+    timeUsage(input: $input) {
+      total
+      detail {
+        jobType
+        data
+      }
+    }
+  }
+}

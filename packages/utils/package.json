@@ -1,0 +1,13 @@
+{
+  "name": "@perfsee/utils",
+  "version": "0.0.1",
+  "description": "utilities function of perfsee platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "files": ["dist", "CHANGELOG.md"],
+  "dependencies": {
+    "tslib": "^2.4.0"
+  }
+}

@@ -1,0 +1,18 @@
+mutation takeSnapshot(
+  $projectId: ID!,
+  $pageIds: [Int!]!,
+  $profileIds: [Int!],
+  $envIds: [Int!],
+  $title: String,
+) {
+  takeSnapshot(projectId: $projectId, pageIds: $pageIds, profileIds: $profileIds, envIds: $envIds, title: $title) {
+    id
+    trigger
+    status
+    startedAt
+    createdAt
+    failedReason
+    title
+    hash
+  }
+}

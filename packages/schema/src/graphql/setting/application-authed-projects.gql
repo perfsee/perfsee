@@ -1,0 +1,13 @@
+query authorizedProjects($appId: Int!) {
+  application(id: $appId) {
+    authorizedProjects {
+      project {
+        id
+        name
+        namespace
+        host
+      }
+      permissions
+    }
+  }
+}

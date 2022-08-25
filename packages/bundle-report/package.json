@@ -1,0 +1,34 @@
+{
+  "name": "@perfsee/bundle-report",
+  "version": "0.0.1",
+  "description": "bundle report module frontend part",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "main": "esm/index.js",
+  "private": true,
+  "dependencies": {
+    "@abraham/reflection": "^0.10.0",
+    "@ant-design/icons": "^4.7.0",
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@fluentui/react": "^8.81.1",
+    "@fluentui/theme": "^2.6.7",
+    "@mdx-js/react": "^2.1.2",
+    "@perfsee/components": "^0.0.1",
+    "@perfsee/dls": "^0.0.1",
+    "@perfsee/schema": "^0.0.1",
+    "@perfsee/shared": "^0.0.1",
+    "@perfsee/treemap": "^0.0.1",
+    "@perfsee/utils": "^0.0.1",
+    "dayjs": "^1.11.3",
+    "lodash": "^4.17.21",
+    "query-string": "^7.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^5.2.1",
+    "react-router-dom": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/mdx-js__react": "^1.5.5"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@perfsee/source-coverage",
+  "version": "0.0.1",
+  "description": "Perfsee source coverage analyzer.",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "keywords": ["perfsee", "source", "coverage"],
+  "main": "dist/index.js",
+  "sideEffects": false,
+  "private": true,
+  "dependencies": {
+    "lighthouse": "^9.6.3"
+  }
+}
