@@ -58,6 +58,20 @@ export class EnvironmentService {
       }
     }
 
+    // verify localStorage items
+    // limit key/value length to 1024 bytes
+    if (patch.localStorage) {
+      patch.localStorage.forEach(({ key, value }) => {
+        try {
+          if (JSON.stringify(key).length > 1024 || JSON.stringify(value).length > 1024) {
+            throw new UserError(`environment localStorage key or value exceed 1024 bytes.`)
+          }
+        } catch (e) {
+          throw new UserError(`invalid environment localStorage key or value.`)
+        }
+      })
+    }
+
     // create
     if (!patch.iid) {
       const iid = await this.internalIdService.generate(projectId, InternalIdUsage.Env)

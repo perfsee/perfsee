@@ -28,7 +28,7 @@ import {
   Index,
 } from 'typeorm'
 
-import { CookieType, HeaderType } from '@perfsee/shared'
+import { CookieType, HeaderType, LocalStorageType } from '@perfsee/shared'
 
 import { ApplicationSetting } from './application-setting.entity'
 import type { Project } from './project.entity'
@@ -177,6 +177,13 @@ export class Environment extends BaseEntity {
   })
   @Column({ type: 'boolean', default: false })
   disable!: boolean
+
+  @Field(() => GraphQLJSON, {
+    nullable: true,
+    description: 'extra localStorage value inserted into page',
+  })
+  @Column({ type: 'json', nullable: true })
+  localStorage!: LocalStorageType[]
 
   @OneToMany('SnapshotReport', 'environment')
   reports!: SnapshotReport[]

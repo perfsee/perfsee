@@ -24,7 +24,14 @@ import { v4 as uuid } from 'uuid'
 
 import { JobWorker } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
-import { CookieType, LighthouseScoreMetric, MetricKeyType, MetricType, RequestSchema } from '@perfsee/shared'
+import {
+  CookieType,
+  LighthouseScoreMetric,
+  LocalStorageType,
+  MetricKeyType,
+  MetricType,
+  RequestSchema,
+} from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
 import {
@@ -40,6 +47,7 @@ import { computeMedianRun, getFCP, getNumericValue, getTTI, lighthouse, MetricsR
 export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected headers!: HostHeaders
   protected cookies!: CookieType[]
+  protected localStorageContent!: LocalStorageType[]
 
   protected async before() {
     this.warmupPageLoad()
@@ -168,17 +176,18 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   private warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
-    const { headers, cookies } = this.payload
+    const { headers, cookies, localStorage } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
     this.headers = hostHeaders
     this.cookies = cookies
+    this.localStorageContent = localStorage
 
     this.logger.verbose('Warming up ended.')
   }
 
   private async runLighthouse() {
-    const { cookies, headers } = this
+    const { cookies, headers, localStorageContent } = this
     const { url, deviceId, throttle, runs } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
 
@@ -187,6 +196,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       cookies,
       headers,
       throttle,
+      localStorageContent,
     })
 
     const downloadKbps = throttle.download ? throttle.download / 125 : 40000
@@ -232,6 +242,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           }
           await page.setCookie(...cookies)
           await page.setViewport(device.viewport)
+
+          if (localStorageContent.length) {
+            await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
+              localStorage.clear()
+              localStorageContent.forEach(({ key, value }) => {
+                localStorage.setItem(key, value)
+              })
+            }, localStorageContent)
+          }
         }
 
         setup().catch((e) => {

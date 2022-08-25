@@ -3,6 +3,7 @@ fragment environmentFields on Environment {
     name
     cookies
     headers
+    localStorage
     isCompetitor
     disable
     needReminder

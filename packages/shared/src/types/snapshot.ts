@@ -104,6 +104,11 @@ export type HeaderType = {
   host: string
 }
 
+export type LocalStorageType = {
+  key: string
+  value: string
+}
+
 export type ThrottleType = {
   id: string
   download: number
