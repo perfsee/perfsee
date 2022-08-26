@@ -37,7 +37,7 @@ export const ExistedPages: FC<Props> = ({ onCloseModal }) => {
     dependencies: [],
   })
 
-  const { takeSnapshotByPageIds: takeSnapshot } = useDispatchers(LabListModule)
+  const { takeSnapshot } = useDispatchers(LabListModule)
 
   const [pageIds, setPageIds] = useState<number[]>([])
   const [profileIds, setProfileIds] = useState<number[]>([])

@@ -168,7 +168,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     return snapshot
   }
 
-  async takeSnapshotByPageIds(
+  async takeSnapshot(
     options: {
       projectId: number
       hash?: string

@@ -140,7 +140,7 @@ export function SettingsSchedule() {
     const { hour, monitorType, timeOfDay, pageIds, profileIds, schedule, envIds } = changing
 
     if (
-      (monitorType === ScheduleMonitorType.Specified && (!pageIds.length || !profileIds.length || !envIds.length)) ||
+      (monitorType === ScheduleMonitorType.Specified && !pageIds.length && !profileIds.length && !envIds.length) ||
       (typeof hour === 'number' && (hour > 168 || hour < 1))
     ) {
       notify.error({
