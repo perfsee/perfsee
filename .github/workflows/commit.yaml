@@ -20,7 +20,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Cache lint result
         uses: actions/cache@v3
         with:
@@ -41,7 +41,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Typecheck
         run: |
           yarn codegen
@@ -57,7 +57,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Test
         run: yarn test:concurrent
       - name: Upload coverage
@@ -95,7 +95,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Test
         env:
           REDIS_HOST: redis
@@ -120,7 +120,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Download coverage
         uses: actions/download-artifact@v3
         with:
@@ -148,7 +148,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Bundle
         run: |
           yarn codegen
@@ -170,7 +170,7 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+        run: yarn install --mode=skip-build
       - name: Bundle
         continue-on-error: true
         run: |

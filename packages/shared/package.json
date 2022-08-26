@@ -12,8 +12,8 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@perfsee/flamechart": "^0.0.1",
     "@perfsee/bundle-analyzer": "^0.0.1",
+    "@perfsee/flamechart": "^0.0.1",
     "@perfsee/plugin-utils": "^0.0.1"
   }
 }

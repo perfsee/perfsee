@@ -5,12 +5,12 @@
   "main": "./dist/index.js",
   "private": true,
   "dependencies": {
-    "@perfsee/shared": "^0.0.1",
-    "@perfsee/server-common": "^0.0.1",
-    "@perfsee/job-runner-shared": "^0.0.1",
-    "@perfsee/source-coverage": "^0.0.1",
     "@perfsee/bundle-analyzer": "^0.0.1",
+    "@perfsee/job-runner-shared": "^0.0.1",
     "@perfsee/ori": "^0.0.1",
+    "@perfsee/server-common": "^0.0.1",
+    "@perfsee/shared": "^0.0.1",
+    "@perfsee/source-coverage": "^0.0.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

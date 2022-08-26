@@ -254,10 +254,10 @@
     }
   },
   "devDependencies": {
-    "@perfsee/flamechart": "^0.0.1",
-    "@perfsee/shared": "^0.0.1",
     "@perfsee/dls": "^0.0.1",
+    "@perfsee/flamechart": "^0.0.1",
     "@perfsee/schema": "^0.0.1",
+    "@perfsee/shared": "^0.0.1",
     "@perfsee/utils": "^0.0.1",
     "@types/diff": "^5.0.2",
     "@types/vscode": "^1.50.0",

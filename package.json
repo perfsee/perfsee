@@ -121,7 +121,7 @@
     "build:npm": "yarn cli build -a && yarn clean:tests",
     "build:rs": "lerna run build:rs --concurrency 1 --stream",
     "vscode:watch": "cross-env NODE_ENV=development yarn cli vscode watch",
-    "run:ts": "cross-env TS_NODE_PROJECT=tsconfigs/tsconfig.cjs.json NODE_CONFIG_DIR=config DOTENV_CONFIG_PATH=$(pwd)/packages/platform-server/.env node -r ts-node/register/transpile-only -r tsconfig-paths/register",
+    "run:ts": "cross-env TS_NODE_PROJECT=tsconfigs/tsconfig.cjs.json NODE_CONFIG_DIR=config DOTENV_CONFIG_PATH=./packages/platform-server/.env node -r ts-node/register/transpile-only -r tsconfig-paths/register",
     "clean": "shx rm -rf ./packages/**/*.tsbuildinfo && shx rm -rf ./packages/**/{esm,dist}",
     "clean:node_modules": "shx rm -rf node_modules packages/*/node_modules",
     "clean:tests": "shx rm -rf './packages/**/{esm,dist}/**/__tests__'",
@@ -138,5 +138,6 @@
     "postinstall": "husky install",
     "release": "lerna version --sign-git-tag --exact --allow-branch main",
     "docs": "yarn --cwd docs"
-  }
+  },
+  "packageManager": "yarn@3.2.3"
 }
