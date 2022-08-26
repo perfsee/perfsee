@@ -4350,15 +4350,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/loader@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "@mdx-js/loader@npm:2.1.2"
+"@mdx-js/loader@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "@mdx-js/loader@npm:2.1.3"
   dependencies:
     "@mdx-js/mdx": ^2.0.0
     source-map: ^0.7.0
   peerDependencies:
     webpack: ">=4"
-  checksum: 5fd8978b4835aa8bb94a1f9c3e753839001c8fb1cd2b1d4ed8f03dd17bc1c16c339cecade38dae11d4100cd8414ba0e6042b19a041eee63f25a8bb12c3e1ed54
+  checksum: 087ec51548d194631d2df9d6ae7ebd45000e9a5d67d71068487036edb1d24848a6198574745af7f57916d1e32bdeec4e256cb842296a2f02e75180221e54bc45
   languageName: node
   linkType: hard
 
@@ -19594,7 +19594,7 @@ __metadata:
     "@graphql-codegen/cli": 2.8.1
     "@graphql-codegen/typescript": ^2.7.1
     "@graphql-codegen/typescript-operations": ^2.5.1
-    "@mdx-js/loader": ^2.1.2
+    "@mdx-js/loader": ^2.1.3
     "@rollup/plugin-alias": ^3.1.9
     "@rollup/plugin-commonjs": 22.0.1
     "@rollup/plugin-json": ^4.1.0

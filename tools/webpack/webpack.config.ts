@@ -138,7 +138,6 @@ const config: () => webpack.Configuration = () => {
             {
               test: /\.mdx?$/,
               use: [
-                'thread-loader',
                 {
                   loader: '@mdx-js/loader',
                   options: {
