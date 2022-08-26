@@ -129,12 +129,12 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          yarn c8 report
+          yarn c8 report -r lcov
 
-      # - name: Codecov
-      #   run: npx codecov -f coverage/*.json
-      #   env:
-      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
 
   bundle:
     runs-on: ubuntu-latest
