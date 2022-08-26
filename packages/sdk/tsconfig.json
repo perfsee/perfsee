@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "esm"
+  },
+  "references": [
+    {
+      "path": "../schema"
+    },
+    {
+      "path": "../platform-server"
+    },
+    {
+      "path": "../utils"
+    }
+  ],
+  "include": ["./src/**/*"]
+}

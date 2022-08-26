@@ -101,7 +101,7 @@ export class BuildCommand extends Command {
   }
 }
 
-const externalsRepoPackages = packages.filter((pkg) => pkg.packageJson.private).map((pkg) => pkg.name)
+const externalsRepoPackages = packages.filter((pkg) => !pkg.packageJson.private).map((pkg) => pkg.name)
 
 interface ExternalsPluginOptions {
   forceBundle?: string[]

@@ -194,7 +194,7 @@ function buildDeps(pkg: Package, packages: Package[], building: Set<string>) {
   }
 
   building.add(pkg.name)
-  pkg.deps = Object.keys({ ...pkg.packageJson.dependencies, ...pkg.packageJson.devDependencies })
+  pkg.deps = Object.keys({ ...pkg.packageJson.dependencies })
     .filter((dep) => packages.some(({ name }) => name === dep))
     .map((dep) => {
       if (building.has(dep)) {

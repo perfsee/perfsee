@@ -14,4 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './host'
+import simpleGit from 'simple-git'
+
+export const getCurrentCommit = async () => {
+  try {
+    return await simpleGit()
+      .log({ n: 1 })
+      .then((stats) => {
+        if (!stats.latest) {
+          throw new Error('No commit found')
+        }
+
+        return stats.latest.hash
+      })
+  } catch {
+    return undefined
+  }
+}
+
+export const getGitRemote = async () => {
+  const git = simpleGit()
+  return git.getRemotes(true).then(([remote]) => remote?.refs.fetch)
+}

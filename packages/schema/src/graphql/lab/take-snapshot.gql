@@ -4,8 +4,9 @@ mutation takeSnapshot(
   $profileIds: [Int!],
   $envIds: [Int!],
   $title: String,
+  $commitHash: String,
 ) {
-  takeSnapshot(projectId: $projectId, pageIds: $pageIds, profileIds: $profileIds, envIds: $envIds, title: $title) {
+  takeSnapshot(projectId: $projectId, pageIds: $pageIds, profileIds: $profileIds, envIds: $envIds, title: $title, commitHash: $commitHash) {
     id
     trigger
     status
