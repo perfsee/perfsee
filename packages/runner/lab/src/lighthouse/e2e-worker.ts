@@ -160,7 +160,8 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
     // run
     let failedReason
-    const screencastStorageKey = `perfsee/screencast/${uuid()}.mp4`
+    const screencastName = `screencast/${uuid()}.mp4`
+    let screencastStorageKey
     let userFlowResult
     const startTime = Date.now()
     try {
@@ -182,7 +183,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
     if (screenRecorder.isStarted) {
       await screenRecorder.stop()
-      await this.uploadScreencast(screencastStorageKey, videoFile)
+      screencastStorageKey = await this.uploadScreencast(screencastName, videoFile)
     }
 
     try {
@@ -253,9 +254,9 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     ]
 
     try {
-      const lighthouseStorageKey = `perfsee/snapshots/${uuid()}.json`
-      await this.client.uploadArtifact(
-        lighthouseStorageKey,
+      const lighthouseStorageName = `snapshots/${uuid()}.json`
+      const lighthouseStorageKey = await this.client.uploadArtifact(
+        lighthouseStorageName,
         Buffer.from(
           JSON.stringify({
             metricScores,
@@ -293,9 +294,10 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
   private async uploadScreencast(name: string, screencastPath: string) {
     try {
-      await this.client.uploadArtifactFile(name, screencastPath)
+      const fileKey = await this.client.uploadArtifactFile(name, screencastPath)
       this.logger.verbose('Cleanup screencast path')
       await fs.rm(dirname(screencastPath), { recursive: true, force: true })
+      return fileKey
     } catch (e) {
       this.logger.error('Failed to upload video', { error: e })
     }

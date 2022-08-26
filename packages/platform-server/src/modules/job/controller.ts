@@ -14,12 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Controller, Post, Body, Headers, Get, Query, HttpCode, HttpStatus, Res } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Get,
+  Query,
+  HttpCode,
+  HttpStatus,
+  Res,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common'
 import { Response } from 'express'
 import Redlock from 'redlock'
 
 import { Config } from '@perfsee/platform-server/config'
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
+import { Job } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
@@ -145,9 +158,37 @@ export class JobController {
 
   @Post('/artifacts')
   @HttpCode(HttpStatus.CREATED)
-  async uploadArtifact(@Body() buf: Buffer, @Query('key') key: string, @Headers('x-runner-token') token: string) {
-    await this.runner.authenticateRunner(token)
-    await this.storage.upload(key, buf)
+  async uploadArtifact(
+    @Body() buf: Buffer,
+    @Query('jobId') jobId: string,
+    @Query('key') key: string,
+    @Headers('x-runner-token') token: string,
+  ) {
+    let id
+    try {
+      id = parseInt(jobId)
+      // eslint-disable-next-line no-empty
+    } catch {}
+    if (!id) {
+      throw new ForbiddenException('Invalid jobId')
+    }
+
+    const runner = await this.runner.authenticateRunner(token)
+    const job = await Job.findOneBy({ id })
+
+    if (!job) {
+      throw new NotFoundException('Job not found')
+    }
+
+    if (job.runnerId !== runner.id) {
+      throw new ForbiddenException('JobId not match the runner')
+    }
+
+    const finalKey = 'artifacts/' + job.projectId + '/' + key
+    await this.storage.upload(finalKey, buf)
+    return {
+      key: finalKey,
+    }
   }
 
   @Get('/artifacts')

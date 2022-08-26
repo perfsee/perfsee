@@ -77,9 +77,12 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
           )
 
           const { diagnostics, profile } = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
-          const flameChartStorageKey = `perfsee/flame-charts/${uuid()}.json`
-          this.logger.info(`Uploading analysis flame chart data to artifacts. [key=${flameChartStorageKey}]`)
-          await this.client.uploadArtifact(flameChartStorageKey, Buffer.from(JSON.stringify(profile), 'utf-8'))
+          const flameChartStorageName = `flame-charts/${uuid()}.json`
+          this.logger.info(`Uploading analysis flame chart data to artifacts. [name=${flameChartStorageName}]`)
+          const flameChartStorageKey = await this.client.uploadArtifact(
+            flameChartStorageName,
+            Buffer.from(JSON.stringify(profile), 'utf-8'),
+          )
           this.logger.info(`Finished uploading. [key=${flameChartStorageKey}]`)
 
           const sourceCoverageStorageKey = sourceCoverageResult.find(
@@ -270,9 +273,12 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       }
 
       const coverageData = await generateSourceCoverageTreemapData({ jsCoverageData, source, pageUrl })
-      const StorageKey = `perfsee/source-coverage/${uuid()}.json`
-      await this.client.uploadArtifact(StorageKey, Buffer.from(JSON.stringify(coverageData), 'utf-8'))
-      result.push({ reportId, sourceCoverageStorageKey: StorageKey })
+      const storageName = `source-coverage/${uuid()}.json`
+      const sourceCoverageStorageKey = await this.client.uploadArtifact(
+        storageName,
+        Buffer.from(JSON.stringify(coverageData), 'utf-8'),
+      )
+      result.push({ reportId, sourceCoverageStorageKey })
     }
 
     return result

@@ -121,16 +121,21 @@ test('should return 404 if job not found', async (t) => {
 })
 
 test('upload and download artifact', async (t) => {
-  const key = 'test.txt'
+  const filename = 'test.txt'
+
+  const job = await create(Job, { status: JobStatus.Running, runner })
 
   const upload = await request(config.host)
     .post('/api/jobs/artifacts')
-    .query({ key })
+    .query({ key: filename, jobId: job.id })
     .set('x-runner-token', runner.token)
     .set('content-type', 'application/octet-stream')
     .send(Buffer.from('content'))
 
   t.is(upload.statusCode, HttpStatus.CREATED)
+
+  const { key } = upload.body
+  t.truthy(key)
 
   const download = await request(config.host)
     .get('/api/jobs/artifacts')
@@ -144,9 +149,11 @@ test('upload and download artifact', async (t) => {
 test('should forbid invalid runner upload & download artifact', async (t) => {
   const key = 'test.txt'
 
+  const job = await create(Job, { status: JobStatus.Running, runner })
+
   const upload = await request(config.host)
     .post('/api/jobs/artifacts')
-    .query({ key })
+    .query({ key, jobId: job.id })
     .set('x-runner-token', 'invalid token')
     .set('content-type', 'application/octet-stream')
     .send(Buffer.from('content'))
@@ -159,6 +166,44 @@ test('should forbid invalid runner upload & download artifact', async (t) => {
     .set('x-runner-token', 'invalid token')
 
   t.is(download.statusCode, HttpStatus.FORBIDDEN)
+})
+
+test('should forbid invalid jobId', async (t) => {
+  const key = 'test.txt'
+
+  const upload = await request(config.host)
+    .post('/api/jobs/artifacts')
+    .query({ key, jobId: 'not-number' })
+    .set('x-runner-token', runner.token)
+    .set('content-type', 'application/octet-stream')
+    .send(Buffer.from('content'))
+
+  t.is(upload.statusCode, HttpStatus.FORBIDDEN)
+
+  const upload2 = await request(config.host)
+    .post('/api/jobs/artifacts')
+    .query({ key, jobId: '123456' })
+    .set('x-runner-token', runner.token)
+    .set('content-type', 'application/octet-stream')
+    .send(Buffer.from('content'))
+
+  t.is(upload2.statusCode, HttpStatus.NOT_FOUND)
+})
+
+test('should return 403 if jobId and runner do not match', async (t) => {
+  const key = 'test.txt'
+
+  const otherRunner = await create(Runner)
+  const job = await create(Job, { status: JobStatus.Running, runner: otherRunner })
+
+  const upload = await request(config.host)
+    .post('/api/jobs/artifacts')
+    .query({ key, jobId: job.id })
+    .set('x-runner-token', runner.token)
+    .set('content-type', 'application/octet-stream')
+    .send(Buffer.from('content'))
+
+  t.is(upload.statusCode, HttpStatus.FORBIDDEN)
 })
 
 test('should return 404 if no artifact found', async (t) => {

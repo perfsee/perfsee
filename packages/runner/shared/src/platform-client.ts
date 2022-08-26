@@ -21,10 +21,10 @@ import { stat } from 'fs/promises'
 import { merge } from 'lodash'
 import fetch, { RequestInit, BodyInit } from 'node-fetch'
 
-import { ServerConfig } from './types'
+import { WorkerData } from './types'
 
 export class PlatformClient {
-  constructor(private readonly config: ServerConfig) {}
+  constructor(private readonly config: WorkerData) {}
 
   async getArtifact(name: string) {
     const res = await this.fetch(`/api/jobs/artifacts?key=${name}`, { method: 'GET' })
@@ -45,7 +45,7 @@ export class PlatformClient {
   }
 
   async uploadArtifact(name: string, body: BodyInit) {
-    const res = await this.fetch(`/api/jobs/artifacts?key=${name}`, {
+    const res = await this.fetch(`/api/jobs/artifacts?jobId=${this.config.job.jobId}&key=${name}`, {
       method: 'POST',
       body,
       headers: {
@@ -56,6 +56,9 @@ export class PlatformClient {
     if (!res.ok) {
       throw new Error('Failed to upload artifact.')
     }
+
+    const { key } = await res.json()
+    return key as string
   }
 
   async uploadArtifactFile(name: string, path: string) {
@@ -97,9 +100,9 @@ export class PlatformClient {
       merge(
         {
           headers: {
-            'x-runner-token': this.config.token,
+            'x-runner-token': this.config.server.token,
           },
-          timeout: this.config.timeout * 1000,
+          timeout: this.config.server.timeout * 1000,
         },
         init,
       ),
@@ -107,6 +110,6 @@ export class PlatformClient {
   }
 
   async doFetch(path: string, init?: RequestInit) {
-    return fetch(this.config.url + path, init)
+    return fetch(this.config.server.url + path, init)
   }
 }
