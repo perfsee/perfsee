@@ -1,0 +1,27 @@
+name: Release packages
+
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn build:npm
+      - name: Publish
+        run: yarn lerna publish from-package --pre-dist-tag beta --no-verify-access --yes
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

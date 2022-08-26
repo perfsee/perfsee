@@ -4,6 +4,8 @@
   <img src="./assets/logo.svg" style="margin: '0 auto'">
 </p>
 
+[![Test Commit](https://github.com/perfsee/perfsee/actions/workflows/commit.yaml/badge.svg)](https://github.com/perfsee/perfsee/actions/workflows/commit.yaml)
+
 README | [中文 README](README.zh_CN.md)
 
 Perfsee provides a set of tool for measuring and debugging performance of frontend applications,
