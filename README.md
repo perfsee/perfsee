@@ -5,6 +5,7 @@
 </p>
 
 [![Test Commit](https://github.com/perfsee/perfsee/actions/workflows/commit.yaml/badge.svg)](https://github.com/perfsee/perfsee/actions/workflows/commit.yaml)
+[![codecov](https://codecov.io/gh/perfsee/perfsee/branch/main/graph/badge.svg?token=MBVDJ2GDLH)](https://codecov.io/gh/perfsee/perfsee)
 
 README | [中文 README](README.zh_CN.md)
 
