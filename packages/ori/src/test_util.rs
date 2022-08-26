@@ -41,7 +41,7 @@ impl From<&str> for Frame {
       frame.name = String::from("(anonymouse)");
     } else {
       let parts: Vec<_> = s.split(':').collect();
-      if let Some(&name) = parts.get(0) {
+      if let Some(&name) = parts.first() {
         if !name.is_empty() {
           frame.sourced = true;
         }

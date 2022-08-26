@@ -127,7 +127,7 @@ function build() {
     entryPoints: [path.resolve(__dirname, './cli/index.ts')],
     bundle: true,
     platform: 'node',
-    target: 'node16',
+    target: 'node14',
     outfile: path.resolve(__dirname, './cli.generated.js'),
     plugins: [externalPlugin],
     sourcemap: true,

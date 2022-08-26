@@ -46,7 +46,6 @@ export function getFrontendConfig() {
       }),
       new PerfseePlugin({
         project: 'perfsee',
-        enableAudit: false,
         severOptions: {
           publicPath: getPackage('@perfsee/plugin-utils').relative('public'),
         },

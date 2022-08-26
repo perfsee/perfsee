@@ -1,0 +1,29 @@
+name: native checks
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+jobs:
+  check-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install latest toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          default: true
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Check
+        run: |
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo test

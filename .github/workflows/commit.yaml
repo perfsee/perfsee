@@ -1,0 +1,180 @@
+name: Test Commit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  NODE_ENV: test
+  NODE_V8_COVERAGE: coverage/tmp
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Cache lint result
+        uses: actions/cache@v3
+        with:
+          path: ./.eslint-cache
+          key: eslint-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            eslint-
+      - name: Lint
+        run: yarn lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Typecheck
+        run: |
+          yarn codegen
+          yarn typecheck
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Test
+        run: yarn test:concurrent
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: test-coverage
+          path: ${{ env.NODE_V8_COVERAGE }}
+
+  integration-test:
+    runs-on: ubuntu-latest
+    container: node:16-bullseye
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+          MYSQL_DATABASE: 'perfsee_testing'
+        options: >-
+          --health-cmd "mysqladmin status"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Test
+        env:
+          REDIS_HOST: redis
+          MYSQL_HOST: mysql
+        run: |
+          yarn codegen
+          yarn test:serial
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-coverage
+          path: ${{ env.NODE_V8_COVERAGE }}
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: ['unit-test', 'integration-test']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Download coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: test-coverage
+          path: ${{ env.NODE_V8_COVERAGE }}
+
+      - name: Generate coverage report
+        run: |
+          yarn c8 report
+
+      # - name: Codecov
+      #   run: npx codecov -f coverage/*.json
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  bundle:
+    runs-on: ubuntu-latest
+    env:
+      PERFSEE_NO_UPLOAD: true # remove after platform is ready
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Bundle
+        run: |
+          yarn codegen
+          NODE_ENV=production yarn cli bundle -p @perfsee/platform
+
+  examples:
+    name: Test plugin on node - ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['14', '16']
+    env:
+      PERFSEE_NO_UPLOAD: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+      - name: Bundle
+        continue-on-error: true
+        run: |
+          yarn example -p @examples/simple
+          yarn example -p @examples/duplicate-libs
+          DISABLE_TRANSFORMER=true yarn example -p @examples/split-chunks
+          ENTRY='index2.tsx' yarn example -p @examples/split-chunks
