@@ -187,3 +187,11 @@ temp/
 .benchmark/
 .eslint-cache
 .volumes
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
