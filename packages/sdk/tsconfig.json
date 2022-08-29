@@ -8,12 +8,6 @@
   "references": [
     {
       "path": "../schema"
-    },
-    {
-      "path": "../platform-server"
-    },
-    {
-      "path": "../utils"
     }
   ],
   "include": ["./src/**/*"]

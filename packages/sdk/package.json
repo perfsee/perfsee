@@ -17,7 +17,6 @@
     "node-fetch": "^2.6.2",
     "graphql": "^15.6.1",
     "clipanion": "^3.1.0",
-    "@perfsee/utils": "^0.0.1",
     "simple-git": "^3.10.0"
   },
   "devDependencies": {
