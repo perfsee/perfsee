@@ -1,14 +1,32 @@
 {
   "references": [
-    { "path": "../packages/bundle-analyzer" },
-    { "path": "../packages/flamechart" },
-    { "path": "../packages/plugins/esbuild" },
-    { "path": "../packages/plugins/rollup" },
-    { "path": "../packages/plugins/utils" },
-    { "path": "../packages/plugins/webpack" },
-    { "path": "../packages/tracehouse" },
-    { "path": "../packages/utils" },
-    { "path": "../packages/sdk" }
+    {
+      "path": "../packages/bundle-analyzer"
+    },
+    {
+      "path": "../packages/flamechart"
+    },
+    {
+      "path": "../packages/plugins/esbuild"
+    },
+    {
+      "path": "../packages/plugins/rollup"
+    },
+    {
+      "path": "../packages/plugins/utils"
+    },
+    {
+      "path": "../packages/plugins/webpack"
+    },
+    {
+      "path": "../packages/tracehouse"
+    },
+    {
+      "path": "../packages/utils"
+    },
+    {
+      "path": "../packages/sdk"
+    }
   ],
   "compilerOptions": {
     "noEmit": true

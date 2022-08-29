@@ -3,7 +3,12 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "private": true,
-  "workspaces": ["packages/*", "examples/*", "packages/plugins/*", "packages/runner/*"],
+  "workspaces": [
+    "packages/*",
+    "examples/*",
+    "packages/plugins/*",
+    "packages/runner/*"
+  ],
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.3",
     "@commitlint/config-lerna-scopes": "^17.0.2",
@@ -98,10 +103,18 @@
     "yup": "^0.32.11"
   },
   "lint-staged": {
-    "*.@(js|ts|tsx)": ["prettier --write"],
-    "*.@(yml|yaml)": ["prettier --parser yaml --write"],
-    "*.md": ["prettier --parser markdown --write"],
-    "*.json": ["prettier --parser json --write"]
+    "*.@(js|ts|tsx)": [
+      "prettier --write"
+    ],
+    "*.@(yml|yaml)": [
+      "prettier --parser yaml --write"
+    ],
+    "*.md": [
+      "prettier --parser markdown --write"
+    ],
+    "*.json": [
+      "prettier --parser json --write"
+    ]
   },
   "prettier": {
     "printWidth": 120,
@@ -109,7 +122,15 @@
     "trailingComma": "all",
     "singleQuote": true,
     "arrowParens": "always",
-    "parser": "typescript"
+    "parser": "typescript",
+    "overrides": [
+      {
+        "files": "*.json",
+        "options": {
+          "printWidth": 1
+        }
+      }
+    ]
   },
   "scripts": {
     "cli": "cross-env DEBUG='perfsee:*' node tools/cli.js",
@@ -137,7 +158,7 @@
     "circular": "madge --circular --ts-config ./tsconfig.json packages/**/src/index.ts packages/**/src/index.tsx",
     "postinstall": "husky install",
     "release": "lerna version --sign-git-tag --exact --allow-branch main",
-    "docs": "yarn --cwd docs"
+    "docs": "cd docs && yarn"
   },
   "packageManager": "yarn@3.2.3"
 }

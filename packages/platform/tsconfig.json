@@ -7,14 +7,32 @@
     "outDir": "esm",
     "target": "ES2020"
   },
-  "include": ["./src/**/*", "./global.d.ts", "./react-patch.d.ts"],
+  "include": [
+    "./src/**/*",
+    "./global.d.ts",
+    "./react-patch.d.ts"
+  ],
   "references": [
-    { "path": "../bundle-report" },
-    { "path": "../tracehouse" },
-    { "path": "../dls" },
-    { "path": "../schema" },
-    { "path": "../shared" },
-    { "path": "../flamechart" },
-    { "path": "../treemap" }
+    {
+      "path": "../bundle-report"
+    },
+    {
+      "path": "../tracehouse"
+    },
+    {
+      "path": "../dls"
+    },
+    {
+      "path": "../schema"
+    },
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../flamechart"
+    },
+    {
+      "path": "../treemap"
+    }
   ]
 }

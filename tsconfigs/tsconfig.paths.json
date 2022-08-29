@@ -3,60 +3,168 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@perfsee/bundle-analyzer": ["packages/bundle-analyzer/src"],
-      "@perfsee/bundle-analyzer/*": ["packages/bundle-analyzer/src/*"],
-      "@perfsee/bundle-report": ["packages/bundle-report/src"],
-      "@perfsee/bundle-report/*": ["packages/bundle-report/src/*"],
-      "@perfsee/chrome-finder": ["packages/chrome-finder/src"],
-      "@perfsee/chrome-finder/*": ["packages/chrome-finder/src/*"],
-      "@perfsee/components": ["packages/components/src"],
-      "@perfsee/components/*": ["packages/components/src/*"],
-      "@perfsee/dls": ["packages/dls/src"],
-      "@perfsee/dls/*": ["packages/dls/src/*"],
-      "@perfsee/email-templates": ["packages/email-templates/src"],
-      "@perfsee/email-templates/*": ["packages/email-templates/src/*"],
-      "@perfsee/flamechart": ["packages/flamechart/src"],
-      "@perfsee/flamechart/*": ["packages/flamechart/src/*"],
-      "@perfsee/ori": ["packages/ori/src"],
-      "@perfsee/ori/*": ["packages/ori/src/*"],
-      "@perfsee/platform-server": ["packages/platform-server/src"],
-      "@perfsee/platform-server/*": ["packages/platform-server/src/*"],
-      "@perfsee/platform": ["packages/platform/src"],
-      "@perfsee/platform/*": ["packages/platform/src/*"],
-      "@perfsee/schema": ["packages/schema/src"],
-      "@perfsee/schema/*": ["packages/schema/src/*"],
-      "@perfsee/server-common": ["packages/server-common/src"],
-      "@perfsee/server-common/*": ["packages/server-common/src/*"],
-      "@perfsee/shared": ["packages/shared/src"],
-      "@perfsee/shared/*": ["packages/shared/src/*"],
-      "@perfsee/source-coverage": ["packages/source-coverage/src"],
-      "@perfsee/source-coverage/*": ["packages/source-coverage/src/*"],
-      "@perfsee/tracehouse": ["packages/tracehouse/src"],
-      "@perfsee/tracehouse/*": ["packages/tracehouse/src/*"],
-      "@perfsee/treemap": ["packages/treemap/src"],
-      "@perfsee/treemap/*": ["packages/treemap/src/*"],
-      "@perfsee/utils": ["packages/utils/src"],
-      "@perfsee/utils/*": ["packages/utils/src/*"],
-      "perfsee-vscode": ["packages/vscode-extension/src"],
-      "perfsee-vscode/*": ["packages/vscode-extension/src/*"],
-      "@perfsee/esbuild": ["packages/plugins/esbuild/src"],
-      "@perfsee/esbuild/*": ["packages/plugins/esbuild/src/*"],
-      "@perfsee/rollup": ["packages/plugins/rollup/src"],
-      "@perfsee/rollup/*": ["packages/plugins/rollup/src/*"],
-      "@perfsee/plugin-utils": ["packages/plugins/utils/src"],
-      "@perfsee/plugin-utils/*": ["packages/plugins/utils/src/*"],
-      "@perfsee/webpack": ["packages/plugins/webpack/src"],
-      "@perfsee/webpack/*": ["packages/plugins/webpack/src/*"],
-      "@perfsee/job-runner-bundle": ["packages/runner/bundle/src"],
-      "@perfsee/job-runner-bundle/*": ["packages/runner/bundle/src/*"],
-      "@perfsee/job-runner": ["packages/runner/executor/src"],
-      "@perfsee/job-runner/*": ["packages/runner/executor/src/*"],
-      "@perfsee/job-runner-lab": ["packages/runner/lab/src"],
-      "@perfsee/job-runner-lab/*": ["packages/runner/lab/src/*"],
-      "@perfsee/job-runner-shared": ["packages/runner/shared/src"],
-      "@perfsee/job-runner-shared/*": ["packages/runner/shared/src/*"],
-      "@perfsee/job-runner-source": ["packages/runner/source/src"],
-      "@perfsee/job-runner-source/*": ["packages/runner/source/src/*"]
+      "@perfsee/bundle-analyzer": [
+        "packages/bundle-analyzer/src"
+      ],
+      "@perfsee/bundle-analyzer/*": [
+        "packages/bundle-analyzer/src/*"
+      ],
+      "@perfsee/bundle-report": [
+        "packages/bundle-report/src"
+      ],
+      "@perfsee/bundle-report/*": [
+        "packages/bundle-report/src/*"
+      ],
+      "@perfsee/chrome-finder": [
+        "packages/chrome-finder/src"
+      ],
+      "@perfsee/chrome-finder/*": [
+        "packages/chrome-finder/src/*"
+      ],
+      "@perfsee/components": [
+        "packages/components/src"
+      ],
+      "@perfsee/components/*": [
+        "packages/components/src/*"
+      ],
+      "@perfsee/dls": [
+        "packages/dls/src"
+      ],
+      "@perfsee/dls/*": [
+        "packages/dls/src/*"
+      ],
+      "@perfsee/email-templates": [
+        "packages/email-templates/src"
+      ],
+      "@perfsee/email-templates/*": [
+        "packages/email-templates/src/*"
+      ],
+      "@perfsee/flamechart": [
+        "packages/flamechart/src"
+      ],
+      "@perfsee/flamechart/*": [
+        "packages/flamechart/src/*"
+      ],
+      "@perfsee/ori": [
+        "packages/ori/src"
+      ],
+      "@perfsee/ori/*": [
+        "packages/ori/src/*"
+      ],
+      "@perfsee/platform-server": [
+        "packages/platform-server/src"
+      ],
+      "@perfsee/platform-server/*": [
+        "packages/platform-server/src/*"
+      ],
+      "@perfsee/platform": [
+        "packages/platform/src"
+      ],
+      "@perfsee/platform/*": [
+        "packages/platform/src/*"
+      ],
+      "@perfsee/schema": [
+        "packages/schema/src"
+      ],
+      "@perfsee/schema/*": [
+        "packages/schema/src/*"
+      ],
+      "@perfsee/server-common": [
+        "packages/server-common/src"
+      ],
+      "@perfsee/server-common/*": [
+        "packages/server-common/src/*"
+      ],
+      "@perfsee/shared": [
+        "packages/shared/src"
+      ],
+      "@perfsee/shared/*": [
+        "packages/shared/src/*"
+      ],
+      "@perfsee/source-coverage": [
+        "packages/source-coverage/src"
+      ],
+      "@perfsee/source-coverage/*": [
+        "packages/source-coverage/src/*"
+      ],
+      "@perfsee/tracehouse": [
+        "packages/tracehouse/src"
+      ],
+      "@perfsee/tracehouse/*": [
+        "packages/tracehouse/src/*"
+      ],
+      "@perfsee/treemap": [
+        "packages/treemap/src"
+      ],
+      "@perfsee/treemap/*": [
+        "packages/treemap/src/*"
+      ],
+      "@perfsee/utils": [
+        "packages/utils/src"
+      ],
+      "@perfsee/utils/*": [
+        "packages/utils/src/*"
+      ],
+      "perfsee-vscode": [
+        "packages/vscode-extension/src"
+      ],
+      "perfsee-vscode/*": [
+        "packages/vscode-extension/src/*"
+      ],
+      "@perfsee/esbuild": [
+        "packages/plugins/esbuild/src"
+      ],
+      "@perfsee/esbuild/*": [
+        "packages/plugins/esbuild/src/*"
+      ],
+      "@perfsee/rollup": [
+        "packages/plugins/rollup/src"
+      ],
+      "@perfsee/rollup/*": [
+        "packages/plugins/rollup/src/*"
+      ],
+      "@perfsee/plugin-utils": [
+        "packages/plugins/utils/src"
+      ],
+      "@perfsee/plugin-utils/*": [
+        "packages/plugins/utils/src/*"
+      ],
+      "@perfsee/webpack": [
+        "packages/plugins/webpack/src"
+      ],
+      "@perfsee/webpack/*": [
+        "packages/plugins/webpack/src/*"
+      ],
+      "@perfsee/job-runner-bundle": [
+        "packages/runner/bundle/src"
+      ],
+      "@perfsee/job-runner-bundle/*": [
+        "packages/runner/bundle/src/*"
+      ],
+      "@perfsee/job-runner": [
+        "packages/runner/executor/src"
+      ],
+      "@perfsee/job-runner/*": [
+        "packages/runner/executor/src/*"
+      ],
+      "@perfsee/job-runner-lab": [
+        "packages/runner/lab/src"
+      ],
+      "@perfsee/job-runner-lab/*": [
+        "packages/runner/lab/src/*"
+      ],
+      "@perfsee/job-runner-shared": [
+        "packages/runner/shared/src"
+      ],
+      "@perfsee/job-runner-shared/*": [
+        "packages/runner/shared/src/*"
+      ],
+      "@perfsee/job-runner-source": [
+        "packages/runner/source/src"
+      ],
+      "@perfsee/job-runner-source/*": [
+        "packages/runner/source/src/*"
+      ]
     }
   }
 }

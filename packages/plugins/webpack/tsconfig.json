@@ -7,6 +7,15 @@
     "target": "ES2020",
     "module": "CommonJS"
   },
-  "references": [{ "path": "../utils" }, { "path": "../../bundle-analyzer" }],
-  "include": ["./src/**/*"]
+  "references": [
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../../bundle-analyzer"
+    }
+  ],
+  "include": [
+    "./src/**/*"
+  ]
 }
