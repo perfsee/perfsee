@@ -5434,7 +5434,7 @@ __metadata:
     rollup: ^2.77.0
     tslib: ^2.4.0
   peerDependencies:
-    rollup: ">2"
+    rollup: 3.0.0-4
   languageName: unknown
   linkType: soft
 
