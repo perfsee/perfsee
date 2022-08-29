@@ -112,7 +112,7 @@ export class SnapshotResolver {
   ) {
     const rawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
 
-    return this.service.takeSnapshotByPageIds({
+    return this.service.takeSnapshot({
       projectId: rawId,
       pageIids,
       profileIids,

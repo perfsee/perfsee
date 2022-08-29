@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { Injectable } from '@nestjs/common'
-import { difference, without } from 'lodash'
 import { In } from 'typeorm'
 
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
@@ -197,48 +196,58 @@ export class TimerService {
 
     const payload = await this.getTimerPayload(timer)
 
-    await this.snapshotService.takeSnapshotByPageIds(payload, true)
+    await this.snapshotService.takeSnapshot(payload, true)
   }
 
   private async getTimerPayload(timer: Timer) {
-    const needFilter = timer.monitorType !== ScheduleMonitorType.All
-
-    if (!needFilter) {
+    if (timer.monitorType === ScheduleMonitorType.All) {
       return {
         projectId: timer.projectId,
         trigger: SnapshotTrigger.Scheduler,
       }
     }
 
+    const pageIids: number[] = []
+    const profileIids: number[] = []
+    const envIids: number[] = []
+
     const pages = await Page.findBy({ disable: false, projectId: timer.projectId })
-    let pageIds = pages.map((p) => p.id)
-    const validPageSet = new Set(pageIds)
-
-    if (needFilter) {
-      pageIds = timer.pageIds.filter((id) => validPageSet.has(id))
-    }
-
-    const profiles = await Profile.findBy({ disable: false, projectId: timer.projectId })
-    let profileIds = profiles.map((p) => p.id)
-    const validProfileSet = new Set(profileIds)
-
-    if (needFilter) {
-      profileIds = timer.profileIds.filter((id) => validProfileSet.has(id))
-    }
-
     const envs = await Environment.findBy({ disable: false, projectId: timer.projectId })
-    let envIds = envs.map((p) => p.id)
-    const validEnvSet = new Set(envIds)
+    const profiles = await Profile.findBy({ disable: false, projectId: timer.projectId })
 
-    if (needFilter) {
-      envIds = timer.envIds.filter((id) => validEnvSet.has(id))
+    const pageIdSet = new Set(timer.pageIds)
+    const envIdSet = new Set(timer.envIds)
+    const profileIdSet = new Set(timer.profileIds)
+
+    if (pageIdSet.size) {
+      pages.forEach((p) => {
+        if (pageIdSet.has(p.id)) {
+          pageIids.push(p.iid)
+        }
+      })
+    }
+
+    if (envIdSet.size) {
+      envs.forEach((env) => {
+        if (envIdSet.has(env.id)) {
+          envIids.push(env.iid)
+        }
+      })
+    }
+
+    if (profileIdSet.size) {
+      profiles.forEach((p) => {
+        if (profileIdSet.has(p.id)) {
+          profileIids.push(p.iid)
+        }
+      })
     }
 
     return {
       projectId: timer.projectId,
-      pageIds,
-      profileIds,
-      envIds,
+      pageIids,
+      profileIids,
+      envIids,
       trigger: SnapshotTrigger.Scheduler,
     }
   }
@@ -260,40 +269,29 @@ export class TimerService {
 
     const pageIds = await Page.createQueryBuilder()
       .select('id')
+      .whereInIds(timer.pageIds)
       .getRawMany<{ id: number }>()
       .then((result) => result.map(({ id }) => id))
 
     const profileIds = await Profile.createQueryBuilder()
       .select('id')
+      .whereInIds(timer.profileIds)
       .getRawMany<{ id: number }>()
       .then((result) => result.map(({ id }) => id))
 
     const envIds = await Environment.createQueryBuilder()
       .select('id')
+      .whereInIds(timer.envIds)
       .getRawMany<{ id: number }>()
       .then((result) => result.map(({ id }) => id))
 
-    const restPageIds = without(timer.pageIds, ...difference(timer.pageIds, pageIds))
-    const restProfileIds = without(timer.profileIds, ...difference(timer.profileIds, profileIds))
-    const restEnvIds = without(timer.envIds, ...difference(timer.envIds, envIds))
+    timer.monitorType =
+      !pageIds.length && !profileIds.length && !envIds.length ? ScheduleMonitorType.All : ScheduleMonitorType.Specified
 
-    if (!restPageIds.length || !restProfileIds.length || !restEnvIds.length) {
-      const payload = {
-        ...timer,
-        monitorType: ScheduleMonitorType.All,
-        pageIds: [],
-        profileIds: [],
-        envIds: [],
-      }
-      return Timer.create(payload).save()
-    } else {
-      const payload = {
-        ...timer,
-        pageIds: restPageIds,
-        profileIds: restProfileIds,
-        envIds: restEnvIds,
-      }
-      return Timer.create<Timer>(payload).save()
-    }
+    timer.pageIds = pageIds
+    timer.profileIds = profileIds
+    timer.envIds = envIds
+
+    return Timer.save(timer)
   }
 }

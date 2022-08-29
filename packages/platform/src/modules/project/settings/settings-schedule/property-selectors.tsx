@@ -62,31 +62,34 @@ export function SettingScheduleSelectors(props: Props) {
   return (
     <Stack tokens={tokens} horizontal>
       <MultiSelector
+        required={false}
         options={pages
           .filter((p) => !p.isCompetitor && !p.isTemp)
           .map((p) => ({ id: p.id, name: `${p.name} ${p.disable ? '(disabled)' : ''}` }))}
         ids={pageIds}
         onSelectChange={onChangePageIds}
-        placeholder="Select monitor pages"
+        placeholder="Filter pages"
         tips="It will create a snapshot for these pages and their competitor pages every time a schedule is executed."
         label="Pages"
       />
 
       <MultiSelector
+        required={false}
         options={profiles.map((p) => ({ id: p.id, name: `${p.name} ${p.disable ? '(disabled)' : ''}` }))}
         ids={profileIds}
         onSelectChange={onChangeProfileIds}
-        placeholder="Select monitor profiles"
+        placeholder="Filter profiles"
         label="Profiles"
       />
       <MultiSelector
+        required={false}
         options={environments
           .filter((env) => !env.isCompetitor)
           .map((env) => ({ id: env.id, name: `${env.name} ${env.disable ? '(disabled)' : ''}` }))}
         ids={envIds}
         onSelectChange={onChangeEnvType}
         label="Environments"
-        placeholder="Select monitor Environments"
+        placeholder="Filter Environments"
       />
     </Stack>
   )

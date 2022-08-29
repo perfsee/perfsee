@@ -49,7 +49,10 @@ export function PagesChoiceGroup({ onChange, value }: Props) {
     [onChange],
   )
   return (
-    <Field name="Pages Monitor Filter" note="Which pages do you need to monitor?">
+    <Field
+      name="Pages Monitor Filter"
+      note="If you specifies envs and profiles at the same time, we will just ignore the predefined Page x Env x Profile bindings."
+    >
       <ChoiceGroup styles={choiceGroupStyles} defaultSelectedKey={value} options={filterOptions} onChange={onSelect} />
     </Field>
   )

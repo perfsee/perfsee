@@ -107,7 +107,7 @@ test.serial('take snapshot', async (t) => {
 
   internalIdService.generate.resolves(1)
 
-  const snapshot = await service.takeSnapshotByPageIds({
+  const snapshot = await service.takeSnapshot({
     projectId: 1,
     issuer: 'issuer@example.org',
   })
@@ -126,7 +126,7 @@ test.serial('take snapshot without pages', async (t) => {
 
   await t.throwsAsync(
     async () => {
-      await service.takeSnapshotByPageIds({
+      await service.takeSnapshot({
         projectId: project.id,
         issuer: 'issuer@example.org',
       })
@@ -143,7 +143,7 @@ test.serial('always create snapshot even if there are no pages', async (t) => {
 
   internalIdService.generate.resolves(1)
 
-  const snapshot = await service.takeSnapshotByPageIds(
+  const snapshot = await service.takeSnapshot(
     {
       projectId: project.id,
       issuer: 'issuer@example.org',
@@ -161,7 +161,7 @@ test.serial('take snapshot with envIid', async (t) => {
   const internalIdService = t.context.module.get(InternalIdService)
   internalIdService.generate.resolves(1)
 
-  const snapshot = await service.takeSnapshotByPageIds({
+  const snapshot = await service.takeSnapshot({
     projectId: 1,
     envIids: [1],
     issuer: 'issuer@example.org',
@@ -178,7 +178,7 @@ test.serial('take snapshot with given property', async (t) => {
   const internalIdService = t.context.module.get(InternalIdService)
   internalIdService.generate.resolves(1)
 
-  const snapshot = await service.takeSnapshotByPageIds({
+  const snapshot = await service.takeSnapshot({
     projectId: 1,
     pageIids: [2],
     envIids: [1],

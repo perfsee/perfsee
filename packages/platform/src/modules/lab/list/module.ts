@@ -118,7 +118,7 @@ export class LabListModule extends EffectModule<State> {
   }
 
   @Effect()
-  takeSnapshotByPageIds(payload$: Observable<Omit<TakeSnapshotMutationVariables, 'projectId'>>) {
+  takeSnapshot(payload$: Observable<Omit<TakeSnapshotMutationVariables, 'projectId'>>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
       switchMap(([payload, { project }]) =>
