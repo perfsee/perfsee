@@ -23,7 +23,7 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@svgr/webpack": "^6.3.0",
     "@types/debug": "^4.1.7",
-    "@types/inquirer": "^8.2.1",
+    "@types/inquirer": "^9.0.0",
     "@types/lodash": "^4.14.182",
     "@types/node": "16",
     "@types/nodemon": "^1.19.1",

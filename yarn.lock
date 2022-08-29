@@ -6681,13 +6681,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/inquirer@npm:^8.2.1":
-  version: 8.2.1
-  resolution: "@types/inquirer@npm:8.2.1"
+"@types/inquirer@npm:^9.0.0":
+  version: 9.0.1
+  resolution: "@types/inquirer@npm:9.0.1"
   dependencies:
     "@types/through": "*"
     rxjs: ^7.2.0
-  checksum: 5362d0b1cbec3887c9d5a671a0b19c58cf54066456c8967dd7ee799dfcc242cc8cd8959440c0f2fe7768becaf721b45fd30c222e6b9bcca378f45c68af43bab5
+  checksum: 105c51f3ef0ff8ae8b454ea6076de0fd8907586948ebc638778c504056a2277485ba624de0bf11898bb9bfa5c79f49fdbb7423d273a7e2dfa2dddad6d2a73efe
   languageName: node
   linkType: hard
 
@@ -20087,7 +20087,7 @@ __metadata:
     "@rollup/plugin-node-resolve": ^13.3.0
     "@svgr/webpack": ^6.3.0
     "@types/debug": ^4.1.7
-    "@types/inquirer": ^8.2.1
+    "@types/inquirer": ^9.0.0
     "@types/lodash": ^4.14.182
     "@types/node": 16
     "@types/nodemon": ^1.19.1
