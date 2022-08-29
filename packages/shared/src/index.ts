@@ -17,6 +17,5 @@ limitations under the License.
 export * from './constants'
 export * from './types'
 export * from './utils'
-export * from './git'
 export * from './bundle'
 export * from '@perfsee/utils'

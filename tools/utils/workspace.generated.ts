@@ -86,6 +86,12 @@ export const packageList = [
     location: 'packages/schema',
   },
   {
+    name: '@perfsee/sdk',
+    version: '0.0.1',
+    private: false,
+    location: 'packages/sdk',
+  },
+  {
     name: '@perfsee/server-common',
     version: '0.0.1',
     private: true,

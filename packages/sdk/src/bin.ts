@@ -14,11 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { CommonGitHost, GitHost } from '@perfsee/utils'
+// only for debug, `yarn run:ts packages/sdk/src/bin.ts`
 
-export function getCommitLink(project: { host: GitHost; namespace: string; name: string }, commitHash: string) {
-  const host = GitHost[project.host]
-  const gitHost = new CommonGitHost({ ...project, host })
+import { runCli } from './cli'
 
-  return gitHost.commitUrl(commitHash)
-}
+runCli()

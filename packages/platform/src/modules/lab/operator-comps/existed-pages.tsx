@@ -71,7 +71,7 @@ export const ExistedPages: FC<Props> = ({ onCloseModal }) => {
       return
     }
 
-    const payload = { pageIds, title: title || null }
+    const payload = { pageIds, title: title || null, commitHash: null }
     const specifiedPayload = specified ? { profileIds, envIds } : { profileIds: null, envIds: null }
 
     takeSnapshot({ ...payload, ...specifiedPayload })

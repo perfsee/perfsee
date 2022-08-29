@@ -1,0 +1,24 @@
+{
+  "name": "@perfsee/sdk",
+  "version": "0.0.1",
+  "description": "perfsee sdk",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "sideEffects": false,
+  "main": "./dist/index.cjs.js",
+  "bundle": true,
+  "bin": {
+    "perfsee": "./bin/cli.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "clipanion": "^3.1.0",
+    "graphql": "^15.6.1",
+    "lodash": "^4.17.21",
+    "node-fetch": "^2.6.2",
+    "simple-git": "^3.10.0"
+  },
+  "devDependencies": {
+    "@perfsee/schema": "^0.0.1"
+  }
+}
