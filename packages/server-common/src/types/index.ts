@@ -91,7 +91,7 @@ export type BundleJobPassedUpdate = {
   artifactId: number
   status: BundleJobStatus.Passed
   reportKey: string
-  contentKey: string
+  contentKey: string | undefined
   entryPoints: Record<string, BundleJobEntryPoint>
   duration: number
   score: number

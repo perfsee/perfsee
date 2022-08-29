@@ -86,8 +86,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const jsCoverage = artifacts.JsUsage ?? {}
 
     // artifacts
-    const lighthouseFile = `perfsee/snapshots/${uuid()}.json`
-    const jsCoverageFile = `perfsee/js-coverage/${uuid()}.json`
+    const lighthouseFile = `snapshots/${uuid()}.json`
+    const jsCoverageFile = `js-coverage/${uuid()}.json`
+    let lighthouseStorageKey
+    let jsCoverageStorageKey
 
     // delete useless lighthouse data
     // @ts-expect-error
@@ -101,7 +103,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     lhr.audits['network-requests'] = {}
 
     try {
-      await this.client.uploadArtifact(
+      lighthouseStorageKey = await this.client.uploadArtifact(
         lighthouseFile,
         Buffer.from(
           JSON.stringify({
@@ -127,7 +129,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     try {
-      await this.client.uploadArtifact(jsCoverageFile, Buffer.from(JSON.stringify(jsCoverage)))
+      jsCoverageStorageKey = await this.client.uploadArtifact(jsCoverageFile, Buffer.from(JSON.stringify(jsCoverage)))
     } catch (e) {
       this.logger.error('Failed to upload audit result', { error: e })
       return {
@@ -139,9 +141,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const traceEventsStorageKey = await this.uploadTraceEvents(artifacts)
 
     return {
-      lighthouseStorageKey: lighthouseFile,
+      lighthouseStorageKey,
       screencastStorageKey,
-      jsCoverageStorageKey: jsCoverageFile,
+      jsCoverageStorageKey,
       traceEventsStorageKey,
       metrics,
     }
@@ -303,12 +305,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   private async uploadScreencast(screencast: LH.ScreencastGathererResult | null) {
     try {
-      const screencastFile = `perfsee/screencast/${uuid()}.mp4`
+      const screencastFile = `screencast/${uuid()}.mp4`
       if (screencast) {
-        await this.client.uploadArtifactFile(screencastFile, screencast.path)
+        const uploadedFileKey = await this.client.uploadArtifactFile(screencastFile, screencast.path)
         this.logger.verbose('Cleanup screencast path')
         await rm(dirname(screencast.path), { recursive: true, force: true })
-        return screencastFile
+        return uploadedFileKey
       }
     } catch (e) {
       this.logger.error('Failed to upload video', { error: e })
@@ -318,10 +320,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   private async uploadTraceEvents(artifacts: LH.Artifacts) {
     const { traceEvents } = artifacts.traces['defaultPass']
 
-    const traceEventsFile = `perfsee/trace-events/${uuid()}.json`
+    const traceEventsFile = `trace-events/${uuid()}.json`
     try {
-      await this.client.uploadArtifact(traceEventsFile, Buffer.from(JSON.stringify(traceEvents)))
-      return traceEventsFile
+      return await this.client.uploadArtifact(traceEventsFile, Buffer.from(JSON.stringify(traceEvents)))
     } catch (e) {
       this.logger.error('Failed to upload trace events', { error: e })
     }

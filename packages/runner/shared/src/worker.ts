@@ -42,7 +42,7 @@ export abstract class JobWorker<Payload = any> {
   }
 
   constructor(private readonly workerData: WorkerData<Payload>) {
-    this.client = new PlatformClient(this.workerData.server)
+    this.client = new PlatformClient(this.workerData)
   }
 
   /**

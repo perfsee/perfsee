@@ -73,13 +73,14 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     const parser = StatsParser.FromStats(stats, parse(this.statsFilePath).dir, this.logger)
     const { report, moduleTree } = await parser.parse()
 
-    const bundleReportKey = `perfsee/bundle-results/${uuid()}.json`
-    const bundleContentKey = `perfsee/bundle-content/${uuid()}.json`
-    await this.client.uploadArtifact(bundleReportKey, Buffer.from(JSON.stringify(report)))
+    const bundleReportName = `bundle-results/${uuid()}.json`
+    const bundleReportKey = await this.client.uploadArtifact(bundleReportName, Buffer.from(JSON.stringify(report)))
     this.logger.info(`Bundle analysis result uploaded to artifacts. key is: ${bundleReportKey}`)
 
+    const bundleContentName = `bundle-content/${uuid()}.json`
+    let bundleContentKey
     if (moduleTree.length) {
-      await this.client.uploadArtifact(bundleContentKey, Buffer.from(JSON.stringify(moduleTree)))
+      bundleContentKey = await this.client.uploadArtifact(bundleContentName, Buffer.from(JSON.stringify(moduleTree)))
       this.logger.info(`Bundle content result uploaded to artifacts. key is: ${bundleContentKey}`)
     }
 
