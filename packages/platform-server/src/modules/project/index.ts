@@ -18,13 +18,14 @@ import { Module } from '@nestjs/common'
 
 import { DBModule } from '@perfsee/platform-server/db'
 
+import { GithubModule } from '../github'
 import { UserModule } from '../user'
 
 import { ProjectResolver, UserProjectResolver } from './resolver'
 import { ProjectService } from './service'
 
 @Module({
-  imports: [DBModule, UserModule],
+  imports: [DBModule, UserModule, GithubModule],
   providers: [ProjectService, ProjectResolver, UserProjectResolver],
   exports: [ProjectService],
 })

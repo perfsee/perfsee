@@ -19,7 +19,7 @@ import { SelectionMode } from '@fluentui/utilities'
 import { useModule } from '@sigi/react'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
-import { MessageBar, Table, TableColumnProps } from '@perfsee/components'
+import { ForeignLink, MessageBar, Table, TableColumnProps } from '@perfsee/components'
 
 import { GithubInstallationModel, Installation } from './github-installation.module'
 import { SelectorContainer } from './style'
@@ -85,12 +85,13 @@ export const InstallationSelector: React.VFC<Props> = ({ onSelect }) => {
     <>
       {!loading && installationsTotalCount === 0 ? (
         <MessageBar messageBarType={MessageBarType.blocked}>
-          You do not have our Github app installed, please<a href="/github/new">install our Github app</a>.
+          You do not have our Github app installed, please
+          <ForeignLink href="/github/new">install our Github app</ForeignLink>.
         </MessageBar>
       ) : (
         <MessageBar messageBarType={MessageBarType.info}>
           If you can't find the desired Github user or organization below, please
-          <a href="/github/new">install our Github app</a> to the user or organization.
+          <ForeignLink href="/github/new">install our Github app</ForeignLink> to the user or organization.
         </MessageBar>
       )}
 

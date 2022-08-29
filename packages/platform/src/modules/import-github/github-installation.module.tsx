@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Effect, EffectModule, ImmerReducer, Module } from '@sigi/core'
 import { Draft } from 'immer'
-import { endWith, exhaustMap, map, Observable, startWith, withLatestFrom } from 'rxjs'
+import { endWith, exhaustMap, filter, map, Observable, startWith, withLatestFrom } from 'rxjs'
 
 import { createErrorCatcher, GraphQLClient } from '@perfsee/platform/common'
 import { githubInstallationsQuery, GithubInstallationsQuery } from '@perfsee/schema'
@@ -45,6 +45,9 @@ export class GithubInstallationModel extends EffectModule<State> {
   loadMore(payload$: Observable<void>) {
     return payload$.pipe(
       withLatestFrom(this.state$),
+      filter(([_, state]) => {
+        return !(state.installations.length > 0 && state.installations.length === state.installationsTotalCount)
+      }),
       exhaustMap(([_, state]) =>
         this.client
           .query({
@@ -54,7 +57,7 @@ export class GithubInstallationModel extends EffectModule<State> {
           .pipe(
             map((data) => {
               return this.getActions().append({
-                repositories: data.githubInstallations.edges.map((edge) => edge.node),
+                installations: data.githubInstallations.edges.map((edge) => edge.node),
                 totalCount: data.githubInstallations.pageInfo.totalCount,
               })
             }),
@@ -72,8 +75,8 @@ export class GithubInstallationModel extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  append(state: Draft<State>, { repositories, totalCount }: { repositories: Installation[]; totalCount: number }) {
-    state.installations.push(...repositories)
+  append(state: Draft<State>, { installations, totalCount }: { installations: Installation[]; totalCount: number }) {
+    state.installations.push(...installations)
     state.installationsTotalCount = totalCount
   }
 }

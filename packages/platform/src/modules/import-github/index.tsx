@@ -176,14 +176,14 @@ export const ImportGithub = () => {
                   required
                 />
 
+                <PrimaryButton onClick={onSubmit} disabled={idVerifying || !idVerification?.ok}>
+                  Create project
+                </PrimaryButton>
+
                 <DisplayInformation variant="small">Account: {installation.name}</DisplayInformation>
                 <DisplayInformation variant="small">
                   Repository: {repository.namespace}/{repository.name}
                 </DisplayInformation>
-
-                <PrimaryButton onClick={onSubmit} disabled={idVerifying || !idVerification?.ok}>
-                  Create project
-                </PrimaryButton>
               </>
             )
           }

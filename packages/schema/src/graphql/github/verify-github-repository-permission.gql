@@ -1,0 +1,6 @@
+query VerifyGithubRepositoryPermission($owner: String!, $repo: String!) {
+  verifyGithubRepositoryPermission(owner: $owner, repo: $repo) {
+    ok
+    error
+  }
+}

@@ -50,7 +50,6 @@ import { pathFactory, staticPath } from '@perfsee/shared/routes'
 import { Starring } from '../components'
 
 import { ProjectsModule, ProjectNode } from './list.module'
-import { CreateProjectAction } from './project-actions'
 import { TextImage, Cell } from './style'
 
 const stackTokens: IStackTokens = {
@@ -205,7 +204,6 @@ export const ProjectList = () => {
               />
             </Stack>
           </Stack.Item>
-          <CreateProjectAction />
           <Link to={staticPath.importGithub}>
             <PrimaryButton text="Import From Github" styles={GithubButtonStyles} />
           </Link>
