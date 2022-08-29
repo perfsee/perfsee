@@ -68,7 +68,7 @@ jobs:
 
   integration-test:
     runs-on: ubuntu-latest
-    container: node:16-bullseye
+    container: node:18-bullseye
     services:
       redis:
         image: redis
