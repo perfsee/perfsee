@@ -1,0 +1,10 @@
+coverage:
+  status:
+    project:
+      default: false
+      packages:
+        target: auto
+        threshold: 1%
+        paths:
+          - packages
+    patch: off
