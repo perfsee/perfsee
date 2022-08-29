@@ -1,12 +1,54 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "group:allNonMajor", "group:linters", ":preserveSemverRanges", ":disablePeerDependencies"],
-  "labels": ["dependencies"],
+  "extends": [
+    "config:base",
+    "group:allNonMajor",
+    "group:linters",
+    ":preserveSemverRanges",
+    ":disablePeerDependencies"
+  ],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
-      "matchPackageNames": ["typescript", "ts-node"],
-      "addLabels": ["ts", "types"],
+      "matchPackageNames": [
+        "typescript",
+        "ts-node"
+      ],
+      "addLabels": [
+        "ts",
+        "types"
+      ],
       "groupName": "typescript"
+    },
+    {
+      "matchPackageNames": [
+        "@napi/helper",
+        "napi",
+        "napi-build",
+        "napi-derive"
+      ],
+      "addLabels": [
+        "napi-rs"
+      ],
+      "groupName": "napi-rs"
+    },
+    {
+      "matchPackageNames": [
+        "node-fetch",
+        "chalk",
+        "file-type",
+
+        "path-to-regexp",
+        "react-router",
+        "react-router-dom",
+        "@types/react-router",
+        "@types/react-router-dom"
+      ],
+      "extends": [
+        ":disableMajorUpdates"
+      ]
     }
   ],
   "commitMessagePrefix": "chore: ",
@@ -15,19 +57,14 @@
   "ignoreDeps": [
     "@types/webpack",
     "@types/vscode",
+    "node",
     "@types/node",
     "@types/node-fetch",
-    "react-router",
-    "react-router-dom",
-    "@types/react-router",
-    "@types/react-router-dom",
-    "scheduler",
-    "path-to-regexp",
-    "node-fetch",
-    "chalk",
-    "file-type",
-    "graphql",
     "@mdx-js/react"
   ],
-  "ignorePaths": ["**/node_modules/**", "**/bower_components/**", "examples/**"]
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "examples/**"
+  ]
 }
