@@ -5,5 +5,7 @@
     "module": "commonjs",
     "allowJs": true
   },
-  "include": ["."]
+  "include": [
+    "."
+  ]
 }

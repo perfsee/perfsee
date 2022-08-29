@@ -4,10 +4,17 @@
   "description": "perfsee rollup plugin",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
-  "keywords": ["rollup", "vite", "perfsee"],
+  "keywords": [
+    "rollup",
+    "vite",
+    "perfsee"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@perfsee/bundle-analyzer": "^0.0.1",
     "@perfsee/plugin-utils": "^0.0.1",

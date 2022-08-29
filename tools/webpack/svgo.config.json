@@ -4,7 +4,12 @@
       "name": "preset-default",
       "params": {
         "overrides": {
-          "removeAttrs": { "attrs": ["svg:height", "svg:width"] },
+          "removeAttrs": {
+            "attrs": [
+              "svg:height",
+              "svg:width"
+            ]
+          },
           "removeViewBox": false
         }
       }

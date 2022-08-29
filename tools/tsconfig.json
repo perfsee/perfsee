@@ -8,7 +8,9 @@
     "allowJs": true,
     "rootDir": "."
   },
-  "include": ["."],
+  "include": [
+    "."
+  ],
   "references": [
     {
       "path": "../packages/plugins/webpack"

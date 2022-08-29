@@ -6,7 +6,9 @@
     "composite": true,
     "outDir": "dist"
   },
-  "include": ["."],
+  "include": [
+    "."
+  ],
   "references": [
     {
       "path": "../packages/plugins/rollup"

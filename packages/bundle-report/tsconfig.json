@@ -7,14 +7,31 @@
     "outDir": "esm",
     "target": "ES2020"
   },
-  "include": ["./src/**/*", "./global.d.ts"],
+  "include": [
+    "./src/**/*",
+    "./global.d.ts"
+  ],
   "references": [
-    { "path": "../components" },
-    { "path": "../dls" },
-    { "path": "../schema" },
-    { "path": "../shared" },
-    { "path": "../flamechart" },
-    { "path": "../treemap" },
-    { "path": "../utils" }
+    {
+      "path": "../components"
+    },
+    {
+      "path": "../dls"
+    },
+    {
+      "path": "../schema"
+    },
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../flamechart"
+    },
+    {
+      "path": "../treemap"
+    },
+    {
+      "path": "../utils"
+    }
   ]
 }

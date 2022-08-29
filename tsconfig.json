@@ -26,10 +26,26 @@
     "stripInternal": true,
     "resolveJsonModule": true,
     "importsNotUsedAsValues": "remove",
-    "lib": ["DOM", "DOM.Iterable", "ES2019", "ES2020", "esnext"],
-    "typeRoots": ["types", "node_modules/@types"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2019",
+      "ES2020",
+      "esnext"
+    ],
+    "typeRoots": [
+      "types",
+      "node_modules/@types"
+    ],
     "baseUrl": "./"
   },
-  "include": ["./packages", "./examples"],
-  "exclude": ["node_modules", "**/esm/**/*", "**/dist/**/*"]
+  "include": [
+    "./packages",
+    "./examples"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/esm/**/*",
+    "**/dist/**/*"
+  ]
 }

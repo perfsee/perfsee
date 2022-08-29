@@ -4,7 +4,11 @@
   "description": "Perfsee source coverage analyzer.",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
-  "keywords": ["perfsee", "source", "coverage"],
+  "keywords": [
+    "perfsee",
+    "source",
+    "coverage"
+  ],
   "main": "dist/index.js",
   "sideEffects": false,
   "private": true,

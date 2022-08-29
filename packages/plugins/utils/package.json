@@ -4,10 +4,17 @@
   "description": "pertsuite plugin utilities",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
-  "keywords": ["utils", "perfsee"],
+  "keywords": [
+    "utils",
+    "perfsee"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist", "public", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "public",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
     "@perfsee/bundle-analyzer": "^0.0.1",

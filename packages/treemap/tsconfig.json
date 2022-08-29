@@ -6,6 +6,9 @@
     "outDir": "esm",
     "target": "ES2020"
   },
-  "include": ["./src/**/*", "./src/text/OpenSans-Regular.json"],
+  "include": [
+    "./src/**/*",
+    "./src/text/OpenSans-Regular.json"
+  ],
   "references": []
 }

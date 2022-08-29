@@ -10,5 +10,7 @@
       "path": "../schema"
     }
   ],
-  "include": ["./src/**/*"]
+  "include": [
+    "./src/**/*"
+  ]
 }

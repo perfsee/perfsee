@@ -7,11 +7,21 @@
     "target": "ES2020",
     "module": "CommonJS"
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./src/**/*"
+  ],
   "references": [
-    { "path": "../flamechart" },
-    { "path": "../utils" },
-    { "path": "../bundle-analyzer" },
-    { "path": "../plugins/utils" }
+    {
+      "path": "../flamechart"
+    },
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../bundle-analyzer"
+    },
+    {
+      "path": "../plugins/utils"
+    }
   ]
 }

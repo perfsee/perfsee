@@ -4,7 +4,10 @@
   "description": "perfsee frontend pages",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
-  "sideEffects": ["./src/index.tsx", "./src/icons.tsx"],
+  "sideEffects": [
+    "./src/index.tsx",
+    "./src/icons.tsx"
+  ],
   "private": true,
   "main": "./src/index.tsx",
   "dependencies": {
