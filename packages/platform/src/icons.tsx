@@ -53,6 +53,7 @@ import {
   SwapOutlined,
   LeftSquareOutlined,
   RightSquareOutlined,
+  SaveOutlined,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
 import { PlugConnectedIcon, PlugDisconnectedIcon, HideIcon, RedEyeIcon } from '@fluentui/react-icons-mdl2'
@@ -111,6 +112,7 @@ registerIcons({
     swap: <SwapOutlined />,
     squareLeft: <LeftSquareOutlined />,
     squareRight: <RightSquareOutlined />,
+    save: <SaveOutlined />,
 
     // for password text field
     Hide: <HideIcon />,
