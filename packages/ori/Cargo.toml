@@ -11,8 +11,8 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 anyhow = "1"
-napi = {version = "1", features = ["serde-json"]}
-napi-derive = "1"
+napi = {version = "2", features = ["serde-json"]}
+napi-derive = "2"
 rayon = "1.5.0"
 regex = "1"
 serde = {version = "1.0", features = ["derive"]}
@@ -36,4 +36,4 @@ jemallocator = {version = "0.5", features = ["disable_initial_exec_tls"]}
 mimalloc = {version = "0.1"}
 
 [build-dependencies]
-napi-build = "1"
+napi-build = "2"
