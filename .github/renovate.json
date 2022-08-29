@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base", "group:allNonMajor", "group:linters", ":preserveSemverRanges"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["typescript", "ts-node"],
+      "addLabels": ["ts", "types"],
+      "groupName": "typescript"
+    }
+  ],
+  "commitMessagePrefix": "chore: ",
+  "commitMessageAction": "bump up",
+  "commitMessageTopic": "{{depName}} version",
+  "ignoreDeps": [
+    "@types/webpack",
+    "@types/vscode",
+    "@types/node",
+    "@types/node-fetch",
+    "react-router",
+    "react-router-dom",
+    "@types/react-router",
+    "@types/react-router-dom",
+    "scheduler",
+    "path-to-regexp",
+    "node-fetch",
+    "chalk",
+    "file-type",
+    "graphql",
+    "@mdx-js/react"
+  ],
+  "ignorePaths": ["**/node_modules/**", "**/bower_components/**", "examples/**"]
+}
