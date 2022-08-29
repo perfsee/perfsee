@@ -21,11 +21,15 @@ import qs from 'query-string'
 import { lastValueFrom } from 'rxjs'
 
 import { Config } from '@perfsee/platform-server/config'
+import { User } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { paginate, PaginationInput } from '@perfsee/platform-server/graphql'
 import { RxFetch } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Redis } from '@perfsee/platform-server/redis'
+import { ExternalAccount } from '@perfsee/shared'
+
+import { UserService } from '../user'
 
 import { githubAppJwt } from './github-app-jwt'
 import {
@@ -47,6 +51,7 @@ export class GithubService {
   available: boolean
 
   constructor(
+    private readonly userService: UserService,
     private readonly logger: Logger,
     private readonly config: Config,
     private readonly fetch: RxFetch,
@@ -63,7 +68,64 @@ export class GithubService {
     }
   }
 
-  async getUserInstallationRepositories(pagination: PaginationInput, installationId: number, userToken: string) {
+  /**
+   * Verify that the github project exists and the current user has permissions to the project.
+   */
+  async verifyGithubRepositoryPermission(
+    user: User,
+    owner: string,
+    repo: string,
+  ): Promise<{ ok: false; error: string } | { ok: true; caseSensitiveRepo: string; caseSensitiveOwner: string }> {
+    const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
+    if (!githubAccount || !githubAccount.accessToken) {
+      return {
+        ok: false,
+        error: `Please connect your github account first.`,
+      }
+    }
+
+    let repositoryInfo
+    try {
+      repositoryInfo = await this.getRepository(owner, repo, githubAccount.accessToken)
+    } catch (err) {
+      if (err instanceof GithubApiError && err.status === 404) {
+        return {
+          ok: false,
+          error: `Repository ${owner}/${repo} not found`,
+        }
+      }
+      throw err
+    }
+
+    const caseSensitiveRepo = repositoryInfo.name
+    const caseSensitiveOwner = repositoryInfo.owner.login
+
+    if (!(repositoryInfo.permissions.admin || repositoryInfo.permissions.maintain)) {
+      return {
+        ok: false,
+        error: `The github account ${githubAccount.externUsername} does not have maintain permission for the ${caseSensitiveOwner}/${caseSensitiveRepo}.`,
+      }
+    }
+
+    try {
+      await this.getInstallationByRepository(owner, repo)
+    } catch (err) {
+      if (err instanceof GithubApiError && err.status === 404) {
+        return {
+          ok: false,
+          error: `Can't find github app installation for ${caseSensitiveOwner}/${caseSensitiveRepo}.`,
+        }
+      }
+      throw err
+    }
+    return {
+      ok: true,
+      caseSensitiveRepo,
+      caseSensitiveOwner,
+    }
+  }
+
+  async searchRepositories(query: string, pagination: PaginationInput, installationAccessToken: string) {
     if (pagination.after) {
       throw new UserError('pagination.after is not supported for this function.')
     }
@@ -76,19 +138,20 @@ export class GithubService {
     const perPage = pagination.first
     const result = await this.fetchApi<{
       total_count: number
-      repositories: GithubRepository[]
+      items: GithubRepository[]
     }>(
       'GET',
-      `https://api.github.com/user/installations/${installationId}/repositories`,
+      `https://api.github.com/search/repositories`,
       {
+        q: query,
         page,
         per_page: perPage,
       },
-      userToken,
-      true,
+      installationAccessToken,
+      false,
     )
 
-    return paginate(result.repositories, 'id', pagination, result.total_count)
+    return paginate(result.items, 'id', pagination, result.total_count)
   }
 
   updateCheckRun(
@@ -231,6 +294,14 @@ export class GithubService {
     return data
   }
 
+  async getRepository(owner: string, repo: string, userToken: string) {
+    return this.fetchApi<GithubRepository>('GET', `https://api.github.com/repos/${owner}/${repo}`, {}, userToken, true)
+  }
+
+  async getInstallationById(installationId: number) {
+    return this.fetchApi<GithubInstallation>('GET', `https://api.github.com/app/installations/${installationId}`)
+  }
+
   getInstallUrl() {
     return `https://github.com/apps/${this.config.github.appname}/installations/new`
   }
@@ -253,13 +324,7 @@ export class GithubService {
         method,
       }),
     ).catch((res) => {
-      throw new Error(
-        `Fetch Github Api Error [${url}] \n\tbody: ${JSON.stringify(
-          body,
-          null,
-          2,
-        )} \n\tresponse: ${require('util').inspect(res)}`,
-      )
+      throw new GithubApiError(url, res)
     }) as Promise<Response>
   }
 
@@ -270,5 +335,13 @@ export class GithubService {
 
     this.cachedGithubAppJWT = githubAppJwt(this.config.github.appid, this.privateKey)
     return this.cachedGithubAppJWT.token
+  }
+}
+
+export class GithubApiError extends Error {
+  readonly status: number
+  constructor(public readonly url: string, public readonly res: Response) {
+    super(`Fetch Github Api Error [${url}]\n\tstatus: ${res.status}`)
+    this.status = res.status
   }
 }

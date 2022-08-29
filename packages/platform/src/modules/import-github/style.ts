@@ -31,9 +31,9 @@ export const Title = styled.h1({
   fontSize: '18px',
 })
 
-export const SelectorContainer = styled.div(({ theme }) => ({
+export const SelectorContainer = styled.div<{ size?: number }>(({ theme, size }) => ({
   border: `1px solid ${theme.border.color}`,
-  maxHeight: '400px',
+  maxHeight: `${size || 400}px`,
   overflow: 'scroll',
 }))
 

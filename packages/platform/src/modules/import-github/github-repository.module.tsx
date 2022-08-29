@@ -16,25 +16,51 @@ limitations under the License.
 
 import { Effect, EffectModule, ImmerReducer, Module } from '@sigi/core'
 import { Draft } from 'immer'
-import { endWith, exhaustMap, map, Observable, startWith, withLatestFrom } from 'rxjs'
+import {
+  debounceTime,
+  endWith,
+  distinctUntilChanged,
+  map,
+  Observable,
+  startWith,
+  switchMap,
+  withLatestFrom,
+  filter,
+  of,
+  mergeMap,
+} from 'rxjs'
 
 import { createErrorCatcher, GraphQLClient } from '@perfsee/platform/common'
-import { GithubInstallationRepositoriesQuery, githubInstallationRepositoriesQuery } from '@perfsee/schema'
+import {
+  GithubSearchRepositoriesQuery,
+  githubSearchRepositoriesQuery,
+  verifyGithubRepositoryPermissionQuery,
+  VerifyGithubRepositoryPermissionQuery,
+} from '@perfsee/schema'
 
-export type Repository = GithubInstallationRepositoriesQuery['githubInstallationRepositories']['edges'][number]['node']
+export type Repository = GithubSearchRepositoriesQuery['githubSearchRepositories']['edges'][number]['node']
+export type RepositoryVerification = VerifyGithubRepositoryPermissionQuery['verifyGithubRepositoryPermission']
 
 interface State {
   repositories: Repository[]
   repositoriesTotalCount: number
+  installationId: number
   loading: boolean
+  query: string
+  repositoryVerification: RepositoryVerification | null
+  repositoryVerifying: boolean
 }
 
 @Module('GithubRepositoryModel')
 export class GithubRepositoryModel extends EffectModule<State> {
   defaultState = {
     loading: true,
+    installationId: 0,
     repositoriesTotalCount: 0,
     repositories: [],
+    query: '',
+    repositoryVerification: null,
+    repositoryVerifying: false,
   }
 
   constructor(private readonly client: GraphQLClient) {
@@ -42,25 +68,77 @@ export class GithubRepositoryModel extends EffectModule<State> {
   }
 
   @Effect()
-  loadMore(payload$: Observable<number>) {
+  verifyRepository(payload$: Observable<{ owner: string; repo: string }>) {
+    return payload$.pipe(
+      switchMap(({ owner, repo }) => {
+        return this.client
+          .query({
+            query: verifyGithubRepositoryPermissionQuery,
+            variables: {
+              owner,
+              repo,
+            },
+          })
+          .pipe(
+            map((data) => {
+              return this.getActions().setVerification(data.verifyGithubRepositoryPermission)
+            }),
+            startWith(this.getActions().setVerifying(true)),
+            endWith(this.getActions().setVerifying(false)),
+            createErrorCatcher('Failed to fetch repositories'),
+          )
+      }),
+    )
+  }
+
+  @Effect()
+  search(payload$: Observable<{ installationId: number; query: string }>) {
+    return payload$.pipe(
+      debounceTime(300),
+      mergeMap((data) => {
+        return of(
+          this.getActions().setQuery({ query: data.query, installationId: data.installationId }),
+          this.getActions().loadMore(),
+        )
+      }),
+    )
+  }
+
+  @Effect()
+  loadMore(payload$: Observable<void>) {
     return payload$.pipe(
       withLatestFrom(this.state$),
-      exhaustMap(([installationId, state]) =>
+      filter(([_, state]) => {
+        return !(state.repositories.length > 0 && state.repositories.length === state.repositoriesTotalCount)
+      }),
+      distinctUntilChanged(([_, stateX], [__, stateY]) => {
+        return (
+          stateY.repositories.length !== 0 &&
+          stateX.installationId === stateY.installationId &&
+          stateX.repositories.length === stateY.repositories.length &&
+          stateX.query === stateY.query
+        )
+      }),
+      switchMap(([_, state]) =>
         this.client
           .query({
-            query: githubInstallationRepositoriesQuery,
-            variables: { installationId, pagination: { first: 30, skip: state.repositories.length } },
+            query: githubSearchRepositoriesQuery,
+            variables: {
+              installationId: state.installationId,
+              query: state.query,
+              pagination: { first: 30, skip: state.repositories.length },
+            },
           })
           .pipe(
             map((data) => {
               return this.getActions().append({
-                repositories: data.githubInstallationRepositories.edges.map((edge) => edge.node),
-                totalCount: data.githubInstallationRepositories.pageInfo.totalCount,
+                repositories: data.githubSearchRepositories.edges.map((edge) => edge.node),
+                totalCount: data.githubSearchRepositories.pageInfo.totalCount,
               })
             }),
             startWith(this.getActions().setLoading(true)),
             endWith(this.getActions().setLoading(false)),
-            createErrorCatcher(),
+            createErrorCatcher('Failed to fetch repositories'),
           ),
       ),
     )
@@ -72,8 +150,27 @@ export class GithubRepositoryModel extends EffectModule<State> {
   }
 
   @ImmerReducer()
+  setVerifying(state: Draft<State>, verifying: boolean) {
+    state.repositoryVerifying = verifying
+  }
+
+  @ImmerReducer()
+  setQuery(state: Draft<State>, { query, installationId }: { query: string; installationId: number }) {
+    state.query = query
+    state.installationId = installationId
+    state.loading = true
+    state.repositories = []
+    state.repositoriesTotalCount = 0
+  }
+
+  @ImmerReducer()
   append(state: Draft<State>, { repositories, totalCount }: { repositories: Repository[]; totalCount: number }) {
     state.repositories.push(...repositories)
     state.repositoriesTotalCount = totalCount
+  }
+
+  @ImmerReducer()
+  setVerification(state: Draft<State>, verification: RepositoryVerification | null) {
+    state.repositoryVerification = verification
   }
 }

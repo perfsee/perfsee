@@ -1,0 +1,16 @@
+query GithubSearchRepositories($pagination: PaginationInput!, $installationId: Int!, $query: String!) {
+  githubSearchRepositories(pagination: $pagination, installationId: $installationId, query: $query) {
+    edges {
+      node {
+        id
+        name
+        full_name
+        private
+        default_branch
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

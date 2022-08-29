@@ -758,21 +758,6 @@ enum ExternalAccount {
   github
 }
 
-type ProjectEdge {
-  cursor: String!
-  node: Project!
-}
-
-type PaginatedProjects {
-  edges: [ProjectEdge!]!
-  pageInfo: PageInfo!
-}
-
-type ProjectIdVerificationResult {
-  ok: Boolean!
-  error: String
-}
-
 type GithubRepository {
   id: Int!
   name: String!
@@ -801,6 +786,11 @@ type GithubInstallation {
   account: GithubAccount!
 }
 
+type GithubRepoVerificationResult {
+  ok: Boolean!
+  error: String
+}
+
 type GithubInstallationEdge {
   cursor: String!
   node: GithubInstallation!
@@ -809,6 +799,21 @@ type GithubInstallationEdge {
 type PaginatedGithubInstallations {
   edges: [GithubInstallationEdge!]!
   pageInfo: PageInfo!
+}
+
+type ProjectEdge {
+  cursor: String!
+  node: Project!
+}
+
+type PaginatedProjects {
+  edges: [ProjectEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectIdVerificationResult {
+  ok: Boolean!
+  error: String
 }
 
 type Zone {
@@ -992,21 +997,27 @@ type Query {
   ): PaginatedProjects!
   user: User!
   searchUsers(query: String!): [SearchUserResult!]!
-  pendingJobsAggregation: [JobAggregation!]!
-  runner(id: ID!): Runner!
-  runners(filter: RunnerQueryFilter!): PaginatedRunners!
 
   """
   List all installations of the github account connected by the current user. Throws if user is not connected to github account. 
   NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.
   """
-  githubInstallations(pagination: PaginationInput = {first: 10}): PaginatedGithubInstallations!
+  githubInstallations(pagination: PaginationInput = {first: 10, skip: 0}): PaginatedGithubInstallations!
 
   """
-  List all github repositories in the installation. Throws if user is not connected to github account. 
+  Verify that the github project exists and the current user has permissions to the project. Throws if user is not connected to github account.
+  """
+  verifyGithubRepositoryPermission(owner: String!, repo: String!): GithubRepoVerificationResult!
+
+  """
+  Search github repositories in the installation.
+  Throws if user is not connected to github account.
   NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.
   """
-  githubInstallationRepositories(installationId: Int!, pagination: PaginationInput = {first: 10}): PaginatedGithubRepositories!
+  githubSearchRepositories(installationId: Int!, query: String!, pagination: PaginationInput = {first: 10, skip: 0}): PaginatedGithubRepositories!
+  pendingJobsAggregation: [JobAggregation!]!
+  runner(id: ID!): Runner!
+  runners(filter: RunnerQueryFilter!): PaginatedRunners!
   connections: [ConnectionType!]!
   devices: [DeviceType!]!
   availableOAuthProviders: [ExternalAccount!]!

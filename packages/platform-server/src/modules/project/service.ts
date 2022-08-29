@@ -18,6 +18,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { differenceBy, isEmpty, isUndefined, omitBy } from 'lodash'
 import { Brackets, In } from 'typeorm'
 
+import { Config } from '@perfsee/platform-server/config'
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
 import {
   DBService,
@@ -37,6 +38,7 @@ import { Metric } from '@perfsee/platform-server/metrics'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { GitHost } from '@perfsee/shared'
 
+import { GithubService } from '../github'
 import { PermissionProvider, Permission } from '../permission'
 import { UserService } from '../user'
 
@@ -52,10 +54,12 @@ export class ProjectService {
 
   constructor(
     private readonly permissionProvider: PermissionProvider,
+    private readonly github: GithubService,
     private readonly db: DBService,
     private readonly userService: UserService,
     private readonly metricService: Metric,
     private readonly internalIdService: InternalIdService,
+    private readonly config: Config,
   ) {}
 
   async resolveRawProjectIdBySlug(slug: string) {
@@ -249,8 +253,19 @@ export class ProjectService {
 
     const slugVerification = await this.verifyNewSlug(id)
 
-    if (slugVerification.error) {
-      throw new UserError(slugVerification.error)
+    if (!slugVerification.ok) {
+      throw new UserError('Invalid id, ' + slugVerification.error)
+    }
+
+    if (!this.config.testing && input.host === GitHost.Github) {
+      const githubVerification = await this.github.verifyGithubRepositoryPermission(user, input.namespace, input.name)
+
+      if (!githubVerification.ok) {
+        throw new UserError('GitHub permission verification error, ' + githubVerification.error)
+      }
+
+      input.namespace = githubVerification.caseSensitiveOwner
+      input.name = githubVerification.caseSensitiveRepo
     }
 
     const project = Project.create({

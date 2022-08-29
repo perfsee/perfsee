@@ -19,6 +19,7 @@ export interface GithubInstallation {
   account: {
     login: string
     avatar_url: string
+    type: 'Organization' | 'User'
   }
   permissions: GithubAppPermissions
 }
@@ -77,4 +78,14 @@ export interface GithubRepository {
   full_name: string
   private: boolean
   default_branch: string
+  owner: {
+    login: string
+  }
+  permissions: {
+    admin: boolean
+    maintain: boolean
+    push: boolean
+    triage: boolean
+    pull: boolean
+  }
 }

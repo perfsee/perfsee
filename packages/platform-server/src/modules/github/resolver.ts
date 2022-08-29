@@ -65,6 +65,15 @@ class GithubInstallation {
 }
 
 @ObjectType()
+export class GithubRepoVerificationResult {
+  @Field(() => Boolean)
+  ok!: boolean
+
+  @Field(() => String, { nullable: true })
+  error!: string | undefined
+}
+
+@ObjectType()
 export class PaginatedGithubInstallations extends Paginated(GithubInstallation) {}
 
 @Auth()
@@ -80,7 +89,7 @@ export class GithubIntegrationResolver {
   })
   async getGithubInstallations(
     @CurrentUser() user: User,
-    @Args({ name: 'pagination', nullable: true, defaultValue: { first: 10 } })
+    @Args({ name: 'pagination', nullable: true, defaultValue: { first: 10, skip: 0 } })
     paginationInput: PaginationInput,
   ) {
     const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
@@ -91,16 +100,31 @@ export class GithubIntegrationResolver {
     return this.service.getInstallationsByUser(paginationInput, githubAccount.accessToken)
   }
 
-  @Query(() => PaginatedGithubRepositories, {
-    name: 'githubInstallationRepositories',
+  @Query(() => GithubRepoVerificationResult, {
+    name: 'verifyGithubRepositoryPermission',
     description:
-      'List all github repositories in the installation. Throws if user is not connected to github account. \n' +
+      'Verify that the github project exists and the current user has permissions to the project. Throws if user is not connected to github account.',
+  })
+  async verifyGithubRepositoryPermission(
+    @CurrentUser() user: User,
+    @Args({ name: 'owner', type: () => String }) owner: string,
+    @Args({ name: 'repo', type: () => String }) repo: string,
+  ) {
+    return this.service.verifyGithubRepositoryPermission(user, owner, repo)
+  }
+
+  @Query(() => PaginatedGithubRepositories, {
+    name: 'githubSearchRepositories',
+    description:
+      'Search github repositories in the installation.\n' +
+      'Throws if user is not connected to github account.\n' +
       'NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.',
   })
-  async getGithubInstallationRepositories(
+  async searchGithubInstallationRepositories(
     @CurrentUser() user: User,
     @Args({ name: 'installationId', type: () => Int }) installationId: number,
-    @Args({ name: 'pagination', nullable: true, defaultValue: { first: 10 } })
+    @Args({ name: 'query', type: () => String }) query: string,
+    @Args({ name: 'pagination', nullable: true, defaultValue: { first: 10, skip: 0 } })
     paginationInput: PaginationInput,
   ) {
     const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
@@ -108,6 +132,13 @@ export class GithubIntegrationResolver {
       throw new UserError('Please connect your github account first.')
     }
 
-    return this.service.getUserInstallationRepositories(paginationInput, installationId, githubAccount.accessToken)
+    const installation = await this.service.getInstallationById(installationId)
+    const qualifier =
+      (installation.account.type === 'Organization'
+        ? `org:${installation.account.login}`
+        : `user:${installation.account.login}`) + ' fork:true'
+    const installationToken = await this.service.getInstallationAccessToken(installationId)
+    const escapedQuery = '"' + query.split(/\s+/).join('" "') + '" ' + qualifier
+    return this.service.searchRepositories(escapedQuery, paginationInput, installationToken)
   }
 }
