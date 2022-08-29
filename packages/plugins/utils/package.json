@@ -22,7 +22,7 @@
     "chalk": "^4.1.2",
     "debug": "4.3.4",
     "env-ci": "^7.2.1",
-    "file-type": "^16.5.3",
+    "file-type": "^16.5.4",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.2",
     "query-string": "^7.1.1",
