@@ -24,11 +24,12 @@ const path = require('path')
  * @param {string} requirePath
  */
 function resolvePackage(from, requirePath) {
-  if (!from.endsWith('/node_modules')) {
+  if (!from.endsWith(path.sep + 'node_modules')) {
     from = path.join(path.parse(from).dir, './node_modules')
   }
-  if (!requirePath.startsWith('@') && requirePath.includes('/')) {
-    requirePath = requirePath.split('/')[0]
+
+  if (!requirePath.startsWith('@') && requirePath.includes(path.sep)) {
+    requirePath = requirePath.split(path.sep)[0]
   }
 
   while (from.startsWith(process.cwd())) {
@@ -37,7 +38,7 @@ function resolvePackage(from, requirePath) {
       return pkgJsonPath
     }
 
-    from = path.join(path.parse(from.substring(0, from.lastIndexOf('/node_modules'))).dir, './node_modules')
+    from = path.join(path.parse(from.substring(0, from.lastIndexOf(path.sep + 'node_modules'))).dir, './node_modules')
   }
 }
 
@@ -99,6 +100,11 @@ function build() {
           }
           // eslint-disable-next-line no-empty
         } catch {}
+        if (!importer) {
+          return {
+            external: false,
+          }
+        }
 
         return {
           external: true,
@@ -111,7 +117,7 @@ function build() {
         if (loader === 'cjs' || loader === 'mjs') {
           loader = 'js'
         }
-        const dirname = path.dirname(filePath)
+        const dirname = path.posix.dirname(filePath)
         contents = contents
           .replace(/([^\w'"_.\s])__dirname([^\w_'"])/g, `$1"${dirname}"$2`)
           .replace(/([^\w'"_.\s])__filename([^\w_'"])/g, `$1"${filePath}"$2`)
