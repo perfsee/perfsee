@@ -12,6 +12,6 @@
     "debug:rs": "napi build"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.10.1"
+    "@napi-rs/cli": "^2.11.4"
   }
 }
