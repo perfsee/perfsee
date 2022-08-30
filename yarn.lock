@@ -4611,12 +4611,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@napi-rs/cli@npm:^2.10.1":
-  version: 2.10.1
-  resolution: "@napi-rs/cli@npm:2.10.1"
+"@napi-rs/cli@npm:^2.11.4":
+  version: 2.11.4
+  resolution: "@napi-rs/cli@npm:2.11.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40napi-rs%2Fcli%2F-%2Fcli-2.11.4.tgz"
   bin:
     napi: scripts/index.js
-  checksum: 2c3ee83577c45d1ba01934d5f8a7068a451877e230f6bbf5559a0c767aa4e0f626fe6511705dc9a1add43d75a8fa08e890dc620277aede27ddbbc0ba0d502b30
+  checksum: f9f1036520ba43685c782c4eafdd56176930d317ab31c6841c2f033e09f4cac7c9561ccdfeaefcb30c2ac5e64390fb308a5658eb47c373e8131e138ad38b98c1
   languageName: node
   linkType: hard
 
@@ -5502,7 +5502,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/ori@workspace:packages/ori"
   dependencies:
-    "@napi-rs/cli": ^2.10.1
+    "@napi-rs/cli": ^2.11.4
   languageName: unknown
   linkType: soft
 

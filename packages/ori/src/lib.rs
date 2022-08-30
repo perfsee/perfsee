@@ -23,11 +23,14 @@ limitations under the License.
 extern crate napi_derive;
 #[macro_use]
 extern crate serde_json;
+use std::collections::HashMap;
+use std::mem;
+
+use napi::bindgen_prelude::*;
+use serde::Serialize;
+
 use crate::profile::{Profile, SpeedScopeProfile, SpeedScopeProfileGroup};
 use crate::rules::{get_all_rules, Analyzer, Diagnostic};
-use napi::*;
-use serde::Serialize;
-use std::mem;
 
 #[cfg(test)]
 #[macro_use]
@@ -40,21 +43,14 @@ pub mod profile;
 pub mod rules;
 
 #[cfg(all(
-  unix,
-  not(target_env = "musl"),
-  not(target_arch = "aarch64"),
-  not(target_arch = "arm"),
+  not(all(target_os = "linux", target_env = "musl", target_arch = "aarch64")),
   not(debug_assertions)
 ))]
 #[global_allocator]
-static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
-
-#[cfg(all(windows, target_arch = "x86_64", not(debug_assertions)))]
-#[global_allocator]
-static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
+static ALLOC: mimalloc_rust::GlobalMiMalloc = mimalloc_rust::GlobalMiMalloc;
 
 #[derive(Debug, Serialize)]
-struct AnalyseResult {
+pub struct AnalyseResult {
   diagnostics: Vec<Diagnostic>,
   profile: Profile,
 }
@@ -65,15 +61,16 @@ struct DebugAnalyseResult {
   profile: SpeedScopeProfileGroup,
 }
 
-struct AnalyzeTask {
+pub struct AnalyzeTask {
   profile_path: String,
   bundle_meta_path: String,
   debug_mode: bool,
 }
 
+#[napi]
 impl Task for AnalyzeTask {
   type Output = AnalyseResult;
-  type JsValue = JsString;
+  type JsValue = String;
 
   fn compute(&mut self) -> Result<Self::Output> {
     let profile = parser::parse(&self.profile_path, &self.bundle_meta_path)
@@ -87,56 +84,43 @@ impl Task for AnalyzeTask {
     })
   }
 
-  fn resolve(self, env: Env, mut output: Self::Output) -> Result<Self::JsValue> {
-    if self.debug_mode {
+  fn resolve(&mut self, _: Env, mut output: Self::Output) -> Result<Self::JsValue> {
+    let out = if self.debug_mode {
       let dbg_result = DebugAnalyseResult {
         diagnostics: mem::take(&mut output.diagnostics),
         profile: SpeedScopeProfile::from(output.profile).group(),
       };
 
-      env.create_string(&serde_json::to_string(&dbg_result)?)
+      serde_json::to_string(&dbg_result)?
     } else {
-      env.create_string(&serde_json::to_string(&output)?)
-    }
+      serde_json::to_string(&output)?
+    };
+    Ok(out)
   }
 }
 
-#[js_function(3)]
-pub fn analyse(ctx: CallContext) -> Result<JsObject> {
-  let profile_path = ctx.get::<JsString>(0)?.into_utf8()?;
-  let bundle_meta_path = ctx.get::<JsString>(1)?.into_utf8()?;
-  let debug_mode = ctx.get::<JsBoolean>(2)?.get_value().unwrap_or(false);
+#[napi(strict)]
+pub fn analyse(
+  profile_path: String,
+  bundle_meta_path: String,
+  debug_mode: Option<bool>,
+) -> AsyncTask<AnalyzeTask> {
+  let debug_mode = debug_mode.unwrap_or(false);
 
   let task = AnalyzeTask {
-    profile_path: profile_path.into_owned()?,
-    bundle_meta_path: bundle_meta_path.into_owned()?,
+    profile_path,
+    bundle_meta_path,
     debug_mode,
   };
-  let task = ctx.env.spawn(task)?;
-
-  Ok(task.promise_object())
+  AsyncTask::new(task)
 }
 
-#[js_function]
-pub fn gen_docs(ctx: CallContext) -> Result<JsObject> {
-  let mut docs = ctx.env.create_object()?;
-
+#[napi]
+pub fn gen_docs() -> HashMap<&'static str, &'static str> {
   let rules = get_all_rules();
 
-  for rule in rules {
-    docs.set_property(
-      ctx.env.create_string(rule.code())?,
-      ctx.env.create_string(rule.desc())?,
-    )?;
-  }
-
-  Ok(docs)
-}
-
-#[module_exports]
-fn export(mut exports: JsObject) -> Result<()> {
-  exports.create_named_method("analyseProfile", analyse)?;
-  exports.create_named_method("generateDocs", gen_docs)?;
-
-  Ok(())
+  rules
+    .into_iter()
+    .map(|rule| (rule.code(), rule.desc()))
+    .collect()
 }

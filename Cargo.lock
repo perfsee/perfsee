@@ -110,6 +110,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "convert_case"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb4a24b1aaf0fd0ce8b45161144d6f42cd91677fd5940fd431183eb023b3a2b8"
+
+[[package]]
 name = "criterion"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -213,6 +219,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "ctor"
+version = "0.1.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f877be4f7c9f246b183111634f75baa039715e3f46ce860677d3b19a69fb229c"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "cty"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
+
+[[package]]
 name = "dissimilar"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -249,12 +271,6 @@ dependencies = [
  "matches",
  "percent-encoding",
 ]
-
-[[package]]
-name = "fs_extra"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2022715d62ab30faffd124d40b76f4134a550a87792276512b18d63272333394"
 
 [[package]]
 name = "half"
@@ -297,6 +313,7 @@ dependencies = [
  "console",
  "linked-hash-map",
  "once_cell",
+ "serde",
  "similar",
  "yaml-rust",
 ]
@@ -323,27 +340,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112c678d4050afce233f4f2852bb2eb519230b3cf12f33585275537d7e41578d"
 
 [[package]]
-name = "jemalloc-sys"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d3b9f3f5c9b31aa0f5ed3260385ac205db665baa41d49bb8338008ae94ede45"
-dependencies = [
- "cc",
- "fs_extra",
- "libc",
-]
-
-[[package]]
-name = "jemallocator"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43ae63fcfc45e99ab3d1b29a46782ad679e98436c3169d15a167a1108a724b69"
-dependencies = [
- "jemalloc-sys",
- "libc",
-]
-
-[[package]]
 name = "js-sys"
 version = "0.3.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -365,12 +361,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5916d2ae698f6de9bfb891ad7a8d65c09d232dc58cc4ac433c7da3b2fd84bc2b"
 
 [[package]]
-name = "libmimalloc-sys"
-version = "0.1.25"
+name = "libloading"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11ca136052550448f55df7898c6dbe651c6b574fe38a0d9ea687a9f8088a2e2c"
+checksum = "efbc0f03f9a775e9f6aed295c6a1ba2253c5757a9e03d55c6caa46a681abcddd"
 dependencies = [
- "cc",
+ "cfg-if",
+ "winapi",
 ]
 
 [[package]]
@@ -410,38 +407,66 @@ dependencies = [
 ]
 
 [[package]]
-name = "mimalloc"
-version = "0.1.29"
+name = "mimalloc-rust"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f64ad83c969af2e732e907564deb0d0ed393cec4af80776f77dd77a1a427698"
+checksum = "6973866e0bc6504c03a16b6817b7e70839cc8a1dbd5d6dab00c65d8034868d8b"
 dependencies = [
- "libmimalloc-sys",
+ "cty",
+ "mimalloc-rust-sys",
+]
+
+[[package]]
+name = "mimalloc-rust-sys"
+version = "1.7.6-source"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a50daf45336b979a202a19f53b4b382f2c4bd50f392a8dbdb4c6c56ba5dfa64"
+dependencies = [
+ "cc",
+ "cty",
 ]
 
 [[package]]
 name = "napi"
-version = "1.8.0"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5586ff59e18f42d41f68139a8ca72ef1dbcc243ec62c5696e6383169a8a05a4"
+checksum = "0e2f9ad803cde148d81d0ca9e5fd4d80773d15e992d09e3a44f62f41b9af4558"
 dependencies = [
+ "bitflags",
+ "ctor",
  "napi-sys",
+ "once_cell",
  "serde",
  "serde_json",
- "winapi",
+ "thread_local",
 ]
 
 [[package]]
 name = "napi-build"
-version = "1.2.1"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebd4419172727423cf30351406c54f6cc1b354a2cfb4f1dba3e6cd07f6d5522b"
+checksum = "882a73d9ef23e8dc2ebbffb6a6ae2ef467c0f18ac10711e4cc59c5485d41df0e"
 
 [[package]]
 name = "napi-derive"
-version = "1.1.2"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ee880798e942fc785e2e234544b9db578019a1d7676f45dad7f38d432ab0fe4"
+checksum = "1be75210f300e9fbf386ccac1c8eaaed23410e2f7f7aa9295b78c436a172ef51"
 dependencies = [
+ "convert_case",
+ "napi-derive-backend",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "napi-derive-backend"
+version = "1.0.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92ba4800264fac8a7726b208d5dd4c6d637d1027d73b026061a69d3339a0a930"
+dependencies = [
+ "convert_case",
  "proc-macro2",
  "quote",
  "syn",
@@ -449,9 +474,12 @@ dependencies = [
 
 [[package]]
 name = "napi-sys"
-version = "1.1.2"
+version = "2.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67cf20e0081fea04e044aa4adf74cfea8ddc0324eec2894b1c700f4cafc72a56"
+checksum = "529671ebfae679f2ce9630b62dd53c72c56b3eb8b2c852e7e2fa91704ff93d67"
+dependencies = [
+ "libloading",
+]
 
 [[package]]
 name = "num-traits"
@@ -492,8 +520,7 @@ dependencies = [
  "criterion",
  "expect-test",
  "insta",
- "jemallocator",
- "mimalloc",
+ "mimalloc-rust",
  "napi",
  "napi-build",
  "napi-derive",
@@ -775,6 +802,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "thread_local"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5516c27b78311c50bf42c071425c560ac799b11c30b31f87e3081965fe5e0180"
+dependencies = [
+ "once_cell",
 ]
 
 [[package]]
