@@ -101,7 +101,7 @@ module.exports = {
                 if (line[0] === '#') {
                   const [importKeyword, importPath] = line.split(' ').filter(Boolean)
                   if (importKeyword === '#import') {
-                    const realImportPath = path.join(location, '..', importPath.replace(/["']/g, ''))
+                    const realImportPath = path.posix.join(location, '..', importPath.replace(/["']/g, ''))
                     const imports = locationSourceMap.get(realImportPath)?.document.definitions
                     if (imports) {
                       importedDefinitions = [...importedDefinitions, ...imports]

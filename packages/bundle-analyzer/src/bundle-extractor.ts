@@ -27,7 +27,7 @@ import {
 } from 'fs'
 import { join, parse } from 'path'
 import { pipeline } from 'stream'
-import { createBrotliDecompress } from 'zlib'
+import { createBrotliDecompress, createGunzip } from 'zlib'
 
 import { decode } from '@msgpack/msgpack'
 import { extract } from 'tar'
@@ -111,6 +111,21 @@ async function decompressStatsFile(path: string): Promise<string> {
       execSync(`sh -c 'gzip -d ${path}'`)
       return target
       // eslint-disable-next-line no-empty
+    } catch {}
+
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const stream = pipeline(createReadStream(path), createGunzip(), createWriteStream(target), (e) => {
+          if (e) {
+            reject(e)
+          }
+        })
+        stream.on('error', reject)
+        stream.on('end', resolve)
+        stream.on('close', resolve)
+      })
+
+      return target
     } catch (e) {
       throw new Error(`Failed to decompress stats file. Internal Error: ${(e as Error).message}`)
     }

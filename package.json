@@ -154,7 +154,7 @@
     "example": "yarn cli example",
     "dev": "cross-env NODE_ENV=development yarn cli dev",
     "typeorm": "yarn run:ts ./node_modules/typeorm/cli.js -d ./packages/platform-server/src/datasource.ts",
-    "lint": "node --max-old-space-size=8192 ./node_modules/.bin/eslint . --cache --cache-location ./.eslint-cache",
+    "lint": "cross-env NODE_OPTIONS=--max-old-space-size=8192 eslint . --cache --cache-location ./.eslint-cache",
     "circular": "madge --circular --ts-config ./tsconfig.json packages/**/src/index.ts packages/**/src/index.tsx",
     "postinstall": "husky install",
     "release": "lerna version --sign-git-tag --exact --allow-branch main",
