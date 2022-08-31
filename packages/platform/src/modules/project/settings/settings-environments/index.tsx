@@ -23,7 +23,7 @@ import { SharedColors } from '@perfsee/dls'
 
 import { DeletePropertyProgress, EnvSchema, PropertyModule } from '../../../shared'
 import { ButtonOperators, DeleteContent, SettingDialogs, CountBlock, DialogVisible } from '../settings-common-comp'
-import { EllipsisText, NormalToken } from '../style'
+import { EllipsisText, NormalToken, StyledDesc } from '../style'
 
 import { EnvEditForm } from './env-edit-form'
 
@@ -97,6 +97,7 @@ export const SettingsEnvironments = () => {
             <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
             <CountBlock title="cookie" count={cookieCount} />
             <CountBlock title="header" count={headerCount} />
+            <StyledDesc size="12px">{item.zone}</StyledDesc>
           </EllipsisText>
           <ButtonOperators
             item={item}
