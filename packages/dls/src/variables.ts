@@ -63,7 +63,7 @@ export const BrightTheme: Theme = {
     background: 'rgba(141, 214, 249, 0.35)',
   },
   text: {
-    fontFamily: `'Alegreya Sans', 'Input Mono', Menlo, 'Fira Mono', 'Source Code Pro', monospace`,
+    fontFamily: `-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"`,
     fontSize: '14px',
     color: NeutralColors.gray150,
     colorSecondary: NeutralColors.gray90,
