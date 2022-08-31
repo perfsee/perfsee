@@ -48,7 +48,11 @@ jobs:
           yarn typecheck
 
   unit-test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        host: ['ubuntu-latest', 'windows-latest']
+    name: Unit test on - ${{ matrix.host }}
+    runs-on: ${{ matrix.host }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16.x
