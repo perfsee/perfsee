@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { join, relative, resolve } from 'path/posix'
+import { win32, posix } from 'path'
 
 import { parse as parseQueryString } from 'query-string'
 
@@ -111,33 +111,35 @@ export function resolveNodeModulePath(fullPath: string, rootPath: string) {
   if (!modulesMatch.length) {
     return undefined
   }
-  const lastNodeModulesIndex = modulesMatch[modulesMatch.length - 1] + 'node_modules/'.length
+  const lastNodeModulesIndex = modulesMatch[modulesMatch.length - 1] + /* length of 'node_modules/' */ 13
   const nodeModulesPath = fullPath.slice(0, lastNodeModulesIndex)
   const shortPath = fullPath.slice(lastNodeModulesIndex)
 
-  const shortPathParts = shortPath.split('/')
+  const path = resolvePathFunctions(fullPath)
+  const shortPathParts = shortPath.split(path.sep)
   const moduleName = shortPathParts[0].startsWith('@') ? shortPathParts[0] + '/' + shortPathParts[1] : shortPathParts[0]
 
-  const path = join(nodeModulesPath, moduleName)
-  const dependentPath = relative(rootPath, path)
+  const modulePath = path.join(nodeModulesPath, moduleName)
+  const dependentPath = path.relative(rootPath, modulePath)
 
   return {
-    path: join(nodeModulesPath, moduleName),
+    path: modulePath,
     moduleName,
     dependentPath,
   }
 }
 
-export function getPackageMeta(path: string, repoPath: string, buildPath: string): PackageMeta | null {
+export function getPackageMeta(modulePath: string, repoPath: string, buildPath: string): PackageMeta | null {
   // `fs (ignored)`
   // this case can not be detected in trimmed module name
-  if (path.endsWith('(ignored)')) {
+  if (modulePath.endsWith('(ignored)')) {
     return null
   }
 
-  const realPath = trimModuleName(path)
+  const realPath = trimModuleName(modulePath)
 
-  const nodeModulePath = resolveNodeModulePath(resolve(buildPath, realPath), repoPath)
+  const path = resolvePathFunctions(buildPath)
+  const nodeModulePath = resolveNodeModulePath(path.resolve(buildPath, realPath), repoPath)
 
   if (nodeModulePath) {
     return {
@@ -151,4 +153,12 @@ export function getPackageMeta(path: string, repoPath: string, buildPath: string
     name: isWebpackInternal ? WEBPACK_INTERNAL_PATH : SOURCE_CODE_PATH,
     path: isWebpackInternal ? WEBPACK_INTERNAL_PATH : SOURCE_CODE_PATH,
   }
+}
+
+function resolvePathFunctions(test: string) {
+  if (test.startsWith('/')) {
+    return posix
+  }
+
+  return /\\/.test(test) ? win32 : posix
 }
