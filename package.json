@@ -148,7 +148,7 @@
     "clean:tests": "shx rm -rf './packages/**/{esm,dist}/**/__tests__'",
     "test:concurrent": "ava",
     "test:serial": "ava --serial",
-    "test": "run-p test:*",
+    "test": "run-p 'test:*'",
     "typecheck": "yarn build:ts",
     "coverage": "shx rm -rf coverage/tmp && cross-env NODE_V8_COVERAGE=coverage/tmp yarn test && yarn c8 report -r html",
     "example": "yarn cli example",
