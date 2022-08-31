@@ -1,10 +1,14 @@
 coverage:
   status:
     project:
-      default: false
-      packages:
+      default:
         target: auto
         threshold: 1%
-        paths:
-          - packages
     patch: off
+
+ignore:
+  - .yarn
+  - tools
+  - config
+  - examples
+  - docs
