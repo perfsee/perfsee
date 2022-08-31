@@ -88,7 +88,7 @@ You can filter the pages by appending page names to the command.`,
     }
 
     const client = new Client({
-      accessToken: 'u0JlRvD+XDt+fwAJ90DfWyamjuywoqLjff6ZSUvwrNAU=',
+      accessToken: accessToken,
       host: this.server || process.env.PERFSEE_PLATFORM_HOST || 'https://perfsee.com',
     })
 
@@ -123,7 +123,7 @@ You can filter the pages by appending page names to the command.`,
     })
     this.context.stdout.write(`Profiles: ${profileIds}\n`)
 
-    const snapshot = await client.takeSnapshot(this.project, pageIds, profileIds, envIds, hash, this.title)
+    const snapshot = await client.takeSnapshot(this.project, pageIds, profileIds, envIds, this.title, hash)
 
     this.context.stdout.write(`Created snapshot #${snapshot.id}\n`)
 

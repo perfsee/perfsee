@@ -35,13 +35,14 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
     if (!this.github.available) {
       return
     }
-    const checkId = `${action.project.id}-${action.commitHash}-${action.type}`
+    const checkName = action.type === CheckType.Bundle ? `${action.type} - ${action.artifact.name}` : action.type
+    const checkId = `${action.project.id}-${action.commitHash}-${checkName}`
 
     const installation = await this.github.getInstallationByRepository(action.project.namespace, action.project.name)
     const accessToken = await this.github.getInstallationAccessToken(installation.id)
 
     const params: GithubCheckRunParameters = {
-      name: `${action.project.name} - ${action.type}`,
+      name: `${action.project.slug} - ${checkName}`,
       external_id: action.runId.toString(),
       status: this.convertStatus(action.status),
       conclusion: this.convertConclusion(action.conclusion),
@@ -97,7 +98,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
             action.project.namespace,
             action.project.name,
             existedCommentId,
-            mergeComment(existedComment.body, commentBody, action.type, action.project.slug),
+            mergeComment(existedComment.body, commentBody, checkName, action.project.slug),
             accessToken,
           )
         } else {
@@ -105,7 +106,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
             action.project.namespace,
             action.project.name,
             pr.number,
-            mergeComment('', commentBody, action.type, action.project.name),
+            mergeComment('', commentBody, checkName, action.project.slug),
             accessToken,
           )
           await GithubPullRequestsAssociation.insert({
@@ -172,7 +173,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
   }
 }
 
-function mergeComment(oldContent: string, newContent: string, type: CheckType, sectionName: string): string {
+function mergeComment(oldContent: string, newContent: string, type: string, sectionName: string): string {
   const cleanup = (md: string) => {
     return md.replace(/(\r\n|\n){3,}/g, '\r\n\r\n')
   }

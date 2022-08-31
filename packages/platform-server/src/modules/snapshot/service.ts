@@ -230,6 +230,8 @@ export class SnapshotService implements OnApplicationBootstrap {
         snapshotId: snapshot.id,
         hash,
       })
+
+      await this.checkSuite.startLabCheck(project, snapshot)
     }
 
     return snapshot
@@ -482,6 +484,9 @@ export class SnapshotService implements OnApplicationBootstrap {
         status: SnapshotStatus.Running,
         startedAt: new Date(),
       })
+
+      const project = await Project.findOneByOrFail({ id: snapshot.projectId })
+      await this.checkSuite.runLabCheck(project, snapshot)
     }
   }
 

@@ -28,7 +28,7 @@ export function renderLabOutput(
   title: string
   summary: string
 } {
-  const title = `### **Snapshot [#${action.snapshot.iid}](${link})**\n\n\n`
+  const title = `### **[${action.snapshot.title ? `Lab ${action.snapshot.title}` : 'Lab'}](${link})**\n\n\n`
 
   return {
     title: 'Performance Issue Scanning completed',
