@@ -29,7 +29,7 @@ export function renderBundleOutput(
   title: string
   summary: string
 } {
-  const bundleBasicContent = `### **Bundle [#${artifact.iid}](${link})}**\n\n\n`
+  const bundleBasicContent = `### **[Bundle ${artifact.name}](${link})**\n\n\n`
   if (artifact.failed()) {
     return {
       title: 'Bundle Analysis Job Failed',
@@ -144,7 +144,7 @@ function bundleSizeDiffTable(update: BundleJobUpdate, artifact: Artifact, baseli
     if (entry.warnings.length) {
       table += `#~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~#\n`
       for (const warning of entry.warnings) {
-        table += `! ${padEnd(truncate(warning.rule, { length: 64 }), 65, ' ')}\nƒ`
+        table += `! ${padEnd(truncate(warning.rule, { length: 64 }), 65, ' ')}\n`
       }
     }
 

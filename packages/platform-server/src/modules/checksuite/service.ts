@@ -74,7 +74,7 @@ export class CheckSuiteService {
       commitHash: artifact.hash,
       runId: artifact.id,
       status: CheckStatus.completed,
-      conclusion: artifact.succeeded() ? CheckConclusion.Failure : CheckConclusion.Success,
+      conclusion: artifact.succeeded() ? CheckConclusion.Success : CheckConclusion.Failure,
       completedAt: new Date(),
       type: CheckType.Bundle,
       detailsUrl: this.url.projectUrl(pathFactory.project.bundle.detail, {
