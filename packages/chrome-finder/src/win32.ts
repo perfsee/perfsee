@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { execSync } from 'child_process'
+import { existsSync } from 'fs'
 import { sep, join } from 'path'
 
 import { canAccess } from './utils'
@@ -24,15 +25,19 @@ export function findChromeBinaryOnWin32(canary = false) {
     ? `${sep}Google${sep}Chrome SxS${sep}Application${sep}chrome.exe`
     : `${sep}Google${sep}Chrome${sep}Application${sep}chrome.exe`
 
-  const prefixes = [process.env.LOCALAPPDATA, process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']].filter(
-    Boolean,
-  )
+  const prefixes = [
+    process.env.LOCALAPPDATA,
+    process.env.PROGRAMFILES,
+    process.env['PROGRAMFILES(X86)'],
+    process.env.ProgramFiles,
+    process.env['ProgramFiles(x86)'],
+  ].filter(Boolean)
 
   let result: string | undefined
 
   prefixes.forEach((prefix) => {
     const chromePath = join(prefix!, suffix)
-    if (canAccess(chromePath)) {
+    if (existsSync(chromePath) && canAccess(chromePath)) {
       result = chromePath
     }
   })

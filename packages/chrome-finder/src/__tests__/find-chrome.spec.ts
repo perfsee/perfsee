@@ -1,3 +1,4 @@
+import { mkdirSync } from 'fs'
 import { join } from 'path'
 
 import test from 'ava'
@@ -5,7 +6,7 @@ import puppeteer from 'puppeteer-core'
 
 import { findChrome } from '..'
 
-test.only('should find local suitable chromium', async (t) => {
+test('should find local suitable chromium', async (t) => {
   const chromeInfo = await findChrome()
 
   t.truthy(chromeInfo.browser)
@@ -18,6 +19,7 @@ test('should throw if chrome version not match', async (t) => {
 
 test('should download if config specified', async (t) => {
   const downloadPath = join(__dirname, '../', '../', 'dist', 'chrome')
+  mkdirSync(downloadPath, { recursive: true })
   const chromeInfo = await findChrome({
     min: 66,
     max: 66,
