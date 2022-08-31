@@ -56,7 +56,7 @@ export const EnvEditForm = (props: FromProps) => {
   const headersRef = useRef<{ getHeaders: () => HeaderType[] }>()
   const cookiesRef = useRef<{ getCookies: () => PartialCookie[] }>()
   const [isCompetitor, setAsCompetitor] = useState<boolean>(!!defaultEnv?.isCompetitor)
-  const [zone, setZone] = useState(defaultZone)
+  const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
   const onSave = useCallback(
     (_e: any) => {
