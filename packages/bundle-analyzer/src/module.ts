@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { join, relative, resolve } from 'path'
+import { join, relative, resolve } from 'path/posix'
 
 import { parse as parseQueryString } from 'query-string'
 
