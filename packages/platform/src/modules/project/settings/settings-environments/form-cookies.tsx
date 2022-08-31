@@ -15,9 +15,10 @@ limitations under the License.
 */
 
 import { IconButton, Stack, DefaultButton, TextField, Label, Checkbox, IIconProps, DatePicker } from '@fluentui/react'
+import dayjs from 'dayjs'
 import { FormEvent, forwardRef, useMemo, useState, useCallback, useImperativeHandle } from 'react'
 
-import { RequiredTextField } from '@perfsee/components'
+import { RequiredTextField, TooltipWithEllipsis, useToggleState } from '@perfsee/components'
 import { lighten, SharedColors } from '@perfsee/dls'
 import { CookieType } from '@perfsee/shared'
 
@@ -32,6 +33,8 @@ type CookieProps = {
 }
 
 const removeIconProps: IIconProps = { iconName: 'delete' }
+const editIconProps: IIconProps = { iconName: 'edit' }
+const saveIconProps: IIconProps = { iconName: 'save' }
 
 const CheckboxStyles = {
   root: {
@@ -43,7 +46,10 @@ const CheckboxStyles = {
 }
 
 const FormCookie = (props: CookieProps) => {
+  const [editing, open, close] = useToggleState(!props.cookie.value)
+
   const { cookie, index, onCookieRemove, onCookieChange } = props
+
   const onRemove = useCallback(() => {
     onCookieRemove(index)
   }, [index, onCookieRemove])
@@ -68,22 +74,75 @@ const FormCookie = (props: CookieProps) => {
       }
       const type = (e.target as HTMLInputElement).dataset.type!
       onCookieChange(
-        { ...cookie, [type]: typeof value === 'string' ? value.trim() : type === 'secure' ? !value : value },
+        {
+          ...cookie,
+          [type]: typeof value === 'string' ? value.trim() : value,
+        },
         index,
       )
     },
     [cookie, index, onCookieChange],
   )
-  return (
-    <div>
-      <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
-        Cookie #{index + 1}
+
+  const header = (
+    <Stack horizontal verticalAlign="center" horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
+      Cookie #{index + 1}
+      <div>
+        <IconButton iconProps={!editing ? editIconProps : saveIconProps} onClick={!editing ? open : close} />
         <IconButton
           iconProps={removeIconProps}
           styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
           onClick={onRemove}
         />
-      </Stack>
+      </div>
+    </Stack>
+  )
+
+  if (!editing) {
+    return (
+      <div>
+        {header}
+        <Stack styles={{ root: { '> div': { width: '50%' } } }} horizontal>
+          <TooltipWithEllipsis content={cookie.name ?? ''}>
+            <b>Name: </b>
+            {cookie.name}
+          </TooltipWithEllipsis>
+          <TooltipWithEllipsis content={cookie.value ?? ''}>
+            <b>Value: </b>
+            {cookie.value}
+          </TooltipWithEllipsis>
+        </Stack>
+        <Stack styles={{ root: { '> div': { width: '50%' } } }} horizontal>
+          <TooltipWithEllipsis content={cookie.domain ?? ''}>
+            <b>Domain: </b> {cookie.domain}
+          </TooltipWithEllipsis>
+          <TooltipWithEllipsis content={cookie.path ?? ''}>
+            <b>Path: </b> {cookie.path}
+          </TooltipWithEllipsis>
+        </Stack>
+        <Stack styles={{ root: { '> div': { width: '50%' } } }} horizontal>
+          <div>
+            <b>HttpOnly: </b>
+            {cookie.httpOnly ? 'Yes' : 'No'}
+          </div>
+          <div>
+            <b>Secure: </b>
+            {cookie.secure ? 'Yes' : 'No'}
+          </div>
+        </Stack>
+        {cookie.expire && (
+          <div>
+            <b>Expired: </b>
+            {dayjs(cookie.expire).format('YYYY-MM-DD')}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {header}
       <Stack horizontal tokens={NormalToken}>
         <RequiredTextField
           value={cookie.name}
@@ -116,6 +175,20 @@ const FormCookie = (props: CookieProps) => {
           data-type="path"
         />
       </Stack>
+      <Checkbox
+        styles={CheckboxStyles}
+        inputProps={{ 'data-type': 'httpOnly' } as any}
+        onChange={onChange}
+        label="Don't share with `document.cookie` (HttpOnly)"
+        defaultChecked={cookie.httpOnly}
+      />
+      <Checkbox
+        styles={CheckboxStyles}
+        inputProps={{ 'data-type': 'secure' } as any}
+        onChange={onChange}
+        label="Share only with SSL servers (Secure)"
+        defaultChecked={cookie.secure}
+      />
       <Stack horizontal verticalAlign="center" tokens={NormalToken}>
         <span>Expire time:</span>
         <DatePicker
@@ -132,20 +205,6 @@ const FormCookie = (props: CookieProps) => {
           onClick={onRemoveDate}
         />
       </Stack>
-      <Checkbox
-        styles={CheckboxStyles}
-        inputProps={{ 'data-type': 'httpOnly' } as any}
-        onChange={onChange}
-        label="Share this cookie with `document.cookie`"
-        checked={cookie.httpOnly}
-      />
-      <Checkbox
-        styles={CheckboxStyles}
-        inputProps={{ 'data-type': 'secure' } as any}
-        onChange={onChange}
-        label="Share this cookie with Non-SSL servers"
-        checked={!cookie.secure}
-      />
     </div>
   )
 }
