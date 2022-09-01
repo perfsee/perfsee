@@ -84,8 +84,8 @@ function bundleSizeDiffTable(update: BundleJobUpdate, artifact: Artifact, baseli
     } else if (baseline === 0) {
       percentile = `> 100%`
     } else {
-      const percentile_num = (current * 100) / baseline
-      percentile = percentile_num > 1000 ? `> 1000%` : `${percentile_num.toFixed(2)}%`
+      const percentile_num = (baseline / Math.abs(current - baseline)) * 100
+      percentile = percentile_num > 1000 ? `> 1000%` : `${baseline > current ? '-' : '+'}${percentile_num.toFixed(2)}%`
     }
 
     if (typeof baseline !== 'number') {
