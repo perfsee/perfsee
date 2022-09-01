@@ -25,6 +25,7 @@ import { ExtractCommand } from './extract'
 import { GenerateLicenseCommand } from './generate-license'
 import { InitCommand } from './init'
 import { UpdateWorkspaceCommand } from './update-workspace'
+import { UploadScriptsCommand } from './upload-scripts'
 import { VscodeExtensionCommand } from './vscode'
 
 const cli = new Cli({
@@ -43,6 +44,7 @@ cli.register(GenerateLicenseCommand)
 cli.register(VscodeExtensionCommand)
 cli.register(UpdateWorkspaceCommand)
 cli.register(ExtractCommand)
+cli.register(UploadScriptsCommand)
 
 cli
   .run(process.argv.slice(2), {
