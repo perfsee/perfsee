@@ -46,6 +46,7 @@ jobs:
         run: |
           yarn codegen
           yarn typecheck
+          yarn build:npm
 
   unit-test:
     strategy:
