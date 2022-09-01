@@ -20,7 +20,7 @@
     "description": "The label of footer link with label=GitHub linking to https://github.com/perfsee/perfsee"
   },
   "copyright": {
-    "message": "Copyright © 2022 perfsee. Built with Docusaurus.",
+    "message": "Copyright © 2022 perfsee.",
     "description": "The footer copyright"
   }
 }
