@@ -16,7 +16,7 @@ limitations under the License.
 
 export interface ExternalAccountUser {
   username: string
-  email: string
+  email?: string
   avatarUrl: string
 }
 
