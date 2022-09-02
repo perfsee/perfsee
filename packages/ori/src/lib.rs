@@ -100,7 +100,7 @@ impl Task for AnalyzeTask {
 }
 
 #[napi(strict)]
-pub fn analyse(
+pub fn analyse_profile(
   profile_path: String,
   bundle_meta_path: String,
   debug_mode: Option<bool>,
@@ -116,7 +116,7 @@ pub fn analyse(
 }
 
 #[napi]
-pub fn gen_docs() -> HashMap<&'static str, &'static str> {
+pub fn generate_docs() -> HashMap<&'static str, &'static str> {
   let rules = get_all_rules();
 
   rules

@@ -467,8 +467,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92ba4800264fac8a7726b208d5dd4c6d637d1027d73b026061a69d3339a0a930"
 dependencies = [
  "convert_case",
+ "once_cell",
  "proc-macro2",
  "quote",
+ "regex",
  "syn",
 ]
 
