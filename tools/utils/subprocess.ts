@@ -23,7 +23,8 @@ import { Logger } from './log'
 const children = new Set<ChildProcess>()
 
 export function spawn(tag: string, cmd: string | string[], options: SpawnOptions = {}) {
-  const isYarnSpawn = typeof cmd === 'string' ? cmd.startsWith('yarn') : cmd[0] === 'yarn'
+  cmd = typeof cmd === 'string' ? cmd.split(' ') : cmd
+  const isYarnSpawn = cmd[0] === 'yarn'
 
   const spawnOptions: SpawnOptions = {
     stdio: isYarnSpawn ? ['inherit', 'inherit', 'inherit'] : ['inherit', 'pipe', 'pipe'],
@@ -33,9 +34,8 @@ export function spawn(tag: string, cmd: string | string[], options: SpawnOptions
   }
 
   const logger = new Logger(isYarnSpawn ? '' : tag)
-  !isYarnSpawn && logger.info(cmd)
-  const childProcess =
-    typeof cmd === 'string' ? RawSpawn(cmd, spawnOptions) : RawSpawn(cmd[0], cmd.slice(1), spawnOptions)
+  !isYarnSpawn && logger.info(cmd.join(' '))
+  const childProcess = RawSpawn(cmd[0], cmd.slice(1), spawnOptions)
   children.add(childProcess)
 
   const drain = (_code: number | null, signal: any) => {
