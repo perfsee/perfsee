@@ -159,6 +159,10 @@ export class OAuth2Controller {
       return connectedUser
     }
 
+    if (!externAccount.email) {
+      throw new Error('GITHUB_NO_PUBLIC_EMAIL')
+    }
+
     // find registered user by email
     let user = await this.user.findUserByEmail(externAccount.email)
 

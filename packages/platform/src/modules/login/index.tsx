@@ -29,7 +29,7 @@ import { useModule, useModuleState } from '@sigi/react'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-import { BodyContainer, useQueryString } from '@perfsee/components'
+import { BodyContainer, ForeignLink, useQueryString } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { UserModule } from '../shared'
@@ -57,6 +57,16 @@ const StatusText = {
   },
   EXTERN_USERNAME_TAKEN: {
     message: 'The account has been connected to others, try logging in.',
+    type: MessageBarType.error,
+  },
+  GITHUB_NO_PUBLIC_EMAIL: {
+    message: (
+      <>
+        Your Github account does not have a public email address, please go to{' '}
+        <ForeignLink href="https://github.com/settings/profile">your profile</ForeignLink> to set a public email
+        address, or use <Link to={staticPath.register}>email to register</Link>.
+      </>
+    ),
     type: MessageBarType.error,
   },
 }
