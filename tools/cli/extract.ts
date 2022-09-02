@@ -15,11 +15,11 @@ limitations under the License.
 */
 
 import { mkdir, rename, rm, writeFile } from 'fs/promises'
-import { basename, resolve } from 'path'
+import { basename, resolve, join } from 'path'
 
 import { Option } from 'clipanion'
 
-import { allPackageNames, getPackage, PackageName, packagePath } from '../utils'
+import { allPackageNames, getPackage, PackageName, packagePath, writeFileAsync } from '../utils'
 
 import { Command } from './command'
 
@@ -47,7 +47,7 @@ export class ExtractCommand extends Command {
     await mkdir(tmpPath, { recursive: true })
 
     // 2. run `yarn pack` and then unpack, to clean up unnecessary files
-    await this.execAsync([`yarn`, 'pack', '-f', tmpPath + `/${pkg.dirname}.tgz`], { cwd: packagePath(this.package) })
+    await this.execAsync([`yarn`, 'pack', '--out', tmpPath + `/${pkg.dirname}.tgz`], { cwd: packagePath(this.package) })
     await this.execAsync(['tar', '-xvzf', tmpPath + `/${pkg.dirname}.tgz`], { cwd: tmpPath })
 
     // 3. Move the package to the output directory
@@ -89,7 +89,15 @@ export class ExtractCommand extends Command {
     )
 
     // 5. install dependencies
-    await this.execAsync('yarn --prod', { cwd: extractPath })
+    // make `yarn install` available in non-workspace package
+    await writeFileAsync(join(extractPath, 'yarn.lock'), '')
+    await writeFileAsync(join(extractPath, '.yarnrc.yml'), `enableGlobalCache: true`)
+    await this.execAsync('yarn', {
+      cwd: extractPath,
+      env: {
+        NODE_ENV: 'production',
+      },
+    })
 
     // 6. Compress the package
     await this.execAsync(['tar', '-czf', basename(extractPath) + '.tgz', '-C', extractPath, '.'], { cwd: outputPath })
