@@ -47,7 +47,7 @@ export class SourceIssue extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project', 'sourceIssues')
+  @ManyToOne('Project', 'sourceIssues', { onDelete: 'CASCADE' })
   project!: Project
 
   @Field({ description: 'git commit hash' })

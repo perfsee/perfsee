@@ -49,7 +49,7 @@ export class SnapshotReport extends BaseEntity {
   @Column({ type: 'int' })
   iid!: number
 
-  @ManyToOne('Project', 'snapshotReports')
+  @ManyToOne('Project', 'snapshotReports', { onDelete: 'CASCADE' })
   project!: Project
 
   @Index()
@@ -57,7 +57,7 @@ export class SnapshotReport extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Snapshot', 'reports')
+  @ManyToOne('Snapshot', 'reports', { onDelete: 'CASCADE' })
   snapshot!: Snapshot
 
   @Index()
@@ -65,21 +65,21 @@ export class SnapshotReport extends BaseEntity {
   @RelationId('snapshot')
   snapshotId!: number
 
-  @ManyToOne('Page', 'reports')
+  @ManyToOne('Page', 'reports', { onDelete: 'CASCADE' })
   page!: Page
 
   @RelationId('page')
   @Column({ type: 'int' })
   pageId!: number
 
-  @ManyToOne('Profile', 'reports')
+  @ManyToOne('Profile', 'reports', { onDelete: 'CASCADE' })
   profile!: Profile
 
   @RelationId('profile')
   @Column({ type: 'int' })
   profileId!: number
 
-  @ManyToOne('Environment', 'reports')
+  @ManyToOne('Environment', 'reports', { onDelete: 'CASCADE' })
   env!: Environment
 
   @RelationId('env')

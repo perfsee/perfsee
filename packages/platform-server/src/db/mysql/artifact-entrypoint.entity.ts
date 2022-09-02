@@ -49,7 +49,7 @@ export class ArtifactEntrypoint extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id!: number
 
-  @ManyToOne('Project', 'artifacts')
+  @ManyToOne('Project', 'artifacts', { onDelete: 'CASCADE' })
   project!: Project
 
   @RelationId('project')
@@ -57,7 +57,7 @@ export class ArtifactEntrypoint extends BaseEntity {
   @Column()
   projectId!: number
 
-  @ManyToOne('Artifact', 'entrypoints')
+  @ManyToOne('Artifact', 'entrypoints', { onDelete: 'CASCADE' })
   artifact!: Artifact
 
   @RelationId('artifact')

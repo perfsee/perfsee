@@ -34,7 +34,9 @@ import {
 import { mapInternalError, UserError } from '@perfsee/platform-server/error'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
+import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
+import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { GitHost } from '@perfsee/shared'
 
@@ -60,6 +62,8 @@ export class ProjectService {
     private readonly metricService: Metric,
     private readonly internalIdService: InternalIdService,
     private readonly config: Config,
+    private readonly logger: Logger,
+    private readonly storage: ObjectStorage,
   ) {}
 
   async resolveRawProjectIdBySlug(slug: string) {
@@ -352,6 +356,22 @@ export class ProjectService {
     if (byMonth) {
       this.metricService.activeProject(byMonth, { period: 'MONTH' })
     }
+  }
+
+  async deleteProject(projectId: number) {
+    this.logger.log('start delete project', { projectId })
+    await Project.delete({ id: projectId })
+
+    setImmediate(() => {
+      void this.deleteFolders(projectId)
+    })
+
+    return true
+  }
+
+  private async deleteFolders(projectId: number) {
+    await this.storage.deleteFolder(`logs/${projectId}`)
+    await this.storage.deleteFolder(`artifacts/${projectId}`)
   }
 
   private async getActiveProjectCountByPeriod(value: number, period: 'DAY' | 'WEEK' | 'MONTH') {

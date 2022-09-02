@@ -30,7 +30,7 @@ import { useCallback, FC, memo } from 'react'
 import { ColorButton } from '@perfsee/components/color-button'
 import { SharedColors } from '@perfsee/dls'
 
-import { DeletePropertyProgress } from '../../shared'
+import { DeleteProgress } from '../../shared'
 
 import { ButtonWrapper, WarningText, StyledDesc } from './style'
 
@@ -155,7 +155,7 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
 type ContentProps = {
   name: string
   type: 'e2e test' | 'page' | 'profile' | 'env'
-  progress: DeletePropertyProgress
+  progress: DeleteProgress
   onDelete: () => void
   closeModal: () => void
 }
@@ -164,11 +164,11 @@ export const DeleteContent: FC<ContentProps> = (props) => {
   const { name, onDelete, closeModal, type, progress } = props
   const tips = `Snapshot Reports created using this ${type} will also be deleted.`
 
-  if (progress === DeletePropertyProgress.Running) {
+  if (progress === DeleteProgress.Running) {
     return <Spinner label={`Deleting ${type} ${name}, please wait...`} size={SpinnerSize.large} ariaLive="assertive" />
   }
 
-  if (progress === DeletePropertyProgress.Fail) {
+  if (progress === DeleteProgress.Fail) {
     return (
       <>
         Failed to delete {type} <b>{name}</b>, please try again.
@@ -179,7 +179,7 @@ export const DeleteContent: FC<ContentProps> = (props) => {
     )
   }
 
-  if (progress === DeletePropertyProgress.Done) {
+  if (progress === DeleteProgress.Done) {
     return (
       <>
         {type} <b>{name}</b> has been deleted.

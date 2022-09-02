@@ -20,7 +20,7 @@ import { useCallback, useState, useMemo } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 
-import { DeletePropertyProgress, ProfileSchema, PropertyModule } from '../../../shared'
+import { DeleteProgress, ProfileSchema, PropertyModule } from '../../../shared'
 import { getConnectionTitleByKey, getDeviceTitleByKey } from '../helper'
 import { ButtonOperators, DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
 import { StyledDesc, EllipsisText } from '../style'
@@ -61,7 +61,7 @@ export const SettingsProfiles = () => {
 
   const closeDeleteModal = useCallback(() => {
     closeModal()
-    dispatcher.setDeleteProgress({ type: 'profile', progress: DeletePropertyProgress.None })
+    dispatcher.setDeleteProgress({ type: 'profile', progress: DeleteProgress.None })
   }, [closeModal, dispatcher])
 
   const onDisableProfile = useCallback(

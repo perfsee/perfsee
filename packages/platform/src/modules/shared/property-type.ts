@@ -30,3 +30,10 @@ export type UpdatePagePayload = {
 }
 
 export const CompetitorMaxCount = 5
+
+export enum DeleteProgress {
+  None,
+  Running,
+  Done,
+  Fail,
+}

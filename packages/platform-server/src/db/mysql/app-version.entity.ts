@@ -43,7 +43,7 @@ export class AppVersion extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project', 'appVersions')
+  @ManyToOne('Project', 'appVersions', { onDelete: 'CASCADE' })
   project!: Project
 
   @Field(() => String, { description: 'commit hash' })

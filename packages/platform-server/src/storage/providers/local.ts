@@ -55,10 +55,16 @@ export class ObjectStorage extends BaseObjectStorage {
   }
 
   async uploadFile(name: string, file: string) {
-    debug(`uploading file ${name} to local object storage...}`)
+    debug(`uploading file ${name} to local object storage...`)
     const filePath = this.nameToPath(name)
     await fs.mkdir(parse(filePath).dir, { recursive: true })
     await fs.copyFile(file, filePath)
+  }
+
+  async deleteFolder(name: string) {
+    const folderPath = this.nameToPath(name)
+    debug(`deleting folder ${folderPath} from local object storage...`)
+    await fs.rm(folderPath, { recursive: true, force: true })
   }
 
   private nameToPath(name: string) {

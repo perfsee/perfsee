@@ -22,12 +22,14 @@ export interface ObjectStorage {
   getStream: (name: string) => Promise<Readable>
   upload: (name: string, buf: Buffer) => Promise<void>
   uploadFile: (name: string, file: string) => Promise<void>
+  deleteFolder: (name: string) => Promise<void>
 }
 
 export abstract class BaseObjectStorage implements ObjectStorage {
   abstract get(name: string): Promise<Buffer>
   abstract getStream(name: string): Promise<Readable>
   abstract upload(name: string, buf: Buffer): Promise<void>
+  abstract deleteFolder(name: string): Promise<void>
   async uploadFile(name: string, file: string) {
     const buf = await fs.readFile(file)
     await this.upload(name, buf)

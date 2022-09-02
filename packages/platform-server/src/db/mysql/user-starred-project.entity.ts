@@ -28,13 +28,13 @@ export class UserStarredProject extends BaseEntity {
   @RelationId('user')
   userId!: number
 
-  @ManyToOne('User')
+  @ManyToOne('User', 'userStarredProjects', { onDelete: 'CASCADE' })
   user!: User
 
   @Column()
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project')
+  @ManyToOne('Project', 'userStarredProjects', { onDelete: 'CASCADE' })
   project!: Project
 }

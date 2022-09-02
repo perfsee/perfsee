@@ -21,7 +21,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 
-import { DeletePropertyProgress, EnvSchema, PropertyModule } from '../../../shared'
+import { DeleteProgress, EnvSchema, PropertyModule } from '../../../shared'
 import { ButtonOperators, DeleteContent, SettingDialogs, CountBlock, DialogVisible } from '../settings-common-comp'
 import { EllipsisText, NormalToken, StyledDesc } from '../style'
 
@@ -57,7 +57,7 @@ export const SettingsEnvironments = () => {
 
   const closeDeleteModal = useCallback(() => {
     closeModal()
-    dispatcher.setDeleteProgress({ type: 'env', progress: DeletePropertyProgress.None })
+    dispatcher.setDeleteProgress({ type: 'env', progress: DeleteProgress.None })
   }, [closeModal, dispatcher])
 
   const onDisableEnv = useCallback(

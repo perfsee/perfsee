@@ -26,19 +26,24 @@ import {
   ProjectQueryVariables,
   updateProjectMutation,
   UpdateProjectMutationVariables,
+  deleteProjectMutation,
 } from '@perfsee/schema'
+
+import { DeleteProgress } from './property-type'
 
 export type ProjectInfo = ProjectQuery['project']
 
 interface State {
   project: ProjectInfo | null
   loading: boolean
+  deleteProgress: DeleteProgress
 }
 
 @Module('ProjectModule')
 export class ProjectModule extends EffectModule<State> {
   defaultState = {
     loading: true,
+    deleteProgress: DeleteProgress.None,
     project: null,
   }
 
@@ -95,13 +100,36 @@ export class ProjectModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  deleteProject(payload$: Observable<string>) {
+    return payload$.pipe(
+      switchMap((projectId) =>
+        this.client
+          .mutate({
+            mutation: deleteProjectMutation,
+            variables: { projectId },
+          })
+          .pipe(
+            createErrorCatcher('Failed to delete project.'),
+            map(() => this.getActions().setDeleted(DeleteProgress.Done)),
+            startWith(this.getActions().setDeleted(DeleteProgress.Running)),
+          ),
+      ),
+    )
+  }
+
   @ImmerReducer()
-  setProject(state: Draft<State>, project: ProjectInfo) {
+  setProject(state: Draft<State>, project: ProjectInfo | null) {
     state.project = project
   }
 
   @ImmerReducer()
   setLoading(state: Draft<State>, loading: boolean) {
     state.loading = loading
+  }
+
+  @ImmerReducer()
+  setDeleted(state: Draft<State>, status: DeleteProgress) {
+    state.deleteProgress = status
   }
 }

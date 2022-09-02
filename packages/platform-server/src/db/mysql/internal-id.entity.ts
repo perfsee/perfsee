@@ -42,7 +42,7 @@ export class InternalId extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project', { createForeignKeyConstraints: false })
+  @ManyToOne('Project', { onDelete: 'CASCADE' })
   project!: Project
 
   @Column({ type: 'tinyint' })

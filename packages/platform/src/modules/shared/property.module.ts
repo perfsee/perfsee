@@ -54,14 +54,8 @@ import {
   PageSchema,
   ProfileSchema,
   UpdatePagePayload,
+  DeleteProgress,
 } from './property-type'
-
-export enum DeletePropertyProgress {
-  None,
-  Running,
-  Done,
-  Fail,
-}
 
 interface State {
   pages: PageSchema[]
@@ -76,9 +70,9 @@ interface State {
   profileMap: Map<number /* profileId */, ProfileSchema>
   envMap: Map<number /* envId */, EnvSchema>
   deleteProgress: {
-    page: DeletePropertyProgress
-    env: DeletePropertyProgress
-    profile: DeletePropertyProgress
+    page: DeleteProgress
+    env: DeleteProgress
+    profile: DeleteProgress
   }
 }
 
@@ -101,9 +95,9 @@ export class PropertyModule extends EffectModule<State> {
     zones: [],
     defaultZone: '',
     deleteProgress: {
-      page: DeletePropertyProgress.None,
-      env: DeletePropertyProgress.None,
-      profile: DeletePropertyProgress.None,
+      page: DeleteProgress.None,
+      env: DeleteProgress.None,
+      profile: DeleteProgress.None,
     },
   }
 
@@ -256,7 +250,7 @@ export class PropertyModule extends EffectModule<State> {
   @ImmerReducer()
   setDeleteProgress(
     state: Draft<State>,
-    { type, progress }: { type: keyof State['deleteProgress']; progress: DeletePropertyProgress },
+    { type, progress }: { type: keyof State['deleteProgress']; progress: DeleteProgress },
   ) {
     state.deleteProgress[type] = progress
   }
@@ -371,10 +365,8 @@ export class PropertyModule extends EffectModule<State> {
             map(() => {
               return this.getActions().removeProfile(id)
             }),
-            startWith(
-              this.getActions().setDeleteProgress({ type: 'profile', progress: DeletePropertyProgress.Running }),
-            ),
-            endWith(this.getActions().setDeleteProgress({ type: 'profile', progress: DeletePropertyProgress.Done })),
+            startWith(this.getActions().setDeleteProgress({ type: 'profile', progress: DeleteProgress.Running })),
+            endWith(this.getActions().setDeleteProgress({ type: 'profile', progress: DeleteProgress.Done })),
           ),
       ),
     )
@@ -429,8 +421,8 @@ export class PropertyModule extends EffectModule<State> {
             map(() => {
               return this.getActions().removePage(id)
             }),
-            startWith(this.getActions().setDeleteProgress({ type: 'page', progress: DeletePropertyProgress.Running })),
-            endWith(this.getActions().setDeleteProgress({ type: 'page', progress: DeletePropertyProgress.Done })),
+            startWith(this.getActions().setDeleteProgress({ type: 'page', progress: DeleteProgress.Running })),
+            endWith(this.getActions().setDeleteProgress({ type: 'page', progress: DeleteProgress.Done })),
           ),
       ),
     )
@@ -475,8 +467,8 @@ export class PropertyModule extends EffectModule<State> {
             map(() => {
               return this.getActions().removeEnvironment(id)
             }),
-            startWith(this.getActions().setDeleteProgress({ type: 'env', progress: DeletePropertyProgress.Running })),
-            endWith(this.getActions().setDeleteProgress({ type: 'env', progress: DeletePropertyProgress.Done })),
+            startWith(this.getActions().setDeleteProgress({ type: 'env', progress: DeleteProgress.Running })),
+            endWith(this.getActions().setDeleteProgress({ type: 'env', progress: DeleteProgress.Done })),
           ),
       ),
     )
