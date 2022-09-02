@@ -8,8 +8,8 @@
   "main": "./index.node",
   "typings": "./index.d.ts",
   "scripts": {
-    "build:rs": "napi build --release",
-    "debug:rs": "napi build"
+    "build:rs": "napi build --release --js false",
+    "debug:rs": "napi build --js false"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.11.4"
