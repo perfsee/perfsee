@@ -779,6 +779,7 @@ type PaginatedGithubRepositories {
 type GithubAccount {
   login: String!
   avatar_url: String!
+  type: String!
 }
 
 type GithubInstallation {
@@ -999,10 +1000,15 @@ type Query {
   searchUsers(query: String!): [SearchUserResult!]!
 
   """
-  List all installations of the github account connected by the current user. Throws if user is not connected to github account. 
+  Get installation by the github account connected with the current user. Throws if user is not connected to github account.
+  """
+  githubInstallation: GithubInstallation
+
+  """
+  List all installations associated with the github account connected by the current user, include joined organizations. Throws if user is not connected to github account. 
   NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.
   """
-  githubInstallations(pagination: PaginationInput = {first: 10, skip: 0}): PaginatedGithubInstallations!
+  associatedGithubInstallations(pagination: PaginationInput = {first: 10, skip: 0}): PaginatedGithubInstallations!
 
   """
   Verify that the github project exists and the current user has permissions to the project. Throws if user is not connected to github account.

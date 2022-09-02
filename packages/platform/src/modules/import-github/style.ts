@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { Text } from '@fluentui/react'
+import { Stack, Text } from '@fluentui/react'
 
 import { Card } from '@perfsee/components'
 
@@ -44,4 +44,14 @@ export const CenterText = styled(Text)({
 export const DisplayInformation = styled(Text)(({ theme }) => ({
   textAlign: 'right',
   color: theme.text.colorSecondary,
+}))
+
+export const PersonaContainer = styled(Stack)(({ theme }) => ({
+  border: `1px solid ${theme.border.color}`,
+  padding: '11px 11px 11px 12px',
+  alignItems: 'center',
+  cursor: 'pointer',
+  '&:hover': {
+    background: theme.colors.primaryBackground,
+  },
 }))

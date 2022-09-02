@@ -246,7 +246,18 @@ export class GithubService {
     return newToken.token
   }
 
-  async getInstallationsByUser(pagination: PaginationInput, userToken: string) {
+  async getInstallationByUser(username: string) {
+    try {
+      return await this.fetchApi<GithubInstallation>('GET', `https://api.github.com/users/${username}/installation`)
+    } catch (err) {
+      if (err instanceof GithubApiError && err.status === 404) {
+        return null
+      }
+      throw err
+    }
+  }
+
+  async getAssociatedInstallationsByUser(pagination: PaginationInput, userToken: string) {
     if (pagination.after) {
       throw new UserError('pagination.after is not supported for this function.')
     }
