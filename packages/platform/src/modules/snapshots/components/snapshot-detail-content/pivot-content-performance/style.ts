@@ -24,6 +24,7 @@ export const AuditTitle = styled.h3({
 
 export const StyledPivot = styled(Pivot)(({ theme }) => ({
   position: 'relative',
+  height: '44px',
 
   ':after': {
     content: "''",
