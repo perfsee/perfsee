@@ -30,7 +30,7 @@
     "table": "^6.8.0",
     "tar": "^6.1.11",
     "tslib": "^2.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/env-ci": "^3.1.1",
