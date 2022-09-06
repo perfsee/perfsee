@@ -108,11 +108,11 @@ const config = {
             items: [
               {
                 label: 'Documents',
-                to: '/',
+                to: '/docs',
               },
               {
                 label: 'API',
-                to: '/api',
+                to: '/docs/api',
               },
             ],
           },
