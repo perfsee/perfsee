@@ -63,9 +63,8 @@ export class TracehouseProfile extends NonStackProfile {
     const openFrame = (node: CallTreeNode, value: number) => {
       const group = cb((node.frame as TracehouseFrame).kind)
   
-      let frame
       if (frames[group.level] === undefined) {
-        frame = new TracehouseGroupedFrame({
+        const frame = new TracehouseGroupedFrame({
           key: group.groupName,
           name: group.groupName,
           file: group.groupName,
@@ -73,8 +72,6 @@ export class TracehouseProfile extends NonStackProfile {
           groupName: group.groupName
         })
         frames[group.level] = frame
-      } else {
-        frame = frames[group.level]
       }
       
       const groupNode = {startTime: value, endTime: Infinity}
