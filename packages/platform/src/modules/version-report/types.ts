@@ -30,6 +30,10 @@ interface WithLoading {
   loading: boolean
 }
 
+export interface VersionCommits extends WithLoading {
+  commits: string[]
+}
+
 export interface VersionArtifactJob extends WithLoading {
   artifact?: Artifact
 }

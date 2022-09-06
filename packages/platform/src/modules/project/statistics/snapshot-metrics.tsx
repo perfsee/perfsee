@@ -236,9 +236,9 @@ export const SnapshotMetrics = memo(() => {
     return pageColumns.concat(webColumns).concat([detailColumn])
   }, [])
 
-  const data = useMemo<PageMetricsSchema[]>(() => {
+  const data = useMemo<PageMetricsSchema[] | null>(() => {
     if (!aggregated) {
-      return []
+      return null
     }
 
     const res = []
@@ -301,10 +301,11 @@ export const SnapshotMetrics = memo(() => {
         </Space>
       </ChartPartHeader>
       <Table
-        items={data}
+        items={data ?? []}
         columns={columns}
         selectionMode={SelectionMode.none}
         detailsListStyles={tableHeaderStyles}
+        enableShimmer={!data}
         onRowClick={handleRowClick}
       />
       {!loadMore && selectedPages.length > 5 && <LoadMore onClick={handleLoadMore} />}

@@ -42,15 +42,15 @@ export type PageAggregation = {
 }
 
 interface State {
-  bundleHistory: BundleEntrypoint[] | undefined
-  aggregatedPages: PageAggregation[]
+  bundleHistory: BundleEntrypoint[] | null
+  aggregatedPages: PageAggregation[] | null
 }
 
 @Module('StatisticsModule')
 export class StatisticsModule extends EffectModule<State> {
   defaultState: State = {
-    bundleHistory: [],
-    aggregatedPages: [],
+    bundleHistory: null,
+    aggregatedPages: null,
   }
 
   constructor(private readonly client: GraphQLClient, private readonly projectModule: ProjectModule) {
@@ -89,7 +89,7 @@ export class StatisticsModule extends EffectModule<State> {
         from(payload).pipe(
           filter(
             (filter) =>
-              aggregatedPages.findIndex(
+              (aggregatedPages ?? []).findIndex(
                 (page) =>
                   page.pageId === filter.pageId && page.profileId === filter.profileId && page.envId === filter.envId,
               ) === -1,
@@ -131,6 +131,10 @@ export class StatisticsModule extends EffectModule<State> {
 
   @ImmerReducer()
   setPageSnapshots(state: Draft<State>, variable: PageAggregation) {
-    state.aggregatedPages.push(variable)
+    if (state.aggregatedPages) {
+      state.aggregatedPages.push(variable)
+    } else {
+      state.aggregatedPages = [variable]
+    }
   }
 }

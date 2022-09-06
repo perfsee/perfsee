@@ -16,8 +16,8 @@ limitations under the License.
 
 import { Module, EffectModule, Effect, ImmerReducer, Reducer } from '@sigi/core'
 import { Draft } from 'immer'
-import { Observable } from 'rxjs'
-import { map, startWith, endWith, switchMap, withLatestFrom, filter } from 'rxjs/operators'
+import { Observable, of } from 'rxjs'
+import { map, startWith, endWith, switchMap, withLatestFrom, filter, mergeMap, delay } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
 import {
@@ -36,13 +36,14 @@ import {
   LighthouseTosContent,
   SourceIssue,
   VersionArtifactJob,
+  VersionCommits,
   VersionIssues,
   VersionLab,
   VersionLHContent,
 } from './types'
 
 interface State {
-  commits: string[]
+  allCommits: VersionCommits
   artifactJob: VersionArtifactJob
   lab: VersionLab
   issues: VersionIssues
@@ -63,7 +64,10 @@ export class HashReportModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setLoading(state: Draft<State>, { key, value }: { key: 'artifactJob' | 'lab' | 'lhContent'; value: boolean }) {
+  setLoading(
+    state: Draft<State>,
+    { key, value }: { key: 'allCommits' | 'artifactJob' | 'lab' | 'lhContent'; value: boolean },
+  ) {
     state[key].loading = value
   }
 
@@ -82,7 +86,7 @@ export class HashReportModule extends EffectModule<State> {
 
   @ImmerReducer()
   setCommits(state: Draft<State>, payload: string[]) {
-    state.commits = payload
+    state.allCommits.commits = payload
   }
 
   @ImmerReducer()
@@ -150,11 +154,24 @@ export class HashReportModule extends EffectModule<State> {
           })
           .pipe(
             createErrorCatcher('Failed to fetch commits from snapshots.'),
-            map((res) => {
-              return this.getActions().setCommits(res.project.appVersions.map(({ hash }) => hash))
+            mergeMap((res) => {
+              return of(
+                this.getActions().setCommits(res.project.appVersions.map(({ hash }) => hash)),
+                this.getActions().delaySetCommitLoading(),
+              )
             }),
+            startWith(this.getActions().setLoading({ key: 'allCommits', value: true })),
           ),
       ),
+    )
+  }
+
+  // in case loading twinkle
+  @Effect()
+  delaySetCommitLoading(payload$: Observable<void>) {
+    return payload$.pipe(
+      delay(200),
+      map(() => this.getActions().setLoading({ key: 'allCommits', value: false })),
     )
   }
 
@@ -292,7 +309,10 @@ export class HashReportModule extends EffectModule<State> {
 
   private getInitState(): State {
     return {
-      commits: [],
+      allCommits: {
+        commits: [],
+        loading: false,
+      },
       ...this.getModuleInitState(),
     }
   }

@@ -42,7 +42,7 @@ export const VersionReport = () => {
   const history = useHistory()
   const breadcrumb = useBreadcrumb({ versionReportPage: true })
 
-  const [{ commits, artifactJob, lab, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
+  const [{ allCommits, artifactJob, lab, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
   const [{ hash = '', reportId, tabName = PivotKey.Overview }, updateQueryString] = useQueryString<{
     hash: string
     reportId: number
@@ -92,20 +92,20 @@ export const VersionReport = () => {
   }, [dispatcher])
 
   useEffect(() => {
-    if (hash && commits.length) {
+    if (hash && allCommits.commits.length) {
       dispatcher.getArtifactByCommit(hash)
       dispatcher.getSnapshotByCommit({ hash })
       dispatcher.fetchSourceIssueCount({ hash })
     }
-  }, [commits, dispatcher, hash])
+  }, [allCommits, dispatcher, hash])
 
   useEffect(() => {
-    if (commits.length && (!hash || !commits.includes(hash))) {
+    if (allCommits.commits.length && (!hash || !allCommits.commits.includes(hash))) {
       updateQueryString({
-        hash: commits[0],
+        hash: allCommits.commits[0],
       })
     }
-  }, [commits, updateQueryString, hash])
+  }, [allCommits, updateQueryString, hash])
 
   useEffect(() => {
     // init snapshot report
@@ -143,10 +143,10 @@ export const VersionReport = () => {
       <Stack verticalAlign="center" horizontal={true}>
         <LeftOutlined onClick={backToHome} style={{ color: NeutralColors.gray100, marginRight: '14px' }} />
         <b style={{ fontSize: '16px', marginRight: '20px' }}>Version Report</b>
-        <CommitSelector commit={hash} allCommits={commits} onChange={onChangeCommit} />
+        <CommitSelector commit={hash} allCommits={allCommits.commits} onChange={onChangeCommit} />
       </Stack>
     ),
-    [commits, backToHome, onChangeCommit, hash],
+    [allCommits, backToHome, onChangeCommit, hash],
   )
 
   useEffect(() => {
@@ -180,7 +180,7 @@ export const VersionReport = () => {
               snapshotReport={selectedReport}
               artifact={artifactJob.artifact}
               lhContent={lhContent}
-              loading={lab.loading}
+              loading={allCommits.loading || lab.loading}
               hideBasic={true}
               sourceIssueCount={currentIssueCount}
             />
