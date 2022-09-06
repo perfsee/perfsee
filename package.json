@@ -20,7 +20,7 @@
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-commonjs": "22.0.2",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-node-resolve": "^14.0.0",
     "@svgr/webpack": "^6.3.0",
     "@types/debug": "^4.1.7",
     "@types/inquirer": "^9.0.0",
