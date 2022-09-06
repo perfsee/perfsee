@@ -133,7 +133,7 @@ export const DefaultColumns: TableColumnProps<RequestSchema>[] = [
     sorter: (a, b) => a.type.localeCompare(b.type),
     onRender: (item) => {
       const type = item.type as RequestType
-      const color = RequestTypeColorsMaps[type]?.background ?? NeutralColors.black
+      const color = RequestTypeColorsMaps[type]?.background ?? NeutralColors.gray100
       return (
         <div>
           <RequestLabelDot color={color} />

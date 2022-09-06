@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
+import { NeutralColors, Stack } from '@fluentui/react'
 import { FC, memo, useMemo } from 'react'
 
 import { DonutChart } from '@perfsee/components'
@@ -65,7 +65,7 @@ export const AssetTransferred: FC<Props> = memo(
           name: renderContent(type, total),
           value: total,
           key: type,
-          color: RequestTypeColorsMaps[type].background,
+          color: RequestTypeColorsMaps[type]?.background ?? NeutralColors.gray100,
         })
       }
 
