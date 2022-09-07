@@ -103,6 +103,7 @@ export enum RequestType {
   Font = 'Font',
   Media = 'Media',
   Fetch = 'Fetch',
+  Ping = 'Ping',
 }
 
 export const RequestTypeColorsMaps: {
@@ -117,6 +118,7 @@ export const RequestTypeColorsMaps: {
   [RequestType.Font]: { background: SharedColors.gray20, foreground: 'white' },
   [RequestType.Media]: { background: SharedColors.orange20, foreground: 'white' },
   [RequestType.Fetch]: { background: SharedColors.blue10, foreground: 'white' },
+  [RequestType.Ping]: { background: SharedColors.gray10, foreground: 'white' },
 }
 
 export type MetricSchema = {
