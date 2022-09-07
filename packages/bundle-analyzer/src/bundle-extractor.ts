@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 import {
   createReadStream,
   createWriteStream,
@@ -108,7 +108,7 @@ async function decompressStatsFile(path: string): Promise<string> {
   // gzipped file sometimes meet invalid header error with createGunzip()
   if (path.endsWith('.gz')) {
     try {
-      execSync(`sh -c 'gzip -d ${path}'`)
+      execFileSync('gzip', ['-d', path])
       return target
       // eslint-disable-next-line no-empty
     } catch {}

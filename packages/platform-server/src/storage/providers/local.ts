@@ -62,6 +62,10 @@ export class ObjectStorage extends BaseObjectStorage {
   }
 
   private nameToPath(name: string) {
+    if (typeof name !== 'string' || name.indexOf('..') !== -1) {
+      throw new Error('Invalid storage key')
+    }
+
     return join(this.basePath, name)
   }
 }

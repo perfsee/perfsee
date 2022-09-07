@@ -57,10 +57,8 @@ const renderer = (id: string) => (item: ItemSchema) => {
     return '-'
   }
 
-  let value: number | string | undefined = detail.value
-  let unit = detail.unit
   if (detail.value && detail.formatter === 'duration') {
-    ;({ value, unit } = formatTime(detail.value))
+    const { value, unit } = formatTime(detail.value)
     return (
       <span>
         {value}

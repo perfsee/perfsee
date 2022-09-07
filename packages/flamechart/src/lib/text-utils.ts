@@ -186,7 +186,6 @@ export function remapRangesToTrimmedText(
           case IndexTypeInTrimmed.ELIDED: {
             // This should be impossible
             throw new Error('Unexpected highlight range starts in suffix and ends in elided')
-            break
           }
           case IndexTypeInTrimmed.IN_SUFFIX: {
             // Match starts & ends in suffix

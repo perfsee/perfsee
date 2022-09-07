@@ -49,6 +49,12 @@ test('get', async (t) => {
   t.deepEqual(result, buf)
 })
 
+test('invalid path', async (t) => {
+  const storage = t.context.module.get(ObjectStorage)
+
+  await t.throwsAsync(storage.get('../testing_get'), { message: 'Invalid storage key' })
+})
+
 test('get stream', async (t) => {
   const storage = t.context.module.get(ObjectStorage)
 

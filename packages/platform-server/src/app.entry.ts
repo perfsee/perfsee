@@ -49,6 +49,7 @@ export async function createApp() {
       name: 'perfsee_sid',
       cookie: {
         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         sameSite: 'lax',
       },

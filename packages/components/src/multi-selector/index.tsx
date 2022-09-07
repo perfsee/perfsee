@@ -76,7 +76,7 @@ export const MultiSelector = <T,>(props: Props<T>) => {
       if (!label) {
         return null
       }
-      return <LabelWithTips tips={tips} label={label ?? ''} required={required} />
+      return <LabelWithTips tips={tips} label={label} required={required} />
     },
     [required, label, tips],
   )
