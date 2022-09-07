@@ -30,11 +30,13 @@ test('get lighthouse run data', (t) => {
       id: 1,
       headers: [],
       cookies: [],
+      localStorage: [],
     }),
     createMock<Environment>({
       id: 2,
       headers: [],
       cookies: [],
+      localStorage: [],
     }),
   ]
 

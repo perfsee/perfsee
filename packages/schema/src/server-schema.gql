@@ -515,6 +515,9 @@ type Environment {
 
   """Disable scanning of this environment"""
   disable: Boolean!
+
+  """extra localStorage value inserted into page"""
+  localStorage: JSON
 }
 
 """message target setting"""
@@ -1274,6 +1277,9 @@ input UpdateEnvironmentInput {
 
   """Disable scanning of this environment"""
   disable: Boolean
+
+  """extra localStorage value inserted into page"""
+  localStorage: JSON
 }
 
 input UpdateProfileInput {

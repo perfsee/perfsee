@@ -28,13 +28,14 @@ import { useModuleState } from '@sigi/react'
 import { useCallback, useState, useRef } from 'react'
 
 import { IconWithTips, RequiredTextField } from '@perfsee/components'
-import { CookieType, HeaderType } from '@perfsee/shared'
+import { CookieType, HeaderType, LocalStorageType } from '@perfsee/shared'
 
 import { EnvSchema, PropertyModule } from '../../../shared'
 import { PartialCookie } from '../helper'
 
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
+import { FormLocalStorage } from './form-localstorage'
 
 type FromProps = {
   defaultEnv?: EnvSchema
@@ -55,6 +56,7 @@ export const EnvEditForm = (props: FromProps) => {
   const nameRef = useRef<ITextField>({ value: '' } as any)
   const headersRef = useRef<{ getHeaders: () => HeaderType[] }>()
   const cookiesRef = useRef<{ getCookies: () => PartialCookie[] }>()
+  const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageType[] }>()
   const [isCompetitor, setAsCompetitor] = useState<boolean>(!!defaultEnv?.isCompetitor)
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
@@ -63,6 +65,7 @@ export const EnvEditForm = (props: FromProps) => {
       const name = nameRef.current.value
       const cookies = cookiesRef.current?.getCookies() ?? []
       const headers = headersRef.current?.getHeaders() ?? []
+      const localStorage = localStorageRef.current?.getLocalStorage() ?? []
 
       // Not allowed to save
       const conditions = [
@@ -81,6 +84,7 @@ export const EnvEditForm = (props: FromProps) => {
         name,
         headers,
         cookies,
+        localStorage,
         isCompetitor,
         needReminder,
         zone,
@@ -106,6 +110,7 @@ export const EnvEditForm = (props: FromProps) => {
       <RequiredTextField id="name" label="Environment name" defaultValue={defaultEnv?.name} componentRef={nameRef} />
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
       <FormCookies defaultCookies={(defaultEnv?.cookies ?? []) as CookieType[]} ref={cookiesRef} />
+      <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">
         <Stack.Item shrink={false}>

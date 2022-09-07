@@ -23,6 +23,7 @@ import {
   HeaderType,
   CookieType,
   MetricKeyType,
+  LocalStorageType,
 } from '@perfsee/shared'
 
 type PartialSnapshotReport = {
@@ -44,6 +45,7 @@ export interface LabJobPayload {
   runs: number
   headers: HeaderType[]
   cookies: CookieType[]
+  localStorage: LocalStorageType[]
 }
 
 export type E2EJobPayload = LabJobPayload & {
