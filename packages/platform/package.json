@@ -37,7 +37,7 @@
     "dayjs": "^1.11.3",
     "echarts": "^5.3.3",
     "fuse.js": "^6.6.2",
-    "graphql": "^15.6.1",
+    "graphql": "^16.0.0",
     "immer": "^9.0.15",
     "lodash": "^4.17.21",
     "modern-css-reset": "^1.4.0",

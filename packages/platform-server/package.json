@@ -33,7 +33,7 @@
     "express-session": "^1.17.3",
     "file-type": "^16.5.4",
     "form-data": "^4.0.0",
-    "graphql": "^15.6.1",
+    "graphql": "^16.0.0",
     "graphql-type-json": "^0.3.2",
     "ioredis": "^5.2.1",
     "json-bigint": "^1.0.0",
