@@ -36,6 +36,9 @@
       "path": "../packages/schema"
     },
     {
+      "path": "../packages/sdk"
+    },
+    {
       "path": "../packages/server-common"
     },
     {
