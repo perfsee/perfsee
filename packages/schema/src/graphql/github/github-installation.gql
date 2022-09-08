@@ -1,0 +1,10 @@
+query GithubInstallation {
+    githubInstallation {
+        id
+        account {
+            login
+            avatar_url
+            type
+        }
+    }
+}

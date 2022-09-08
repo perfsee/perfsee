@@ -14,15 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { MessageBarType, Persona, Text } from '@fluentui/react'
+import { MessageBarType, Persona, Spinner, SpinnerSize, Text } from '@fluentui/react'
 import { SelectionMode } from '@fluentui/utilities'
 import { useModule } from '@sigi/react'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { ForeignLink, MessageBar, Table, TableColumnProps } from '@perfsee/components'
 
+import { AssociatedGithubInstallationsModel } from './associated-github-installations.module'
 import { GithubInstallationModel, Installation } from './github-installation.module'
-import { SelectorContainer } from './style'
+import { CenterText, PersonaContainer, SelectorContainer } from './style'
 
 interface Props {
   onSelect: (installation: Installation) => void
@@ -43,24 +44,41 @@ const columns: TableColumnProps<Installation | null>[] = [
 ]
 
 export const InstallationSelector: React.VFC<Props> = ({ onSelect }) => {
-  const [{ installations, installationsTotalCount, loading }, dispatch] = useModule(GithubInstallationModel)
+  const [
+    {
+      installations: associatedInstallations,
+      installationsTotalCount: associatedInstallationsTotalCount,
+      loading: associatedInstallationsLoading,
+    },
+    associatedGithubInstallationsDispatch,
+  ] = useModule(AssociatedGithubInstallationsModel)
+  const [{ installation, loading: installationLoading }, githubInstallationDispatch] =
+    useModule(GithubInstallationModel)
 
   useEffect(() => {
-    dispatch.loadMore()
-    return dispatch.reset
-  }, [dispatch])
+    associatedGithubInstallationsDispatch.loadMore()
+    return associatedGithubInstallationsDispatch.reset
+  }, [associatedGithubInstallationsDispatch])
 
   const loadMore = useCallback(() => {
-    dispatch.loadMore()
-  }, [dispatch])
+    associatedGithubInstallationsDispatch.loadMore()
+  }, [associatedGithubInstallationsDispatch])
+
+  useEffect(() => {
+    githubInstallationDispatch.getInstallation()
+    return githubInstallationDispatch.reset
+  }, [githubInstallationDispatch])
 
   const tableItems = useMemo(() => {
-    if (installations.length === installationsTotalCount) {
-      return installations
+    let items
+    if (associatedInstallations.length === associatedInstallationsTotalCount) {
+      items = associatedInstallations
     } else {
-      return (installations as (Installation | null)[]).concat([null])
+      items = (associatedInstallations as (Installation | null)[]).concat([null])
     }
-  }, [installations, installationsTotalCount])
+
+    return items.filter((t) => t == null || t.account.type === 'Organization')
+  }, [associatedInstallations, associatedInstallationsTotalCount])
 
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
@@ -81,29 +99,47 @@ export const InstallationSelector: React.VFC<Props> = ({ onSelect }) => {
     [onSelect],
   )
 
+  const handleClickYour = useCallback(() => {
+    if (installation) {
+      onSelect(installation)
+    }
+  }, [onSelect, installation])
+
   return (
     <>
-      {!loading && installationsTotalCount === 0 ? (
-        <MessageBar messageBarType={MessageBarType.blocked}>
-          You do not have our Github app installed, please
-          <ForeignLink href="/github/new">install our Github app</ForeignLink>.
-        </MessageBar>
+      <CenterText variant="smallPlus">
+        <b>Your:</b>
+      </CenterText>
+      {!installationLoading ? (
+        installation ? (
+          <PersonaContainer horizontal onClick={handleClickYour}>
+            <Persona imageUrl={installation.account.avatar_url} /> <Text>{installation.account.login}</Text>
+          </PersonaContainer>
+        ) : (
+          <MessageBar messageBarType={MessageBarType.blocked}>
+            You do not have our Github app installed, please
+            <ForeignLink href="/github/new">install our Github app</ForeignLink>.
+          </MessageBar>
+        )
       ) : (
-        <MessageBar messageBarType={MessageBarType.info}>
-          If you can't find the desired Github user or organization below, please
-          <ForeignLink href="/github/new">install our Github app</ForeignLink> to the user or organization.
-        </MessageBar>
+        <Spinner size={SpinnerSize.large} />
       )}
-
-      <SelectorContainer onScroll={handleScroll}>
+      <CenterText variant="smallPlus">
+        <b>Organizations:</b>
+      </CenterText>
+      <MessageBar messageBarType={MessageBarType.info}>
+        If you can't find the desired Github organization below, please
+        <ForeignLink href="/github/new">install our Github app</ForeignLink> to the user or organization.
+      </MessageBar>
+      <SelectorContainer onScroll={handleScroll} size={300}>
         <Table
           selectionMode={SelectionMode.none}
           item
           items={tableItems}
           columns={columns}
           isHeaderVisible={false}
-          enableShimmer={loading && installations.length === 0}
-          shimmerLines={8}
+          enableShimmer={associatedInstallationsLoading && associatedInstallations.length === 0}
+          shimmerLines={6}
           onRowClick={handleRowClick}
         />
       </SelectorContainer>

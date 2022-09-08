@@ -1,11 +1,12 @@
-query GithubInstallations($pagination: PaginationInput!) {
-  githubInstallations(pagination: $pagination) {
+query AssociatedGithubInstallations($pagination: PaginationInput!) {
+  associatedGithubInstallations(pagination: $pagination) {
     edges {
       node {
         id
         account {
           login
           avatar_url
+          type
         }
       }
     }

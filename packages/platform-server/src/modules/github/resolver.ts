@@ -54,6 +54,9 @@ class GithubAccount {
 
   @Field(() => String)
   avatar_url!: string
+
+  @Field(() => String)
+  type!: string
 }
 
 @ObjectType()
@@ -81,13 +84,28 @@ export class PaginatedGithubInstallations extends Paginated(GithubInstallation) 
 export class GithubIntegrationResolver {
   constructor(private readonly userService: UserService, private readonly service: GithubService) {}
 
-  @Query(() => PaginatedGithubInstallations, {
-    name: 'githubInstallations',
+  @Query(() => GithubInstallation, {
+    name: 'githubInstallation',
+    nullable: true,
     description:
-      'List all installations of the github account connected by the current user. Throws if user is not connected to github account. \n' +
+      'Get installation by the github account connected with the current user. Throws if user is not connected to github account.',
+  })
+  async getGithubInstallation(@CurrentUser() user: User) {
+    const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
+    if (!githubAccount || !githubAccount.accessToken) {
+      throw new UserError('Please connect your github account first.')
+    }
+
+    return this.service.getInstallationByUser(githubAccount.externUsername)
+  }
+
+  @Query(() => PaginatedGithubInstallations, {
+    name: 'associatedGithubInstallations',
+    description:
+      'List all installations associated with the github account connected by the current user, include joined organizations. Throws if user is not connected to github account. \n' +
       'NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.',
   })
-  async getGithubInstallations(
+  async getAssociatedGithubInstallations(
     @CurrentUser() user: User,
     @Args({ name: 'pagination', nullable: true, defaultValue: { first: 10, skip: 0 } })
     paginationInput: PaginationInput,
@@ -97,7 +115,7 @@ export class GithubIntegrationResolver {
       throw new UserError('Please connect your github account first.')
     }
 
-    return this.service.getInstallationsByUser(paginationInput, githubAccount.accessToken)
+    return this.service.getAssociatedInstallationsByUser(paginationInput, githubAccount.accessToken)
   }
 
   @Query(() => GithubRepoVerificationResult, {

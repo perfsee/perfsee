@@ -19,9 +19,9 @@ import { Draft } from 'immer'
 import { endWith, exhaustMap, filter, map, Observable, startWith, withLatestFrom } from 'rxjs'
 
 import { createErrorCatcher, GraphQLClient } from '@perfsee/platform/common'
-import { githubInstallationsQuery, GithubInstallationsQuery } from '@perfsee/schema'
+import { associatedGithubInstallationsQuery } from '@perfsee/schema'
 
-export type Installation = GithubInstallationsQuery['githubInstallations']['edges'][number]['node']
+import { Installation } from './github-installation.module'
 
 interface State {
   installations: Installation[]
@@ -29,8 +29,8 @@ interface State {
   loading: boolean
 }
 
-@Module('GithubInstallationModel')
-export class GithubInstallationModel extends EffectModule<State> {
+@Module('AssociatedGithubInstallationsModel')
+export class AssociatedGithubInstallationsModel extends EffectModule<State> {
   defaultState = {
     loading: true,
     installationsTotalCount: 0,
@@ -51,14 +51,14 @@ export class GithubInstallationModel extends EffectModule<State> {
       exhaustMap(([_, state]) =>
         this.client
           .query({
-            query: githubInstallationsQuery,
+            query: associatedGithubInstallationsQuery,
             variables: { pagination: { first: 30, skip: state.installations.length } },
           })
           .pipe(
             map((data) => {
               return this.getActions().append({
-                installations: data.githubInstallations.edges.map((edge) => edge.node),
-                totalCount: data.githubInstallations.pageInfo.totalCount,
+                installations: data.associatedGithubInstallations.edges.map((edge) => edge.node),
+                totalCount: data.associatedGithubInstallations.pageInfo.totalCount,
               })
             }),
             startWith(this.getActions().setLoading(true)),
