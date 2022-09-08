@@ -9,7 +9,7 @@
     "@perfsee/job-runner-shared": "^0.0.1",
     "@perfsee/server-common": "^0.0.1",
     "@perfsee/shared": "^0.0.1",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.1"
