@@ -5546,7 +5546,7 @@ __metadata:
     express-session: ^1.17.3
     file-type: ^16.5.4
     form-data: ^4.0.0
-    graphql: ^15.6.1
+    graphql: ^16.0.0
     graphql-type-json: ^0.3.2
     ioredis: ^5.2.1
     json-bigint: ^1.0.0
@@ -5605,7 +5605,7 @@ __metadata:
     dayjs: ^1.11.3
     echarts: ^5.3.3
     fuse.js: ^6.6.2
-    graphql: ^15.6.1
+    graphql: ^16.0.0
     immer: ^9.0.15
     lodash: ^4.17.21
     modern-css-reset: ^1.4.0
@@ -5673,7 +5673,7 @@ __metadata:
     "@perfsee/schema": ^0.0.1
     chalk: ^4.1.2
     clipanion: ^3.1.0
-    graphql: ^15.6.1
+    graphql: ^16.0.0
     lodash: ^4.17.21
     node-fetch: ^2.6.2
     simple-git: ^3.10.0
@@ -14111,10 +14111,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^15.6.1":
-  version: 15.8.0
-  resolution: "graphql@npm:15.8.0"
-  checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
+"graphql@npm:^16.0.0":
+  version: 16.6.0
+  resolution: "graphql@npm:16.6.0"
+  checksum: bf1d9e3c1938ce3c1a81e909bd3ead1ae4707c577f91cff1ca2eca474bfbc7873d5d7b942e1e9777ff5a8304421dba57a4b76d7a29eb19de8711cb70e3c2415e
   languageName: node
   linkType: hard
 
@@ -20061,7 +20061,7 @@ __metadata:
     "@types/diff": ^5.0.2
     "@types/vscode": ^1.50.0
     diff: ^5.1.0
-    graphql: ^15.6.1
+    graphql: ^16.0.0
     isomorphic-git: ^1.18.3
     lodash: ^4.17.21
     node-fetch: ^2.6.2
@@ -20123,7 +20123,7 @@ __metadata:
     eslint-plugin-unicorn: ^43.0.2
     extract-comments: ^1.1.0
     fdir: ^5.2.0
-    graphql: ^15.6.1
+    graphql: ^16.0.0
     html-webpack-plugin: ^5.5.0
     husky: ^8.0.1
     inquirer: ^9.0.1

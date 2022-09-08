@@ -59,7 +59,7 @@
     "eslint-plugin-unicorn": "^43.0.2",
     "extract-comments": "^1.1.0",
     "fdir": "^5.2.0",
-    "graphql": "^15.6.1",
+    "graphql": "^16.0.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.1",
     "inquirer": "^9.0.1",
