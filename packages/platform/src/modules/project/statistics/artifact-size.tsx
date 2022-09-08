@@ -155,6 +155,10 @@ export const ArtifactSize = () => {
   const history = useHistory()
 
   const aggregatedBundle = useMemo(() => {
+    if (!bundleHistory) {
+      return null
+    }
+
     const groupped = Object.entries(groupBy(bundleHistory, 'artifactName')).map(([artifactName, data]) => ({
       artifactName,
       data,

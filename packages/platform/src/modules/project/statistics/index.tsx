@@ -36,7 +36,7 @@ const stackTokens: IStackTokens = {
 
 export const Statistics = () => {
   const { reset } = useDispatchers(StatisticsModule)
-  const [{ commits, lab, artifactJob, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
+  const [{ allCommits, lab, artifactJob, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
 
   const [selectedReport, setReport] = useState<VersionSnapshotReport | undefined>()
 
@@ -70,14 +70,14 @@ export const Statistics = () => {
   }, [dispatcher, reset])
 
   useEffect(() => {
-    if (commits.length) {
-      const latestCommit = commits[0]
+    if (allCommits.commits.length) {
+      const latestCommit = allCommits.commits[0]
 
       dispatcher.getArtifactByCommit(latestCommit)
       dispatcher.getSnapshotByCommit({ hash: latestCommit })
       dispatcher.fetchSourceIssueCount({ hash: latestCommit })
     }
-  }, [commits, dispatcher])
+  }, [allCommits.commits, dispatcher])
 
   useEffect(() => {
     if (!selectedReport && reports.length) {
@@ -110,11 +110,11 @@ export const Statistics = () => {
         </CardHeader>
         <CardContent>
           <VersionPerformanceOverview
-            hash={commits[0]}
+            hash={allCommits.commits[0]}
             snapshotReport={selectedReport}
             artifact={artifactJob.artifact}
             lhContent={lhContent}
-            loading={lab.loading}
+            loading={allCommits.loading || lab.loading}
             sourceIssueCount={currentIssueCount}
           />
         </CardContent>
