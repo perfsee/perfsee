@@ -69,6 +69,12 @@
       "@perfsee/schema/*": [
         "packages/schema/src/*"
       ],
+      "@perfsee/sdk": [
+        "packages/sdk/src"
+      ],
+      "@perfsee/sdk/*": [
+        "packages/sdk/src/*"
+      ],
       "@perfsee/server-common": [
         "packages/server-common/src"
       ],

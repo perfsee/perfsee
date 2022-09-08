@@ -29,7 +29,7 @@ export class UpdateWorkspaceCommand extends Command {
   async execute() {
     const list = JSON.parse(exec('', 'lerna list -a --json', { silent: true })) as LernaListJson[]
     list.forEach((p) => {
-      p.location = relative(rootPath, p.location)
+      p.location = relative(rootPath, p.location).replace(/\\/g, '/')
     })
     await this.generateWorkspaceConsts(list)
     await this.generateTsConfigs()
@@ -51,8 +51,9 @@ export class UpdateWorkspaceCommand extends Command {
       compilerOptions: {
         baseUrl: './',
         paths: filteredPackages.reduce((paths, pkg) => {
-          paths[pkg.name] = [relative(rootPath, pkg.srcPath)]
-          paths[`${pkg.name}/*`] = [relative(rootPath, pkg.srcPath) + '/*']
+          const pkgRelativePath = relative(rootPath, pkg.srcPath).replace(/\\/g, '/')
+          paths[pkg.name] = [pkgRelativePath]
+          paths[`${pkg.name}/*`] = [pkgRelativePath + '/*']
           return paths
         }, {}),
       },
