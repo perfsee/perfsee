@@ -64,6 +64,7 @@ export enum DeletePropertyProgress {
 }
 
 interface State {
+  loading: boolean
   pages: PageSchema[]
   profiles: ProfileSchema[]
   environments: EnvSchema[]
@@ -87,6 +88,7 @@ enableMapSet()
 @Module('PropertyModule')
 export class PropertyModule extends EffectModule<State> {
   readonly defaultState = {
+    loading: true,
     pages: [],
     profiles: [],
     environments: [],
@@ -109,6 +111,11 @@ export class PropertyModule extends EffectModule<State> {
 
   constructor(private readonly client: GraphQLClient, private readonly projectModule: ProjectModule) {
     super()
+  }
+
+  @ImmerReducer()
+  setLoading(state: Draft<State>, payload: boolean) {
+    state.loading = payload
   }
 
   @ImmerReducer()
@@ -306,6 +313,7 @@ export class PropertyModule extends EffectModule<State> {
             createErrorCatcher('Failed to fetch pages/envs/profiles'),
             map((data) => this.getActions().setProperty(data)),
             startWith(this.getActions().resetProperty()),
+            endWith(this.getActions().setLoading(false)),
           ),
       ),
     )
