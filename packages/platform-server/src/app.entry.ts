@@ -17,6 +17,7 @@ limitations under the License.
 import 'reflect-metadata'
 
 import { NestFactory, Reflector } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { raw, json } from 'body-parser'
 import session from 'express-session'
 
@@ -29,7 +30,7 @@ import { QueryErrorFilter, UnauthorizedExceptionFilter, AnyErrorFilter, RedisThr
 import { Redis } from './redis'
 
 export async function createApp() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   })
   app.useLogger(app.get(Logger))
@@ -40,6 +41,7 @@ export async function createApp() {
   const config = app.get(Config)
   const metrics = app.get(Metric)
 
+  app.set('trust proxy', 1)
   app.use(
     session({
       resave: true,
@@ -49,7 +51,7 @@ export async function createApp() {
       name: 'perfsee_sid',
       cookie: {
         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV !== 'development',
         httpOnly: true,
         sameSite: 'lax',
       },
