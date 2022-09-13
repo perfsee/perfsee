@@ -64,7 +64,7 @@ module.exports = {
     github: {
       clientId: process.env.GITHUB_OAUTH_CLIENT_ID,
       clientSecret: process.env.GITHUB_OAUTH_CLIENT_SECRET,
-      redirectUri: 'http://localhost:8080/oauth2/callback',
+      redirectUri: '/oauth2/callback',
       accessTokenUri: 'https://github.com/login/oauth/access_token',
       authorizationUri: 'https://github.com/login/oauth/authorize',
       userInfoUri: 'https://api.github.com/user',
