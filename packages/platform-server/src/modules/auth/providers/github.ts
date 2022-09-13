@@ -40,16 +40,16 @@ export class GithubOAuthProvider implements OAuthProvider {
   constructor(private readonly allConfig: Config) {}
 
   get config() {
-    return this.allConfig.oauth.github
+    return this.allConfig
   }
 
   getAuthUrl(state?: string) {
-    return `${this.config.authorizationUri}?${qs.stringify(
+    return `${this.config.oauth.github.authorizationUri}?${qs.stringify(
       {
-        client_id: this.config.clientId,
+        client_id: this.config.oauth.github.clientId,
         scope: 'read',
         response_type: 'user',
-        redirect_uri: this.config.redirectUri,
+        redirect_uri: this.config.host + this.config.path + this.config.oauth.github.redirectUri,
         state: state,
       },
       { encode: true },
@@ -58,13 +58,13 @@ export class GithubOAuthProvider implements OAuthProvider {
 
   async getToken(code: string) {
     try {
-      const response = await fetch(this.config.accessTokenUri, {
+      const response = await fetch(this.config.oauth.github.accessTokenUri, {
         method: 'POST',
         body: qs.stringify({
           code,
-          client_id: this.config.clientId,
-          client_secret: this.config.clientSecret,
-          redirect_uri: this.config.redirectUri,
+          client_id: this.config.oauth.github.clientId,
+          client_secret: this.config.oauth.github.clientSecret,
+          redirect_uri: this.config.host + this.config.path + this.config.oauth.github.redirectUri,
         }),
         headers: {
           Accept: 'application/json',
@@ -86,7 +86,7 @@ export class GithubOAuthProvider implements OAuthProvider {
 
   async getUser(token: string) {
     try {
-      const response = await fetch(this.config.userInfoUri, {
+      const response = await fetch(this.config.oauth.github.userInfoUri, {
         method: 'GET',
         headers: {
           Authorization: `token ${token}`,
