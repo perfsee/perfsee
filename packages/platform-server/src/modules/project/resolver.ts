@@ -142,6 +142,11 @@ export class ProjectResolver {
 
     return true
   }
+
+  @ResolveField(() => [Permission], { description: 'current user permission to this project' })
+  async userPermission(@CurrentUser() user: User, @Parent() project: Project) {
+    return this.projectService.getUserPermission(user, project)
+  }
 }
 
 @Resolver(() => User)

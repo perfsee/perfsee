@@ -40,4 +40,7 @@ export class CreateProjectInput {
 export class UpdateProjectInput extends PartialType(PickType(CreateProjectInput, ['artifactBaselineBranch'])) {
   @Field(() => [String], { description: 'email list of owners', nullable: true })
   owners?: string[]
+
+  @Field(() => Boolean, { description: 'project visibility', nullable: true })
+  isPublic?: boolean
 }

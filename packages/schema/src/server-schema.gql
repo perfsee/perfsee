@@ -137,6 +137,9 @@ type Project {
   """owners of this project"""
   owners: [User!]!
 
+  """current user permission to this project"""
+  userPermission: [Permission!]!
+
   """get artifact by id"""
   artifact(
     """artifact id"""
@@ -246,6 +249,11 @@ type Project {
 enum GitHost {
   Github
   Gitlab
+}
+
+enum Permission {
+  Admin
+  Read
 }
 
 input PaginationInput {
@@ -942,12 +950,6 @@ type ProjectAuthorizedApplicationsNode {
   permissions: [Permission!]!
 }
 
-enum Permission {
-  All
-  Admin
-  Read
-}
-
 type ApplicationAuthorizedProjectsNode {
   project: ApplicationProject!
   permissions: [Permission!]!
@@ -1155,6 +1157,9 @@ input UpdateProjectInput {
 
   """email list of owners"""
   owners: [String!]
+
+  """project visibility"""
+  isPublic: Boolean
 }
 
 input UpdateRunnerInput {

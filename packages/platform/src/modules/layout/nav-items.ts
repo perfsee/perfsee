@@ -21,5 +21,4 @@ export enum NavItem {
   Source = 'source',
   // Report = 'report',
   Competitor = 'competitor',
-  Settings = 'settings',
 }

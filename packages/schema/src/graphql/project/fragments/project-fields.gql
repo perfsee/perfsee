@@ -5,6 +5,7 @@ fragment projectFields on Project {
   name
   isPublic
   artifactBaselineBranch
+  userPermission
   owners {
     username
     avatarUrl

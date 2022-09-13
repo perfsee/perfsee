@@ -18,7 +18,9 @@ import { PrimaryButton, Stack, Dialog, IconButton } from '@fluentui/react'
 import { useDispatchers } from '@sigi/react'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 
-import { PropertyModule } from '../../shared'
+import { Permission } from '@perfsee/schema'
+
+import { PropertyModule, useProject } from '../../shared'
 
 import { ExistedPages } from './existed-pages'
 import { EntryButton, StyledHeader } from './style'
@@ -40,6 +42,7 @@ enum ContentType {
 
 export const CreateSnapshot = () => {
   const dispatcher = useDispatchers(PropertyModule)
+  const project = useProject()
 
   const [visible, setVisible] = useState<boolean>(false)
   const [contentNumber, setContentNumber] = useState<ContentType>(ContentType.HomePage)
@@ -82,6 +85,11 @@ export const CreateSnapshot = () => {
       </StyledHeader>
     )
   }, [contentNumber, onSetContentNumber])
+
+  // only allow admin permission users to take snapshot manually
+  if (!project || !project.userPermission.includes(Permission.Admin)) {
+    return null
+  }
 
   return (
     <Stack horizontal horizontalAlign="end">

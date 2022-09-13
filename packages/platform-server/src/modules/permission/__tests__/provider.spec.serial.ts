@@ -95,6 +95,22 @@ test.serial('revoke users permission', async (t) => {
   t.false(await permission.check(users[0], project.id, Permission.Read))
 })
 
+test.serial('get user permission', async (t) => {
+  const permission = t.context.module.get(SelfHostPermissionProvider)
+
+  const user = users[0]
+
+  await permission.grant(user, project.id, Permission.Read)
+
+  const permissions = await permission.get(user, project.id)
+  t.deepEqual(permissions, [Permission.Read])
+
+  await permission.grant(user, project.id, Permission.Admin)
+
+  const permissions2 = await permission.get(user, project.id)
+  t.deepEqual(permissions2, [Permission.Read, Permission.Admin])
+})
+
 test.serial('user allow list', async (t) => {
   const permission = t.context.module.get(SelfHostPermissionProvider)
 

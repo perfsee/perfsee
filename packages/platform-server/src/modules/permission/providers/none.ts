@@ -26,6 +26,10 @@ export class PermissionProvider {
     throw new Error('unimplemented')
   }
 
+  get(_user: User, _id: number | string): Promise<Permission[]> {
+    throw new Error('unimplemented')
+  }
+
   check(_user: User, _id: number | string, _permission: Permission): Promise<boolean> {
     throw new Error('unimplemented')
   }
