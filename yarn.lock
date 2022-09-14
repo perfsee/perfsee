@@ -5743,7 +5743,7 @@ __metadata:
     d3-hierarchy: ^3.1.2
     react: ^18.2.0
     react-dom: ^18.2.0
-    twgl.js: ^4.24.0
+    twgl.js: ^5.0.0
   peerDependencies:
     react: ^16.8.0
     react-dom: ^16.8.0
@@ -25299,10 +25299,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"twgl.js@npm:^4.24.0":
-  version: 4.24.0
-  resolution: "twgl.js@npm:4.24.0"
-  checksum: 8b9f2cdf5aa48ac99444d2bf2edb144e755984d12b89999f459073ce3c9ee0e612d21a569344c0d65c7f4268caba9b9a91a4861214b36987e7109b3cb6d7e99b
+"twgl.js@npm:^5.0.0":
+  version: 5.0.1
+  resolution: "twgl.js@npm:5.0.1"
+  checksum: f9292652cefc10e2abc4f0f5717a369a3a62607bdba0a6038b9f93a3c68f83b31a092f1af769dccd677766f2355f21c080ffe5087ff3726c21b31a1c724c1055
   languageName: node
   linkType: hard
 

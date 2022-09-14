@@ -10,7 +10,7 @@
   "dependencies": {
     "@types/d3-hierarchy": "^3.1.0",
     "d3-hierarchy": "^3.1.2",
-    "twgl.js": "^4.24.0"
+    "twgl.js": "^5.0.0"
   },
   "devDependencies": {
     "react": "^18.2.0",
