@@ -1,9 +1,24 @@
 fragment environmentFields on Environment {
     id
     name
-    cookies
-    headers
-    localStorage
+    cookies {
+      name
+      value
+      domain
+      path
+      httpOnly
+      secure
+      expire
+    }
+    headers {
+      key
+      value
+      host
+    }
+    localStorage {
+      key
+      value
+    }
     isCompetitor
     disable
     needReminder

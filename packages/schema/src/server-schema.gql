@@ -446,6 +446,27 @@ type ApplicationSetting {
   updatedAt: DateTime!
 }
 
+type HeaderType {
+  key: String!
+  value: String!
+  host: String!
+}
+
+type LocalStorageType {
+  key: String!
+  value: String!
+}
+
+type CookieType {
+  name: String!
+  value: String!
+  domain: String!
+  path: String!
+  httpOnly: Boolean!
+  secure: Boolean!
+  expire: String
+}
+
 """project page asset"""
 type Page {
   id: Int!
@@ -500,10 +521,10 @@ type Environment {
   zone: String!
 
   """extra cookies add to requests"""
-  cookies: JSON!
+  cookies: [CookieType!]!
 
   """extra headers add to requests"""
-  headers: JSON!
+  headers: [HeaderType!]!
 
   """
   tells whether this environment could be used in temporary pages and competitor pages auditing
@@ -517,7 +538,7 @@ type Environment {
   disable: Boolean!
 
   """extra localStorage value inserted into page"""
-  localStorage: JSON
+  localStorage: [LocalStorageType!]
 }
 
 """message target setting"""
@@ -1272,12 +1293,6 @@ input UpdateEnvironmentInput {
   """the geo location where the related pages should be audited at"""
   zone: String
 
-  """extra cookies add to requests"""
-  cookies: JSON
-
-  """extra headers add to requests"""
-  headers: JSON
-
   """
   tells whether this environment could be used in temporary pages and competitor pages auditing
   """
@@ -1288,9 +1303,30 @@ input UpdateEnvironmentInput {
 
   """Disable scanning of this environment"""
   disable: Boolean
+  localStorage: [LocalStorageInputType!]
+  cookies: [CookieInputType!]
+  headers: [HeaderInputType!]
+}
 
-  """extra localStorage value inserted into page"""
-  localStorage: JSON
+input LocalStorageInputType {
+  key: String!
+  value: String!
+}
+
+input CookieInputType {
+  name: String!
+  value: String!
+  domain: String!
+  path: String!
+  httpOnly: Boolean!
+  secure: Boolean!
+  expire: String
+}
+
+input HeaderInputType {
+  key: String!
+  value: String!
+  host: String!
 }
 
 input UpdateProfileInput {

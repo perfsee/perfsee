@@ -89,8 +89,8 @@ export const SettingsEnvironments = () => {
   const onRenderCell = useCallback(
     (item?: EnvSchema) => {
       if (!item) return null
-      const headerCount = Object.keys(item.headers).length
-      const cookieCount = (item.cookies as string[]).length
+      const headerCount = item.headers.length
+      const cookieCount = item.cookies.length
       return (
         <Stack tokens={NormalToken} horizontal horizontalAlign="space-between">
           <EllipsisText>

@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { ObjectType, Field, Int } from '@nestjs/graphql'
-import GraphQLJSON from 'graphql-type-json'
 import {
   Column,
   Entity,
@@ -28,11 +27,56 @@ import {
   Index,
 } from 'typeorm'
 
-import { CookieType, HeaderType, LocalStorageType } from '@perfsee/shared'
+import { CookieType as Cookie, HeaderType as Header, LocalStorageType as LocalStorage } from '@perfsee/shared'
 
 import { ApplicationSetting } from './application-setting.entity'
 import type { Project } from './project.entity'
 import type { SnapshotReport } from './snapshot-report.entity'
+
+@ObjectType()
+export class HeaderType implements Header {
+  @Field()
+  key!: string
+
+  @Field()
+  value!: string
+
+  @Field()
+  host!: string
+}
+
+@ObjectType()
+export class LocalStorageType implements LocalStorage {
+  @Field(() => String)
+  key!: string
+
+  @Field(() => String)
+  value!: string
+}
+
+@ObjectType()
+export class CookieType implements Cookie {
+  @Field()
+  name!: string
+
+  @Field()
+  value!: string
+
+  @Field()
+  domain!: string
+
+  @Field()
+  path!: string
+
+  @Field()
+  httpOnly!: boolean
+
+  @Field()
+  secure!: boolean
+
+  @Field({ nullable: true })
+  expire!: string
+}
 
 @ObjectType({ description: 'project page asset' })
 @Entity()
@@ -144,11 +188,11 @@ export class Environment extends BaseEntity {
   @Column({ type: 'varchar', length: 50 })
   zone!: string
 
-  @Field(() => GraphQLJSON, { description: 'extra cookies add to requests' })
+  @Field(() => [CookieType], { description: 'extra cookies add to requests' })
   @Column({ type: 'json', nullable: true })
   cookies!: CookieType[]
 
-  @Field(() => GraphQLJSON, { description: 'extra headers add to requests' })
+  @Field(() => [HeaderType], { description: 'extra headers add to requests' })
   @Column({ type: 'json', nullable: true })
   headers!: HeaderType[]
 
@@ -178,7 +222,7 @@ export class Environment extends BaseEntity {
   @Column({ type: 'boolean', default: false })
   disable!: boolean
 
-  @Field(() => GraphQLJSON, {
+  @Field(() => [LocalStorageType], {
     nullable: true,
     description: 'extra localStorage value inserted into page',
   })

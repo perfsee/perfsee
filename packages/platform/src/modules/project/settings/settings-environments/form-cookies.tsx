@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IconButton, Stack, DefaultButton, TextField, Label, Checkbox, IIconProps, DatePicker } from '@fluentui/react'
+import { IconButton, Stack, DefaultButton, Label, Checkbox, IIconProps, DatePicker } from '@fluentui/react'
 import dayjs from 'dayjs'
 import { FormEvent, forwardRef, useMemo, useState, useCallback, useImperativeHandle } from 'react'
 
@@ -22,8 +22,9 @@ import { RequiredTextField, TooltipWithEllipsis, useToggleState } from '@perfsee
 import { lighten, SharedColors } from '@perfsee/dls'
 import { CookieType } from '@perfsee/shared'
 
-import { PartialCookie } from '../helper'
 import { NormalToken, TextFieldStyles } from '../style'
+
+export type PartialCookie = Partial<CookieType>
 
 type CookieProps = {
   cookie: PartialCookie
@@ -151,7 +152,7 @@ const FormCookie = (props: CookieProps) => {
           onChange={onChange}
           data-type="name"
         />
-        <TextField
+        <RequiredTextField
           data-type="value"
           value={cookie.value}
           styles={TextFieldStyles}
@@ -215,7 +216,7 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieType[] }, 
     ref,
     () => ({
       getCookies: () => {
-        return cookies
+        return cookies.filter((c) => c.name && c.domain && c.path)
       },
     }),
     [cookies],

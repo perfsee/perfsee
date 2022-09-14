@@ -31,7 +31,6 @@ import { IconWithTips, RequiredTextField } from '@perfsee/components'
 import { CookieType, HeaderType, LocalStorageType } from '@perfsee/shared'
 
 import { EnvSchema, PropertyModule } from '../../../shared'
-import { PartialCookie } from '../helper'
 
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
@@ -55,7 +54,7 @@ export const EnvEditForm = (props: FromProps) => {
 
   const nameRef = useRef<ITextField>({ value: '' } as any)
   const headersRef = useRef<{ getHeaders: () => HeaderType[] }>()
-  const cookiesRef = useRef<{ getCookies: () => PartialCookie[] }>()
+  const cookiesRef = useRef<{ getCookies: () => CookieType[] }>()
   const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageType[] }>()
   const [isCompetitor, setAsCompetitor] = useState<boolean>(!!defaultEnv?.isCompetitor)
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
@@ -63,18 +62,12 @@ export const EnvEditForm = (props: FromProps) => {
   const onSave = useCallback(
     (_e: any) => {
       const name = nameRef.current.value
-      const cookies = cookiesRef.current?.getCookies() ?? []
-      const headers = headersRef.current?.getHeaders() ?? []
-      const localStorage = localStorageRef.current?.getLocalStorage() ?? []
+      const cookies = cookiesRef.current!.getCookies()
+      const headers = headersRef.current!.getHeaders()
+      const localStorage = localStorageRef.current!.getLocalStorage()
 
       // Not allowed to save
-      const conditions = [
-        !name,
-        cookies.length && cookies.some((c) => !c.name || !c.path || !c.domain),
-        headers.length && headers.some((h) => !h.key || typeof h.value === 'undefined'),
-      ]
-
-      if (conditions.some((c) => c)) {
+      if (!name) {
         return
       }
 

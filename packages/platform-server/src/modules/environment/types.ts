@@ -14,9 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { InputType, OmitType, PartialType } from '@nestjs/graphql'
+import { Field, InputType, OmitType, PartialType } from '@nestjs/graphql'
 
-import { Environment } from '@perfsee/platform-server/db'
+import { Environment, LocalStorageType, HeaderType, CookieType } from '@perfsee/platform-server/db'
 
 @InputType()
-export class UpdateEnvironmentInput extends PartialType(OmitType(Environment, ['id', 'projectId']), InputType) {}
+export class LocalStorageInputType extends OmitType(LocalStorageType, [], InputType) {}
+
+@InputType()
+export class HeaderInputType extends OmitType(HeaderType, [], InputType) {}
+
+@InputType()
+export class CookieInputType extends OmitType(CookieType, [], InputType) {}
+
+@InputType()
+export class UpdateEnvironmentInput extends PartialType(
+  OmitType(Environment, ['id', 'projectId', 'localStorage', 'cookies', 'headers']),
+  InputType,
+) {
+  @Field(() => [LocalStorageInputType], { nullable: true })
+  localStorage?: LocalStorageInputType[]
+
+  @Field(() => [CookieInputType], { nullable: true })
+  cookies?: CookieInputType[]
+
+  @Field(() => [HeaderInputType], { nullable: true })
+  headers?: HeaderInputType[]
+}

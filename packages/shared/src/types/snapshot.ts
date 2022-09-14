@@ -95,12 +95,12 @@ export type CookieType = {
   path: string
   httpOnly: boolean
   secure: boolean
-  expire?: string
+  expire: string | null
 }
 
 export type HeaderType = {
   key: string
-  value: string | number
+  value: string
   host: string
 }
 
