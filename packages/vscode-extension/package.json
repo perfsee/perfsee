@@ -6,7 +6,7 @@
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "perfsee",
   "engines": {
     "vscode": "^1.50.0"
@@ -258,11 +258,11 @@
     }
   },
   "devDependencies": {
-    "@perfsee/dls": "^0.0.1",
-    "@perfsee/flamechart": "^0.0.1",
-    "@perfsee/schema": "^0.0.1",
-    "@perfsee/shared": "^0.0.1",
-    "@perfsee/utils": "^0.0.1",
+    "@perfsee/dls": "^1.0.0",
+    "@perfsee/flamechart": "^1.0.0",
+    "@perfsee/schema": "^1.0.0",
+    "@perfsee/shared": "^1.0.0",
+    "@perfsee/utils": "^1.0.0",
     "@types/diff": "^5.0.2",
     "@types/vscode": "^1.50.0",
     "diff": "^5.1.0",

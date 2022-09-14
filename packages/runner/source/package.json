@@ -1,16 +1,16 @@
 {
   "name": "@perfsee/job-runner-source",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Perfsee job runner source",
   "main": "./dist/index.js",
   "private": true,
   "dependencies": {
-    "@perfsee/bundle-analyzer": "^0.0.1",
-    "@perfsee/job-runner-shared": "^0.0.1",
-    "@perfsee/ori": "^0.0.1",
-    "@perfsee/server-common": "^0.0.1",
-    "@perfsee/shared": "^0.0.1",
-    "@perfsee/source-coverage": "^0.0.1",
+    "@perfsee/bundle-analyzer": "^1.0.0",
+    "@perfsee/job-runner-shared": "^1.0.0",
+    "@perfsee/ori": "^1.0.0",
+    "@perfsee/server-common": "^1.0.0",
+    "@perfsee/shared": "^1.0.0",
+    "@perfsee/source-coverage": "^1.0.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/schema",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "graphql schema",
   "main": "esm/index.js",
   "private": true,
