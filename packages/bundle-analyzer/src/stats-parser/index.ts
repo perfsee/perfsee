@@ -19,6 +19,7 @@ import { join, parse } from 'path'
 
 import { uniqBy, chain, uniq, omit } from 'lodash'
 
+import { readStatsFile } from '../bundle-extractor'
 import { getPackageMeta } from '../module'
 import { BundleToolkit, PerfseeReportStats, BundleModule, ID } from '../stats'
 import {
@@ -31,7 +32,6 @@ import {
   getHtmlScripts,
   isInitialFileType,
   detectFileType,
-  readJSONFile,
   getConsoleLogger,
 } from '../utils'
 
@@ -60,7 +60,7 @@ export class StatsParser {
   static FromStatsFile(statsFilePath: string, logger: Logger = defaultLogger): StatsParser {
     let stats: PerfseeReportStats
     try {
-      stats = readJSONFile<PerfseeReportStats>(statsFilePath)
+      stats = readStatsFile(statsFilePath)
     } catch (e) {
       throw new Error(`Failed to read and parse webpack stats.\nInternal Error: ${(e as Error).message}`)
     }
@@ -107,7 +107,7 @@ export class StatsParser {
     }
   }
 
-  serializeResult(): BundleResult {
+  private serializeResult(): BundleResult {
     const entryPoints = Array.from(this.entryPointsMap.values())
     return {
       score: calcBundleScore(entryPoints),
