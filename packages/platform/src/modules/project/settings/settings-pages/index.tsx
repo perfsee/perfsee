@@ -21,7 +21,7 @@ import { useCallback, useMemo, useState, FC, useEffect } from 'react'
 import { ColorButton, TooltipWithEllipsis } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 
-import { DeletePropertyProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
+import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { emptyRelation } from '../helper'
 import { DeleteContent, SettingDialogs, RightCreateButton, DialogVisible } from '../settings-common-comp'
 import { NormalToken } from '../style'
@@ -96,7 +96,7 @@ export const SettingsPages = () => {
 
   const closeDeleteModal = useCallback(() => {
     closeModal()
-    dispatcher.setDeleteProgress({ type: 'page', progress: DeletePropertyProgress.None })
+    dispatcher.setDeleteProgress({ type: 'page', progress: DeleteProgress.None })
   }, [closeModal, dispatcher])
 
   const onUpdatePage = useCallback(

@@ -18,7 +18,7 @@ import { List, Separator } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { DeletePropertyProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
+import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { emptyRelation } from '../helper'
 import { DialogVisible, RightCreateButton, SettingDialogs, DeleteContent } from '../settings-common-comp'
 import { PageEditForm } from '../settings-pages/page-edit-form'
@@ -84,7 +84,7 @@ export const SettingsE2e = () => {
 
   const closeDeleteModal = useCallback(() => {
     closeModal()
-    dispatcher.setDeleteProgress({ type: 'page', progress: DeletePropertyProgress.None })
+    dispatcher.setDeleteProgress({ type: 'page', progress: DeleteProgress.None })
   }, [closeModal, dispatcher])
 
   const onUpdate = useCallback(

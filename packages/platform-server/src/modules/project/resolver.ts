@@ -131,6 +131,17 @@ export class ProjectResolver {
   async owners(@Parent() project: Project) {
     return this.projectService.getProjectOwners(project)
   }
+
+  @Mutation(() => Boolean, {
+    description: 'Delete project with given id. NOTE: all data in this project will be deleted.',
+  })
+  @PermissionGuard(Permission.Admin, 'projectId')
+  async deleteProject(@Args({ name: 'projectId', type: () => ID }) slug: string) {
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(slug)
+    await this.projectService.deleteProject(projectRawId)
+
+    return true
+  }
 }
 
 @Resolver(() => User)

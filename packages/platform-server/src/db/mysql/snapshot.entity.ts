@@ -47,7 +47,7 @@ export class Snapshot extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id!: number
 
-  @ManyToOne('Project', 'snapshots')
+  @ManyToOne('Project', 'snapshots', { onDelete: 'CASCADE' })
   project!: Project
 
   @RelationId('project')

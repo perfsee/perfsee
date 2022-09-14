@@ -47,7 +47,7 @@ export class Timer extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @OneToOne('Project', 'timer')
+  @OneToOne('Project', 'timer', { onDelete: 'CASCADE' })
   @JoinColumn()
   project!: Project
 

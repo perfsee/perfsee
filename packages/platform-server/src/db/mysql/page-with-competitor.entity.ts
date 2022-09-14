@@ -31,7 +31,7 @@ export class PageWithCompetitor extends BaseEntity {
   @Index()
   pageId!: number
 
-  @ManyToOne('Page')
+  @ManyToOne('Page', 'pageWithCompetitors', { onDelete: 'CASCADE' })
   page!: Page
 
   @Field()

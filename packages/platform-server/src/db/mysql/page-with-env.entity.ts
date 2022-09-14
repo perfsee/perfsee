@@ -28,7 +28,7 @@ export class PageWithEnv extends BaseEntity {
   @Index()
   pageId!: number
 
-  @ManyToOne('Page')
+  @ManyToOne('Page', 'pageWithEnvs', { onDelete: 'CASCADE' })
   page!: Page
 
   @Column()
@@ -36,6 +36,6 @@ export class PageWithEnv extends BaseEntity {
   @Index()
   envId!: number
 
-  @ManyToOne('Environment')
+  @ManyToOne('Environment', 'pageWithEnvs', { onDelete: 'CASCADE' })
   env!: Environment
 }

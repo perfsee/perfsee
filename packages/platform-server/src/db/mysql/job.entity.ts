@@ -59,10 +59,7 @@ export class Job extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project', 'jobs', {
-    // some global jobs didn't have project
-    createForeignKeyConstraints: false,
-  })
+  @ManyToOne('Project', 'jobs', { onDelete: 'CASCADE' })
   project!: Project
 
   @Field(() => JobType)

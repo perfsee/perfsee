@@ -71,3 +71,14 @@ test('get stream', async (t) => {
   })
   t.deepEqual(result, buf)
 })
+
+test('delete folder', async (t) => {
+  const storage = t.context.module.get(ObjectStorage)
+  await storage.upload('testing_delete', buf)
+
+  await storage.deleteFolder('testing_delete')
+
+  await t.throwsAsync(async () => {
+    await storage.get('testing_delete')
+  })
+})

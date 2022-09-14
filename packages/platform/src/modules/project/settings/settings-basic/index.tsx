@@ -19,6 +19,7 @@ import { useModule } from '@sigi/react'
 import { useEffect } from 'react'
 
 import { BasicInfo } from './basic-info'
+import { DangerZone } from './danger-zone'
 import { BasicSettingsModule } from './module'
 import { Notification } from './notification'
 import { Field } from './style'
@@ -58,6 +59,7 @@ export function SettingsBasic() {
           Save
         </PrimaryButton>
       </Field>
+      <DangerZone />
     </Stack>
   )
 }

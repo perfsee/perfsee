@@ -187,3 +187,20 @@ test.serial('project owners', async (t) => {
   t.is(ownersWithEmail.length, 1)
   t.is(ownersWithEmail[0].username, user.username)
 })
+
+test.serial('delete project', async (t) => {
+  const service = t.context.module.get(ProjectService)
+
+  const projectCreated = await service.create(user, {
+    id: faker.internet.domainWord(),
+    host: GitHost.Github,
+    namespace: faker.internet.domainWord(),
+    name: faker.internet.userName(),
+    artifactBaselineBranch: 'master',
+  })
+  await service.deleteProject(projectCreated.id)
+
+  const project = await Project.findOneBy({ id: projectCreated.id })
+
+  t.is(project, null)
+})

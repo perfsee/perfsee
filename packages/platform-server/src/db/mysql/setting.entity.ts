@@ -65,7 +65,7 @@ export class Setting extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @OneToOne('Project', 'setting')
+  @OneToOne('Project', 'setting', { onDelete: 'CASCADE' })
   @JoinColumn()
   project!: Project
 

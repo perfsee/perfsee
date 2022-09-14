@@ -158,7 +158,7 @@ export class SnapshotReportService {
     const reports = await SnapshotReport.findBy(conditions)
     const reportIds = reports.map(({ id }) => id)
 
-    this.logger.log('start delete page', { count: reportIds.length })
+    this.logger.log('start delete snapshot report', { conditions, count: reportIds.length })
 
     // delete reports slowly in case too many reports
     for (let i = 0; i < Math.ceil(reportIds.length / 30); i++) {

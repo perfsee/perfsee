@@ -75,7 +75,7 @@ export function getJobGroupNames(): JobType[] {
 }
 
 function getLogStorageKey(job: Job) {
-  return `logs/${job.jobType}/${job.id}.json`
+  return `logs/${job.projectId}/${job.jobType}/${job.id}.json`
 }
 
 const LATEST_DONE_JOB_KEY = 'LATEST_DONE_JOB_ID'

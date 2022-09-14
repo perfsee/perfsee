@@ -28,7 +28,7 @@ export class PageWithProfile extends BaseEntity {
   @Index()
   pageId!: number
 
-  @ManyToOne('Page')
+  @ManyToOne('Page', 'pageWithProfiles', { onDelete: 'CASCADE' })
   page!: Page
 
   @Column()
@@ -36,6 +36,6 @@ export class PageWithProfile extends BaseEntity {
   @RelationId('profile')
   profileId!: number
 
-  @ManyToOne('Profile')
+  @ManyToOne('Profile', 'pageWithProfiles', { onDelete: 'CASCADE' })
   profile!: Profile
 }

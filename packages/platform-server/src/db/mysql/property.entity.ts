@@ -57,7 +57,7 @@ export class Page extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project', 'pages')
+  @ManyToOne('Project', 'pages', { onDelete: 'CASCADE' })
   project!: Project
 
   @Field(() => Boolean, { description: 'is competitor page' })
@@ -108,7 +108,7 @@ export class Profile extends BaseEntity {
   @Column({ default: 'no' })
   bandWidth!: string
 
-  @ManyToOne('Project', 'profiles')
+  @ManyToOne('Project', 'profiles', { onDelete: 'CASCADE' })
   project!: Project
 
   @RelationId('project')
@@ -152,7 +152,7 @@ export class Environment extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   headers!: HeaderType[]
 
-  @ManyToOne('Project', 'environments')
+  @ManyToOne('Project', 'environments', { onDelete: 'CASCADE' })
   project!: Project
 
   @RelationId('project')

@@ -27,6 +27,7 @@ import {
   Project,
   Profile,
   SnapshotTrigger,
+  AppVersion,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
@@ -257,6 +258,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     const { id } = snapshot
 
     await this.db.transaction(async (manager) => {
+      await manager.getRepository(AppVersion).delete({ snapshotId: id })
       await this.reportService.deleteSnapshotsReports(manager, { snapshotId: id })
       await manager.remove(snapshot)
     })

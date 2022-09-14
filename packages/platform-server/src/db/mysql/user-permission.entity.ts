@@ -43,7 +43,7 @@ export class UserPermission extends BaseEntity {
   @RelationId('user')
   userId!: number
 
-  @ManyToOne('User', 'permissions')
+  @ManyToOne('User', 'permissions', { onDelete: 'CASCADE' })
   user!: User
 
   @Column({ type: 'int' })
@@ -51,7 +51,7 @@ export class UserPermission extends BaseEntity {
   @RelationId('project')
   projectId!: number
 
-  @ManyToOne('Project', 'permissions')
+  @ManyToOne('Project', 'permissions', { onDelete: 'CASCADE' })
   project!: Project
 
   @Column({ type: 'varchar', length: 255 })

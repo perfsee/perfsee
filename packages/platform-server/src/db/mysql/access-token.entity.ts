@@ -40,7 +40,7 @@ export class AccessToken extends BaseEntity {
   @RelationId('user')
   userId!: number
 
-  @ManyToOne('User', 'accessTokens')
+  @ManyToOne('User', 'accessTokens', { onDelete: 'CASCADE' })
   user!: User
 
   @Field()
