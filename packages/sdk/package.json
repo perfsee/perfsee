@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/sdk",
-  "version": "1.0.0",
+  "version": "1.1.0-alpha.0",
   "description": "perfsee sdk",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
@@ -19,6 +19,6 @@
     "simple-git": "^3.10.0"
   },
   "devDependencies": {
-    "@perfsee/schema": "^1.0.0"
+    "@perfsee/schema": "1.1.0-alpha.0"
   }
 }

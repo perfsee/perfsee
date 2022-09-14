@@ -1,6 +1,6 @@
 {
   "name": "@examples/simple",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Simple project for test perflint",
   "main": "./src/index.tsx",
   "private": true

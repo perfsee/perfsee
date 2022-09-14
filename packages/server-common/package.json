@@ -1,12 +1,12 @@
 {
   "name": "@perfsee/server-common",
-  "version": "1.0.0",
+  "version": "1.1.0-alpha.0",
   "description": "Common module for nodejs servers",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
   "private": true,
   "main": "dist/index.js",
   "dependencies": {
-    "@perfsee/shared": "^1.0.0"
+    "@perfsee/shared": "1.1.0-alpha.0"
   }
 }

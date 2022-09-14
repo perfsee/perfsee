@@ -1,14 +1,14 @@
 {
   "name": "@perfsee/job-runner-bundle",
-  "version": "1.0.0",
+  "version": "1.1.0-alpha.0",
   "description": "Perfsee job runner bundle",
   "main": "./dist/index.js",
   "private": true,
   "dependencies": {
-    "@perfsee/bundle-analyzer": "^1.0.0",
-    "@perfsee/job-runner-shared": "^1.0.0",
-    "@perfsee/server-common": "^1.0.0",
-    "@perfsee/shared": "^1.0.0",
+    "@perfsee/bundle-analyzer": "1.0.1-alpha.0",
+    "@perfsee/job-runner-shared": "1.1.0-alpha.0",
+    "@perfsee/server-common": "1.1.0-alpha.0",
+    "@perfsee/shared": "1.1.0-alpha.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

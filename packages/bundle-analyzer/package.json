@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/bundle-analyzer",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Bundle analyzer by perfsee",
   "sideEffect": false,
   "main": "dist/index.js",
@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
-    "@perfsee/utils": "^1.0.0",
+    "@perfsee/utils": "1.1.0-alpha.0",
     "acorn": "^8.7.1",
     "acorn-walk": "^8.2.0",
     "htmlparser2": "^8.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/plugin-utils",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "pertsuite plugin utilities",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
@@ -17,8 +17,8 @@
   ],
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
-    "@perfsee/bundle-analyzer": "^1.0.0",
-    "@perfsee/utils": "^1.0.0",
+    "@perfsee/bundle-analyzer": "1.0.1-alpha.0",
+    "@perfsee/utils": "1.1.0-alpha.0",
     "chalk": "^4.1.2",
     "debug": "4.3.4",
     "env-ci": "^7.2.1",
