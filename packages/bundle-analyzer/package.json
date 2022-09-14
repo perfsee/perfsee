@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
-    "@perfsee/utils": "1.1.0-alpha.0",
+    "@perfsee/utils": "workspace:*",
     "acorn": "^8.7.1",
     "acorn-walk": "^8.2.0",
     "htmlparser2": "^8.0.1",

@@ -5,8 +5,8 @@
   "main": "./dist/index.js",
   "private": true,
   "dependencies": {
-    "@perfsee/server-common": "1.1.0-alpha.0",
-    "@perfsee/shared": "1.1.0-alpha.0",
+    "@perfsee/server-common": "workspace:*",
+    "@perfsee/shared": "workspace:*",
     "chalk": "^4.1.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.2",

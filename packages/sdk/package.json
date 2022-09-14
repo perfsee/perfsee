@@ -19,6 +19,6 @@
     "simple-git": "^3.10.0"
   },
   "devDependencies": {
-    "@perfsee/schema": "1.1.0-alpha.0"
+    "@perfsee/schema": "workspace:*"
   }
 }

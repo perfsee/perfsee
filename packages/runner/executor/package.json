@@ -8,9 +8,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "@perfsee/job-runner-shared": "1.1.0-alpha.0",
-    "@perfsee/server-common": "1.1.0-alpha.0",
-    "@perfsee/shared": "1.1.0-alpha.0",
+    "@perfsee/job-runner-shared": "workspace:*",
+    "@perfsee/server-common": "workspace:*",
+    "@perfsee/shared": "workspace:*",
     "chalk": "^4.1.2",
     "clipanion": "^3.1.0",
     "lodash": "^4.17.21",
@@ -20,8 +20,8 @@
     "winston": "^3.7.2"
   },
   "devDependencies": {
-    "@perfsee/job-runner-bundle": "1.1.0-alpha.0",
-    "@perfsee/job-runner-lab": "1.1.0-alpha.0",
-    "@perfsee/job-runner-source": "1.1.0-alpha.0"
+    "@perfsee/job-runner-bundle": "workspace:*",
+    "@perfsee/job-runner-lab": "workspace:*",
+    "@perfsee/job-runner-source": "workspace:*"
   }
 }

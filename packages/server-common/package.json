@@ -7,6 +7,6 @@
   "private": true,
   "main": "dist/index.js",
   "dependencies": {
-    "@perfsee/shared": "1.1.0-alpha.0"
+    "@perfsee/shared": "workspace:*"
   }
 }

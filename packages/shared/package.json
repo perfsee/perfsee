@@ -8,12 +8,12 @@
   "private": true,
   "sideEffects": false,
   "dependencies": {
-    "@perfsee/utils": "1.1.0-alpha.0",
+    "@perfsee/utils": "workspace:*",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@perfsee/bundle-analyzer": "1.0.1-alpha.0",
-    "@perfsee/flamechart": "1.0.1-alpha.0",
-    "@perfsee/plugin-utils": "1.0.1-alpha.0"
+    "@perfsee/bundle-analyzer": "workspace:*",
+    "@perfsee/flamechart": "workspace:*",
+    "@perfsee/plugin-utils": "workspace:*"
   }
 }

@@ -15,8 +15,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@perfsee/bundle-analyzer": "1.0.1-alpha.0",
-    "@perfsee/plugin-utils": "1.0.1-alpha.0",
+    "@perfsee/bundle-analyzer": "workspace:*",
+    "@perfsee/plugin-utils": "workspace:*",
     "chalk": "^4.1.2",
     "lodash": "^4.17.21",
     "tslib": "^2.4.0"
