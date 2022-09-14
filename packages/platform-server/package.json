@@ -19,7 +19,7 @@
     "@nestjs/testing": "^9.0.4",
     "@nestjs/throttler": "^3.0.0",
     "@nestjs/typeorm": "^9.0.0",
-    "apollo-server-express": "^3.10.0",
+    "apollo-server-express": "^3.10.2",
     "apollo-server-plugin-base": "^3.6.2",
     "body-parser": "^1.20.0",
     "chalk": "^4.1.2",
