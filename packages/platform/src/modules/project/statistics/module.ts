@@ -17,7 +17,7 @@ limitations under the License.
 import { Module, EffectModule, Effect, ImmerReducer, Reducer } from '@sigi/core'
 import { Draft } from 'immer'
 import { from, Observable } from 'rxjs'
-import { switchMap, map, withLatestFrom, startWith, filter, concatMap, delay } from 'rxjs/operators'
+import { switchMap, map, withLatestFrom, filter, concatMap, delay } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
 import {
@@ -74,7 +74,6 @@ export class StatisticsModule extends EffectModule<State> {
           .pipe(
             createErrorCatcher('Failed to get artifact statistics'),
             map((data) => this.getActions().setArtifacts(data.project.artifactHistory)),
-            startWith(this.getActions().setArtifacts([])),
           ),
       ),
     )
@@ -136,5 +135,10 @@ export class StatisticsModule extends EffectModule<State> {
     } else {
       state.aggregatedPages = [variable]
     }
+  }
+
+  @ImmerReducer()
+  setEmptyPageSnapshots(state: Draft<State>) {
+    state.aggregatedPages = []
   }
 }

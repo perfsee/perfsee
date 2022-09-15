@@ -16,8 +16,8 @@ limitations under the License.
 
 import { Module, EffectModule, Effect, ImmerReducer, Reducer } from '@sigi/core'
 import { Draft } from 'immer'
-import { Observable, of } from 'rxjs'
-import { map, startWith, endWith, switchMap, withLatestFrom, filter, mergeMap, delay } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { map, startWith, endWith, switchMap, withLatestFrom, filter, delay } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
 import {
@@ -154,13 +154,11 @@ export class HashReportModule extends EffectModule<State> {
           })
           .pipe(
             createErrorCatcher('Failed to fetch commits from snapshots.'),
-            mergeMap((res) => {
-              return of(
-                this.getActions().setCommits(res.project.appVersions.map(({ hash }) => hash)),
-                this.getActions().delaySetCommitLoading(),
-              )
+            map((res) => {
+              return this.getActions().setCommits(res.project.appVersions.map(({ hash }) => hash))
             }),
             startWith(this.getActions().setLoading({ key: 'allCommits', value: true })),
+            endWith(this.getActions().delaySetCommitLoading()),
           ),
       ),
     )
@@ -311,7 +309,7 @@ export class HashReportModule extends EffectModule<State> {
     return {
       allCommits: {
         commits: [],
-        loading: false,
+        loading: true,
       },
       ...this.getModuleInitState(),
     }

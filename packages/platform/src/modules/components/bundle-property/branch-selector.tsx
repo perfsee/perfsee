@@ -86,7 +86,11 @@ export function BranchSelector({ onChange, defaultBranch, shouldAutoSelect = fal
         const branch = getRecommendBranch(recentBranches, project?.artifactBaselineBranch)
         setCurrentBranch(branch)
         onChange(branch)
+      } else {
+        onChange(undefined)
       }
+    } else if (recentBranches?.length === 0) {
+      onChange(undefined)
     }
   }, [currentBranch, defaultBranch, recentBranches, onChange, shouldAutoSelect, project?.artifactBaselineBranch])
 

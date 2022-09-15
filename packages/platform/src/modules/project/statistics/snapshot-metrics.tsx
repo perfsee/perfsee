@@ -166,18 +166,19 @@ export const SnapshotMetrics = memo(() => {
   const [selectedProfileId, setProfileId] = useState<number>()
   const generateProjectRoute = useGenerateProjectRoute()
 
-  const [{ pages, environments, profileMap, pageRelationMap }, { fetchProperty, fetchPageRelation }] = useModule(
-    PropertyModule,
-    {
-      selector: (s) => ({
-        pages: s.pages.filter((p) => !p.isCompetitor && !p.isTemp),
-        environments: s.environments.filter((e) => !e.isCompetitor),
-        profileMap: s.profileMap,
-        pageRelationMap: s.pageRelationMap,
-      }),
-      dependencies: [],
-    },
-  )
+  const [
+    { loading: propertyLoading, pages, environments, profileMap, pageRelationMap },
+    { fetchProperty, fetchPageRelation },
+  ] = useModule(PropertyModule, {
+    selector: (s) => ({
+      loading: s.loading,
+      pages: s.pages.filter((p) => !p.isCompetitor && !p.isTemp),
+      environments: s.environments.filter((e) => !e.isCompetitor),
+      profileMap: s.profileMap,
+      pageRelationMap: s.pageRelationMap,
+    }),
+    dependencies: [],
+  })
 
   const profiles = useMemo(() => Array.from(profileMap.values()), [profileMap])
 
@@ -225,8 +226,10 @@ export const SnapshotMetrics = memo(() => {
           to: null,
         })),
       )
+    } else if (!propertyLoading && (!environments.length || !profiles.length)) {
+      dispatcher.setEmptyPageSnapshots()
     }
-  }, [dispatcher, selectedEnvId, selectedProfileId, queryPages])
+  }, [dispatcher, selectedEnvId, selectedProfileId, queryPages, environments.length, profiles.length, propertyLoading])
 
   useEffect(() => {
     return dispatcher.reset

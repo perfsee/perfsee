@@ -145,12 +145,15 @@ export const ArtifactSize = () => {
   })
   const [branch, setBranch] = useState<string>()
   const [artifactName, setArtifactName] = useState<string>()
+  const [branchFetched, setBranchFetched] = useState(false)
 
   useEffect(() => {
     if (branch) {
       dispatcher.getAggregatedArtifacts({ length: 15, from: null, to: null, branch, name: artifactName ?? null })
+    } else if (branchFetched) {
+      dispatcher.setArtifacts([])
     }
-  }, [dispatcher, branch, artifactName])
+  }, [dispatcher, branch, artifactName, branchFetched])
 
   const history = useHistory()
 
@@ -200,6 +203,11 @@ export const ArtifactSize = () => {
     setLoadMore(true)
   }, [])
 
+  const onChangeBranch = useCallback((branch: string | undefined) => {
+    setBranchFetched(true)
+    setBranch(branch)
+  }, [])
+
   if (!project) {
     return null
   }
@@ -210,7 +218,7 @@ export const ArtifactSize = () => {
         <span>Bundle Size</span>
         <Stack horizontal tokens={{ childrenGap: '10px' }}>
           <ArtifactNameSelector onChange={setArtifactName} />
-          <BranchSelector defaultBranch={branch} shouldAutoSelect onChange={setBranch} />
+          <BranchSelector defaultBranch={branch} shouldAutoSelect onChange={onChangeBranch} />
         </Stack>
       </ChartPartHeader>
       <Table
