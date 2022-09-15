@@ -59,6 +59,7 @@ test.serial('get pages with property', async (t) => {
   const payload1 = await service.getPageWithProperty(1)
   const payload2 = await service.getPageWithProperty(1, [pages[3].iid])
   const payload3 = await service.getPageWithProperty(1, undefined, [profiles[1].iid], [envs[1].iid])
+  const payload4 = await service.getPageWithProperty(1, [pages[1].iid], [profiles[1].iid], [envs[1].iid])
 
   t.is(payload1.pages.length, 3)
   t.is(payload1.propertyIds.length, 5)
@@ -67,7 +68,10 @@ test.serial('get pages with property', async (t) => {
   t.is(payload2.propertyIds.length, 0)
 
   t.is(payload3.pages.length, 3)
-  t.is(payload3.propertyIds.length, 3)
+  t.is(payload3.propertyIds.length, 2)
+
+  t.is(payload4.pages.length, 1)
+  t.is(payload4.propertyIds.length, 1)
 })
 
 test.serial('get pages with property when page is disabled', async (t) => {

@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { ObjectType, Field, Int, GraphQLISODateTime, registerEnumType } from '@nestjs/graphql'
-import GraphQLJSON from 'graphql-type-json'
 import { Column, Entity, PrimaryGeneratedColumn, BaseEntity, RelationId, OneToOne, JoinColumn, Index } from 'typeorm'
 
 import type { Project } from './project.entity'
@@ -63,19 +62,19 @@ export class Timer extends BaseEntity {
   @Column({ type: 'tinyint', nullable: true })
   timeOfDay!: number | null
 
-  @Field(() => GraphQLISODateTime, { description: 'next evaluation time of this schedule task' })
+  @Field(() => GraphQLISODateTime, { nullable: true, description: 'next evaluation time of this schedule task' })
   @Column({ type: 'timestamp' })
   nextTriggerTime!: Date
 
-  @Field(() => GraphQLJSON, { description: 'related page ids' })
+  @Field(() => [Int], { description: 'related page ids' })
   @Column('text', { transformer: dbJSONTransformerFactory([]), nullable: true })
   pageIds!: number[]
 
-  @Field(() => GraphQLJSON, { description: 'related profile ids' })
+  @Field(() => [Int], { description: 'related profile ids' })
   @Column('text', { transformer: dbJSONTransformerFactory([]), nullable: true })
   profileIds!: number[]
 
-  @Field(() => GraphQLJSON, { description: 'related environment ids' })
+  @Field(() => [Int], { description: 'related environment ids' })
   @Column('text', { transformer: dbJSONTransformerFactory([]), nullable: true })
   envIds!: number[]
 

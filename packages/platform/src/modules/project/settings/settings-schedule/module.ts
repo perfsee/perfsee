@@ -43,11 +43,12 @@ export const defaultTimer = {
   schedule: ScheduleType.Off,
   hour: null,
   timeOfDay: null,
+  nextTriggerTime: null,
   monitorType: ScheduleMonitorType.All,
   pageIds: [],
   envIds: [],
   profileIds: [],
-} as TimerSchema
+}
 
 @Module('ScheduleModule')
 export class ScheduleModule extends EffectModule<State> {

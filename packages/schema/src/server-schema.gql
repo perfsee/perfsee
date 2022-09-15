@@ -601,16 +601,16 @@ type Timer {
   timeOfDay: Int
 
   """next evaluation time of this schedule task"""
-  nextTriggerTime: DateTime!
+  nextTriggerTime: DateTime
 
   """related page ids"""
-  pageIds: JSON!
+  pageIds: [Int!]!
 
   """related profile ids"""
-  profileIds: JSON!
+  profileIds: [Int!]!
 
   """related environment ids"""
-  envIds: JSON!
+  envIds: [Int!]!
 
   """
   whether only specific pages/profiles/envs will be measured when task triggered
@@ -702,7 +702,7 @@ type AppVersion {
   createdAt: DateTime!
 }
 
-"""runner register tokens and infomations"""
+"""runner register tokens and information"""
 type Runner {
   id: ID!
   name: String!
@@ -1356,13 +1356,13 @@ input UpdateTimerInput {
   timeOfDay: Int
 
   """related page ids"""
-  pageIds: JSON
+  pageIds: [Int!]
 
   """related profile ids"""
-  profileIds: JSON
+  profileIds: [Int!]
 
   """related environment ids"""
-  envIds: JSON
+  envIds: [Int!]
 
   """
   whether only specific pages/profiles/envs will be measured when task triggered
