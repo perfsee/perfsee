@@ -4136,6 +4136,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lerna/package-graph@patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch::locator=perfsee%40workspace%3A.":
+  version: 5.5.1
+  resolution: "@lerna/package-graph@patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch::version=5.5.1&hash=64bf02&locator=perfsee%40workspace%3A."
+  dependencies:
+    "@lerna/prerelease-id-from-version": 5.5.1
+    "@lerna/validation-error": 5.5.1
+    npm-package-arg: 8.1.1
+    npmlog: ^6.0.2
+    semver: ^7.3.4
+  checksum: a531119cb242d67703cd624d9c442fb1f12124757c3af51a4ddab43d4f9c3f98197dc31882e6827f7c395f2fa314c628b4ee27a0b128da8d31d4bf9088611860
+  languageName: node
+  linkType: hard
+
 "@lerna/package@npm:5.5.1":
   version: 5.5.1
   resolution: "@lerna/package@npm:5.5.1"

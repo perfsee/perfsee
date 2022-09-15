@@ -5,8 +5,8 @@
     "packages/plugins/*",
     "packages/runner/*"
   ],
-  "version": "independent",
+  "version": "1.0.0-alpha.0",
   "useWorkspaces": true,
   "npmClient": "yarn",
-  "message": "chore: publish"
+  "message": "chore: release"
 }

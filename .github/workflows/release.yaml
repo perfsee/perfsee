@@ -17,11 +17,14 @@ jobs:
         with:
           node-version: 16
           cache: yarn
+          registry-url: https://registry.npmjs.org
       - name: Install dependencies
         run: yarn install
       - name: Build
-        run: yarn build:npm
+        run: |
+          yarn codegen
+          yarn build:npm
       - name: Publish
-        run: yarn lerna publish from-package --pre-dist-tag beta --no-verify-access --yes
+        run: yarn lerna publish from-package --pre-dist-tag beta --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

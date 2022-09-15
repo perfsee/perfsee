@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/chrome-finder",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.0-alpha.0",
   "description": "Chrome executable bin finder",
   "private": true,
   "license": "Apache-2.0",

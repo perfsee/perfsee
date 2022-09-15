@@ -1,0 +1,19 @@
+diff --git a/index.js b/index.js
+index a22558e5c0b2779ac875d14288f8d67c22889839..8e13fa7129c787ae403ec57d850fda83c7b702fd 100644
+--- a/index.js
++++ b/index.js
+@@ -77,8 +77,12 @@ class PackageGraph extends Map {
+           if (spec === "*" || spec === "^" || spec === "~") {
+             workspaceAlias = spec;
+             const prefix = spec === "*" ? "" : spec;
+-            const version = depNode.version;
+-            spec = `${prefix}${version}`;
++            if (!depNode) {
++              spec = `^${currentNode.version}`
++            } else {
++              const version = depNode.version;
++              spec = `${prefix}${version}`;
++            }
+           }
+         }
+ 

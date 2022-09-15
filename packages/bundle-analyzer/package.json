@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/bundle-analyzer",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.0-alpha.0",
   "description": "Bundle analyzer by perfsee",
   "sideEffect": false,
   "main": "dist/index.js",
@@ -11,6 +11,10 @@
     "dist",
     "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
     "@perfsee/utils": "workspace:*",

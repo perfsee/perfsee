@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/plugin-utils",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.0-alpha.0",
   "description": "pertsuite plugin utilities",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
@@ -15,6 +15,10 @@
     "public",
     "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
     "@perfsee/bundle-analyzer": "workspace:*",

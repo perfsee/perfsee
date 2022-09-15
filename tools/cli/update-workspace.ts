@@ -45,6 +45,7 @@ export class UpdateWorkspaceCommand extends Command {
 
   async generateTsConfigs() {
     const pathsConfigFile = pathToRoot('tsconfigs', 'tsconfig.paths.json')
+    const libConfigFile = pathToRoot('tsconfigs', 'tsconfig.lib.json')
     const projectConfigFile = pathToRoot('tsconfigs', 'tsconfig.project.json')
     const filteredPackages = packages.filter((p) => !p.name.startsWith('@example'))
     const pathsConfig = {
@@ -77,7 +78,18 @@ export class UpdateWorkspaceCommand extends Command {
         ),
     }
 
+    const libConfig = {
+      compilerOptions: {
+        noEmit: true,
+      },
+      include: [],
+      references: filteredPackages
+        .filter((p) => !p.packageJson.private && existsSync(p.relative('tsconfig.json')))
+        .map((p) => ({ path: `../${p.relativePath}` })),
+    }
+
     await writeFileAsync(pathsConfigFile, '// AUTO GENERATED\n' + prettier(JSON.stringify(pathsConfig), 'json'))
     await writeFileAsync(projectConfigFile, '// AUTO GENERATED\n' + prettier(JSON.stringify(projectConfig), 'json'))
+    await writeFileAsync(libConfigFile, '// AUTO GENERATED\n' + prettier(JSON.stringify(libConfig), 'json'))
   }
 }

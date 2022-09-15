@@ -1,10 +1,18 @@
+// AUTO GENERATED
 {
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [],
   "references": [
     {
       "path": "../packages/bundle-analyzer"
     },
     {
-      "path": "../packages/flamechart"
+      "path": "../packages/sdk"
+    },
+    {
+      "path": "../packages/utils"
     },
     {
       "path": "../packages/plugins/esbuild"
@@ -17,19 +25,6 @@
     },
     {
       "path": "../packages/plugins/webpack"
-    },
-    {
-      "path": "../packages/tracehouse"
-    },
-    {
-      "path": "../packages/utils"
-    },
-    {
-      "path": "../packages/sdk"
     }
-  ],
-  "compilerOptions": {
-    "noEmit": true
-  },
-  "include": []
+  ]
 }

@@ -103,7 +103,8 @@
     "yup": "^0.32.11"
   },
   "resolutions": {
-    "jpeg-js": "0.4.4"
+    "jpeg-js": "0.4.4",
+    "@lerna/package-graph@5.5.1": "patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch"
   },
   "lint-staged": {
     "*.@(js|ts|tsx)": [

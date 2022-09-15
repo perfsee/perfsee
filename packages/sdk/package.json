@@ -1,14 +1,23 @@
 {
   "name": "@perfsee/sdk",
-  "version": "1.1.0-alpha.0",
+  "version": "1.0.0-alpha.0",
   "description": "perfsee sdk",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
   "sideEffects": false,
   "main": "./dist/index.cjs.js",
   "bundle": true,
+  "files": [
+    "dist",
+    "bin",
+    "CHANGELOG.md"
+  ],
   "bin": {
     "perfsee": "./bin/cli.js"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "dependencies": {
     "chalk": "^4.1.2",
