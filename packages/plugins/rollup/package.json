@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/rollup",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "perfsee rollup plugin",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",

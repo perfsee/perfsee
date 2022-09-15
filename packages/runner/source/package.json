@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/job-runner-source",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Perfsee job runner source",
   "main": "./dist/index.js",
   "private": true,
