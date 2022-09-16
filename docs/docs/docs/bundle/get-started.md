@@ -17,7 +17,6 @@ yarn add @perfsee/webpack -D
 # or for other bundle tools
 yarn add @perfsee/esbuild -D
 yarn add @perfsee/rollup -D
-yarn add @perfsee/speedy -D
 ```
 
 ```js title="webpack.config.js"

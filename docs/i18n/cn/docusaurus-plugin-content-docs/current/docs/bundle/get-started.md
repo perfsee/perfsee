@@ -17,7 +17,6 @@ yarn add @perfsee/webpack -D
 # 或者其他打包工具的插件
 yarn add @perfsee/esbuild -D
 yarn add @perfsee/rollup -D
-yarn add @perfsee/speedy -D
 ```
 
 ```js title="webpack.config.js"
