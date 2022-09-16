@@ -91,7 +91,7 @@ export const FeaturesPage = memo(() => {
             {isAdminUser && <Route path={staticPath.project.settings} component={SettingsPage} />}
           </Switch>
         </RouteWrapper>
-        <Footer narrow isAdmin={user?.isAdmin} />
+        <Footer isAdmin={user?.isAdmin} />
       </ContentWrapper>
     </BodyWrapper>
   )

@@ -14,19 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { useModuleState } from '@sigi/react'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
 
 import { staticPath } from '@perfsee/shared/routes'
 
+import { UserModule } from '../shared'
+
 import { HeaderMenusContainer, HeaderTitleContainer, Logo, Title } from './header.style'
 import LogoUrl from './logo.png'
 
 export const HeaderLogo = () => {
+  const loggedIn = useModuleState(UserModule, {
+    selector: (s) => !!s.user,
+    dependencies: [],
+  })
+
   const history = useHistory()
   const toHomePage = useCallback(() => {
-    history.push(staticPath.home)
-  }, [history])
+    history.push(loggedIn ? staticPath.projects : staticPath.home)
+  }, [history, loggedIn])
 
   return (
     <HeaderMenusContainer>

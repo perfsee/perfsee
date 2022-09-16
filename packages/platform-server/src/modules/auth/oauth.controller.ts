@@ -146,7 +146,7 @@ export class OAuth2Controller {
       return res.redirect(this.errorPage(e.message, { returnUrl: state.returnUrl }))
     }
 
-    this.url.safeRedirect(res, state.returnUrl || staticPath.home)
+    this.url.safeRedirect(res, state.returnUrl || staticPath.projects)
   }
 
   private async loginFromOauth(provider: ExternalAccount, externAccount: ExternalAccountUser, token: string) {

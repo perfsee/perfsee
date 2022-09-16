@@ -28,3 +28,7 @@ export const ResetPassword = lazy(() => import(/* webpackChunkName: "auth" */ '.
 export const Login = lazy(() => import(/* webpackChunkName: "auth" */ '../modules/login'))
 export const Register = lazy(() => import(/* webpackChunkName: "auth" */ '../modules/register'))
 export const LicensePage = lazy(() => import(/* webpackChunkName: "license" */ '../modules/license'))
+export const HomePage = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home'))
+export const FeaturesBundle = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/bundle'))
+export const FeaturesLab = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/lab'))
+export const FeaturesSource = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/source'))

@@ -14,6 +14,8 @@ function makePathsFrom<Params = void>(path: string) {
 
 export interface RouteTypes {
   home: void
+  features: { home: void; bundle: void; lab: void; source: void }
+  projects: void
   notFound: void
   status: void
   license: void
@@ -43,6 +45,8 @@ export interface RouteTypes {
 
 export const staticPath = {
   home: '/',
+  features: { home: '/features', bundle: '/features/bundle', lab: '/features/lab', source: '/features/source' },
+  projects: '/projects',
   notFound: '/404',
   status: '/status',
   license: '/license',
@@ -76,6 +80,13 @@ export const staticPath = {
 
 export const pathFactory = {
   home: makePathsFrom<FactoryParams<RouteTypes['home']>>('/'),
+  features: {
+    home: makePathsFrom<FactoryParams<RouteTypes['features']['home']>>('/features'),
+    bundle: makePathsFrom<FactoryParams<RouteTypes['features']['bundle']>>('/features/bundle'),
+    lab: makePathsFrom<FactoryParams<RouteTypes['features']['lab']>>('/features/lab'),
+    source: makePathsFrom<FactoryParams<RouteTypes['features']['source']>>('/features/source'),
+  },
+  projects: makePathsFrom<FactoryParams<RouteTypes['projects']>>('/projects'),
   notFound: makePathsFrom<FactoryParams<RouteTypes['notFound']>>('/404'),
   status: makePathsFrom<FactoryParams<RouteTypes['status']>>('/status'),
   license: makePathsFrom<FactoryParams<RouteTypes['license']>>('/license'),

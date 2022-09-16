@@ -1,5 +1,12 @@
 base: /
 paths:
+  features:
+    base: /features
+    paths:
+      bundle: /bundle
+      lab: /lab
+      source: /source
+  projects: /projects
   notFound: /404
   status: /status
   license: /license

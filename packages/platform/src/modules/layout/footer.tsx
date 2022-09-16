@@ -2,40 +2,72 @@ import styled from '@emotion/styled'
 import { FC, memo } from 'react'
 import { Link } from 'react-router-dom'
 
-import { resetLink } from '@perfsee/dls'
+import { ForeignLink } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
-export const StyledFooter = styled.footer<{ narrow?: boolean }>(({ theme, narrow = false }) => ({
-  display: 'flex',
-  marginLeft: narrow ? 0 : theme.layout.mainPadding,
-  padding: `20px ${narrow ? 20 : 0}px`,
+export const StyledFooter = styled.footer({
+  padding: `20px 20px 32px`,
+})
+
+export const Container = styled.div({
+  maxWidth: '1100px',
+  padding: '0 20px',
+  margin: '0px auto',
+})
+
+export const Line = styled.div(({ theme }) => ({
+  margin: '0px auto 18px',
+  width: '50%',
+  height: '1px',
+  background: theme.border.color,
 }))
 
-export const FooterLink = styled(Link)(({ theme }) => ({
-  color: theme.text.colorSecondary,
-  fontSize: '12px',
-  marginRight: '10px',
-  ...resetLink(theme.text.colorSecondary),
-  ':hover': {
-    textDecoration: 'none',
-  },
-  ':not(:last-of-type):after': {
-    content: "'·'",
-    paddingLeft: '8px',
-  },
-}))
+const LinkStyle = {
+  fontSize: '13px',
+  margin: '0 16px',
+}
+
+export const FooterLink = styled(Link)(LinkStyle)
+
+export const FooterForeignLink = styled(ForeignLink)(LinkStyle)
+
+export const Links = styled.div({
+  textAlign: 'center',
+  marginBottom: '16px',
+  lineHeight: '2',
+})
+
+const Copyright = styled.div({
+  textAlign: 'center',
+  fontSize: '13px',
+  opacity: 0.8,
+})
 
 type Props = {
-  narrow?: boolean
   isAdmin?: boolean
 }
 
-export const Footer: FC<Props> = memo(({ narrow, isAdmin }) => {
+export const Footer: FC<Props> = memo(({ isAdmin }) => {
   return (
-    <StyledFooter narrow={narrow}>
-      <FooterLink to={staticPath.status}>Status</FooterLink>
-      <FooterLink to={staticPath.license}>License</FooterLink>
-      {isAdmin && <FooterLink to={staticPath.applications}>Applications</FooterLink>}
+    <StyledFooter>
+      <Container>
+        <Line />
+        <Links>
+          <FooterForeignLink href="/docs">Documents</FooterForeignLink>
+          <wbr />
+          <FooterForeignLink href="/docs/api">API</FooterForeignLink>
+          <wbr />
+          <FooterLink to={staticPath.status}>Status</FooterLink>
+          <wbr />
+          <FooterLink to={staticPath.license}>License</FooterLink>
+          <wbr />
+          {isAdmin && <FooterLink to={staticPath.applications}>Applications</FooterLink>}
+          <wbr />
+          <FooterForeignLink href="https://github.com/perfsee">Github</FooterForeignLink>
+          <wbr />
+        </Links>
+      </Container>
+      <Copyright>Copyright © 2022 Perfsee</Copyright>
     </StyledFooter>
   )
 })
