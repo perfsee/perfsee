@@ -52,3 +52,44 @@ export const BranchRegexWarning = styled.span(({ theme }) => ({
   fontSize: '12px',
   color: theme.colors.warning,
 }))
+
+export const PublicModalContent = styled.div({
+  padding: '12px',
+})
+
+export const PublicConfirmWrap = styled.div({
+  marginTop: '18px',
+})
+
+export const DangerItem = styled.div({
+  marginTop: '16px',
+})
+
+export const DangerContent = styled.div({
+  maxWidth: '500px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+})
+
+export const DangerTitle = styled.h4(({ theme }) => ({
+  color: theme.colors.error,
+}))
+
+export const DangerDescription = styled.div(({ theme }) => ({
+  marginRight: '12px',
+
+  p: {
+    fontSize: '14px',
+    fontWeight: 500,
+  },
+
+  span: {
+    fontSize: '12px',
+    color: theme.text.colorSecondary,
+  },
+}))
+
+export const ButtonInnerText = styled.span({
+  fontWeight: 600,
+})

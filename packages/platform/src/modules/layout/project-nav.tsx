@@ -23,6 +23,7 @@ import { useHistory, useParams } from 'react-router'
 
 import { TeachingBubbleHost } from '@perfsee/components'
 import { alpha } from '@perfsee/dls'
+import { Permission } from '@perfsee/schema'
 import { pathFactory, RouteTypes } from '@perfsee/shared/routes'
 
 import { ProjectModule, useNavType } from '../shared'
@@ -72,18 +73,35 @@ export const ProjectNav = () => {
 
   const [selectedKey, setSelectedKey] = useState(routeParams.feature)
 
+  const navItems = useMemo(() => {
+    const isAdminUser = project?.userPermission.includes(Permission.Admin) ?? false
+
+    const adminItems = isAdminUser
+      ? [
+          {
+            key: 'Settings',
+            val: 'settings',
+          },
+        ]
+      : []
+
+    const commonItems = Object.entries(NavItem).map(([key, val]) => ({ key, val }))
+
+    return [...commonItems, ...adminItems]
+  }, [project])
+
   const handleLinkClick = useCallback(
     (_: any, item?: INavLink) => {
-      const selectedKey = item!.key as NavItem
+      const selectedKey = item!.key
 
-      if (!selectedKey || !Object.values(NavItem).includes(selectedKey)) {
+      if (!selectedKey || !navItems.some(({ val }) => val === selectedKey)) {
         return
       }
 
       setSelectedKey(selectedKey)
       history.push(pathFactory.project.feature({ ...routeParams, feature: selectedKey }))
     },
-    [history, routeParams],
+    [history, navItems, routeParams],
   )
 
   const toggleNavbarCollapsed = useCallback(() => {
@@ -94,21 +112,18 @@ export const ProjectNav = () => {
     }
   }, [collapseNavbar, expandNavbar, navbarCollapsed])
 
-  const navLinkGroups: INavLinkGroup[] = useMemo(
-    () => [
+  const navLinkGroups: INavLinkGroup[] = useMemo(() => {
+    return [
       {
-        links: Object.entries(NavItem).map(([key, val]) => {
-          return {
-            name: navbarCollapsed ? '' : key,
-            url: '',
-            key: val,
-            icon: val,
-          }
-        }),
+        links: navItems.map(({ key, val }) => ({
+          name: navbarCollapsed ? '' : key,
+          url: '',
+          key: val,
+          icon: val,
+        })),
       },
-    ],
-    [navbarCollapsed],
-  )
+    ]
+  }, [navItems, navbarCollapsed])
 
   const navStyles = useMemo(
     () => ({

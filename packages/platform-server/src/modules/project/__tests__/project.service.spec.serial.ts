@@ -169,6 +169,17 @@ test.serial('check permission', async (t) => {
   t.false(accessible)
 })
 
+test.serial('get permission', async (t) => {
+  const service = t.context.module.get(ProjectService)
+  const permissionProvider: DeepMocked<PermissionProvider> = t.context.module.get(PermissionProvider)
+
+  permissionProvider.get.resolves([Permission.Admin])
+
+  const permissions = await service.getUserPermission(user, project)
+
+  t.deepEqual(permissions, [Permission.Admin])
+})
+
 test.serial('project owners', async (t) => {
   const service = t.context.module.get(ProjectService)
   const permissionProvider: DeepMocked<PermissionProvider> = t.context.module.get(PermissionProvider)

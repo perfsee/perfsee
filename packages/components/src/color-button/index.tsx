@@ -15,32 +15,31 @@ limitations under the License.
 */
 
 import { PrimaryButton, IButtonProps } from '@fluentui/react'
+import { merge } from 'lodash'
 
 import { darken } from '@perfsee/dls'
 
 export const ColorButton = (props: IButtonProps & { color: string }) => {
-  const { color } = props
-  return (
-    <PrimaryButton
-      {...props}
-      styles={{
-        root: {
-          backgroundColor: color,
-          borderColor: color,
-        },
-        rootHovered: {
-          backgroundColor: darken(color, 0.1),
-          borderColor: darken(color, 0.1),
-        },
-        rootFocused: {
-          backgroundColor: darken(color, 0.2),
-          borderColor: darken(color, 0.2),
-        },
-        rootPressed: {
-          backgroundColor: darken(color, 0.2),
-          borderColor: darken(color, 0.2),
-        },
-      }}
-    />
-  )
+  const { color, styles } = props
+
+  const computedStyles = merge(styles, {
+    root: {
+      backgroundColor: color,
+      borderColor: color,
+    },
+    rootHovered: {
+      backgroundColor: darken(color, 0.1),
+      borderColor: darken(color, 0.1),
+    },
+    rootFocused: {
+      backgroundColor: darken(color, 0.2),
+      borderColor: darken(color, 0.2),
+    },
+    rootPressed: {
+      backgroundColor: darken(color, 0.2),
+      borderColor: darken(color, 0.2),
+    },
+  })
+
+  return <PrimaryButton {...props} styles={computedStyles} />
 }

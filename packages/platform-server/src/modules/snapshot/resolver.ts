@@ -99,7 +99,7 @@ export class SnapshotResolver {
     return true
   }
 
-  @PermissionGuard(Permission.Read, 'projectId')
+  @PermissionGuard(Permission.Admin, 'projectId')
   @Mutation(() => Snapshot, { name: 'takeSnapshot' })
   async takeSnapshot(
     @CurrentUser() user: User,

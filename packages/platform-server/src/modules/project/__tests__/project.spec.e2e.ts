@@ -214,6 +214,7 @@ test('update project', async (t) => {
       projectInput: {
         artifactBaselineBranch: newBranch,
         owners: [user.email, newUser.email],
+        isPublic: true,
       },
     },
   })
@@ -230,6 +231,7 @@ test('update project', async (t) => {
     response.project.owners.map((o) => o.email),
     [user.email, newUser.email],
   )
+  t.is(response.project.isPublic, true)
 })
 
 test('unable to update project by no admin permission user', async (t) => {
@@ -328,6 +330,17 @@ test('unable to star no read permission project', async (t) => {
   const client = new GraphQLTestingClient()
 
   await client.loginAs(user)
+
+  // set project to private
+  await gqlClient.mutate({
+    mutation: updateProjectMutation,
+    variables: {
+      projectId: project.slug,
+      projectInput: {
+        isPublic: false,
+      },
+    },
+  })
 
   await t.throwsAsync(
     async () => {

@@ -16,11 +16,12 @@ limitations under the License.
 
 import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { useParams, Redirect, Route } from 'react-router'
 import { Switch } from 'react-router-dom'
 
 import { NotFound } from '@perfsee/components'
+import { Permission } from '@perfsee/schema'
 import { staticPath, RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
 import { Footer, ProjectNav } from '../layout'
@@ -45,6 +46,8 @@ export const FeaturesPage = memo(() => {
 
   const { user } = useModuleState(UserModule)
   const [{ project, loading }, dispatcher] = useModule(ProjectModule)
+
+  const isAdminUser = useMemo(() => project?.userPermission.includes(Permission.Admin) ?? false, [project])
 
   useEffect(() => {
     if (projectId) {
@@ -84,8 +87,8 @@ export const FeaturesPage = memo(() => {
             <Route path={staticPath.project.competitor.home} component={CompetitorRoutes} />
             <Route path={staticPath.project.source} component={SourcePage} />
             <Route path={staticPath.project.report} component={VersionReport} />
-            <Route path={staticPath.project.settings} component={SettingsPage} />
             <Route path={staticPath.project.jobTrace} component={JobTrace} />
+            {isAdminUser && <Route path={staticPath.project.settings} component={SettingsPage} />}
           </Switch>
         </RouteWrapper>
         <Footer narrow isAdmin={user?.isAdmin} />

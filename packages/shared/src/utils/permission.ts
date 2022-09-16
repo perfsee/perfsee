@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 export enum Permission {
-  All = 'all',
   // project owner, not system adminstrators
   Admin = 'admin',
   Read = 'read',

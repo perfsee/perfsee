@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
 
-import { Project, Snapshot, SnapshotReport } from '@perfsee/platform-server/db'
+import { Project, Snapshot, SnapshotReport, User } from '@perfsee/platform-server/db'
 import test, { GraphQLTestingClient, initTestDB, create } from '@perfsee/platform-server/test'
-import { snapshotsQuery, setSnapshotHashMutation, deleteSnapshotMutation } from '@perfsee/schema'
+import { snapshotsQuery, setSnapshotHashMutation, deleteSnapshotMutation, takeSnapshotMutation } from '@perfsee/schema'
 
 import { mockCreateReport } from '../snapshot-report/__tests__/utils'
 
@@ -45,6 +45,25 @@ test.serial('set the commit hash associated with the snapshot', async (t) => {
 
   t.true(response.setSnapshotHash)
   t.is(updatedSnapshot.hash, hash)
+})
+
+test.serial('unable to take snapshot by no permission user', async (t) => {
+  const user = await create(User)
+  const innerGqlClient = new GraphQLTestingClient()
+  await innerGqlClient.loginAs(user)
+
+  await t.throwsAsync(
+    async () => {
+      await innerGqlClient.mutate({
+        mutation: takeSnapshotMutation,
+        variables: {
+          projectId: slug,
+          pageIds: [1],
+        },
+      })
+    },
+    { message: '[User Error] Unauthorized user' },
+  )
 })
 
 test.serial('delete snapshot', async (t) => {

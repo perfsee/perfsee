@@ -203,9 +203,9 @@ export class ProjectService {
   }
 
   async update(projectId: number, input: UpdateProjectInput) {
-    const { artifactBaselineBranch, owners } = input
+    const { artifactBaselineBranch, owners, isPublic } = input
 
-    const projectPayload = omitBy({ artifactBaselineBranch }, isUndefined)
+    const projectPayload = omitBy({ artifactBaselineBranch, isPublic }, isUndefined)
 
     if (!isEmpty(projectPayload)) {
       await Project.update(projectId, projectPayload)
@@ -338,6 +338,10 @@ export class ProjectService {
         projectId,
       }).save()
     }
+  }
+
+  async getUserPermission(user: User, project: Project) {
+    return this.permissionProvider.get(user, project.id)
   }
 
   @Cron(CronExpression.EVERY_HOUR, { exclusive: true, name: 'project-count' })

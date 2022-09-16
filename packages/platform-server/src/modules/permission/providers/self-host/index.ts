@@ -22,7 +22,6 @@ import { Permission } from '../../def'
 import { PermissionProvider } from '../provider'
 
 const PermissionsMap: { [key in Permission]: number } = {
-  [Permission.All]: 0b11,
   [Permission.Admin]: 0b11,
   [Permission.Read]: 0b01,
 }
@@ -41,6 +40,17 @@ export class SelfHostPermissionProvider extends PermissionProvider {
         permission: Permission.Admin,
       })),
     )
+  }
+
+  async get(user: User, id: number | string) {
+    if (user.isAdmin) {
+      return [Permission.Admin]
+    }
+
+    const project = await Project.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+
+    const permissions = await UserPermission.findBy({ userId: user.id, projectId: project.id })
+    return permissions.map((permission) => permission.permission)
   }
 
   async check(user: User, id: number | string, permission: Permission) {
