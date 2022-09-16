@@ -200,6 +200,11 @@ export const SnapshotMetrics = memo(() => {
   }, [fetchProperty, fetchPageRelation])
 
   const selectedPages = useMemo(() => {
+    // means have not calculate selectedPages
+    if (propertyLoading || (environments.length && !selectedEnvId) || (profiles.length && !selectedProfileId)) {
+      return null
+    }
+
     if (pages.length && pageRelationMap.size && selectedEnvId && selectedProfileId) {
       return pages.filter((page) => {
         const relation = pageRelationMap.get(page.id)
@@ -208,10 +213,10 @@ export const SnapshotMetrics = memo(() => {
     } else {
       return []
     }
-  }, [pageRelationMap, pages, selectedEnvId, selectedProfileId])
+  }, [environments.length, pageRelationMap, pages, profiles.length, propertyLoading, selectedEnvId, selectedProfileId])
 
   const queryPages = useMemo(() => {
-    return loadMore ? selectedPages : selectedPages.slice(0, 5)
+    return (loadMore ? selectedPages : selectedPages?.slice(0, 5)) ?? []
   }, [loadMore, selectedPages])
 
   useEffect(() => {
@@ -226,10 +231,24 @@ export const SnapshotMetrics = memo(() => {
           to: null,
         })),
       )
-    } else if (!propertyLoading && (!environments.length || !profiles.length)) {
+    } else if (
+      // not in loading property and have calculated no pages in current env & profile
+      !propertyLoading &&
+      selectedPages &&
+      (!environments.length || !profiles.length || !selectedPages.length)
+    ) {
       dispatcher.setEmptyPageSnapshots()
     }
-  }, [dispatcher, selectedEnvId, selectedProfileId, queryPages, environments.length, profiles.length, propertyLoading])
+  }, [
+    dispatcher,
+    selectedPages,
+    selectedEnvId,
+    selectedProfileId,
+    queryPages,
+    environments.length,
+    profiles.length,
+    propertyLoading,
+  ])
 
   useEffect(() => {
     return dispatcher.reset
@@ -311,7 +330,7 @@ export const SnapshotMetrics = memo(() => {
         enableShimmer={!data}
         onRowClick={handleRowClick}
       />
-      {!loadMore && selectedPages.length > 5 && <LoadMore onClick={handleLoadMore} />}
+      {!loadMore && (selectedPages ?? []).length > 5 && <LoadMore onClick={handleLoadMore} />}
     </ChartPartWrap>
   )
 })
