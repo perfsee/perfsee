@@ -27,7 +27,7 @@ registerEnumType(JobType, {
   description: 'available job types',
 })
 
-@ObjectType({ description: 'runner register tokens and infomations' })
+@ObjectType({ description: 'runner register tokens and information' })
 @Entity()
 export class Runner extends BaseEntity {
   @PrimaryGeneratedColumn('increment')

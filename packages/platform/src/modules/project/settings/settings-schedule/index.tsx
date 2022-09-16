@@ -144,7 +144,7 @@ export function SettingsSchedule() {
       (typeof hour === 'number' && (hour > 168 || hour < 1))
     ) {
       notify.error({
-        content: 'Failed to save.',
+        content: 'You should specify something.',
         duration: 3000,
       })
       return

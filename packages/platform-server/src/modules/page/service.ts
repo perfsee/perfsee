@@ -125,9 +125,9 @@ export class PageService {
 
     const propertyIds: PagePropertySchema[] = []
 
-    // user specifies envs and profiles
+    // user specifies pages and envs and profiles
     // so we will just ignore the predefined Page x Env x Profile bindings
-    if (envIids?.length && profileIids?.length) {
+    if (pageIids?.length && envIids?.length && profileIids?.length) {
       pages.forEach((page) => {
         envs.forEach((env) => {
           if (!validEnvIdSet.has(env.id)) {

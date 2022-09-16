@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { formatTime } from '@perfsee/platform/common'
-import { CookieType, PrettyBytes } from '@perfsee/shared'
+import { PrettyBytes } from '@perfsee/shared'
 
 import { DeviceType, ConnectionType, PageSchema, PageRelation } from '../../shared'
 
@@ -66,8 +66,6 @@ export const getDeviceTitleByKey = (devices: DeviceType[], key: string) => {
   const device = devices.find((item) => item.id === key)
   return device ? device.value : DefaultDevice.shortTitle
 }
-
-export type PartialCookie = Partial<CookieType>
 
 export const disableSavePage = (page: Partial<PageSchema>, relation: Pick<PageRelation, 'profileIds' | 'envIds'>) => {
   return (
