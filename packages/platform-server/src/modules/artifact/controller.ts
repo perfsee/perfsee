@@ -92,7 +92,7 @@ export class ArtifactController {
     this.metrics.bundleUpload(1, metricsTags)
 
     try {
-      const buildKey = `${project.id}/builds/${uuid()}.tar`
+      const buildKey = `builds/${project.id}/${uuid()}.tar`
       await this.storage.upload(buildKey, file)
 
       const artifact = await this.artifactService.create(project, {

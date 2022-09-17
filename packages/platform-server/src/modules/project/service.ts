@@ -36,7 +36,7 @@ import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
-import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { JobLogStorage, ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { GitHost } from '@perfsee/shared'
 
@@ -64,6 +64,7 @@ export class ProjectService {
     private readonly config: Config,
     private readonly logger: Logger,
     private readonly storage: ObjectStorage,
+    private readonly logStorage: JobLogStorage,
   ) {}
 
   async resolveRawProjectIdBySlug(slug: string) {
@@ -374,8 +375,9 @@ export class ProjectService {
   }
 
   private async deleteFolders(projectId: number) {
-    await this.storage.deleteFolder(`logs/${projectId}`)
+    await this.logStorage.deleteFolder(`logs/${projectId}`)
     await this.storage.deleteFolder(`artifacts/${projectId}`)
+    await this.storage.deleteFolder(`builds/${projectId}`) // artifact builds
   }
 
   private async getActiveProjectCountByPeriod(value: number, period: 'DAY' | 'WEEK' | 'MONTH') {
