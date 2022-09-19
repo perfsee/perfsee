@@ -6,7 +6,7 @@
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
   "private": true,
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "publisher": "perfsee",
   "engines": {
     "vscode": "^1.50.0"

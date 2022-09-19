@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/email-templates",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.3",
   "description": "HTML Templates for email",
   "private": true,
   "repository": "https://github.com/perfsee/perfsee",
