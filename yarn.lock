@@ -4138,14 +4138,14 @@ __metadata:
 
 "@lerna/package-graph@patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch::locator=perfsee%40workspace%3A.":
   version: 5.5.1
-  resolution: "@lerna/package-graph@patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch::version=5.5.1&hash=64bf02&locator=perfsee%40workspace%3A."
+  resolution: "@lerna/package-graph@patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch::version=5.5.1&hash=1ce68f&locator=perfsee%40workspace%3A."
   dependencies:
     "@lerna/prerelease-id-from-version": 5.5.1
     "@lerna/validation-error": 5.5.1
     npm-package-arg: 8.1.1
     npmlog: ^6.0.2
     semver: ^7.3.4
-  checksum: a531119cb242d67703cd624d9c442fb1f12124757c3af51a4ddab43d4f9c3f98197dc31882e6827f7c395f2fa314c628b4ee27a0b128da8d31d4bf9088611860
+  checksum: ed00677ceacef48f6b256a636f94b2085659d18fc3cb1608c0e20ab80a9e3910b2a3059552577702aebb924eb6cf6f7aeba30c1c33f98398b135ce098eca800f
   languageName: node
   linkType: hard
 
@@ -4157,6 +4157,17 @@ __metadata:
     npm-package-arg: 8.1.1
     write-pkg: ^4.0.0
   checksum: 7d123fd8ef4a53fed312df0d4efaae7d953a9b0f7464f0dda5e2d1c1541799c8490cad1a0637041a6e73db4105d5f07f703e513145f443c38d2a9d2a39b5c68e
+  languageName: node
+  linkType: hard
+
+"@lerna/package@patch:@lerna/package@npm%3A5.5.1#./.yarn/patches/@lerna-package-npm-5.5.1-19e56d0f3f.patch::locator=perfsee%40workspace%3A.":
+  version: 5.5.1
+  resolution: "@lerna/package@patch:@lerna/package@npm%3A5.5.1#./.yarn/patches/@lerna-package-npm-5.5.1-19e56d0f3f.patch::version=5.5.1&hash=7c4b82&locator=perfsee%40workspace%3A."
+  dependencies:
+    load-json-file: ^6.2.0
+    npm-package-arg: 8.1.1
+    write-pkg: ^4.0.0
+  checksum: aa9ca9adb3856d4af207bff339b42f9e31689f027e82146441ad8ae8461514ffc713c84068eb548984540a7cbed9dbf7a6ee7ccdf53e8239db8a20a5172ffd00
   languageName: node
   linkType: hard
 
@@ -4244,6 +4255,42 @@ __metadata:
     pacote: ^13.6.1
     semver: ^7.3.4
   checksum: b6e785497d2bc4014a3a692ef795d0390c34806e5b6b8019693f35621d07429d441b49168a42bbdc297df1e02f7c27e03907b4b0c4e7456680f3b3851635089b
+  languageName: node
+  linkType: hard
+
+"@lerna/publish@patch:@lerna/publish@npm%3A5.5.1#./.yarn/patches/@lerna-publish-npm-5.5.1-e71c7e7af8.patch::locator=perfsee%40workspace%3A.":
+  version: 5.5.1
+  resolution: "@lerna/publish@patch:@lerna/publish@npm%3A5.5.1#./.yarn/patches/@lerna-publish-npm-5.5.1-e71c7e7af8.patch::version=5.5.1&hash=2551ac&locator=perfsee%40workspace%3A."
+  dependencies:
+    "@lerna/check-working-tree": 5.5.1
+    "@lerna/child-process": 5.5.1
+    "@lerna/collect-updates": 5.5.1
+    "@lerna/command": 5.5.1
+    "@lerna/describe-ref": 5.5.1
+    "@lerna/log-packed": 5.5.1
+    "@lerna/npm-conf": 5.5.1
+    "@lerna/npm-dist-tag": 5.5.1
+    "@lerna/npm-publish": 5.5.1
+    "@lerna/otplease": 5.5.1
+    "@lerna/output": 5.5.1
+    "@lerna/pack-directory": 5.5.1
+    "@lerna/prerelease-id-from-version": 5.5.1
+    "@lerna/prompt": 5.5.1
+    "@lerna/pulse-till-done": 5.5.1
+    "@lerna/run-lifecycle": 5.5.1
+    "@lerna/run-topologically": 5.5.1
+    "@lerna/validation-error": 5.5.1
+    "@lerna/version": 5.5.1
+    fs-extra: ^9.1.0
+    libnpmaccess: ^6.0.3
+    npm-package-arg: 8.1.1
+    npm-registry-fetch: ^13.3.0
+    npmlog: ^6.0.2
+    p-map: ^4.0.0
+    p-pipe: ^3.1.0
+    pacote: ^13.6.1
+    semver: ^7.3.4
+  checksum: d2af78e1d099acc335591777c7c168e50a313b874c20f7f8e092732c01785b8fe564c9de364a2f7f3ec3cbff0ad604d1a582e656addf55671fe6935da341489e
   languageName: node
   linkType: hard
 

@@ -25,6 +25,6 @@ jobs:
           yarn codegen
           yarn build:npm
       - name: Publish
-        run: yarn lerna publish from-package --pre-dist-tag beta --yes
+        run: yarn lerna publish from-package --exact --pre-dist-tag beta --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

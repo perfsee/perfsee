@@ -104,7 +104,9 @@
   },
   "resolutions": {
     "jpeg-js": "0.4.4",
-    "@lerna/package-graph@5.5.1": "patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch"
+    "@lerna/package-graph@5.5.1": "patch:@lerna/package-graph@npm%3A5.5.1#./.yarn/patches/@lerna-package-graph-npm-5.5.1-a0fe114829.patch",
+    "@lerna/package@5.5.1": "patch:@lerna/package@npm%3A5.5.1#./.yarn/patches/@lerna-package-npm-5.5.1-19e56d0f3f.patch",
+    "@lerna/publish@5.5.1": "patch:@lerna/publish@npm%3A5.5.1#./.yarn/patches/@lerna-publish-npm-5.5.1-e71c7e7af8.patch"
   },
   "lint-staged": {
     "*.@(js|ts|tsx)": [

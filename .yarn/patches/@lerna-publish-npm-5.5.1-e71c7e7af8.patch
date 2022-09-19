@@ -1,0 +1,34 @@
+diff --git a/index.js b/index.js
+index d4643b9b4f170d1ca5d5ff6c5d7d11bf26066133..177b6d6ab8d1161244333e3036b1c108fdb99d79 100644
+--- a/index.js
++++ b/index.js
+@@ -240,6 +240,7 @@ class PublishCommand extends Command {
+     }
+ 
+     chain = chain.then(() => this.resolveLocalDependencyLinks());
++    chain = chain.then(() => this.resolveWorkspaceDependencies());
+     chain = chain.then(() => this.annotateGitHead());
+     chain = chain.then(() => this.serializeChanges());
+     chain = chain.then(() => this.packUpdated());
+@@ -551,6 +552,21 @@ class PublishCommand extends Command {
+     });
+   }
+ 
++  resolveWorkspaceDependencies() {
++    return pMap(this.updates, (node) => {
++      for (const [depName, resolved] of node.localDependencies) {
++        if (resolved.workspaceSpec) {
++          const depVersion = this.updatesVersions.get(depName) || this.packageGraph.get(depName).pkg.version;
++
++          // it no longer matters if we mutate the shared Package instance
++          node.pkg.updateLocalDependency(resolved, depVersion, this.savePrefix, false);
++        }
++      }
++
++      // writing changes to disk handled in serializeChanges()
++    });
++  }
++
+   annotateGitHead() {
+     try {
+       const gitHead = this.options.gitHead || getCurrentSHA(this.execOpts);
