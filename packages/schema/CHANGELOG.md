@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.2](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2022-09-19)
+
+### Bug Fixes
+
+- **platform-server:** make environment field concrete types instead of JSON ([4b26e22](https://github.com/perfsee/perfsee/commit/4b26e224fb0c4b885d0914f4db8f9f9ac2fc1992))
+- **platform-server:** make timer field concrete types ([34339e5](https://github.com/perfsee/perfsee/commit/34339e55a1c4138ff1ef5d02d2f9acf2db84996d))
+
+### Features
+
+- **platform,platform-server:** make project public to anyone ([8fc893b](https://github.com/perfsee/perfsee/commit/8fc893bceffc42575b95726949ea37543682a588))
+
 # 1.0.0-alpha.1 (2022-09-15)
 
 ### Features
