@@ -25,7 +25,6 @@ import { MetricScoreSchema, RequestSchema } from '@perfsee/shared'
 
 import { ColumnKeys, getColumnConfig } from './columns'
 import { CriticalTimeSelector } from './critical-time-selector'
-import { OptimizeTips } from './optimize-tips'
 import { SelectionColumn } from './style'
 import { getStartTime, needOptimize } from './utils'
 
@@ -103,7 +102,7 @@ export const RequestFilter = (props: Props) => {
     }
   }, [onChange, requestList, query])
 
-  const onOptimizeChange = useCallback((checked: boolean) => {
+  const onOptimizeCheck = useCallback((checked: boolean) => {
     setChecked(checked)
     setQuery('')
   }, [])
@@ -123,14 +122,21 @@ export const RequestFilter = (props: Props) => {
 
   return (
     <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
-      <CriticalTimeSelector selectedTime={selectedTime} metricScores={metricScores} onChange={onCriticalTimeChange} />
-      <OptimizeTips checked={optimizeChecked} count={optimizeList.length} onChange={onOptimizeChange} />
-      <SearchBox
-        value={query}
-        onChange={onSearchChange}
-        placeholder="Filter url only"
-        styles={{ root: { width: '240px' } }}
-      />
+      <Stack horizontal verticalAlign="center" horizontalAlign="center">
+        <SearchBox
+          value={query}
+          onChange={onSearchChange}
+          placeholder="Filter url only"
+          styles={{ root: { width: '240px' } }}
+        />
+        <CriticalTimeSelector
+          optimizeCount={optimizeList.length}
+          onOptimizeChange={onOptimizeCheck}
+          selectedTime={selectedTime}
+          metricScores={metricScores}
+          onChange={onCriticalTimeChange}
+        />
+      </Stack>
       <CustomColumns
         columnKeys={columnKeys}
         filteredColumnKeys={filteredColumnKeys}
