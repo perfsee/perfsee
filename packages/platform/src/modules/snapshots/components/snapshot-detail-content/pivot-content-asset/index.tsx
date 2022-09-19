@@ -97,13 +97,13 @@ export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
           }
 
           const firstRequest = searchedList[0]
-          const lastRequest = searchedList[searchedList.length - 1]
+          const endTime = searchedList.reduce((p, c) => Math.max(p, c.endTime), 0)
 
           return (
             <WaterFall
               width={column?.calculatedWidth ?? 260}
               firstTime={firstRequest.startTime}
-              totalTime={lastRequest.endTime - firstRequest.startTime}
+              totalTime={endTime - firstRequest.startTime}
               request={item}
             />
           )
