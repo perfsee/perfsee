@@ -104,7 +104,7 @@ export class AuthController implements OnApplicationBootstrap {
     }
 
     session.user = user
-    return this.url.safeRedirect(res, returnUrl || staticPath.home)
+    return this.url.safeRedirect(res, returnUrl || staticPath.projects)
   }
 
   @Get('/reset-password')
@@ -231,7 +231,7 @@ export class AuthController implements OnApplicationBootstrap {
       : await this.user.createUser(userInfo)
 
     session.user = userCreated
-    return this.url.safeRedirect(res, returnUrl || staticPath.home)
+    return this.url.safeRedirect(res, returnUrl || staticPath.projects)
   }
 
   async createDefaultAdminUser() {

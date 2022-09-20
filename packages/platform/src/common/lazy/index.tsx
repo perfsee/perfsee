@@ -16,7 +16,7 @@ limitations under the License.
 
 import { lazy as reactLazy, ComponentType, ComponentPropsWithRef, Suspense } from 'react'
 
-export function lazy<T extends ComponentType<any>>(factory: () => Promise<Record<any, T>>) {
+export function lazy<T extends ComponentType<any>>(factory: () => Promise<Record<any, T>>, fallback?: React.ReactNode) {
   const LazyComponent = reactLazy(() =>
     factory().then((mod) => {
       if ('default' in mod) {
@@ -35,7 +35,7 @@ export function lazy<T extends ComponentType<any>>(factory: () => Promise<Record
 
   return (props: ComponentPropsWithRef<T>) => {
     return (
-      <Suspense fallback={false}>
+      <Suspense fallback={fallback}>
         <LazyComponent {...props} />
       </Suspense>
     )

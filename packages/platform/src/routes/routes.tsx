@@ -35,12 +35,21 @@ import {
   EditPassword,
   ResetPassword,
   Me,
+  HomePage,
+  FeaturesBundle,
+  FeaturesLab,
+  FeaturesSource,
 } from './lazy-modules'
 
 export const Routes = ({ user }: { user: User | null }) => {
   return (
     <Switch>
       {/* pages without login */}
+      <Route exact={true} path={staticPath.home} component={HomePage} />
+      <Route exact={true} path={staticPath.features.bundle} component={FeaturesBundle} />
+      <Route exact={true} path={staticPath.features.lab} component={FeaturesLab} />
+      <Route exact={true} path={staticPath.features.source} component={FeaturesSource} />
+
       <Route exact={true} path={staticPath.login} component={Login} />
       <Route exact={true} path={staticPath.register} component={Register} />
       <Route exact={true} path={staticPath.status} component={StatusPage} />
@@ -53,7 +62,7 @@ export const Routes = ({ user }: { user: User | null }) => {
         <Switch>
           <Route exact={true} path={staticPath.importGithub} component={ImportGithub} />
           <Route exact={true} path={staticPath.me.home} component={Me} />
-          <Route exact={true} path={staticPath.home} component={ProjectListPage} />
+          <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
           {user.isAdmin && <Route exact={true} path={staticPath.applications} component={Applications} />}
           <Route exact={true} path={staticPath.accessToken} component={AccessToken} />
           <Route path={staticPath.project.feature} component={ProjectFeaturePage} />

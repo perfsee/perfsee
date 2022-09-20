@@ -9,7 +9,7 @@ const config = {
   title: 'Perfsee',
   tagline: 'Perfsee the frontend performance analysis platform',
   url: 'https://perfsee.com',
-  baseUrl: '/',
+  baseUrl: '/docs/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/favicon.ico',
@@ -29,18 +29,10 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl: 'https://github.com/perfsee/perfsee/tree/main/docs/',
-          routeBasePath: '/docs',
+          routeBasePath: '/',
         },
         blog: false,
-        pages: {
-          path: 'src/pages',
-          routeBasePath: '/',
-          include: ['**/*.{js,jsx,ts,tsx,md,mdx}'],
-          exclude: ['**/_*.{js,jsx,ts,tsx,md,mdx}', '**/_*/**', '**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**'],
-          rehypePlugins: [],
-          beforeDefaultRemarkPlugins: [],
-          beforeDefaultRehypePlugins: [],
-        },
+        pages: false,
       },
     ],
   ],
@@ -66,6 +58,8 @@ const config = {
         logo: {
           alt: 'Logo',
           src: '/logo.png',
+          href: 'https://perfsee.com',
+          target: '_self',
         },
         items: [
           {
@@ -108,11 +102,11 @@ const config = {
             items: [
               {
                 label: 'Documents',
-                to: '/docs',
+                to: '/',
               },
               {
                 label: 'API',
-                to: '/docs/api',
+                to: '/api',
               },
             ],
           },

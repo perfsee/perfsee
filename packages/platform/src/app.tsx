@@ -23,9 +23,8 @@ import { MDXComponents } from '@perfsee/components'
 import { ThemeProvider } from '@perfsee/dls'
 
 import { AppError, AppErrorTitle, Face } from './app.error'
-import { Entry } from './routes'
-
 import './icons'
+import { Entry } from './routes'
 
 export class App extends Component {
   static getDerivedStateFromError() {

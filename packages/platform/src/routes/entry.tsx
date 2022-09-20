@@ -50,7 +50,9 @@ export const Entry = () => {
     dispatcher.getUser()
   }, [dispatcher])
 
-  const inFeaturePages = !!useRouteMatch(staticPath.project.feature)
+  const inProjectFeaturePages = !!useRouteMatch(staticPath.project.feature)
+  const isHomePages = !!useRouteMatch({ path: staticPath.home, exact: true })
+  const isFeaturePages = !!useRouteMatch({ path: staticPath.features.home, exact: false })
 
   if (userLoading) {
     return <Spinner size={SpinnerSize.large} label="Loading..." />
@@ -58,10 +60,10 @@ export const Entry = () => {
 
   return (
     <PageContainer>
-      <Header narrow={!inFeaturePages} />
+      {!(isHomePages || isFeaturePages) && <Header narrow={!inProjectFeaturePages} />}
       <MainContainer>
         <Routes user={user} />
-        {!inFeaturePages && <Footer narrow={inFeaturePages} isAdmin={user?.isAdmin} />}
+        {!inProjectFeaturePages && <Footer isAdmin={user?.isAdmin} />}
       </MainContainer>
       <Notifications />
     </PageContainer>

@@ -40,7 +40,7 @@ export interface BreadCrumbProps extends IBreadcrumbProps {
 
 const projectFirstItem: IBreadcrumbItem = {
   text: 'Projects',
-  href: staticPath.home,
+  href: staticPath.projects,
   key: 'home',
 }
 

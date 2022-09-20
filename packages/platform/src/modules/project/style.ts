@@ -66,4 +66,5 @@ export const ContentWrapper = styled.div({
 
 export const RouteWrapper = styled.div({
   flex: '1 1 0',
+  padding: '0 0 32px',
 })

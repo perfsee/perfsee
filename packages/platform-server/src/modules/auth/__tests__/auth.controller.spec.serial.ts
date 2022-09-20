@@ -54,7 +54,7 @@ test.serial('register', async (t) => {
       ...testuser,
     })
     .expect(302)
-    .expect('Location', '/')
+    .expect('Location', '/projects')
 
   t.true(t.context.module.get(UserService).createUser.calledWithMatch(omit(testuser, 'password', 'isFulfilled')))
   t.true(session.user.username === testuser.username)
@@ -141,7 +141,7 @@ test.serial('login', async (t) => {
       password: testuser.password,
     })
     .expect(302)
-    .expect('Location', '/')
+    .expect('Location', '/projects')
 
   t.true(session.user.username === testuser.username)
 })
