@@ -85,7 +85,7 @@ async function getGitEnv(): Promise<GitEnv> {
 export const BUILD_ENV: BuildEnv = {
   isCi: envs.isCi,
   pwd: 'root' in envs && envs.root ? envs.root : process.cwd(),
-  platform: process.env.PERFSEE_PLATFORM_HOST ?? 'https://www.perfsee.com',
+  platform: process.env.PERFSEE_PLATFORM_HOST ?? 'https://perfsee.com',
   upload: !process.env.PERFSEE_NO_UPLOAD && envs.isCi,
   git: gitEnvPromise.then((gitEnv) => (gitEnv ? Promise.resolve(gitEnv) : getGitEnv())),
 }
