@@ -18,6 +18,9 @@ const fs = require('fs')
 const { builtinModules } = require('module')
 const path = require('path')
 
+const cliSrc = path.resolve(__dirname, './cli/index.ts')
+const cliDist = path.resolve(__dirname, './cli.generated.js')
+
 /**
  *
  * @param {string} from
@@ -43,9 +46,7 @@ function resolvePackage(from, requirePath) {
 }
 
 function build() {
-  if (process.env.CLI_BUNDLED) {
-    return Promise.resolve()
-  }
+  console.info('Building CLI...')
   const esbuild = require('esbuild')
 
   /**
@@ -130,17 +131,18 @@ function build() {
   }
 
   return esbuild.build({
-    entryPoints: [path.resolve(__dirname, './cli/index.ts')],
+    entryPoints: [cliSrc],
     bundle: true,
     platform: 'node',
     target: 'node14',
-    outfile: path.resolve(__dirname, './cli.generated.js'),
+    outfile: cliDist,
     plugins: [externalPlugin],
     sourcemap: true,
   })
 }
 
-build().then(() => {
-  process.env.CLI_BUNDLED = 'true'
+const preparasion = fs.existsSync(cliDist) ? Promise.resolve() : build()
+
+preparasion.then(() => {
   require('./cli.generated')
 })

@@ -23,7 +23,7 @@ function startServer() {
 
   console.info('initializing testing database...')
   execSync(
-    'yarn typeorm query "CREATE DATABASE IF NOT EXISTS perfsee_testing;" && yarn typeorm schema:sync && yarn typeorm query "SET GLOBAL FOREIGN_KEY_CHECKS = 0;"',
+    'yarn typeorm query "CREATE DATABASE IF NOT EXISTS perfsee_testing;" && yarn typeorm migration:run && yarn typeorm query "SET GLOBAL FOREIGN_KEY_CHECKS = 0;"',
     {
       stdio: 'inherit',
       env: {
