@@ -1,4 +1,4 @@
-FROM debian:stretch AS server
+FROM debian:bullseye AS server
 
 LABEL org.opencontainers.image.source "https://github.com/perfsee/perfsee"
 
