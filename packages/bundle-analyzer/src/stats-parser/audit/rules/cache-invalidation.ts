@@ -45,7 +45,6 @@ export function appendCacheInvalidation(jobResult: BundleResult, baselineJobResu
       )}%. Avoid naming changing with 'content hash' if their content is not changed.
 If it's caused by dependencies version bumps, it can be safely ignored.`,
       score: rawRate >= 0.8 ? BundleAuditScore.Bad : rawRate >= 0.3 ? BundleAuditScore.Warn : BundleAuditScore.Good,
-      link: 'https://perfsee.com/#TODO:LINK',
       detail: {
         type: 'table',
         headings: [

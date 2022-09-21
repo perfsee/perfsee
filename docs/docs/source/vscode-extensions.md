@@ -6,7 +6,7 @@ sidebar_position: 3
 
 ## Install
 
-TODO: finish this chapter after vscode extension released.
+Search extension [`perfsee`](https://marketplace.visualstudio.com/items?itemName=perfsee.perfsee-vscode) in VSCode Marketplace and install.
 
 ## Using
 

@@ -345,7 +345,7 @@ export const Source = () => {
           <Shimmer isDataLoaded={!state.loadingHashes}>
             <CommitHashSelector items={state.hashes} value={hash} onChange={onCommitChange} />
           </Shimmer>
-          <ForeignLink href="https://perfsee.com/#TODO:LINK">
+          <ForeignLink href="https://marketplace.visualstudio.com/items?itemName=perfsee.perfsee-vscode">
             <TeachingStep3>
               <DefaultButton>
                 <VscodeIcon />
