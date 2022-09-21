@@ -55,7 +55,7 @@ export const PageCardTop = styled.div({
   flex: 1,
 })
 
-export const PageIcon = styled.div(({ theme }) => ({
+export const PageIcon = styled.div<{ disable: boolean; error: boolean }>(({ theme, disable, error }) => ({
   flexShrink: 0,
   width: '42px',
   height: '42px',
@@ -63,7 +63,7 @@ export const PageIcon = styled.div(({ theme }) => ({
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: '50%',
-  backgroundColor: theme.colors.primary,
+  backgroundColor: disable ? theme.colors.disabled : error ? theme.colors.error : theme.colors.primary,
 
   fontSize: '21px',
   color: theme.colors.white,

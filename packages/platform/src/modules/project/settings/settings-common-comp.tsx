@@ -146,7 +146,7 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
         </OperationItemWrap>
       )}
       {showRestoreButton && (
-        <OperationItemWrap onClick={onClickRestoreButton}>
+        <OperationItemWrap color={SharedColors.cyanBlue10} onClick={onClickRestoreButton}>
           <div>
             <RollbackOutlined />
           </div>
@@ -261,14 +261,26 @@ type PagePropertyProps = {
 }
 
 const PagePropertyIconMap = {
-  [PagePropertyType.Link]: <LinkOutlined />,
-  [PagePropertyType.Profile]: <DesktopOutlined />,
-  [PagePropertyType.Environment]: <GlobalOutlined />,
-  [PagePropertyType.Competitor]: <BlockOutlined />,
+  [PagePropertyType.Link]: {
+    icon: <LinkOutlined />,
+    title: 'Link',
+  },
+  [PagePropertyType.Profile]: {
+    icon: <DesktopOutlined />,
+    title: 'Profile',
+  },
+  [PagePropertyType.Environment]: {
+    icon: <GlobalOutlined />,
+    title: 'Environment',
+  },
+  [PagePropertyType.Competitor]: {
+    icon: <BlockOutlined />,
+    title: 'Competitor',
+  },
 }
 
 export const PagePropertyItem: FC<PagePropertyProps> = memo(({ type, value }) => {
-  const icon = PagePropertyIconMap[type]
+  const item = PagePropertyIconMap[type]
 
   if (!value) {
     return null
@@ -276,7 +288,9 @@ export const PagePropertyItem: FC<PagePropertyProps> = memo(({ type, value }) =>
 
   return (
     <PagePropertyWrap>
-      <PagePropertyIcon>{icon}</PagePropertyIcon>
+      <TooltipHost content={item.title}>
+        <PagePropertyIcon>{item.icon}</PagePropertyIcon>
+      </TooltipHost>
       <TooltipWithEllipsis content={value} />
     </PagePropertyWrap>
   )

@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { CloseCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { useTheme } from '@emotion/react'
 import { TooltipHost } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { compact } from 'lodash'
@@ -33,7 +35,6 @@ import {
   PageIcon,
   PageInfos,
   PageName,
-  Tag,
 } from './style'
 import WebIcon from './web.svg'
 
@@ -69,17 +70,17 @@ export const PageListCell: FC<Props> = (props) => {
   return (
     <PageCard>
       <PageCardTop>
-        <PageIcon>
-          <WebIcon />
+        <PageIcon disable={page.disable} error={!envs.length || !profiles.length}>
+          {page.disable ? <StopOutlined /> : !envs.length || !profiles.length ? <CloseCircleOutlined /> : <WebIcon />}
         </PageIcon>
         <PageInfos>
           <EllipsisText>
             <PageHeader warning={!envs.length || !profiles.length} item={page} disable={page.disable} />
             <div>
               {/* <PagePropertyItem type={PagePropertyType.Link} value={page.url} /> */}
-              <PagePropertyItem type={PagePropertyType.Environment} value={envs.join(',') || '-'} />
-              <PagePropertyItem type={PagePropertyType.Profile} value={profiles.join(',') || '-'} />
-              <PagePropertyItem type={PagePropertyType.Competitor} value={competitors.join(',')} />
+              <PagePropertyItem type={PagePropertyType.Environment} value={envs.join(', ') || '-'} />
+              <PagePropertyItem type={PagePropertyType.Profile} value={profiles.join(', ') || '-'} />
+              <PagePropertyItem type={PagePropertyType.Competitor} value={competitors.join(', ')} />
             </div>
           </EllipsisText>
         </PageInfos>
@@ -98,18 +99,21 @@ export const PageListCell: FC<Props> = (props) => {
 }
 
 const PageHeader: FC<{ item: PageSchema; warning: boolean; disable: boolean }> = ({ item, warning, disable }) => {
+  const theme = useTheme()
+
   return (
     <PageHeaderWrap>
       <PageHeaderInfo>
         <PageName>
-          <TooltipHost content={item.name}>{item.name}</TooltipHost>
-        </PageName>
-        {warning && (
-          <TooltipHost content="This page is unavailable because of missing environment or profile.">
-            <Tag type="error">Error</Tag>
+          <TooltipHost
+            styles={{
+              root: { color: disable ? theme.colors.disabled : warning ? theme.colors.error : theme.text.color },
+            }}
+            content={item.name}
+          >
+            {item.name}
           </TooltipHost>
-        )}
-        {disable && <Tag type="default">Disabled</Tag>}
+        </PageName>
       </PageHeaderInfo>
       <PageHeaderLink>{item.url}</PageHeaderLink>
     </PageHeaderWrap>
