@@ -57,7 +57,7 @@ const DeleteProject = () => {
           <p>Delete this project</p>
           <span>All data will be deleted and can not be restored</span>
         </DangerDescription>
-        <ColorButton color={SharedColors.red10} styles={{ root: { width: '130px' } }} onClick={showDialog}>
+        <ColorButton color={SharedColors.red10} onClick={showDialog}>
           <ButtonInnerText>Delete</ButtonInnerText>
         </ColorButton>
       </DangerContent>
@@ -118,7 +118,7 @@ const ProjectVisibility = () => {
           <p>This project is now {isPublic ? 'public' : 'private'}</p>
           <span>{isPublic ? 'Everyone could visit' : 'Only authorized user could visit'}</span>
         </DangerDescription>
-        <ColorButton color={SharedColors.red10} styles={{ root: { width: '130px' } }} onClick={showModal}>
+        <ColorButton color={SharedColors.red10} onClick={showModal}>
           <ButtonInnerText>Make it {isPublic ? 'private' : 'public'}</ButtonInnerText>
         </ColorButton>
       </DangerContent>
