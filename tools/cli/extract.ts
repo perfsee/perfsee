@@ -43,7 +43,7 @@ export class ExtractCommand extends Command {
 
     // 1. Create the output directory
     await mkdir(outputPath, { recursive: true })
-    const tmpPath = outputPath + '/tmp'
+    const tmpPath = outputPath + `/tmp/${pkg.dirname}`
     await mkdir(tmpPath, { recursive: true })
 
     // 2. run `yarn pack` and then unpack, to clean up unnecessary files
@@ -91,7 +91,14 @@ export class ExtractCommand extends Command {
     // 5. install dependencies
     // make `yarn install` available in non-workspace package
     await writeFileAsync(join(extractPath, 'yarn.lock'), '')
-    await writeFileAsync(join(extractPath, '.yarnrc.yml'), `enableGlobalCache: true`)
+    await writeFileAsync(
+      join(extractPath, '.yarnrc.yml'),
+      `
+nodeLinker: node-modules
+enableImmutableInstalls: false
+enableGlobalCache: true
+`,
+    )
     await this.execAsync('yarn', {
       cwd: extractPath,
       env: {

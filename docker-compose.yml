@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 services:
   mysql:
     image: mysql
@@ -17,22 +17,17 @@ services:
       - 6379:6379
 
   prepare:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
-      target: install
+    image: perfsee_develop
     depends_on:
       - mysql
     environment:
       - MYSQL_HOST=mysql
     command: yarn typeorm migration:run
-
   server:
-    image: perfsee_prepare
+    image: perfsee_develop
     build:
       context: .
-      dockerfile: Dockerfile.server
-      target: install
+      target: compose_develop
     depends_on:
       redis:
         condition: service_started
@@ -58,10 +53,7 @@ services:
     command: yarn dev -p @perfsee/platform-server
 
   job-runner:
-    build:
-      context: .
-      dockerfile: Dockerfile.runner
-      target: install
+    image: perfsee_develop
     depends_on:
       server:
         condition: service_healthy
@@ -74,7 +66,7 @@ services:
     command: yarn dev -p @perfsee/job-runner
 
   frontend:
-    image: perfsee_prepare
+    image: perfsee_develop
     depends_on:
       - server
     ports:

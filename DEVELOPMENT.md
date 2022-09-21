@@ -31,6 +31,9 @@ yarn codegen
 If you prefer useing docker compose to setup your development environment, we have already preconfigured it for you, so what your need to do is just bringing compose up:
 
 ```bash
+# since docker compose v2 will not follow `depends_on` order when building images, you should build develop image separately.
+# see https://github.com/docker/compose/issues/9686
+docker-compose build
 docker-compose up
 ```
 
