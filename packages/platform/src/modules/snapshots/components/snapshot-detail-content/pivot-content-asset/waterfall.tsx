@@ -1,5 +1,5 @@
 import { Stack, TooltipHost } from '@fluentui/react'
-import { FC, useMemo } from 'react'
+import { FC, memo, useMemo } from 'react'
 
 import { RequestTiming } from '@perfsee/flamechart'
 import { formatMsDuration } from '@perfsee/platform/common'
@@ -17,12 +17,17 @@ interface Props {
 }
 
 const svgHeight = 12
+const MinWidth = 2
 
-export const WaterFall: FC<Props> = ({ width, request, totalTime, firstTime }) => {
+export const WaterFall: FC<Props> = memo(({ width, request, totalTime, firstTime }) => {
+  const tooltipId = 'tooltip' + request.index
+  const targetId = 'target' + request.index
+
   const timings = useMemo(() => {
     const percent = width / totalTime
-    let startX = (request.startTime - firstTime) * percent
-
+    let setTarget = false
+    let canMove = true
+    let startX = Math.floor((request.startTime - firstTime) * percent)
     return Object.values(RequestPeriod)
       .map((key) => {
         const period = request.timings.find((v) => v.name === key)
@@ -30,27 +35,40 @@ export const WaterFall: FC<Props> = ({ width, request, totalTime, firstTime }) =
           return undefined
         }
 
-        const length = period.value * percent
+        const length = Math.floor(period.value * percent)
+        const width = Math.max(MinWidth, length)
+        if (canMove && length < MinWidth) {
+          startX = startX - MinWidth
+          canMove = false
+        } else {
+          canMove = true
+        }
+
         const height = RequestPeriodMaps[key].height
         const rect = (
           <rect
+            aria-describedby={!setTarget ? tooltipId : undefined}
+            id={!setTarget ? targetId : undefined}
             key={key}
             x={startX}
             y={height >= svgHeight ? 0 : (svgHeight - height) / 2}
-            width={length}
+            width={width}
             height={height}
             fill={RequestPeriodMaps[key].background}
             opacity="0.8"
           />
         )
-        startX += length
+        startX += width
+        setTarget = true
         return rect
       })
       .filter(Boolean)
-  }, [firstTime, request.startTime, request.timings, totalTime, width])
+  }, [firstTime, request.startTime, request.timings, targetId, tooltipId, totalTime, width])
 
   return (
     <TooltipHost
+      id="tooltip"
+      calloutProps={{ target: `#${targetId}` }}
       styles={{ root: { width: '100%', display: 'inline-flex', justifyContent: 'center' } }}
       content={<WaterfallContent timing={request.timing} startTime={request.startTime} items={request.timings} />}
     >
@@ -59,7 +77,7 @@ export const WaterFall: FC<Props> = ({ width, request, totalTime, firstTime }) =
       </svg>
     </TooltipHost>
   )
-}
+})
 
 type TimingsProps = {
   startTime: number

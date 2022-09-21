@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Checkbox, Stack } from '@fluentui/react'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
 import { IconWithTips } from '@perfsee/components'
 import { formatTime } from '@perfsee/platform/common'
@@ -29,7 +29,13 @@ type Props = {
   metricScores: MetricScoreSchema[]
   selectedTime: Record<string, number | undefined>
   onChange: (time: Record<string, number | undefined>) => void
+} & OptimizeProps
+
+type OptimizeProps = {
+  optimizeCount: number
+  onOptimizeChange: (checked: boolean) => void
 }
+
 const Metrics = {
   [LighthouseScoreType.FCP]: {
     title: 'First Contentful Paint',
@@ -49,9 +55,8 @@ const Metrics = {
   },
 }
 
-export const CriticalTimeSelector = (props: Props) => {
-  const { metricScores, onChange, selectedTime } = props
-
+export const CriticalTimeSelector = memo((props: Props) => {
+  const { metricScores, onChange, selectedTime, ...restProps } = props
   const onCheckboxChange = useCallback(
     (type: LighthouseScoreType, time: number, checked: boolean) => {
       onChange({ ...selectedTime, [type]: checked ? time : undefined })
@@ -84,6 +89,7 @@ export const CriticalTimeSelector = (props: Props) => {
   return (
     <Stack horizontal verticalAlign="center">
       <Stack horizontal verticalAlign="center">
+        <OptimizeCheckbox {...restProps} />
         {list}
       </Stack>
       <IconWithTips
@@ -92,6 +98,13 @@ export const CriticalTimeSelector = (props: Props) => {
       />
     </Stack>
   )
+})
+
+const ContainerStyles = { root: { minWidth: '80px', padding: '2px 0', borderRadius: '8px', marginLeft: '8px' } }
+export const CheckBoxStyles = {
+  root: { borderRadius: '4px' },
+  label: { alignItems: 'center' },
+  checkbox: { fontSize: '10px', width: '12px', height: '12px' },
 }
 
 type CheckboxProps = {
@@ -117,24 +130,37 @@ const CheckboxWithTime = (props: CheckboxProps) => {
   )
 
   return (
-    <Stack
-      styles={{ root: { minWidth: '80px', padding: '2px 0', borderRadius: '8px' } }}
-      verticalAlign="center"
-      horizontalAlign="center"
-      key={type}
-    >
+    <Stack styles={ContainerStyles} verticalAlign="center" horizontalAlign="center" key={type}>
       <Checkbox
         disabled={count >= 2 && !checked}
         label={title}
         checked={checked}
-        styles={{
-          root: { borderRadius: '4px' },
-          label: { alignItems: 'center' },
-          checkbox: { fontSize: '10px', width: '12px', height: '12px' },
-        }}
+        styles={CheckBoxStyles}
         onChange={onCheckboxChange}
       />
       <SmallText>{`${value}${unit}`}</SmallText>
+    </Stack>
+  )
+}
+
+export const OptimizeCheckbox = (props: OptimizeProps) => {
+  const { optimizeCount, onOptimizeChange } = props
+
+  const onCheckboxChange = useCallback(
+    (_ev?: any, checked?: boolean) => {
+      onOptimizeChange(!!checked)
+    },
+    [onOptimizeChange],
+  )
+
+  if (optimizeCount < 1) {
+    return null
+  }
+
+  return (
+    <Stack styles={ContainerStyles} verticalAlign="center" horizontalAlign="center">
+      <Checkbox label="Need to optimize" styles={CheckBoxStyles} onChange={onCheckboxChange} />
+      <SmallText>{`${optimizeCount} request${optimizeCount > 1 ? 's' : ''}`}</SmallText>
     </Stack>
   )
 }
