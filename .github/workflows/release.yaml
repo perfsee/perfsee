@@ -31,3 +31,32 @@ jobs:
           yarn lerna publish from-package --exact --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  release-vscode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+          registry-url: https://registry.npmjs.org
+      - name: Install dependencies
+        run: yarn install
+      - name: Build
+        run: |
+          yarn codegen
+          yarn cli vscode build
+          yarn cli vscode build:webview
+      - name: Publish Vscode Extension (pre-release)
+        if: ${{ contains(github.ref_name, "alpha") }}
+        run: |
+          npm install -g vsce
+          cd packages/vscode-extension
+          vsce publish --pre-release --no-dependencies --no-git-tag-version --no-update-package-json -p ${{ secrets.VSC_MARKET_PAT }} --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension `date +'%Y.%m.%d%H%M'`
+      - name: Publish Vscode Extension
+        if: ${{ contains(github.ref_name, "alpha") == false }}
+        run: |
+          npm install -g vsce
+          cd packages/vscode-extension
+          vsce publish --no-dependencies --no-git-tag-version --no-update-package-json -p ${{ secrets.VSC_MARKET_PAT }} --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension
