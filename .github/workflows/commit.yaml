@@ -143,7 +143,7 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
     env:
-      PERFSEE_NO_UPLOAD: true # remove after platform is ready
+      PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16.x

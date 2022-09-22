@@ -25,6 +25,7 @@ type GithubEnv = {
   commit: string
   build: string
   isPr: boolean
+  pr?: string
   branch: string
   prBranch?: string
   slug: string
@@ -38,6 +39,11 @@ type GitEnv = {
   commit: string
   branch: string
   tag?: string
+  pr?: {
+    number: number
+    baseHash: string
+    headHash: string
+  }
 }
 
 type BuildEnv = {
@@ -53,6 +59,48 @@ const envs = envCI() as CiEnv | GithubEnv
 
 const gitEnvPromise: Promise<GitEnv | null> = Promise.resolve(null)
 
+function getPr(): GitEnv['pr'] {
+  try {
+    const event = process.env.GITHUB_EVENT_PATH ? require(process.env.GITHUB_EVENT_PATH) : undefined
+
+    if (event?.pull_request) {
+      return {
+        number: parseInt(event.pull_request.number),
+        baseHash: event.pull_request.base.sha as string,
+        headHash: event.pull_request.head.sha as string,
+      }
+    }
+  } catch {
+    // Noop
+  }
+}
+
+function getCiCommit() {
+  try {
+    const event = process.env.GITHUB_EVENT_PATH ? require(process.env.GITHUB_EVENT_PATH) : undefined
+
+    if (event?.pull_request) {
+      return event.pull_request.head.sha
+    }
+  } catch {
+    // Noop
+  }
+}
+
+function getCiBranch() {
+  if (envs.isCi) {
+    if ('isPr' in envs && envs.isPr) {
+      if (envs.service === 'github' && process.env['GITHUB_HEAD_REF']) {
+        return process.env['GITHUB_HEAD_REF']
+      } else {
+        return 'prBranch' in envs && envs.prBranch ? envs.prBranch : envs.branch
+      }
+    } else {
+      return envs.branch
+    }
+  }
+}
+
 async function getGitEnv(): Promise<GitEnv> {
   if (envs.isCi && (envs.service === 'github' || envs.service === 'gitlab')) {
     const [namespace, name] = envs.slug.split('/')
@@ -60,10 +108,10 @@ async function getGitEnv(): Promise<GitEnv> {
       host: envs.service === 'github' ? 'github.com' : 'gitlab.com',
       namespace,
       name,
-      branch:
-        'isPr' in envs ? (envs.isPr && 'prBranch' in envs && envs.prBranch ? envs.prBranch : envs.branch) : envs.branch,
-      commit: envs.commit,
+      branch: getCiBranch() || envs.branch,
+      commit: getCiCommit() || envs.commit,
       tag: 'tag' in envs ? (envs.tag !== 'undefined' ? envs.tag : void 0) : void 0,
+      pr: getPr(),
     }
   } else {
     const project = await getProjectInfoFromGit()
@@ -85,7 +133,7 @@ async function getGitEnv(): Promise<GitEnv> {
 export const BUILD_ENV: BuildEnv = {
   isCi: envs.isCi,
   pwd: 'root' in envs && envs.root ? envs.root : process.cwd(),
-  platform: process.env.PERFSEE_PLATFORM_HOST ?? 'https://www.perfsee.com',
+  platform: process.env.PERFSEE_PLATFORM_HOST ?? 'https://perfsee.com',
   upload: !process.env.PERFSEE_NO_UPLOAD && envs.isCi,
   git: gitEnvPromise.then((gitEnv) => (gitEnv ? Promise.resolve(gitEnv) : getGitEnv())),
 }
