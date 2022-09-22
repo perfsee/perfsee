@@ -17,8 +17,8 @@ limitations under the License.
 import chalk from 'chalk'
 import { Command, Option } from 'clipanion'
 
-import { Client } from '../client'
 import { getCurrentCommit } from '../git'
+import { takeSnapshot } from '../take-snapshot'
 
 export class TakeSnapshotCommand extends Command {
   static paths = [['take-snapshot']]
@@ -78,8 +78,6 @@ You can filter the pages by appending page names to the command.`,
       return 1
     }
 
-    this.context.stdout.write('[Perfsee] Taking snapshot...\n')
-
     let hash = this.hash ?? (await getCurrentCommit())
     if (!hash) {
       hash = undefined
@@ -87,45 +85,22 @@ You can filter the pages by appending page names to the command.`,
       throw new Error(`Invalid hash: "${hash}"`)
     }
 
-    const client = new Client({
-      accessToken: accessToken,
-      host: this.server || process.env.PERFSEE_PLATFORM_HOST || 'https://perfsee.com',
-    })
-
-    this.context.stdout.write(`Project: ${this.project}\n`)
-
-    const settings = await client.projectSettings(this.project)
-
-    const pageIds = this.pages.map((pageName) => {
-      const page = settings.pages.find((p) => p.name === pageName)
-      if (!page) {
-        throw new Error(`Page "${pageName}" not found`)
-      }
-      return page.id
-    })
-    this.context.stdout.write(`Pages: ${pageIds}\n`)
-
-    const envIds = this.envs?.map((envName) => {
-      const env = settings.environments.find((e) => e.name === envName)
-      if (!env) {
-        throw new Error(`Environment "${envName}" not found`)
-      }
-      return env.id
-    })
-    this.context.stdout.write(`Envs: ${envIds}\n`)
-
-    const profileIds = this.profiles?.map((profileName) => {
-      const profile = settings.profiles.find((e) => e.name === profileName)
-      if (!profile) {
-        throw new Error(`Profile "${profileName}" not found`)
-      }
-      return profile.id
-    })
-    this.context.stdout.write(`Profiles: ${profileIds}\n`)
-
-    const snapshot = await client.takeSnapshot(this.project, pageIds, profileIds, envIds, this.title, hash)
-
-    this.context.stdout.write(`Created snapshot #${snapshot.id}\n`)
+    await takeSnapshot(
+      {
+        project: this.project,
+        token: accessToken,
+        server: this.server || process.env.PERFSEE_PLATFORM_HOST || 'https://perfsee.com',
+        envs: this.envs,
+        hash: hash,
+        pages: this.pages,
+        profiles: this.profiles,
+        title: this.title,
+      },
+      {
+        log: (msg) => this.context.stdout.write(msg),
+        error: (msg) => this.context.stderr.write(msg),
+      },
+    )
 
     return Promise.resolve()
   }

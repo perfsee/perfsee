@@ -18,7 +18,7 @@ import { Cli, Builtins } from 'clipanion'
 
 import { TakeSnapshotCommand } from './take-snapshot'
 
-export function runCli() {
+export function runCli(args = process.argv.slice(2)) {
   const cli = new Cli({
     binaryLabel: 'Perfsee sdk',
     binaryName: `perfsee`,
@@ -32,7 +32,7 @@ export function runCli() {
   cli.register(TakeSnapshotCommand)
 
   cli
-    .run(process.argv.slice(2), {
+    .run(args, {
       stdin: process.stdin,
       stdout: process.stdout,
       stderr: process.stderr,

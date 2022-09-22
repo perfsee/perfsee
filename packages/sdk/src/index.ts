@@ -16,3 +16,5 @@ limitations under the License.
 
 export { Client } from './client'
 export { runCli } from './cli'
+export { Logger } from './logger'
+export { takeSnapshot, TakeSnapshotOptions } from './take-snapshot'
