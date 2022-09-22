@@ -48,7 +48,6 @@ export const duplicateLibs: Audit = ({ packages }) => {
     id: 'duplicate-libraries',
     title: 'Deduplicate versions of libraries',
     desc: 'Different version of same library resolved by package manager.',
-    link: 'https://perfsee.com/#TODO:LINK',
     detail: {
       type: 'table',
       headings: [

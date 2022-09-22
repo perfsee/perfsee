@@ -82,7 +82,7 @@ export const AccessToken = () => {
             />
           </div>
           <Text variant="small">
-            Check out <ForeignLink href="https://perfsee.com/#TODO:LINK">Perfsee API</ForeignLink> docs.
+            Check out <ForeignLink href="https://perfsee.com/docs/api">Perfsee API</ForeignLink> docs.
           </Text>
         </Stack>
         <ListWrap>

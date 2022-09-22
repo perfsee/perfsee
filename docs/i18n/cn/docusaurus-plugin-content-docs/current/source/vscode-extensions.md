@@ -6,7 +6,7 @@ sidebar_position: 3
 
 ## 安装
 
-TODO: 扩展上架后更新
+在 VSCode 插件市场搜索 [`perfsee`](https://marketplace.visualstudio.com/items?itemName=perfsee.perfsee-vscode) 即可安装。
 
 ## 使用
 
