@@ -9,7 +9,7 @@
   "version": "1.0.0-alpha.3",
   "publisher": "perfsee",
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.63.0"
   },
   "categories": [
     "Other"
