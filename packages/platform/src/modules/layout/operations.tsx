@@ -37,7 +37,7 @@ export const Operations = () => {
     () => (
       <>
         <Link to={staticPath.accessToken}>API</Link>
-        <ForeignLink href={`${staticPath.home}/docs`}>Docs</ForeignLink>
+        <ForeignLink href={staticPath.docs.home}>Docs</ForeignLink>
         {loggedIn && <a href={SERVER + `/auth/logout`}>Logout</a>}
       </>
     ),

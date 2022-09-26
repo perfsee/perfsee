@@ -65,7 +65,7 @@ export const Header = () => {
             <Link to={staticPath.projects}>
               <MediumPrimaryButton>Try now</MediumPrimaryButton>
             </Link>
-            <ForeignLink href="/docs">
+            <ForeignLink href={staticPath.docs.home}>
               <MediumDefaultButton>Docs</MediumDefaultButton>
             </ForeignLink>
           </ButtonsWrap>

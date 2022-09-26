@@ -29,6 +29,7 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useRef } from 'react'
 
 import { ForeignLink, useToggleState } from '@perfsee/components'
+import { staticPath } from '@perfsee/shared/routes'
 
 import { AccessTokenModule } from './access-token.module'
 import { GenerateToken } from './generate-token'
@@ -82,7 +83,7 @@ export const AccessToken = () => {
             />
           </div>
           <Text variant="small">
-            Check out <ForeignLink href="https://perfsee.com/docs/api">Perfsee API</ForeignLink> docs.
+            Check out <ForeignLink href={staticPath.docs.api}>Perfsee API</ForeignLink> docs.
           </Text>
         </Stack>
         <ListWrap>
