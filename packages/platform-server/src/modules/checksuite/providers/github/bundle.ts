@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { pad, padEnd, padStart, truncate } from 'lodash'
+import { pad, padEnd, padStart, truncate, TruncateOptions } from 'lodash'
 
 import { Artifact } from '@perfsee/platform-server/db'
 import { BundleJobUpdate, isPassedBundleJobUpdate } from '@perfsee/server-common'
@@ -50,9 +50,9 @@ function bundleSizeDiffTable(update: BundleJobUpdate, artifact: Artifact, baseli
   const { entryPoints } = update
   const row = (start: string, c1: string, c2: string, c3: string, c4: string, end: string) =>
     padEnd(start, 2, ' ') +
-    padEnd(c1, 18, ' ') +
-    padStart(c2, 12, ' ') +
-    padStart(c3, 12, ' ') +
+    padEnd(c1, 12, ' ') +
+    padStart(c2, 15, ' ') +
+    padStart(c3, 15, ' ') +
     padStart(c4, 20, ' ') +
     ' ' +
     padStart(end, 2, ' ') +
@@ -121,8 +121,15 @@ function bundleSizeDiffTable(update: BundleJobUpdate, artifact: Artifact, baseli
     table += row(
       '##',
       '',
-      baselineArtifact ? baselineArtifact.hash.substring(0, 7) : '?',
-      artifact.hash.substring(0, 7),
+      padStart(
+        truncateLeft(baselineArtifact ? baselineArtifact.branch || baselineArtifact.hash.substring(0, 7) : '?', {
+          length: 14,
+          omission: '…',
+        }),
+        15,
+        ' ',
+      ),
+      padStart(truncateLeft(artifact.branch || artifact.hash.substring(0, 7), { length: 14, omission: '…' }), 15, ' '),
       '+/-',
       '##',
     )
@@ -135,7 +142,7 @@ function bundleSizeDiffTable(update: BundleJobUpdate, artifact: Artifact, baseli
     table += diffRow('Chunks', entry.chunksCountDiff.baseline, entry.chunksCountDiff.current, false)
     table += diffRow('Packages', entry.packagesCountDiff.baseline, entry.packagesCountDiff.current, false)
     table += diffRow(
-      'Duplicate Packages',
+      'Duplicates',
       entry.duplicatedPackagesCountDiff.baseline,
       entry.duplicatedPackagesCountDiff.current,
       false,
@@ -158,4 +165,8 @@ function bundleSizeDiffTable(update: BundleJobUpdate, artifact: Artifact, baseli
   table += '```\n'
 
   return table
+}
+
+function truncateLeft(str: string, options?: TruncateOptions) {
+  return truncate(str.split('').reverse().join(''), options).split('').reverse().join('')
 }
