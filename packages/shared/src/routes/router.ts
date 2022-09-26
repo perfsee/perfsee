@@ -14,6 +14,7 @@ function makePathsFrom<Params = void>(path: string) {
 
 export interface RouteTypes {
   home: void
+  docs: { home: void; api: void }
   features: { home: void; bundle: void; lab: void; source: void }
   projects: void
   notFound: void
@@ -45,6 +46,7 @@ export interface RouteTypes {
 
 export const staticPath = {
   home: '/',
+  docs: { home: '/docs', api: '/docs/api' },
   features: { home: '/features', bundle: '/features/bundle', lab: '/features/lab', source: '/features/source' },
   projects: '/projects',
   notFound: '/404',
@@ -80,6 +82,10 @@ export const staticPath = {
 
 export const pathFactory = {
   home: makePathsFrom<FactoryParams<RouteTypes['home']>>('/'),
+  docs: {
+    home: makePathsFrom<FactoryParams<RouteTypes['docs']['home']>>('/docs'),
+    api: makePathsFrom<FactoryParams<RouteTypes['docs']['api']>>('/docs/api'),
+  },
   features: {
     home: makePathsFrom<FactoryParams<RouteTypes['features']['home']>>('/features'),
     bundle: makePathsFrom<FactoryParams<RouteTypes['features']['bundle']>>('/features/bundle'),

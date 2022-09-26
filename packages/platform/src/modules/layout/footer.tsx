@@ -53,9 +53,9 @@ export const Footer: FC<Props> = memo(({ isAdmin }) => {
       <Container>
         <Line />
         <Links>
-          <FooterForeignLink href="/docs">Documents</FooterForeignLink>
+          <FooterForeignLink href={staticPath.docs.home}>Documents</FooterForeignLink>
           <wbr />
-          <FooterForeignLink href="/docs/api">API</FooterForeignLink>
+          <FooterForeignLink href={staticPath.docs.api}>API</FooterForeignLink>
           <wbr />
           <FooterLink to={staticPath.status}>Status</FooterLink>
           <wbr />

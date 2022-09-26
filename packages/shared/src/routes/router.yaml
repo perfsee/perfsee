@@ -1,5 +1,9 @@
 base: /
 paths:
+  docs:
+    base: /docs
+    paths:
+      api: /api
   features:
     base: /features
     paths:

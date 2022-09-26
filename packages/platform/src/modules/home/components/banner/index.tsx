@@ -27,7 +27,7 @@ export const HomeBanner = () => {
           <Link to={staticPath.projects}>
             <PrimaryButton>Try now</PrimaryButton>
           </Link>
-          <ForeignLink href="/docs">
+          <ForeignLink href={staticPath.docs.home}>
             <DefaultButton>Docs</DefaultButton>
           </ForeignLink>
         </ButtonsWrap>
