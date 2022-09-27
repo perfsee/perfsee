@@ -26,7 +26,7 @@ import { SendMailOptions } from './types'
 export class EmailService {
   private readonly transporter: nodemailer.Transporter | null = null
 
-  constructor(private readonly logger: Logger, config: Config) {
+  constructor(private readonly logger: Logger, private readonly config: Config) {
     const email = config.email
     const { smtp: smtpOption, from } = email
     if (!smtpOption.host) {
@@ -41,7 +41,7 @@ export class EmailService {
         user: smtpOption.auth.user, // generated ethereal user
         pass: smtpOption.auth.pass, // generated ethereal password
       },
-      from: `"${from.name}" <${from.address}>`,
+      from: from,
     })
   }
 
@@ -50,7 +50,7 @@ export class EmailService {
       return false
     }
 
-    await this.transporter?.sendMail(options)
+    await this.transporter?.sendMail({ ...options, from: this.config.email.from })
 
     return true
   }
