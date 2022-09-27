@@ -132,7 +132,7 @@ export class AuthController implements OnApplicationBootstrap {
     const host = this.config.host
     const token = await this.auth.generatePasswordResetToken(user)
 
-    const resetUrl = this.url.platformUrl(pathFactory.me.editPassword, void 0, { token })
+    const resetUrl = this.url.platformUrl(pathFactory.editPassword, void 0, { token })
 
     const title = 'Reset your password'
     const content =

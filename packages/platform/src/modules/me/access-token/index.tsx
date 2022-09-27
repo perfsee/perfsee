@@ -31,9 +31,11 @@ import { useCallback, useEffect, useRef } from 'react'
 import { ForeignLink, useToggleState } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
+import { Title } from '../styled'
+
 import { AccessTokenModule } from './access-token.module'
 import { GenerateToken } from './generate-token'
-import { Container, ListWrap, TokenItem, TokenName, TokenHeader, DeleteIcon } from './styled'
+import { ListWrap, TokenItem, TokenName, TokenHeader, DeleteIcon } from './styled'
 
 export const AccessToken = () => {
   const [{ tokens, generateResult }, dispatcher] = useModule(AccessTokenModule)
@@ -73,34 +75,33 @@ export const AccessToken = () => {
 
   return (
     <>
-      <Container>
-        <Stack>
-          <div>
-            <GenerateToken
-              generateResult={generateResult}
-              onGenerate={dispatcher.generateToken}
-              onHideResult={onHideResult}
-            />
-          </div>
-          <Text variant="small">
-            Check out <ForeignLink href={staticPath.docs.api}>Perfsee API</ForeignLink> docs.
-          </Text>
-        </Stack>
-        <ListWrap>
-          {tokens.map((token) => (
-            <TokenItem key={token.name}>
-              <TokenHeader>
-                <TokenName>{token.name}</TokenName>
-                <TooltipHost content="Delete this token">
-                  <DeleteIcon onClick={onShowDeleteDialog(token.name)} />
-                </TooltipHost>
-              </TokenHeader>
-              <span>created at: {dayjs(token.createdAt).format('YYYY/MM/DD HH:mm')}</span>
-              <span>last used at: {dayjs(token.lastUsedAt).format('YYYY/MM/DD HH:mm')}</span>
-            </TokenItem>
-          ))}
-        </ListWrap>
-      </Container>
+      <Title>Personal Access Tokens</Title>
+      <Stack>
+        <div>
+          <GenerateToken
+            generateResult={generateResult}
+            onGenerate={dispatcher.generateToken}
+            onHideResult={onHideResult}
+          />
+        </div>
+        <Text variant="small">
+          Check out <ForeignLink href={staticPath.docs.api}>Perfsee API</ForeignLink> docs.
+        </Text>
+      </Stack>
+      <ListWrap>
+        {tokens.map((token) => (
+          <TokenItem key={token.name}>
+            <TokenHeader>
+              <TokenName>{token.name}</TokenName>
+              <TooltipHost content="Delete this token">
+                <DeleteIcon onClick={onShowDeleteDialog(token.name)} />
+              </TooltipHost>
+            </TokenHeader>
+            <span>created at: {dayjs(token.createdAt).format('YYYY/MM/DD HH:mm')}</span>
+            <span>last used at: {dayjs(token.lastUsedAt).format('YYYY/MM/DD HH:mm')}</span>
+          </TokenItem>
+        ))}
+      </ListWrap>
       <Dialog
         dialogContentProps={{
           type: DialogType.normal,

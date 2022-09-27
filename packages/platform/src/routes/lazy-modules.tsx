@@ -16,7 +16,6 @@ limitations under the License.
 
 import { lazy } from '../common'
 
-export const AccessToken = lazy(() => import(/* webpackChunkName: "access-token" */ '../modules/access-token'))
 export const Applications = lazy(() => import(/* webpackChunkName: "applications" */ '../modules/applications'))
 export const ProjectListPage = lazy(() => import(/* webpackChunkName: "project" */ '../modules/project/list'))
 export const ProjectFeaturePage = lazy(() => import(/* webpackChunkName: "project" */ '../modules/project/features'))

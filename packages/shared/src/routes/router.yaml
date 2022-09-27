@@ -15,12 +15,14 @@ paths:
   status: /status
   license: /license
   applications: /applications
-  accessToken: /access-token
+  editPassword: /edit-password
+  resetPassword: /reset-password
   me:
     base: /me
     paths:
-      editPassword: /edit-password
-      resetPassword: /reset-password
+      connectedAccounts: /connected-accounts
+      billing: /billing
+      accessToken: /access-token
   login: /login
   importGithub: /import/github
   register: /register

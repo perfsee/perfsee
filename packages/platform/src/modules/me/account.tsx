@@ -45,7 +45,7 @@ export const Account = ({
   }, [account])
 
   return (
-    <Stack key={account.provider} horizontal verticalAlign="center">
+    <Stack key={account.provider} tokens={{ padding: '8px 0' }} horizontal verticalAlign="center">
       <Persona
         text={account.provider}
         size={12}
