@@ -41,7 +41,7 @@ test.afterEach(() => {
   createTransportStub.restore()
 })
 
-test('missing smtp option', async (t) => {
+test.serial('missing smtp option', async (t) => {
   t.context.module = await Test.createTestingModule({
     imports: [
       EmailModule,
@@ -64,7 +64,7 @@ test('missing smtp option', async (t) => {
   t.is(sendMailStub.callCount, 0)
 })
 
-test('send mail', async (t) => {
+test.serial('send mail', async (t) => {
   t.context.module = await Test.createTestingModule({
     imports: [
       EmailModule,
@@ -80,5 +80,5 @@ test('send mail', async (t) => {
   await email.sendMail(testMail)
   t.true(createTransportStub.calledOnce)
   t.is(createTransportStub.getCall(0).args[0].host, testOptions.smtp.host)
-  t.true(sendMailStub.calledOnceWith(testMail))
+  t.true(sendMailStub.calledOnceWith(sinon.match(testMail)))
 })
