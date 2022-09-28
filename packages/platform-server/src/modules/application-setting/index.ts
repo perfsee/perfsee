@@ -16,12 +16,17 @@ limitations under the License.
 
 import { Global, Module } from '@nestjs/common'
 
-import { ApplicationSettingResolver, ZoneResolver } from './resolver'
+import { AdminApplicationSettingResolver, PublicApplicationSettingResolver, ZoneResolver } from './resolver'
 import { ApplicationSettingService } from './service'
 
 @Global()
 @Module({
-  providers: [ApplicationSettingService, ApplicationSettingResolver, ZoneResolver],
+  providers: [
+    ApplicationSettingService,
+    AdminApplicationSettingResolver,
+    PublicApplicationSettingResolver,
+    ZoneResolver,
+  ],
   exports: [ApplicationSettingService],
 })
 export class ApplicationSettingModule {}

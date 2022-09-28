@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing'
 import test from 'ava'
-import Sinon from 'sinon'
 
 import { Config, ConfigModule } from '..'
 
@@ -14,16 +13,18 @@ test.beforeEach(async () => {
 
 test('should be able to get config', (t) => {
   t.assert(typeof config.host === 'string')
-  t.is(config.secret, 'your-application-secret-key')
+  t.is(config.env, 'test')
 })
 
-test('should be able to get config specified by env', (t) => {
-  t.is(config.testing, true)
-})
-
-test('should be able to override config', (t) => {
-  const stub = Sinon.stub(config, 'getter').withArgs('host').returns('testing')
+test('should be able to override config', async (t) => {
+  const module = await Test.createTestingModule({
+    imports: [
+      ConfigModule.forRoot({
+        host: 'testing',
+      }),
+    ],
+  }).compile()
+  const config = module.get(Config)
 
   t.is(config.host, 'testing')
-  t.assert(stub.calledOnceWith('host'))
 })

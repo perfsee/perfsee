@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DynamicModule } from '@nestjs/common'
-import config from 'config'
+import { DynamicModule, FactoryProvider } from '@nestjs/common'
+import { merge } from 'lodash'
 
-export type ConfigType = typeof config
-export type ConfigFieldGetter = <K extends keyof ConfigType>(key: K) => ConfigType[K]
+import { DeepPartial } from '../utils/types'
+
+import { PerfseeConfig } from './def'
 
 type ConstructorOf<T> = {
   new (): T
@@ -44,35 +45,32 @@ function ApplyType<T>(): ConstructorOf<T> {
  * }
  * ```
  */
-export class Config extends ApplyType<ConfigType>() {
-  constructor(private readonly config: ConfigType) {
-    super()
-  }
+export class Config extends ApplyType<PerfseeConfig>() {}
 
-  getter: ConfigFieldGetter = (key) => {
-    return this.config[key]
+function createConfigProvider(override?: DeepPartial<Config>): FactoryProvider<Config> {
+  return {
+    provide: Config,
+    useFactory: () => {
+      const wrapper = new Config()
+      const config = merge({}, perfsee, override)
+
+      const proxy: Config = new Proxy(wrapper, {
+        get: (_target, property: keyof Config) => {
+          const desc = Object.getOwnPropertyDescriptor(perfsee, property)
+          if (desc?.get) {
+            return desc.get.call(proxy)
+          }
+          return config[property]
+        },
+      })
+      return proxy
+    },
   }
 }
 
-const createConfigProvider = (overrideConfig?: Partial<Config>) => ({
-  provide: Config,
-  useFactory: () => {
-    const c = new Config({ ...config, ...overrideConfig })
-    return new Proxy(c, {
-      get: (target, prop: keyof Config) => {
-        if (prop === 'getter') {
-          return target[prop]
-        }
-
-        return target.getter.call(target, prop)
-      },
-    })
-  },
-})
-
 export class ConfigModule {
-  static forRoot = (overrideConfig?: Partial<Config>): DynamicModule => {
-    const provider = createConfigProvider(overrideConfig)
+  static forRoot = (override?: DeepPartial<Config>): DynamicModule => {
+    const provider = createConfigProvider(override)
 
     return {
       global: true,
@@ -82,3 +80,5 @@ export class ConfigModule {
     }
   }
 }
+
+export { PerfseeConfig } from './def'

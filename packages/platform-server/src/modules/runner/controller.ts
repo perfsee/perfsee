@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BadRequestException, Body, Controller, Headers, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, Headers, HttpCode, HttpStatus, Post } from '@nestjs/common'
 
 import { RegisterRunnerParams, RegisterRunnerResponse } from '@perfsee/server-common'
 
@@ -27,11 +27,7 @@ export class RunnerController {
   @Post('/register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() body: RegisterRunnerParams): Promise<RegisterRunnerResponse> {
-    try {
-      return await this.service.register(body)
-    } catch (e) {
-      throw new BadRequestException(e)
-    }
+    return this.service.register(body)
   }
 
   @Post('/verify')

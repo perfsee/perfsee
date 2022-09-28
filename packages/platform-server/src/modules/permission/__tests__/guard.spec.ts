@@ -9,7 +9,6 @@ import request from 'supertest'
 import { GraphQLTestingClient } from '@perfsee/platform-server/test'
 
 import { PermissionModule } from '..'
-import { AuthService } from '../../auth/auth.service'
 import { Permission } from '../def'
 import { PermissionGuard, PermissionGuardImpl } from '../guard'
 import { PermissionProvider } from '../providers'
@@ -50,6 +49,8 @@ class TestController {
 interface Context {
   app: INestApplication
   gqlClient: GraphQLTestingClient
+  guard: PermissionGuardImpl
+  provider: { check: Sinon.SinonStub }
 }
 
 const test = ava as TestFn<Context>
@@ -66,12 +67,10 @@ test.beforeEach(async (t) => {
       }),
     ],
     controllers: [TestController],
-    providers: [AuthService, TestTypeResolver, TestTypeAdminResolver],
+    providers: [TestTypeResolver, TestTypeAdminResolver],
   })
     .overrideProvider(PermissionProvider)
     .useValue({ check: Sinon.stub().resolves(true) })
-    .overrideProvider(AuthService)
-    .useValue({ getUserFromContext: Sinon.stub().resolves({ isAdmin: false }) })
     .compile()
   const app = moduleRef.createNestApplication()
   await app.init()
@@ -79,13 +78,14 @@ test.beforeEach(async (t) => {
   t.context = {
     app,
     gqlClient: new GraphQLTestingClient(app.getHttpServer()),
+    guard: app.get(PermissionGuardImpl),
+    provider: app.get(PermissionProvider),
   }
 })
 
 test('should apply guard for single query', async (t) => {
-  const { app, gqlClient } = t.context
-  const permission = app.get(PermissionGuardImpl)
-  Sinon.stub(permission, 'canActivate').resolves(false)
+  const { gqlClient, guard } = t.context
+  Sinon.stub(guard, 'canActivate').resolves(false)
 
   await t.throwsAsync(
     gqlClient.query({
@@ -103,9 +103,8 @@ test('should apply guard for single query', async (t) => {
 })
 
 test('should apply guard for whole resolver', async (t) => {
-  const { app, gqlClient } = t.context
-  const permission = app.get(PermissionGuardImpl)
-  Sinon.stub(permission, 'canActivate').resolves(false)
+  const { gqlClient, guard } = t.context
+  Sinon.stub(guard, 'canActivate').resolves(false)
 
   await t.throwsAsync(
     gqlClient.query({
@@ -121,9 +120,8 @@ test('should apply guard for whole resolver', async (t) => {
 })
 
 test('should fail if not signed in', async (t) => {
-  const { app, gqlClient } = t.context
-  const auth = app.get<Sinon.SinonStubbedInstance<AuthService>>(AuthService)
-  auth.getUserFromContext.resolves(null)
+  const { gqlClient, guard } = t.context
+  Sinon.stub(guard, 'getUserFromContext').returns(null)
 
   await t.throwsAsync(
     gqlClient.query({
@@ -139,11 +137,9 @@ test('should fail if not signed in', async (t) => {
 })
 
 test('should fast pass if user is admin', async (t) => {
-  const { app, gqlClient } = t.context
-  const auth = app.get<Sinon.SinonStubbedInstance<AuthService>>(AuthService)
-  const permission = app.get<Sinon.SinonStubbedInstance<PermissionProvider>>(PermissionProvider)
+  const { gqlClient, guard, provider } = t.context
   // @ts-expect-error - not all user fields are used
-  auth.getUserFromContext.resolves({ isAdmin: true })
+  Sinon.stub(guard, 'getUserFromContext').returns({ isAdmin: true })
 
   const res = await gqlClient.query({
     // @ts-expect-error
@@ -155,12 +151,14 @@ test('should fast pass if user is admin', async (t) => {
   })
 
   t.assert(res)
-  t.assert(permission.check.notCalled)
+  t.assert(provider.check.notCalled)
 })
 
 test('should pass query if permission.check resolves true', async (t) => {
-  const { app, gqlClient } = t.context
-  const permission = app.get<Sinon.SinonStubbedInstance<PermissionProvider>>(PermissionProvider)
+  const { gqlClient, guard, provider } = t.context
+  // @ts-expect-error - not all user fields are used
+  Sinon.stub(guard, 'getUserFromContext').returns({ isAdmin: false })
+  provider.check.resolves(true)
 
   const res = await gqlClient.query({
     // @ts-expect-error
@@ -172,13 +170,15 @@ test('should pass query if permission.check resolves true', async (t) => {
   })
 
   t.assert(res)
-  t.deepEqual(permission.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
+  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
 })
 
 test('should fail query if permission.check resolves false', async (t) => {
-  const { app, gqlClient } = t.context
-  const permission = app.get<Sinon.SinonStubbedInstance<PermissionProvider>>(PermissionProvider)
-  permission.check.resolves(false)
+  const { gqlClient, guard, provider } = t.context
+
+  // @ts-expect-error - not all user fields are used
+  Sinon.stub(guard, 'getUserFromContext').returns({ isAdmin: false })
+  provider.check.resolves(false)
 
   await t.throwsAsync(
     gqlClient.query({
@@ -191,16 +191,17 @@ test('should fail query if permission.check resolves false', async (t) => {
     }),
     { message: 'Forbidden resource' },
   )
-  t.deepEqual(permission.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
+  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
 })
 
 test('should fail controller if permission.check resolves false', async (t) => {
-  const { app } = t.context
-  const permission = app.get<Sinon.SinonStubbedInstance<PermissionProvider>>(PermissionProvider)
-  permission.check.resolves(false)
+  const { app, guard, provider } = t.context
+  // @ts-expect-error - not all user fields are used
+  Sinon.stub(guard, 'getUserFromContext').returns({ isAdmin: false })
+  provider.check.resolves(false)
 
   const res = await request(app.getHttpServer()).get(`/test/1`).send()
 
   t.is(res.statusCode, HttpStatus.FORBIDDEN)
-  t.deepEqual(permission.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
+  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
 })

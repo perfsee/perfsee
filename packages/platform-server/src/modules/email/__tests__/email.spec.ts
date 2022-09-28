@@ -3,10 +3,10 @@ import nodemailer from 'nodemailer'
 import sinon from 'sinon'
 
 import { ConfigModule } from '@perfsee/platform-server/config'
-import { Logger } from '@perfsee/platform-server/logger'
 import test, { createMock } from '@perfsee/platform-server/test'
 
 import { EmailModule, EmailService } from '..'
+import { ApplicationSettingService } from '../../application-setting'
 
 const testMail = {
   to: ['example@example.com'],
@@ -19,7 +19,7 @@ const testOptions = {
   smtp: {
     host: 'smtp.example.com',
     port: 465,
-    auth: { pass: 'bar', user: 'foo' },
+    auth: { password: 'bar', user: 'foo' },
     secure: true,
   },
   from: {
@@ -30,14 +30,14 @@ const testOptions = {
 
 let createTransportStub: sinon.SinonStub
 let sendMailStub: sinon.SinonStub
-test.beforeEach(() => {
+test.before(() => {
   sendMailStub = sinon.stub().resolves({})
   createTransportStub = sinon.stub(nodemailer, 'createTransport').returns({
     sendMail: sendMailStub,
   } as any)
 })
 
-test.afterEach(() => {
+test.after(() => {
   createTransportStub.restore()
 })
 
@@ -47,6 +47,7 @@ test.serial('missing smtp option', async (t) => {
       EmailModule,
       ConfigModule.forRoot({
         email: {
+          enable: false,
           smtp: {} as any,
           from: {} as any,
         },
@@ -56,11 +57,12 @@ test.serial('missing smtp option', async (t) => {
     .useMocker(createMock)
     .compile()
 
+  t.context.module.get(ApplicationSettingService).current.resolves(
+    // @ts-expect-error partial type
+    { enableEmail: false },
+  )
   const email = t.context.module.get(EmailService)
-  const logger = t.context.module.get(Logger)
-  t.true(logger.warn.called)
   await email.sendMail(testMail)
-  t.is(createTransportStub.callCount, 0)
   t.is(sendMailStub.callCount, 0)
 })
 
@@ -75,6 +77,11 @@ test.serial('send mail', async (t) => {
   })
     .useMocker(createMock)
     .compile()
+
+  t.context.module.get(ApplicationSettingService).current.resolves(
+    // @ts-expect-error partial type
+    { enableEmail: true },
+  )
 
   const email = t.context.module.get(EmailService)
   await email.sendMail(testMail)

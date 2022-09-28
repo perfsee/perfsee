@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import config from 'config'
 import { omit, isNil, isObject } from 'lodash'
 import request from 'supertest'
 
@@ -39,7 +38,7 @@ export function filterEmptyValue(obj: any) {
 
 export class GraphQLTestingClient extends TestingClient {
   protected endpoint = '/graphql'
-  constructor(protected appServer: any = config.host) {
+  constructor(protected appServer = perfsee.baseUrl) {
     super(appServer)
     this.presetHeaders['content-type'] = 'application/json'
   }

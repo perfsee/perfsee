@@ -17,6 +17,7 @@ limitations under the License.
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 
+import { Config } from '@perfsee/platform-server/config'
 import { ExternalAccount } from '@perfsee/shared'
 
 import { GithubOAuthProvider } from './github'
@@ -32,11 +33,13 @@ export const PROVIDERS: Record<ExternalAccount, new (...args: any[]) => OAuthPro
 export class OAuthProviderFactory implements OnModuleInit {
   private providers = {} as Record<ExternalAccount, OAuthProvider>
 
-  constructor(private readonly moduleRef: ModuleRef) {}
+  constructor(private readonly moduleRef: ModuleRef, private readonly config: Config) {}
 
   async onModuleInit() {
     for (const name in PROVIDERS) {
-      this.providers[name] = await this.moduleRef.create(PROVIDERS[name])
+      if (this.config.auth.oauthProviders[name]) {
+        this.providers[name] = await this.moduleRef.create(PROVIDERS[name])
+      }
     }
   }
 

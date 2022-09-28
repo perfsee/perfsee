@@ -47,24 +47,31 @@ const INSTALLATION_CACHE_KEY = 'INSTALLATION_CACHE_KEY'
 @Injectable()
 export class GithubService {
   cachedGithubAppJWT: { token: string; expiration: number } | null = null
-  privateKey: string
-  available: boolean
+  privateKey = ''
+
+  get config() {
+    return this.globalConfig.integration.github ?? { enable: false }
+  }
+
+  get available() {
+    return !!this.config?.enable
+  }
 
   constructor(
     private readonly userService: UserService,
     private readonly logger: Logger,
-    private readonly config: Config,
+    private readonly globalConfig: Config,
     private readonly fetch: RxFetch,
     private readonly redis: Redis,
   ) {
-    const privateKeyFile = this.config.github.privateKeyFile
-    if (!privateKeyFile) {
-      this.logger.warn('privateKeyFile is not configured, github service is unavailable.')
-      this.privateKey = ''
-      this.available = false
+    if (!this.config.enable) {
+      this.logger.log('Github integration is disabled.')
     } else {
-      this.privateKey = readFileSync(privateKeyFile, 'utf8')
-      this.available = true
+      if (!this.config.privateKeyFile) {
+        this.logger.warn('privateKeyFile is not configured, github service is unavailable.')
+        return
+      }
+      this.privateKey = readFileSync(this.config.privateKeyFile, 'utf8')
     }
   }
 
@@ -314,7 +321,7 @@ export class GithubService {
   }
 
   getInstallUrl() {
-    return `https://github.com/apps/${this.config.github.appname}/installations/new`
+    return `https://github.com/apps/${this.config.appName}/installations/new`
   }
 
   private fetchApi<Response>(
@@ -344,7 +351,7 @@ export class GithubService {
       return this.cachedGithubAppJWT.token
     }
 
-    this.cachedGithubAppJWT = githubAppJwt(this.config.github.appid, this.privateKey)
+    this.cachedGithubAppJWT = githubAppJwt(this.config.appId!, this.privateKey)
     return this.cachedGithubAppJWT.token
   }
 }

@@ -65,12 +65,12 @@ export class JobController {
     private readonly maintenance: MaintenanceService,
     private readonly storage: ObjectStorage,
   ) {
-    const jobConfig = this.config.jobs
+    const jobConfig = this.config.job
 
     this.queue = new RequestQueue(
-      jobConfig.jobPollingLimit,
-      jobConfig.jobPollingQueueLimit,
-      jobConfig.jobPollingTimeoutSec * 1000,
+      jobConfig.pollingLimit,
+      jobConfig.pollingQueueLimit,
+      jobConfig.pollingTimeoutSec * 1000,
     )
   }
 

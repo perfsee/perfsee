@@ -16,7 +16,6 @@ limitations under the License.
 
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Config } from '../config'
 
 import { mysqlEntities, DBService } from './service/mysql'
 import { SnakeNamingStrategy } from './mysql/utils'
@@ -29,20 +28,15 @@ import { SnakeNamingStrategy } from './mysql/utils'
 export class DBModule {
   static forRoot() {
     return [
-      TypeOrmModule.forRootAsync({
-        async useFactory(config: Config) {
-          return {
-            ...config.mysql,
-            type: 'mysql',
-            namingStrategy: new SnakeNamingStrategy(),
-            entities: mysqlEntities,
-            migrations: [],
-            migrationsRun: false,
-            synchronize: false,
-            logging: process.env.LOG_DB ? 'all' : ['error'],
-          }
-        },
-        inject: [Config],
+      TypeOrmModule.forRoot({
+        ...perfsee.mysql,
+        type: 'mysql',
+        namingStrategy: new SnakeNamingStrategy(),
+        entities: mysqlEntities,
+        migrations: [],
+        migrationsRun: false,
+        synchronize: false,
+        logging: process.env.LOG_DB ? 'all' : ['error'],
       }),
     ]
   }

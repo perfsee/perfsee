@@ -21,15 +21,13 @@ import {
   HttpException,
   HttpStatus,
   Query,
-  Req,
   NotFoundException,
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common'
-import { Request } from 'express'
 import { v4 as uuid } from 'uuid'
 
-import { InternalIdUsage } from '@perfsee/platform-server/db'
+import { InternalIdUsage, User } from '@perfsee/platform-server/db'
 import { required } from '@perfsee/platform-server/error'
 import { OnEvent } from '@perfsee/platform-server/event'
 import { InternalIdService, UrlService } from '@perfsee/platform-server/helpers'
@@ -41,7 +39,7 @@ import { BuildUploadParams, gitHostFromDomain, isBaseline } from '@perfsee/share
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { AppVersionService } from '../app-version/service'
-import { AuthService } from '../auth/auth.service'
+import { CurrentUser } from '../auth'
 import { PermissionProvider, Permission } from '../permission'
 import { ProjectService } from '../project/service'
 
@@ -56,14 +54,13 @@ export class ArtifactController {
     private readonly versionService: AppVersionService,
     private readonly metrics: Metric,
     private readonly internalId: InternalIdService,
-    private readonly auth: AuthService,
     private readonly permission: PermissionProvider,
     private readonly storage: ObjectStorage,
     private readonly url: UrlService,
   ) {}
 
   @Post('/artifacts')
-  async uploadArtifact(@Req() req: Request, @Body() file: Buffer, @Query() params: BuildUploadParams) {
+  async uploadArtifact(@Body() file: Buffer, @Query() params: BuildUploadParams, @CurrentUser() user?: User) {
     required(params, 'projectId', 'host', 'namespace', 'name', 'artifactName', 'branch', 'commitHash')
     const gitHost = gitHostFromDomain(params.host)
     if (!gitHost) {
@@ -76,7 +73,6 @@ export class ArtifactController {
       throw new NotFoundException(`Project ${params.projectId} not found. Did you forget to create it?`)
     }
 
-    const user = await this.auth.getUserFromRequest(req)
     if (!user || !(await this.permission.check(user, project.id, Permission.Admin))) {
       throw new ForbiddenException('Invalid build uploading token.')
     }

@@ -9,9 +9,6 @@
     {
       "path": "../schema"
     },
-    {
-      "path": "../platform-server"
-    }
   ],
   "include": [
     "./src/**/*"

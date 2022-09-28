@@ -9,6 +9,7 @@ import { CryptoService, UrlService } from '@perfsee/platform-server/helpers'
 import test, { createMock } from '@perfsee/platform-server/test'
 
 import { PerfseeSession } from '..'
+import { ApplicationSettingService } from '../../application-setting'
 import { EmailService } from '../../email/service'
 import { UserService } from '../../user/service'
 import { AuthController } from '../auth.controller'
@@ -37,6 +38,10 @@ test.beforeEach(async (t) => {
 
   t.context.module.get(UserService).findUserByEmail.resolves(undefined)
   t.context.module.get(UserService).createUser.returnsArg(0)
+  t.context.module.get(ApplicationSettingService).current.resolves(
+    // @ts-expect-error partil type
+    { enableSignup: true },
+  )
 
   session = {} as PerfseeSession
   app = t.context.module.createNestApplication()

@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { faker } from '@faker-js/faker'
-import config from 'config'
 import request from 'supertest'
 
 import { AccessToken, Application, User } from '../db'
@@ -26,7 +25,7 @@ export class TestingClient {
     Authorization: 'Bearer uadmin-test-token',
   }
 
-  constructor(protected appServer: any = config.host) {}
+  constructor(protected appServer: any = perfsee.baseUrl) {}
 
   request(): request.SuperTest<request.Test> {
     return request(this.appServer)

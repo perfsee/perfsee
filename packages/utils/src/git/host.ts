@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 export enum GitHost {
+  Unknown = 'unknown',
   Github = 'Github',
   Gitlab = 'Gitlab',
 }
@@ -37,7 +38,7 @@ export class CommonGitHost implements IGitHost {
   path: string
 
   constructor(project: { host: GitHost; namespace: string; name: string }) {
-    this.path = `${hostDomains[project.host]}/${project.namespace}/${project.name}`
+    this.path = `${hostDomains[project.host] ?? ''}/${project.namespace}/${project.name}`
   }
 
   repoUrl(): string {
@@ -57,7 +58,7 @@ export class CommonGitHost implements IGitHost {
   }
 }
 
-export function gitHostFromDomain(domainOrHost: string): GitHost | undefined {
+export function gitHostFromDomain(domainOrHost: string): GitHost {
   const existing = GitHost[domainOrHost]
   if (existing) {
     return existing
@@ -68,4 +69,6 @@ export function gitHostFromDomain(domainOrHost: string): GitHost | undefined {
   } else if (domainOrHost.includes('gitlab.com')) {
     return GitHost.Gitlab
   }
+
+  return GitHost.Unknown
 }

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql'
-import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, BaseEntity, BeforeInsert } from 'typeorm'
+import { Field, ObjectType } from '@nestjs/graphql'
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, BaseEntity } from 'typeorm'
 
 @ObjectType()
 @Entity()
@@ -37,24 +37,44 @@ export class ApplicationSetting extends BaseEntity {
   id!: number
 
   @Column({ type: 'varchar' })
-  @Field()
   registrationToken!: string
 
+  @Column({ default: true })
+  @Field()
+  enableSignup!: boolean
+
+  @Column({ default: false })
+  @Field()
+  enableOauth!: boolean
+
+  @Column({ default: true })
+  @Field()
+  enableProjectCreate!: boolean
+
+  @Column({ default: true })
+  @Field()
+  enableProjectDelete!: boolean
+
+  @Column({ default: false })
+  @Field()
+  enableProjectImport!: boolean
+
+  @Column({ default: false })
+  enableEmail!: boolean
+
+  @Column({ default: false })
+  userEmailConfirmation!: boolean
+
   @Column({ type: 'json', nullable: true })
-  @Field(() => [String])
   jobZones!: string[]
 
   @Column({ type: 'varchar', length: 50 })
-  @Field()
   defaultJobZone!: string
 
   @UpdateDateColumn({ type: 'timestamp' })
-  @Field(() => GraphQLISODateTime)
   updatedAt!: Date
 
-  @BeforeInsert()
-  init() {
-    this.jobZones = this.jobZones?.length > 0 ? this.jobZones : ['China']
-    this.defaultJobZone = this.jobZones[0]
+  save() {
+    return super.save({ reload: false })
   }
 }

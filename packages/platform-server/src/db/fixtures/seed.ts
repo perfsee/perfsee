@@ -30,11 +30,7 @@ import {
 import { create } from './factory'
 
 export async function seed() {
-  return Promise.all([
-    create(ApplicationSetting, { id: 1, registrationToken: 'registrationToken' }),
-    seedUsers(),
-    seedProject(),
-  ])
+  return Promise.all([create(ApplicationSetting), seedUsers(), seedProject()])
 }
 
 export async function seedUsers() {

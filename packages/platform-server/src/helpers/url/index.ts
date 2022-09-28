@@ -13,7 +13,7 @@ export class UrlService {
   redirectAllowHosts: string[]
 
   constructor(private readonly config: Config) {
-    this.redirectAllowHosts = [this.config.host + this.config.path]
+    this.redirectAllowHosts = [this.config.baseUrl]
     if (process.env.NODE_ENV === 'development') {
       this.redirectAllowHosts.push('http://localhost:8080')
     }
@@ -25,34 +25,26 @@ export class UrlService {
     query?: StringifiableRecord,
   ) {
     const path = pathFactory.call(null, { ...data })
-
-    return stringifyUrl({ url: this.config.host + path, query })
+    return stringifyUrl({ url: this.config.baseUrl + path, query })
   }
 
   platformUrl(pathFactory: (param?: undefined) => string, data?: undefined, query?: StringifiableRecord): string
   platformUrl<T>(pathFactory: (param: T) => string, data: T, query?: StringifiableRecord) {
     const path = pathFactory.call(null, data)
 
-    return stringifyUrl({ url: this.config.host + path, query })
+    return stringifyUrl({ url: this.config.baseUrl + path, query })
   }
 
   safeRedirect(res: Response, to: string) {
-    if (!to) {
-      res.redirect(this.config.path || '/')
-    } else {
-      const finalTo = new URL(to, this.config.host).href
-      for (const host of this.redirectAllowHosts) {
-        if (finalTo.startsWith(host)) {
-          if (finalTo.startsWith(this.config.host)) {
-            res.redirect(finalTo.substring(this.config.host.length))
-            return
-          } else {
-            res.redirect(finalTo)
-            return
-          }
-        }
+    const finalTo = new URL(to, this.config.baseUrl)
+    for (const host of this.redirectAllowHosts) {
+      const hostURL = new URL(host)
+      if (hostURL.origin === finalTo.origin && finalTo.pathname.startsWith(hostURL.pathname)) {
+        res.redirect(finalTo.href.substring(finalTo.origin.length))
+        return
       }
-      res.redirect(this.config.path || '/')
     }
+
+    return res.redirect(this.config.path || '/')
   }
 }

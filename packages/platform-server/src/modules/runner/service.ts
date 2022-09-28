@@ -43,10 +43,6 @@ export class RunnerService {
     const { token: registrationToken, info } = params
     const uniqueId = uuid()
 
-    if (!registrationToken) {
-      throw new ForbiddenException('Registration token is required to register a runner')
-    }
-
     if (!(await this.setting.validateRegistrationToken(registrationToken))) {
       throw new ForbiddenException('Invalid registration token')
     }

@@ -24,6 +24,7 @@ import './snapshot'
 import './snapshot-report'
 import './property'
 import './user-connected-account'
+import './application-setting'
 
 export { entityFactories, create } from './factory'
 export * from './seed'

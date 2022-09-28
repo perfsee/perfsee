@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { differenceBy, isEmpty, isUndefined, omitBy } from 'lodash'
 import { Brackets, In } from 'typeorm'
 
@@ -40,6 +40,7 @@ import { JobLogStorage, ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { GitHost } from '@perfsee/shared'
 
+import { ApplicationSettingService } from '../application-setting'
 import { GithubService } from '../github'
 import { PermissionProvider, Permission } from '../permission'
 import { UserService } from '../user'
@@ -65,6 +66,7 @@ export class ProjectService {
     private readonly logger: Logger,
     private readonly storage: ObjectStorage,
     private readonly logStorage: JobLogStorage,
+    private readonly settings: ApplicationSettingService,
   ) {}
 
   async resolveRawProjectIdBySlug(slug: string) {
@@ -292,7 +294,14 @@ export class ProjectService {
       throw new UserError('Invalid id, ' + slugVerification.error)
     }
 
-    if (!this.config.testing && input.host === GitHost.Github) {
+    if (input.host === GitHost.Unknown) {
+      const settings = await this.settings.current()
+      if (!settings.enableProjectCreate) {
+        throw new UserError('Project creation is disabled')
+      }
+    }
+
+    if (!this.config.test && input.host === GitHost.Github) {
       const githubVerification = await this.github.verifyGithubRepositoryPermission(user, input.namespace, input.name)
 
       if (!githubVerification.ok) {
@@ -394,6 +403,10 @@ export class ProjectService {
   }
 
   async deleteProject(projectId: number) {
+    const settings = await this.settings.current()
+    if (!settings.enableProjectDelete) {
+      throw new ForbiddenException('Project deletion is disabled')
+    }
     this.logger.log('start delete project', { projectId })
     await Project.delete({ id: projectId })
 

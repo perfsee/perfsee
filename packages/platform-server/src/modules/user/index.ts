@@ -16,11 +16,11 @@ limitations under the License.
 
 import { Module } from '@nestjs/common'
 
-import { UserResolver } from './resolver'
+import { CurrentUserResolver, UserResolver } from './resolver'
 import { UserService } from './service'
 
 @Module({
-  providers: [UserResolver, UserService],
+  providers: [CurrentUserResolver, UserResolver, UserService],
   exports: [UserService],
 })
 export class UserModule {}

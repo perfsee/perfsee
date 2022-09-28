@@ -20,38 +20,46 @@ import nodemailer from 'nodemailer'
 import { Config } from '@perfsee/platform-server/config'
 import { Logger } from '@perfsee/platform-server/logger'
 
+import { ApplicationSettingService } from '../application-setting'
+
 import { SendMailOptions } from './types'
 
 @Injectable()
 export class EmailService {
-  private readonly transporter: nodemailer.Transporter | null = null
+  private transporter: nodemailer.Transporter | null = null
 
-  constructor(private readonly logger: Logger, private readonly config: Config) {
-    const email = config.email
-    const { smtp: smtpOption, from } = email
-    if (!smtpOption.host) {
-      this.logger.warn('smtp is not configured, email service is unavailable.')
-      return
-    }
-    this.transporter = nodemailer.createTransport({
-      host: smtpOption.host,
-      port: smtpOption.port,
-      secure: smtpOption.secure, // true for 465, false for other ports
-      auth: {
-        user: smtpOption.auth.user, // generated ethereal user
-        pass: smtpOption.auth.pass, // generated ethereal password
-      },
-      from: from,
-    })
-  }
+  constructor(
+    private readonly logger: Logger,
+    private readonly config: Config,
+    private readonly settings: ApplicationSettingService,
+  ) {}
 
   async sendMail(options: SendMailOptions): Promise<boolean> {
-    if (!this.transporter) {
+    const settings = await this.settings.current()
+    if (!settings.enableEmail) {
       return false
     }
 
-    await this.transporter?.sendMail({ ...options, from: this.config.email.from })
+    const { smtp: smtpOption, from } = this.config.email
+    if (!this.transporter) {
+      this.transporter = nodemailer.createTransport({
+        host: smtpOption.host,
+        port: smtpOption.port,
+        secure: smtpOption.secure, // true for 465, false for other ports
+        auth: {
+          user: smtpOption.auth.user, // generated ethereal user
+          pass: smtpOption.auth.password, // generated ethereal password
+        },
+        from: from,
+      })
+    }
 
-    return true
+    return this.transporter
+      .sendMail({ ...options, from: this.config.email.from })
+      .then(() => true)
+      .catch((e) => {
+        this.logger.error(e)
+        return false
+      })
   }
 }

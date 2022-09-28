@@ -14,12 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+const { execSync } = require('child_process')
 const fs = require('fs')
 const { builtinModules } = require('module')
 const path = require('path')
 
-const cliSrc = path.resolve(__dirname, './cli/index.ts')
-const cliDist = path.resolve(__dirname, './cli.generated.js')
+const lockShasum = execSync('shasum --algorithm 256 yarn.lock | cut -c 1-10').toString().trim()
+const cliSrc = './cli/index.ts'
+const cliDist = `./cli.${lockShasum}.js`
+const cliAbsDist = path.resolve(__dirname, cliDist)
 
 /**
  *
@@ -131,18 +134,18 @@ function build() {
   }
 
   return esbuild.build({
-    entryPoints: [cliSrc],
+    entryPoints: [path.resolve(__dirname, cliSrc)],
     bundle: true,
     platform: 'node',
     target: 'node14',
-    outfile: cliDist,
+    outfile: cliAbsDist,
     plugins: [externalPlugin],
     sourcemap: true,
   })
 }
 
-const preparasion = fs.existsSync(cliDist) ? Promise.resolve() : build()
+const preparasion = fs.existsSync(cliAbsDist) ? Promise.resolve() : build()
 
 preparasion.then(() => {
-  require('./cli.generated')
+  require(cliDist)
 })

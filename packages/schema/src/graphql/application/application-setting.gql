@@ -1,0 +1,8 @@
+query applicationSetting {
+  applicationSetting {
+    enableSignup
+    enableOauth
+    enableProjectCreate
+    enableProjectImport
+  }
+}
