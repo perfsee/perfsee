@@ -41,6 +41,8 @@ export class UploadScriptsCommand extends Command {
       return 1
     }
 
+    let error = false
+
     await Promise.allSettled(
       Object.entries(scripts).map(async ([name, types]) => {
         const pkg = getPackage(name as PackageName)
@@ -70,9 +72,12 @@ export class UploadScriptsCommand extends Command {
             this.logger.info(`upload ${type}/${pkg.version} success`)
           } else {
             this.logger.error(`upload ${type}/${pkg.version} failed`, JSON.stringify(await res.json()))
+            error = true
           }
         }
       }),
     )
+
+    return error ? 1 : 0
   }
 }

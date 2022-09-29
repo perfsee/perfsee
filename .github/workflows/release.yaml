@@ -64,13 +64,13 @@ jobs:
           yarn cli vscode build
           yarn cli vscode build:webview
       - name: Publish Vscode Extension (pre-release)
-        if: ${{ contains(github.ref_name, "alpha") }}
+        if: ${{ contains(github.ref_name, 'alpha') }}
         run: |
           npm install -g vsce
           cd packages/vscode-extension
           vsce publish --pre-release --no-dependencies --no-git-tag-version --no-update-package-json --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension `date +'%Y.%m.%d%H%M'`
       - name: Publish Vscode Extension
-        if: ${{ contains(github.ref_name, "alpha") == false }}
+        if: ${{ contains(github.ref_name, 'alpha') == false }}
         run: |
           npm install -g vsce
           cd packages/vscode-extension
@@ -94,7 +94,7 @@ jobs:
           PERFSEE_REGISTRATION_TOKEN: ${{ secrets.PERFSEE_REGISTRATION_TOKEN }}
         with:
           image: ghcr.io/perfsee/perfsee/develop:latest
-          options: -v ${{ github.workspace }}:/build -w /build
+          options: -v ${{ github.workspace }}:/build -w /build -e PERFSEE_REGISTRATION_TOKEN
           run: |
             yarn tsc -b ./tsconfigs/tsconfig.runner.json --verbose
             yarn build:rs
