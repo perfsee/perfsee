@@ -68,7 +68,7 @@ jobs:
         run: |
           npm install -g vsce
           cd packages/vscode-extension
-          vsce publish --pre-release --no-dependencies --no-git-tag-version --no-update-package-json --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension `date +'%Y.%m.%d%H%M'`
+          vsce publish --pre-release --no-dependencies --no-git-tag-version --no-update-package-json --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension `date +'%Y.%-m.%-d%H%M'`
       - name: Publish Vscode Extension
         if: ${{ contains(github.ref_name, 'alpha') == false }}
         run: |
