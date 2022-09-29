@@ -6,9 +6,21 @@ on:
       - '**'
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to dispatch'
+        required: true
+        default: 'release-scripts'
+        type: choice
+        options:
+          - npm
+          - vscode
+          - script
 
 jobs:
-  release:
+  release-npm-packages:
+    if: ${{ !inputs.job || inputs.job == 'npm' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -32,7 +44,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   release-vscode:
+    if: ${{ !inputs.job || inputs.job == 'vscode' }}
     runs-on: ubuntu-latest
+    env:
+      VSCE_PAT: ${{ secrets.VSC_MARKET_PAT }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16.x
@@ -53,10 +68,34 @@ jobs:
         run: |
           npm install -g vsce
           cd packages/vscode-extension
-          vsce publish --pre-release --no-dependencies --no-git-tag-version --no-update-package-json -p ${{ secrets.VSC_MARKET_PAT }} --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension `date +'%Y.%m.%d%H%M'`
+          vsce publish --pre-release --no-dependencies --no-git-tag-version --no-update-package-json --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension `date +'%Y.%m.%d%H%M'`
       - name: Publish Vscode Extension
         if: ${{ contains(github.ref_name, "alpha") == false }}
         run: |
           npm install -g vsce
           cd packages/vscode-extension
-          vsce publish --no-dependencies --no-git-tag-version --no-update-package-json -p ${{ secrets.VSC_MARKET_PAT }} --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension
+          vsce publish --no-dependencies --no-git-tag-version --no-update-package-json --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension
+  release-scripts:
+    if: ${{ !inputs.job || inputs.job == 'script' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+          registry-url: https://registry.npmjs.org
+      - name: Install dependencies
+        run: yarn install
+      - name: Build and Upload scripts in docker
+        uses: addnab/docker-run-action@v3
+        env:
+          PERFSEE_REGISTRATION_TOKEN: ${{ secrets.PERFSEE_REGISTRATION_TOKEN }}
+        with:
+          image: ghcr.io/perfsee/perfsee/develop:latest
+          options: -v ${{ github.workspace }}:/build -w /build
+          run: |
+            yarn tsc -b ./tsconfigs/tsconfig.runner.json --verbose
+            yarn build:rs
+            yarn cli upload-scripts
