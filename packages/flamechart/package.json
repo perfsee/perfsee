@@ -5,8 +5,12 @@
   "sideEffect": false,
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "private": true,
+  "main": "esm/index.js",
+  "module": "esm/index.js",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "dependencies": {
     "tslib": "^2.4.0"
   },
