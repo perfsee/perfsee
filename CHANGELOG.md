@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2022-09-29)
+
+### Bug Fixes
+
+- **platform-server:** fix email sender name ([bfdde9e](https://github.com/perfsee/perfsee/commit/bfdde9ed556ebcadf42d2fd7ee76794398ddea3f))
+- **platform-server:** github comment percentile ([da0e51a](https://github.com/perfsee/perfsee/commit/da0e51a7748aaa20f2c8f6deb74d77160583bc18))
+- **platform, docs:** move homepage to platform ([f2b01fe](https://github.com/perfsee/perfsee/commit/f2b01fe7ce401a8f5c3e6c44db0cc8d2f314a47a))
+- **platform:** correct docs links ([9271f19](https://github.com/perfsee/perfsee/commit/9271f19d609e5a553e4a5b7c5783173dfe62031f))
+- **platform:** minimal width & tooltip position in waterfall ([31b609d](https://github.com/perfsee/perfsee/commit/31b609d9742bf4c19a09661c8e29ddf9a2887fa3))
+- **platform:** performance metric loading error state ([d8e1b1b](https://github.com/perfsee/perfsee/commit/d8e1b1b87d4b344d5f831df08fc5dc3ab971d32f))
+- **platform:** remove dangrous button width limit ([0afbc74](https://github.com/perfsee/perfsee/commit/0afbc74192ebe949c166c2f20127afa97c4760f0))
+- **platform:** replace #TODO:LINK with real ones ([1450275](https://github.com/perfsee/perfsee/commit/1450275b914992ab8a60ab64fe866d97be22b4de))
+- **platform:** the style of request filter in lab report ([20a6ea7](https://github.com/perfsee/perfsee/commit/20a6ea73846b1c67ccd3956675332b584ef9d598))
+- **platform:** wrong pagination in artifacts list ([121866f](https://github.com/perfsee/perfsee/commit/121866fa897a34a0d3c01812df68426d3a8acf0b))
+- **plugin-utils:** real ci commit hash ([f8dc4c9](https://github.com/perfsee/perfsee/commit/f8dc4c9cf73c359285d550ec076f978d0a2d6277))
+- **plugin-utils:** wrong default platform host ([69d38f5](https://github.com/perfsee/perfsee/commit/69d38f50c88cb1b99ecbb1da70dc2b03017c9eb2))
+
+### Features
+
+- **platform-server:** adjust github bundle comment ([405faec](https://github.com/perfsee/perfsee/commit/405faec06e9dd4aa33abd239b350dc978d164f60))
+- **platform-server:** graphql api filter artifacts by hash ([033a31f](https://github.com/perfsee/perfsee/commit/033a31fa65109917b4d9f2da841799dae5b2f975))
+
 # [1.0.0-alpha.3](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2022-09-19)
 
 **Note:** Version bump only for package perfsee

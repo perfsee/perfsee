@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2022-09-29)
+
+### Bug Fixes
+
+- **platform-server:** fix email sender name ([bfdde9e](https://github.com/perfsee/perfsee/commit/bfdde9ed556ebcadf42d2fd7ee76794398ddea3f))
+- **platform-server:** github comment percentile ([da0e51a](https://github.com/perfsee/perfsee/commit/da0e51a7748aaa20f2c8f6deb74d77160583bc18))
+- **platform, docs:** move homepage to platform ([f2b01fe](https://github.com/perfsee/perfsee/commit/f2b01fe7ce401a8f5c3e6c44db0cc8d2f314a47a))
+
+### Features
+
+- **platform-server:** adjust github bundle comment ([405faec](https://github.com/perfsee/perfsee/commit/405faec06e9dd4aa33abd239b350dc978d164f60))
+- **platform-server:** graphql api filter artifacts by hash ([033a31f](https://github.com/perfsee/perfsee/commit/033a31fa65109917b4d9f2da841799dae5b2f975))
+
 # [1.0.0-alpha.3](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2022-09-19)
 
 **Note:** Version bump only for package @perfsee/platform-server
