@@ -1,0 +1,23 @@
+{
+  "references": [
+    {
+      "path": "../packages/runner/bundle"
+    },
+    {
+      "path": "../packages/runner/executor"
+    },
+    {
+      "path": "../packages/runner/lab"
+    },
+    {
+      "path": "../packages/runner/shared"
+    },
+    {
+      "path": "../packages/runner/source"
+    }
+  ],
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": []
+}
