@@ -28,6 +28,7 @@ FROM runner AS develop
 ENV RUSTUP_HOME=/usr/local/rustup \
   CARGO_HOME=/usr/local/cargo \
   PATH=/usr/local/cargo/bin:$PATH
+RUN apt-get install build-essential -y --no-install-recommends --fix-missing
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 FROM ghcr.io/perfsee/perfsee/develop:latest as compose_develop

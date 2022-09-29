@@ -151,7 +151,7 @@ type Project {
   artifactByCommit(
     """git commit hash to match"""
     hash: String!
-  ): Artifact
+  ): Artifact @deprecated(reason: "use artifacts(hash: $hash)")
 
   """paginated artifact of given project"""
   artifacts(
@@ -162,6 +162,9 @@ type Project {
 
     """name filter"""
     name: String
+
+    """hash filter"""
+    hash: String
   ): PaginatedArtifacts!
 
   """all artifact historical data"""

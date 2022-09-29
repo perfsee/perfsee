@@ -81,7 +81,13 @@ export class ArtifactService implements OnApplicationBootstrap {
     return Artifact.findOneBy({ projectId, iid })
   }
 
-  async getArtifacts(projectId: number, { first, after, skip }: PaginationInput, branch?: string, name?: string) {
+  async getArtifacts(
+    projectId: number,
+    { first, after, skip }: PaginationInput,
+    branch?: string,
+    name?: string,
+    hash?: string,
+  ) {
     const query = Artifact.createQueryBuilder('artifact').where('artifact.project_id = :projectId', { projectId })
 
     if (after) {
@@ -96,6 +102,10 @@ export class ArtifactService implements OnApplicationBootstrap {
       query.andWhere('artifact.name = :name', { name })
     }
 
+    if (hash) {
+      query.andWhere('artifact.hash = :hash', { hash })
+    }
+
     return query
       .orderBy('id', 'DESC')
       .skip(skip)
@@ -103,6 +113,9 @@ export class ArtifactService implements OnApplicationBootstrap {
       .getManyAndCount()
   }
 
+  /**
+   * @deprecated use getArtifacts
+   */
   async getArtifactByCommit(projectId: number, hash: string) {
     const query = Artifact.createQueryBuilder('artifact')
       .where('artifact.project_id = :projectId', { projectId })

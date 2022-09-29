@@ -4,20 +4,16 @@
   "description": "Web tree map chart, based on webgl.",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
-  "private": true,
   "sideEffect": false,
   "main": "esm/index.js",
+  "module": "esm/index.js",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "dependencies": {
     "@types/d3-hierarchy": "^3.1.0",
     "d3-hierarchy": "^3.1.2",
     "twgl.js": "^5.0.0"
-  },
-  "devDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "peerDependencies": {
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
   }
 }

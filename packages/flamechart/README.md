@@ -31,13 +31,9 @@ interface FlamechartProps {
    */
   focusedFrame?: { key: string }
   /**
-   * callback when `open file` action trigerred
+   * callback when `open file` action triggered
    */
-  onRevealFile?: (frameKey: string) => void
-  /**
-   * callback when double clicked on chart
-   */
-  onDblclick?: FlamechartDblclickCallback
+  onRevealFile?: (frame: Frame) => void
   /**
    * custom theme
    */
@@ -46,10 +42,6 @@ interface FlamechartProps {
    * extra timing values will be drawn down across the chart
    */
   timings?: Timing[]
-  /**
-   * chart view mode
-   */
-  mode?: FlamechartMode
   /**
    * initial start time when first rendering the chart
    */
@@ -67,9 +59,33 @@ interface FlamechartProps {
    */
   maxRight?: number
   /**
+   * show timing labels at the bottom of the chart
+   */
+  bottomTimingLabels?: boolean
+  /**
+   * distance to pad below content in the chart
+   */
+  bottomPadding?: number
+  /**
+   * flamechart factory
+   */
+  flamechartFactory?: FlamechartFactory
+  /**
+   * hidden frame labels
+   */
+  hiddenFrameLabels?: boolean
+  /**
    * whether show stack detail view when focused on certain frame
    */
   disableDetailView?: boolean
+  /**
+   * disable search box and ctrl-f shortcuts
+   */
+  disableSearchBox?: boolean
+  /**
+   * only matched frames will be shown as root frames
+   */
+  rootFilter?: RootFilter
 }
 ```
 

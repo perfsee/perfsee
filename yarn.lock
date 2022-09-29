@@ -5720,12 +5720,7 @@ __metadata:
   dependencies:
     "@types/d3-hierarchy": ^3.1.0
     d3-hierarchy: ^3.1.2
-    react: ^18.2.0
-    react-dom: ^18.2.0
     twgl.js: ^5.0.0
-  peerDependencies:
-    react: ^16.8.0
-    react-dom: ^16.8.0
   languageName: unknown
   linkType: soft
 
