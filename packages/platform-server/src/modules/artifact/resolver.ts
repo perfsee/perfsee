@@ -56,6 +56,7 @@ export class ProjectArtifactResolver {
     name: 'artifactByCommit',
     nullable: true,
     description: 'get artifacts by git commit hash',
+    deprecationReason: 'use artifacts(hash: $hash)',
   })
   artifactByCommit(
     @Parent() project: Project,
@@ -76,8 +77,9 @@ export class ProjectArtifactResolver {
     paginationOption: PaginationInput,
     @Args({ name: 'branch', type: () => String, nullable: true, description: 'git branch filter' }) branch?: string,
     @Args({ name: 'name', type: () => String, nullable: true, description: 'name filter' }) name?: string,
+    @Args({ name: 'hash', type: () => String, nullable: true, description: 'hash filter' }) hash?: string,
   ): Promise<PaginatedType<Artifact>> {
-    const [artifacts, totalCount] = await this.service.getArtifacts(project.id, paginationOption, branch, name)
+    const [artifacts, totalCount] = await this.service.getArtifacts(project.id, paginationOption, branch, name, hash)
 
     return paginate(artifacts, 'id', paginationOption, totalCount)
   }
