@@ -16,7 +16,7 @@
     "lodash": "^4.17.21",
     "puppeteer-core": "^13.7.0",
     "uuid": "^9.0.0",
-    "vm2": "^3.9.10"
+    "vm2": "^3.9.11"
   },
   "devDependencies": {
     "@types/fluent-ffmpeg": "^2.1.20",
