@@ -29,6 +29,7 @@ import { SettingsBasic } from './settings-basic'
 import { SettingsE2e } from './settings-e2e'
 import { SettingsEnvironments } from './settings-environments'
 import { SettingsPages } from './settings-pages'
+import { SettingsPermission } from './settings-permission'
 import { SettingsProfiles } from './settings-profiles'
 import { SettingsSchedule } from './settings-schedule'
 import { TimeUsage } from './settings-usage'
@@ -39,6 +40,7 @@ const stackTokens: IStackTokens = {
 
 enum TabEnum {
   Basic = 'basic',
+  Permission = 'permission',
   Schedule = 'schedule',
   Pages = 'pages',
   Profiles = 'profiles',
@@ -72,6 +74,8 @@ export const Settings = () => {
     switch (settingName) {
       case TabEnum.Basic:
         return <SettingsBasic />
+      case TabEnum.Permission:
+        return <SettingsPermission />
       case TabEnum.Schedule:
         return <SettingsSchedule />
       case TabEnum.Pages:
@@ -95,6 +99,7 @@ export const Settings = () => {
         <span>Settings</span>
         <Pivot selectedKey={settingName ?? 'basic'} onLinkClick={onLinkClick}>
           <PivotItem itemKey={TabEnum.Basic} headerText="Basic" />
+          <PivotItem itemKey={TabEnum.Permission} headerText="Permission" />
           <PivotItem itemKey={TabEnum.Schedule} headerText="Schedule" />
           <PivotItem itemKey={TabEnum.Pages} headerText="Pages" />
           {/* hidden e2e settings */}

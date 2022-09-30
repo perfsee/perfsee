@@ -137,6 +137,9 @@ type Project {
   """owners of this project"""
   owners: [User!]!
 
+  """viewers of this project"""
+  viewers: [User!]!
+
   """current user permission to this project"""
   userPermission: [Permission!]!
 
@@ -1092,6 +1095,7 @@ type Mutation {
   createProject(input: CreateProjectInput!): Project!
   updateProject(projectId: ID!, input: UpdateProjectInput!): Project!
   addProjectOwner(projectId: ID!, email: String!): Boolean!
+  updateProjectUserPermission(projectId: ID!, email: String!, permission: Permission!, isAdd: Boolean!): Boolean!
   toggleStarProject(projectId: ID!, star: Boolean!): Boolean!
 
   """

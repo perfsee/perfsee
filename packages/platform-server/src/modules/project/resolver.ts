@@ -116,6 +116,19 @@ export class ProjectResolver {
     return true
   }
 
+  @PermissionGuard(Permission.Admin, 'projectId')
+  @Mutation(() => Boolean)
+  async updateProjectUserPermission(
+    @Args({ name: 'projectId', type: () => ID }) slug: string,
+    @Args({ name: 'email', type: () => String }) email: string,
+    @Args({ name: 'permission', type: () => Permission }) permission: Permission,
+    @Args({ name: 'isAdd', type: () => Boolean }) isAdd: boolean,
+  ) {
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(slug)
+    await this.projectService.updateProjectUserPermission(projectRawId, email, permission, isAdd)
+    return true
+  }
+
   @PermissionGuard(Permission.Read, 'projectId')
   @Mutation(() => Boolean)
   async toggleStarProject(
@@ -129,7 +142,12 @@ export class ProjectResolver {
 
   @ResolveField(() => [User], { description: 'owners of this project' })
   async owners(@Parent() project: Project) {
-    return this.projectService.getProjectOwners(project)
+    return this.projectService.getProjectUsers(project, Permission.Admin)
+  }
+
+  @ResolveField(() => [User], { description: 'viewers of this project' })
+  async viewers(@Parent() project: Project) {
+    return this.projectService.getProjectUsers(project, Permission.Read)
   }
 
   @Mutation(() => Boolean, {

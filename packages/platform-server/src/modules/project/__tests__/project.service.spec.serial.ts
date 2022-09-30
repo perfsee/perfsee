@@ -7,6 +7,7 @@ import test, { createMock, initTestDB, createDBTestingModule, DeepMocked, create
 import { GitHost } from '@perfsee/shared'
 
 import { PermissionProvider, Permission } from '../../permission'
+import { UserService } from '../../user'
 import { ProjectService } from '../service'
 
 let project: Project
@@ -186,17 +187,78 @@ test.serial('project owners', async (t) => {
 
   // return userId
   permissionProvider.projectAllowList.resolves([user.id])
-  const owners = await service.getProjectOwners(project)
+  const owners = await service.getProjectUsers(project, Permission.Admin)
 
   t.is(owners.length, 1)
   t.is(owners[0].username, user.username)
 
   // return user email
   permissionProvider.projectAllowList.resolves([user.email])
-  const ownersWithEmail = await service.getProjectOwners(project)
+  const ownersWithEmail = await service.getProjectUsers(project, Permission.Admin)
 
   t.is(ownersWithEmail.length, 1)
   t.is(ownersWithEmail[0].username, user.username)
+})
+
+test.serial('project viewers', async (t) => {
+  const service = t.context.module.get(ProjectService)
+  const permissionProvider: DeepMocked<PermissionProvider> = t.context.module.get(PermissionProvider)
+
+  // return userId
+  permissionProvider.projectAllowList.resolves([user.id])
+  const viewers = await service.getProjectUsers(project, Permission.Read)
+
+  t.is(viewers.length, 1)
+  t.is(viewers[0].username, user.username)
+
+  // return user email
+  permissionProvider.projectAllowList.resolves([user.email])
+  const viewersWithEmail = await service.getProjectUsers(project, Permission.Read)
+
+  t.is(viewersWithEmail.length, 1)
+  t.is(viewersWithEmail[0].username, user.username)
+})
+
+test.serial('update project user permission', async (t) => {
+  const service = t.context.module.get(ProjectService)
+  const userService = t.context.module.get(UserService)
+  const permissionProvider: DeepMocked<PermissionProvider> = t.context.module.get(PermissionProvider)
+
+  // add permission
+  await service.updateProjectUserPermission(project.id, user.email, Permission.Admin, true)
+  t.truthy(permissionProvider.grant.calledOnce)
+
+  // revoke permission
+  permissionProvider.check.resolves(true)
+  await service.updateProjectUserPermission(project.id, user.email, Permission.Admin, false)
+  t.truthy(permissionProvider.revoke.calledOnce)
+
+  // grant already existed permission
+  permissionProvider.check.resolves(true)
+  await t.throwsAsync(
+    async () => {
+      await service.updateProjectUserPermission(project.id, user.email, Permission.Admin, true)
+    },
+    { message: /User already has this permission/ },
+  )
+
+  // revoke not existed permission
+  permissionProvider.check.resolves(false)
+  await t.throwsAsync(
+    async () => {
+      await service.updateProjectUserPermission(project.id, user.email, Permission.Admin, false)
+    },
+    { message: /User do not has this permission/ },
+  )
+
+  // error user email
+  userService.findUserByEmail.resolves(null)
+  await t.throwsAsync(
+    async () => {
+      await service.updateProjectUserPermission(project.id, user.email, Permission.Admin, true)
+    },
+    { message: /No such user/ },
+  )
 })
 
 test.serial('delete project', async (t) => {

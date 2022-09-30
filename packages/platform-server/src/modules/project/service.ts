@@ -154,8 +154,8 @@ export class ProjectService {
     return projects.map((project) => ('slug' in project ? project.slug : null)).filter(Boolean)
   }
 
-  async getProjectOwners(project: Project) {
-    const owners = await this.permissionProvider.projectAllowList(project, Permission.Admin)
+  async getProjectUsers(project: Project, permission: Permission) {
+    const owners = await this.permissionProvider.projectAllowList(project, permission)
     if (typeof owners[0] === 'number') {
       return User.findBy({
         id: In(owners),
@@ -223,7 +223,7 @@ export class ProjectService {
 
   async updateProjectOwners(project: Project, owners: string[]) {
     const users = await this.userService.findOrCreateByEmails(owners)
-    const old = await this.getProjectOwners(project)
+    const old = await this.getProjectUsers(project, Permission.Admin)
     const removed = differenceBy(old, users, (user) => user.email)
     const added = differenceBy(users, old, (user) => user.email)
 
@@ -231,6 +231,28 @@ export class ProjectService {
       ...removed.map((user) => this.permissionProvider.revoke(user, project.id, Permission.Admin)),
       ...added.map((user) => this.permissionProvider.grant(user, project.id, Permission.Admin)),
     ])
+  }
+
+  async updateProjectUserPermission(projectId: number, email: string, permission: Permission, isAdd: boolean) {
+    const user = await this.userService.findUserByEmail(email)
+
+    if (!user) {
+      throw new UserError('No such user')
+    }
+
+    const hasPermission = await this.permissionProvider.check(user, projectId, permission)
+
+    if (isAdd && hasPermission) {
+      throw new UserError('User already has this permission')
+    } else if (!isAdd && !hasPermission) {
+      throw new UserError('User do not has this permission')
+    }
+
+    if (isAdd) {
+      await this.permissionProvider.grant(user, projectId, permission)
+    } else {
+      await this.permissionProvider.revoke(user, projectId, permission)
+    }
   }
 
   async verifyNewSlug(newSlug: string): Promise<{ error?: string; ok: boolean }> {
