@@ -5818,14 +5818,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-alias@npm:^3.1.9":
-  version: 3.1.9
-  resolution: "@rollup/plugin-alias@npm:3.1.9"
+"@rollup/plugin-alias@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@rollup/plugin-alias@npm:4.0.0"
   dependencies:
-    slash: ^3.0.0
+    slash: ^4.0.0
   peerDependencies:
-    rollup: ^1.20.0||^2.0.0
-  checksum: cefae9dfb7c30f0dc78d24f4ad9ccb8a0878397b313c0fa9d0f519667394941c58a930d968d841e25aee43b0fb892d1e3f7edbb55e8197f191cce7da6a50b882
+    rollup: ^1.20.0||^2.0.0||^3.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 87458337d3cbbc444e018651ba8f420d18c9d648e374b09867b2d5d5f832c7dee7ebd38d17990cecfb4afa5bd85b30b946ada7fb59fec8de1f31529eb07c7871
   languageName: node
   linkType: hard
 
@@ -20115,7 +20118,7 @@ __metadata:
     "@graphql-codegen/typescript": ^2.7.1
     "@graphql-codegen/typescript-operations": ^2.5.1
     "@mdx-js/loader": ^2.1.3
-    "@rollup/plugin-alias": ^3.1.9
+    "@rollup/plugin-alias": ^4.0.0
     "@rollup/plugin-commonjs": 22.0.2
     "@rollup/plugin-json": ^4.1.0
     "@rollup/plugin-node-resolve": ^13.3.0
