@@ -2,7 +2,9 @@
 
 a flamechart component for react.
 
-### Example
+[![example](https://user-images.githubusercontent.com/13579374/194684518-f5f73324-f622-475c-b75c-939d91830d1c.png)](https://codesandbox.io/s/flamechart-simple-example-xkg4uw?file=/src/App.js)
+
+### Usage
 
 ```js
 import { importMainThreadProfileFromChromeTimeline, FlamechartContainer } from '@perfsee/flamechart'
@@ -17,6 +19,18 @@ Notice:
 
 1. `importMainThreadProfileFromChromeTimeline()` is very slow, please cache the results.
 2. `<FlamechartContainer />` use '100%' for the height and width, please wrap it with a div parent element with defined width & height.
+
+### Example
+
+[simple graph](https://codesandbox.io/s/flamechart-simple-example-xkg4uw)
+
+[color themes](https://codesandbox.io/s/flamechart-theme-example-qpxhmt)
+
+[flamechart with timings](https://codesandbox.io/s/flamechart-timing-example-lbmglt)
+
+[multiple graph](https://codesandbox.io/s/flamechart-group-example-yswipr)
+
+[network graph](https://codesandbox.io/s/flamechart-network-graph-example-tjlq9p)
 
 ### Props
 
