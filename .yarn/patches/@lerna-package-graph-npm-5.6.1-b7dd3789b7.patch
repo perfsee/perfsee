@@ -1,5 +1,5 @@
 diff --git a/index.js b/index.js
-index a22558e5c0b2779ac875d14288f8d67c22889839..d8a1f1f8514d5850eae24c23a9145ea0ebf5e608 100644
+index a22558e5c0b2779ac875d14288f8d67c22889839..1279abc6099fe37cbab1722372b8b2bf674bf78a 100644
 --- a/index.js
 +++ b/index.js
 @@ -5,6 +5,7 @@ const { ValidationError } = require("@lerna/validation-error");
@@ -10,12 +10,8 @@ index a22558e5c0b2779ac875d14288f8d67c22889839..d8a1f1f8514d5850eae24c23a9145ea0
  
  /** @typedef {import("./lib/package-graph-node").PackageGraphNode} PackageGraphNode */
  
-@@ -22,8 +23,14 @@ class PackageGraph extends Map {
-    * @param {boolean} [forceLocal] Force all local dependencies to be linked.
-    */
+@@ -24,6 +25,10 @@ class PackageGraph extends Map {
    constructor(packages, graphType = "allDependencies", forceLocal) {
-+  
-+  
      super(packages.map((pkg) => [pkg.name, new PackageGraphNode(pkg)]));
  
 +    const project = new Project()
@@ -25,7 +21,7 @@ index a22558e5c0b2779ac875d14288f8d67c22889839..d8a1f1f8514d5850eae24c23a9145ea0
      if (packages.length !== this.size) {
        // weed out the duplicates
        const seen = new Map();
-@@ -77,7 +84,7 @@ class PackageGraph extends Map {
+@@ -77,7 +82,7 @@ class PackageGraph extends Map {
            if (spec === "*" || spec === "^" || spec === "~") {
              workspaceAlias = spec;
              const prefix = spec === "*" ? "" : spec;

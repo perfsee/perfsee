@@ -1,5 +1,5 @@
 diff --git a/index.js b/index.js
-index d4643b9b4f170d1ca5d5ff6c5d7d11bf26066133..177b6d6ab8d1161244333e3036b1c108fdb99d79 100644
+index d4643b9b4f170d1ca5d5ff6c5d7d11bf26066133..d04714140faf96ab05a48ea6174e5c88c4c5d4de 100644
 --- a/index.js
 +++ b/index.js
 @@ -240,6 +240,7 @@ class PublishCommand extends Command {
@@ -10,11 +10,12 @@ index d4643b9b4f170d1ca5d5ff6c5d7d11bf26066133..177b6d6ab8d1161244333e3036b1c108
      chain = chain.then(() => this.annotateGitHead());
      chain = chain.then(() => this.serializeChanges());
      chain = chain.then(() => this.packUpdated());
-@@ -551,6 +552,21 @@ class PublishCommand extends Command {
+@@ -550,7 +551,22 @@ class PublishCommand extends Command {
+       // writing changes to disk handled in serializeChanges()
      });
    }
- 
-+  resolveWorkspaceDependencies() {
++ 
++ resolveWorkspaceDependencies() {
 +    return pMap(this.updates, (node) => {
 +      for (const [depName, resolved] of node.localDependencies) {
 +        if (resolved.workspaceSpec) {
@@ -24,11 +25,11 @@ index d4643b9b4f170d1ca5d5ff6c5d7d11bf26066133..177b6d6ab8d1161244333e3036b1c108
 +          node.pkg.updateLocalDependency(resolved, depVersion, this.savePrefix, false);
 +        }
 +      }
-+
+ 
 +      // writing changes to disk handled in serializeChanges()
 +    });
 +  }
-+
++  
    annotateGitHead() {
      try {
        const gitHead = this.options.gitHead || getCurrentSHA(this.execOpts);

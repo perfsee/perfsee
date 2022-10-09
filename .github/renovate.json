@@ -39,7 +39,6 @@
         "node-fetch",
         "chalk",
         "file-type",
-
         "path-to-regexp",
         "react-router",
         "react-router-dom",
@@ -49,6 +48,12 @@
       "extends": [
         ":disableMajorUpdates"
       ]
+    },
+    {
+      "matchPackagePatterns": [
+        "^@?rollup"
+      ],
+      "groupName": "rollup"
     }
   ],
   "commitMessagePrefix": "chore: ",
@@ -60,7 +65,8 @@
     "node",
     "@types/node",
     "@types/node-fetch",
-    "@mdx-js/react"
+    "@mdx-js/react",
+    "@abraham/reflection"
   ],
   "ignorePaths": [
     "**/node_modules/**",
