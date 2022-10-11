@@ -15,6 +15,12 @@
       "path": "../packages/utils"
     },
     {
+      "path": "../packages/flamechart"
+    },
+    {
+      "path": "../packages/treemap"
+    },
+    {
       "path": "../packages/plugins/esbuild"
     },
     {
