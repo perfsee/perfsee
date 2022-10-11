@@ -96,6 +96,7 @@ export type CookieType = {
   httpOnly: boolean
   secure: boolean
   expire: string | null
+  sameSite?: 'Strict' | 'Lax' | 'None'
 }
 
 export type HeaderType = {

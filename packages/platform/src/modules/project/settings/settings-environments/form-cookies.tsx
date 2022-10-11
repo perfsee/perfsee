@@ -14,7 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IconButton, Stack, DefaultButton, Label, Checkbox, IIconProps, DatePicker } from '@fluentui/react'
+import {
+  IconButton,
+  Stack,
+  DefaultButton,
+  Label,
+  Checkbox,
+  IIconProps,
+  DatePicker,
+  ComboBox,
+  IComboBoxOption,
+} from '@fluentui/react'
 import dayjs from 'dayjs'
 import { FormEvent, forwardRef, useMemo, useState, useCallback, useImperativeHandle } from 'react'
 
@@ -45,6 +55,21 @@ const CheckboxStyles = {
     margin: '8px 0',
   },
 }
+
+const SameSiteOptions = [
+  {
+    key: 'None',
+    text: 'None',
+  },
+  {
+    key: 'Strict',
+    text: 'Strict',
+  },
+  {
+    key: 'Lax',
+    text: 'Lax',
+  },
+]
 
 const FormCookie = (props: CookieProps) => {
   const [editing, open, close] = useToggleState(!props.cookie.value)
@@ -78,6 +103,19 @@ const FormCookie = (props: CookieProps) => {
         {
           ...cookie,
           [type]: typeof value === 'string' ? value.trim() : value,
+        },
+        index,
+      )
+    },
+    [cookie, index, onCookieChange],
+  )
+
+  const onSameSiteChange = useCallback(
+    (_e?: any, _o?: IComboBoxOption, _i?: number, value?: string) => {
+      onCookieChange(
+        {
+          ...cookie,
+          sameSite: value as 'Strict' | 'Lax' | 'None',
         },
         index,
       )
@@ -131,12 +169,18 @@ const FormCookie = (props: CookieProps) => {
             {cookie.secure ? 'Yes' : 'No'}
           </div>
         </Stack>
-        {cookie.expire && (
+        <Stack styles={{ root: { '> div': { width: '50%' } } }} horizontal>
           <div>
-            <b>Expired: </b>
-            {dayjs(cookie.expire).format('YYYY-MM-DD')}
+            <b>SameSite: </b>
+            {cookie.sameSite ?? 'Lax'}
           </div>
-        )}
+          {cookie.expire && (
+            <div>
+              <b>Expired: </b>
+              {dayjs(cookie.expire).format('YYYY-MM-DD')}
+            </div>
+          )}
+        </Stack>
       </div>
     )
   }
@@ -190,21 +234,39 @@ const FormCookie = (props: CookieProps) => {
         label="Share only with SSL servers (Secure)"
         defaultChecked={cookie.secure}
       />
-      <Stack horizontal verticalAlign="center" tokens={NormalToken}>
-        <span>Expire time:</span>
-        <DatePicker
-          styles={{ root: { flex: 1 }, textField: { '> span': { display: 'none' } } }}
-          value={cookie.expire ? new Date(cookie.expire) : undefined}
-          showMonthPickerAsOverlay={true}
-          placeholder="We will notify you on this date."
-          minDate={new Date()}
-          onSelectDate={onSelectDate}
-        />
-        <IconButton
-          iconProps={removeIconProps}
-          styles={{ root: { color: SharedColors.gray30 } }}
-          onClick={onRemoveDate}
-        />
+      <Stack horizontal verticalAlign="center">
+        <Stack.Item basis="50%" grow={0} shrink={0}>
+          <Stack horizontal verticalAlign="center" tokens={NormalToken}>
+            <span>Same Site:</span>
+            <ComboBox
+              selectedKey={cookie.sameSite ?? 'Lax'}
+              placeholder="Same Site"
+              onChange={onSameSiteChange}
+              styles={{ root: { flex: 1 }, textField: { '> span': { display: 'none' } } }}
+              useComboBoxAsMenuWidth={true}
+              allowFreeform={false}
+              options={SameSiteOptions}
+            />
+          </Stack>
+        </Stack.Item>
+        <Stack.Item basis="50%" grow={0} shrink={0}>
+          <Stack horizontal verticalAlign="center" tokens={NormalToken}>
+            <span>Expire time:</span>
+            <DatePicker
+              styles={{ root: { flex: 1 }, textField: { '> span': { display: 'none' } } }}
+              value={cookie.expire ? new Date(cookie.expire) : undefined}
+              showMonthPickerAsOverlay={true}
+              placeholder="We will notify you on this date."
+              minDate={new Date()}
+              onSelectDate={onSelectDate}
+            />
+            <IconButton
+              iconProps={removeIconProps}
+              styles={{ root: { color: SharedColors.gray30 } }}
+              onClick={onRemoveDate}
+            />
+          </Stack>
+        </Stack.Item>
       </Stack>
     </div>
   )
