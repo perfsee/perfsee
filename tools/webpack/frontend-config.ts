@@ -46,7 +46,7 @@ export function getFrontendConfig() {
       }),
       new PerfseePlugin({
         project: 'perfsee',
-        severOptions: {
+        serverOptions: {
           publicPath: getPackage('@perfsee/plugin-utils').relative('public'),
         },
       }),

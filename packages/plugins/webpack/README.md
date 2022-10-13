@@ -86,7 +86,7 @@ interface Options {
   /**
    * Server options used to start local report viewer
    */
-  severOptions?: {
+  serverOptions?: {
     /**
      * Port the local report server will listen on
      *
