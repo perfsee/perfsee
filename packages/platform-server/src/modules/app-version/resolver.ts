@@ -44,4 +44,9 @@ export class ProjectAppVersionResolver {
     }
     return this.service.getAppVersions(project.id, from, to, length)
   }
+
+  @ResolveField(() => AppVersion, { name: 'appVersion', description: 'get app version by hash' })
+  appVersion(@Parent() project: Project, @Args({ name: 'hash', type: () => String }) hash: string) {
+    return this.service.getAppVersionByHash(project.id, hash)
+  }
 }

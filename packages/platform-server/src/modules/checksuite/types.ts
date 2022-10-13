@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Artifact, Project, Snapshot, SnapshotReport } from '@perfsee/platform-server/db'
+import { AppVersion, Artifact, Project, Snapshot, SnapshotReport } from '@perfsee/platform-server/db'
 import { BundleJobUpdate } from '@perfsee/server-common'
 
 export enum CheckStatus {
@@ -61,11 +61,13 @@ interface CheckEndTemplate extends CheckTemplate {
 export interface BundleCheckAction extends CheckActionTemplate {
   type: CheckType.Bundle
   artifact: Artifact
+  version: AppVersion
 }
 
 export interface BundleCompletedAction extends CheckEndTemplate {
   type: CheckType.Bundle
   artifact: Artifact
+  version: AppVersion
   baselineArtifact?: Artifact
   bundleJobResult: BundleJobUpdate
 }
@@ -73,11 +75,13 @@ export interface BundleCompletedAction extends CheckEndTemplate {
 export interface LabCheckAction extends CheckActionTemplate {
   type: CheckType.Lab
   snapshot: Snapshot
+  version: AppVersion
 }
 
 export interface LabCompletedAction extends CheckEndTemplate {
   type: CheckType.Lab
   snapshot: Snapshot
+  version: AppVersion
   reports: SnapshotReport[]
 }
 

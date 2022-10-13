@@ -42,7 +42,8 @@ export const VersionReport = () => {
   const history = useHistory()
   const breadcrumb = useBreadcrumb({ versionReportPage: true })
 
-  const [{ allCommits, artifactJob, lab, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
+  const [{ allCommits, versionInfo, artifactJob, lab, lhContent, currentIssueCount }, dispatcher] =
+    useModule(HashReportModule)
   const [{ hash = '', reportId, tabName = PivotKey.Overview }, updateQueryString] = useQueryString<{
     hash: string
     reportId: number
@@ -94,6 +95,7 @@ export const VersionReport = () => {
   useEffect(() => {
     if (hash && allCommits.commits.length) {
       dispatcher.getArtifactByCommit(hash)
+      dispatcher.getVersionInfo({ hash })
       dispatcher.getSnapshotByCommit({ hash })
       dispatcher.fetchSourceIssueCount({ hash })
     }
@@ -161,6 +163,7 @@ export const VersionReport = () => {
       <ContentCard onRenderHeader={onRenderHeader}>
         <BaseInfo
           artifact={artifactJob.artifact}
+          versionInfo={versionInfo.appVersion}
           entry={entrypoint}
           entryPoints={entryPoints}
           hash={hash}

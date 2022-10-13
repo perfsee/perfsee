@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import { Artifact, Project, Snapshot, SnapshotReport } from '@perfsee/platform-server/db'
+import { AppVersion, Artifact, Project, Snapshot, SnapshotReport } from '@perfsee/platform-server/db'
 import { UrlService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { BundleJobUpdate } from '@perfsee/server-common'
@@ -34,7 +34,7 @@ export class CheckSuiteService {
     private readonly url: UrlService,
   ) {}
 
-  async startBundleCheck(artifact: Artifact, project: Project) {
+  async startBundleCheck(artifact: Artifact, project: Project, version: AppVersion) {
     await this.createOrUpdateCheck({
       project,
       commitHash: artifact.hash,
@@ -43,13 +43,14 @@ export class CheckSuiteService {
       startedAt: new Date(),
       type: CheckType.Bundle,
       artifact,
+      version,
       detailsUrl: this.url.projectUrl(pathFactory.project.bundle.home, {
         projectId: project.slug,
       }),
     })
   }
 
-  async runBundleCheck(artifact: Artifact, project: Project) {
+  async runBundleCheck(artifact: Artifact, project: Project, version: AppVersion) {
     await this.createOrUpdateCheck({
       project,
       commitHash: artifact.hash,
@@ -57,6 +58,7 @@ export class CheckSuiteService {
       status: CheckStatus.inProgress,
       type: CheckType.Bundle,
       artifact,
+      version,
       detailsUrl: this.url.projectUrl(pathFactory.project.bundle.home, {
         projectId: project.slug,
       }),
@@ -68,6 +70,7 @@ export class CheckSuiteService {
     baselineArtifact: Artifact | undefined,
     project: Project,
     bundleResult: BundleJobUpdate,
+    version: AppVersion,
   ) {
     await this.createOrUpdateCheck({
       project,
@@ -77,6 +80,7 @@ export class CheckSuiteService {
       conclusion: artifact.succeeded() ? CheckConclusion.Success : CheckConclusion.Failure,
       completedAt: new Date(),
       type: CheckType.Bundle,
+      version,
       detailsUrl: this.url.projectUrl(pathFactory.project.bundle.detail, {
         projectId: project.slug,
         bundleId: artifact.iid,
@@ -87,7 +91,7 @@ export class CheckSuiteService {
     })
   }
 
-  async startLabCheck(project: Project, snapshot: Snapshot) {
+  async startLabCheck(project: Project, snapshot: Snapshot, version: AppVersion) {
     if (!snapshot.hash) {
       return
     }
@@ -97,11 +101,12 @@ export class CheckSuiteService {
       runId: snapshot.id,
       status: CheckStatus.queued,
       type: CheckType.Lab,
+      version,
       snapshot,
     })
   }
 
-  async runLabCheck(project: Project, snapshot: Snapshot) {
+  async runLabCheck(project: Project, snapshot: Snapshot, version: AppVersion) {
     if (!snapshot.hash) {
       return
     }
@@ -111,11 +116,12 @@ export class CheckSuiteService {
       runId: snapshot.id,
       status: CheckStatus.inProgress,
       type: CheckType.Lab,
+      version,
       snapshot,
     })
   }
 
-  async endLabCheck(project: Project, snapshot: Snapshot, reports: SnapshotReport[]) {
+  async endLabCheck(project: Project, snapshot: Snapshot, reports: SnapshotReport[], version: AppVersion) {
     if (!snapshot.hash) {
       return
     }
@@ -127,6 +133,7 @@ export class CheckSuiteService {
       type: CheckType.Lab,
       reports,
       snapshot,
+      version,
       conclusion: CheckConclusion.Success,
     })
   }

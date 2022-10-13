@@ -16,7 +16,7 @@ limitations under the License.
 
 import envCI, { CiEnv } from 'env-ci'
 
-import { getCurrentCommit, getProjectInfoFromGit } from './git'
+import { getCommitMessage, getCurrentCommit, getProjectInfoFromGit } from './git'
 
 type GithubEnv = {
   isCi: true
@@ -37,6 +37,7 @@ type GitEnv = {
   namespace: string
   name: string
   commit: string
+  commitMessage?: string
   branch: string
   tag?: string
   pr?: {
@@ -104,13 +105,14 @@ function getCiBranch() {
 async function getGitEnv(): Promise<GitEnv> {
   if (envs.isCi && (envs.service === 'github' || envs.service === 'gitlab')) {
     const [namespace, name] = envs.slug.split('/')
+    const commit = getCiCommit() || envs.commit
     return {
       host: envs.service === 'github' ? 'github.com' : 'gitlab.com',
       namespace,
       name,
       branch: getCiBranch() || envs.branch,
-      commit: getCiCommit() || envs.commit,
-      tag: 'tag' in envs ? (envs.tag !== 'undefined' ? envs.tag : void 0) : void 0,
+      commit: commit,
+      commitMessage: await getCommitMessage(commit),
       pr: getPr(),
     }
   } else {
@@ -126,6 +128,7 @@ async function getGitEnv(): Promise<GitEnv> {
       name: project.name,
       branch: project.branch,
       commit,
+      commitMessage: await getCommitMessage(commit),
     }
   }
 }

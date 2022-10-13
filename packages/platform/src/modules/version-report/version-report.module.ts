@@ -24,6 +24,7 @@ import {
   ArtifactByCommitQuery,
   artifactByCommitQuery,
   appVersionsQuery,
+  appVersionQuery,
   snapshotReportsByCommitQuery,
   SnapshotReportsByCommitQuery,
   issuesByReportIdQuery,
@@ -33,10 +34,12 @@ import {
 import { ProjectModule } from '../shared'
 
 import {
+  AppVersion,
   LighthouseTosContent,
   SourceIssue,
   VersionArtifactJob,
   VersionCommits,
+  VersionInfo,
   VersionIssues,
   VersionLab,
   VersionLHContent,
@@ -44,6 +47,7 @@ import {
 
 interface State {
   allCommits: VersionCommits
+  versionInfo: VersionInfo
   artifactJob: VersionArtifactJob
   lab: VersionLab
   issues: VersionIssues
@@ -66,7 +70,7 @@ export class HashReportModule extends EffectModule<State> {
   @ImmerReducer()
   setLoading(
     state: Draft<State>,
-    { key, value }: { key: 'allCommits' | 'artifactJob' | 'lab' | 'lhContent'; value: boolean },
+    { key, value }: { key: 'allCommits' | 'artifactJob' | 'lab' | 'lhContent' | 'versionInfo'; value: boolean },
   ) {
     state[key].loading = value
   }
@@ -139,6 +143,14 @@ export class HashReportModule extends EffectModule<State> {
   @ImmerReducer()
   setSourceIssueCount(state: Draft<State>, payload: number) {
     state.currentIssueCount = payload
+  }
+
+  @ImmerReducer()
+  setVersionInfo(state: Draft<State>, payload: AppVersion) {
+    state.versionInfo = {
+      loading: false,
+      appVersion: payload,
+    }
   }
 
   @Effect()
@@ -266,6 +278,30 @@ export class HashReportModule extends EffectModule<State> {
   }
 
   @Effect()
+  getVersionInfo(payload$: Observable<{ hash: string }>) {
+    return payload$.pipe(
+      withLatestFrom(this.projectModule.state$),
+      filter(([, { project }]) => !!project),
+      switchMap(([{ hash }, { project }]) =>
+        this.client
+          .query({
+            query: appVersionQuery,
+            variables: {
+              projectId: project!.id,
+              hash,
+            },
+          })
+          .pipe(
+            createErrorCatcher('Failed to fetch source issue count.'),
+            map((res) => this.getActions().setVersionInfo(res.project.appVersion)),
+            startWith(this.getActions().setLoading({ key: 'versionInfo', value: true })),
+            endWith(this.getActions().setLoading({ key: 'versionInfo', value: false })),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
   fetchSourceIssueCount(payload$: Observable<{ hash: string }>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
@@ -299,6 +335,9 @@ export class HashReportModule extends EffectModule<State> {
         loading: false,
         list: [],
         totalCount: 0,
+      },
+      versionInfo: {
+        loading: false,
       },
       currentIssueCount: 0,
       lhContent: { loading: false, metricScores: [] },

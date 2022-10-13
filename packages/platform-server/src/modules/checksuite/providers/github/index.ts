@@ -35,6 +35,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
     if (!this.github.available) {
       return
     }
+    const isPr = !!action.version.pr
     const checkName = action.type === CheckType.Bundle ? `${action.type} - ${action.artifact.name}` : action.type
     const checkId = `${action.project.id}-${action.commitHash}-${checkName}`
 
@@ -42,7 +43,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
     const accessToken = await this.github.getInstallationAccessToken(installation.id)
 
     const params: GithubCheckRunParameters = {
-      name: `${action.project.slug} - ${checkName}`,
+      name: `${action.project.slug} - ${checkName}` + (isPr ? ` (pull_request)` : ''),
       external_id: action.runId.toString(),
       status: this.convertStatus(action.status),
       conclusion: this.convertConclusion(action.conclusion),

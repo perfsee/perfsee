@@ -70,6 +70,12 @@ export interface BuildUploadParams {
   artifactName: string
   branch: string
   commitHash: string
+  commitMessage?: string
+  pr?: {
+    number: number
+    headHash: string
+    baseHash: string
+  }
   tag?: string
   appVersion?: string
   nodeVersion?: string
@@ -185,6 +191,7 @@ export class BuildUploadClient {
       ...git,
       projectId: this.options.project!,
       commitHash: git.commit,
+      commitMessage: git.commitMessage?.substring(0, 256),
       artifactName: this.options.artifactName ?? 'test',
       nodeVersion: process.version,
       appVersion: this.appVersion,

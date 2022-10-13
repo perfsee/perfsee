@@ -192,6 +192,9 @@ type Project {
     """max length of records returned"""
     length: Int
   ): [AppVersion!]!
+
+  """get app version by hash"""
+  appVersion(hash: String!): AppVersion!
   job(jobType: JobType!, entityId: Int!): Job!
 
   """time usage information of project"""
@@ -697,11 +700,20 @@ type AppVersion {
   """commit hash"""
   hash: String!
 
+  """commit message"""
+  commitMessage: String
+
   """git branch"""
   branch: String
 
   """git tag"""
   version: String
+
+  """Pull request number"""
+  pr: Int!
+
+  """Pull request base commit hash"""
+  prBaseHash: String!
 
   """version release exempted"""
   exempted: Boolean!

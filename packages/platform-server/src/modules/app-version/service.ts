@@ -25,7 +25,7 @@ import { nDaysBefore } from '@perfsee/platform-server/utils'
 export class AppVersionService {
   constructor(private readonly metrics: Metric, private readonly internalId: InternalIdService) {}
 
-  async recordVersion(input: Partial<AppVersion> & Pick<AppVersion, 'projectId' | 'hash'>) {
+  async recordVersion(input: Partial<AppVersion> & Pick<AppVersion, 'projectId' | 'hash'>): Promise<AppVersion> {
     const existedVersion = await AppVersion.findOneBy(
       input.version
         ? {
@@ -37,9 +37,9 @@ export class AppVersionService {
     )
 
     if (existedVersion) {
-      return AppVersion.merge(existedVersion, input).save()
+      return AppVersion.merge<AppVersion>(existedVersion, input).save()
     } else {
-      return AppVersion.create({
+      return AppVersion.create<AppVersion>({
         ...input,
         iid: await this.internalId.generate(input.projectId, InternalIdUsage.AppVersion),
       }).save()
@@ -76,6 +76,13 @@ export class AppVersionService {
     }
 
     return query.getMany()
+  }
+
+  async getAppVersionByHash(projectId: number, hash: string): Promise<AppVersion | null> {
+    return AppVersion.findOneBy({
+      projectId,
+      hash,
+    })
   }
 
   async recentBranches(projectId: number) {

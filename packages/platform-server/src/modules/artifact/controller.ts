@@ -40,7 +40,6 @@ import { BundleJobUpdate, JobType } from '@perfsee/server-common'
 import { BuildUploadParams, gitHostFromDomain, isBaseline } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { AppVersionService } from '../app-version/service'
 import { AuthService } from '../auth/auth.service'
 import { PermissionProvider, Permission } from '../permission'
 import { ProjectService } from '../project/service'
@@ -53,7 +52,6 @@ export class ArtifactController {
     private readonly logger: Logger,
     private readonly artifactService: ArtifactService,
     private readonly projectService: ProjectService,
-    private readonly versionService: AppVersionService,
     private readonly metrics: Metric,
     private readonly internalId: InternalIdService,
     private readonly auth: AuthService,
@@ -105,17 +103,12 @@ export class ArtifactController {
         appVersion: params.appVersion,
         toolkit: params.toolkit,
         isBaseline: isBaseline(params.branch, project.artifactBaselineBranch),
+        pr: params.pr?.number,
+        prBaseHash: params.pr?.baseHash,
+        commitMessage: params.commitMessage,
       })
 
       this.logger.log(`artifact create. id=${artifact.id}`)
-
-      await this.versionService.recordVersion({
-        projectId: project.id,
-        artifactId: artifact.id,
-        hash: params.commitHash,
-        branch: params.branch,
-        version: params.tag,
-      })
 
       return {
         status: 'success',

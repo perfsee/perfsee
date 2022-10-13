@@ -14,7 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ArtifactByCommitQuery, SnapshotReportsByCommitQuery, IssuesByReportIdQuery } from '@perfsee/schema'
+import {
+  AppVersionQuery,
+  ArtifactByCommitQuery,
+  SnapshotReportsByCommitQuery,
+  IssuesByReportIdQuery,
+} from '@perfsee/schema'
 import { MetricScoreSchema } from '@perfsee/shared'
 
 import { AuditsSchema } from '../snapshots/snapshot-type'
@@ -23,6 +28,8 @@ import { LHStoredSchema } from '../snapshots/utils/format-storage-result-to-snap
 type Unwrap<Element> = Element extends Array<infer S> ? S : unknown
 
 export type Artifact = NonNullable<ArtifactByCommitQuery['project']['artifactByCommit']>
+
+export type AppVersion = AppVersionQuery['project']['appVersion']
 
 export type SourceIssue = IssuesByReportIdQuery['project']['snapshotReport']['issues'][0]
 
@@ -36,6 +43,10 @@ export interface VersionCommits extends WithLoading {
 
 export interface VersionArtifactJob extends WithLoading {
   artifact?: Artifact
+}
+
+export interface VersionInfo extends WithLoading {
+  appVersion?: AppVersion
 }
 
 export type ReportNode = Unwrap<NonNullable<SnapshotReportsByCommitQuery['project']['snapshotReports']>>

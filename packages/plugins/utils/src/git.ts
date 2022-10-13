@@ -49,3 +49,19 @@ export const getProjectInfoFromGit = async () => {
     branch,
   }
 }
+
+export const getCommitMessage = async (hash: string) => {
+  try {
+    return await simpleGit()
+      .log({ n: 1, from: hash })
+      .then((stats) => {
+        if (!stats.latest) {
+          throw new Error('No commit found')
+        }
+
+        return stats.latest.message
+      })
+  } catch {
+    return undefined
+  }
+}

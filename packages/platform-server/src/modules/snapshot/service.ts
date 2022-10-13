@@ -226,13 +226,13 @@ export class SnapshotService implements OnApplicationBootstrap {
     }
 
     if (hash) {
-      await this.appVersion.recordVersion({
+      const version = await this.appVersion.recordVersion({
         projectId,
         snapshotId: snapshot.id,
         hash,
       })
 
-      await this.checkSuite.startLabCheck(project, snapshot)
+      await this.checkSuite.startLabCheck(project, snapshot, version)
     }
 
     return snapshot
@@ -326,7 +326,13 @@ export class SnapshotService implements OnApplicationBootstrap {
           .getMany()
         const project = await Project.findOneByOrFail({ id: snapshot.projectId })
         await this.sendLabNotification(snapshot, reports)
-        await this.checkSuite.endLabCheck(project, snapshot, reports)
+
+        if (snapshot.hash) {
+          const version = await AppVersion.findOneBy({ hash: snapshot.hash })
+          if (version) {
+            await this.checkSuite.endLabCheck(project, snapshot, reports, version)
+          }
+        }
       }
     }
   }
@@ -487,8 +493,13 @@ export class SnapshotService implements OnApplicationBootstrap {
         startedAt: new Date(),
       })
 
-      const project = await Project.findOneByOrFail({ id: snapshot.projectId })
-      await this.checkSuite.runLabCheck(project, snapshot)
+      if (snapshot.hash) {
+        const project = await Project.findOneByOrFail({ id: snapshot.projectId })
+        const version = await AppVersion.findOneBy({ hash: snapshot.hash })
+        if (version) {
+          await this.checkSuite.runLabCheck(project, snapshot, version)
+        }
+      }
     }
   }
 

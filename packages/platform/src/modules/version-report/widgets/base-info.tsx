@@ -25,12 +25,13 @@ import { getCommitLink } from '@perfsee/shared'
 
 import { VersionTag } from '../../project/statistics/style'
 import { ProjectModule } from '../../shared'
-import { Artifact, EntryPointSchema, VersionSnapshotReport } from '../types'
+import { AppVersion, Artifact, EntryPointSchema, VersionSnapshotReport } from '../types'
 
 import { ReportIconWrap, CreatedAtWrap } from './styled'
 
 type Props = {
   artifact?: Artifact | null
+  versionInfo?: AppVersion
   entry?: EntryPointSchema
   entryPoints: EntryPointSchema[]
   hash: string
@@ -41,7 +42,7 @@ type Props = {
 }
 
 export const BaseInfo: FC<Props> = memo((props) => {
-  const { artifact, hash, reports, report, onReportChange, entryPoints, entry, onEntryChange } = props
+  const { artifact, versionInfo, hash, reports, report, onReportChange, entryPoints, entry, onEntryChange } = props
 
   const { project } = useModuleState(ProjectModule)
 
@@ -125,6 +126,7 @@ export const BaseInfo: FC<Props> = memo((props) => {
               </a>
             </Stack>
           )}
+          {versionInfo && <Stack>{versionInfo.commitMessage}</Stack>}
         </Stack>
       </Stack>
     </>

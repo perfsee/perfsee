@@ -17,7 +17,7 @@ limitations under the License.
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { In } from 'typeorm'
 
-import { Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
+import { AppVersion, Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -25,6 +25,7 @@ import { Metric } from '@perfsee/platform-server/metrics'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { BundleJobPayload, BundleJobUpdate, BundleJobStatus, JobType } from '@perfsee/server-common'
 
+import { AppVersionService } from '../app-version/service'
 import { CheckSuiteService } from '../checksuite/service'
 import { NotificationService } from '../notification/service'
 
@@ -37,6 +38,7 @@ export class ArtifactService implements OnApplicationBootstrap {
   )
 
   constructor(
+    private readonly versionService: AppVersionService,
     private readonly checkSuiteService: CheckSuiteService,
     private readonly event: EventEmitter,
     private readonly logger: Logger,
@@ -48,14 +50,50 @@ export class ArtifactService implements OnApplicationBootstrap {
     this.event.emit('job.register_payload_getter', JobType.BundleAnalyze, this.getJobPayload.bind(this))
   }
 
-  async create(project: Project, input: Partial<Artifact>) {
-    const baseline = await this.getLastAvailableBaseline(project.id, input.name!)
+  async create(
+    project: Project,
+    input: Partial<Artifact> & { tag?: string; pr?: number; prBaseHash?: string; commitMessage?: string },
+  ) {
+    let baseline
+
+    const prBaseline =
+      input.prBaseHash &&
+      (
+        await this.getArtifacts(
+          project.id,
+          { first: 1, after: null, skip: 0 },
+          undefined,
+          input.name!,
+          input.prBaseHash,
+        )
+      )[0][0]
+
+    if (prBaseline) {
+      // use pr baseline
+      baseline = prBaseline
+    } else {
+      // use latest baseline
+      baseline = await this.getLastAvailableBaseline(project.id, input.name!)
+    }
+
     input.project = project
     input.baselineId = baseline?.id
     const artifact = await Artifact.create<Artifact>(input).save()
 
     await ArtifactName.record(project.id, artifact.name)
-    await this.checkSuiteService.startBundleCheck(artifact, project)
+
+    const version = await this.versionService.recordVersion({
+      projectId: project.id,
+      artifactId: artifact.id,
+      hash: artifact.hash,
+      branch: artifact.branch,
+      version: input.tag,
+      pr: input.pr,
+      prBaseHash: input.prBaseHash,
+      commitMessage: input.commitMessage,
+    })
+    await this.checkSuiteService.startBundleCheck(artifact, project, version)
+
     await this.dispatchJob(artifact)
 
     return artifact
@@ -268,11 +306,12 @@ export class ArtifactService implements OnApplicationBootstrap {
 
   private async updateCheck(artifact: Artifact, update: BundleJobUpdate) {
     const project = await Project.findOneByOrFail({ id: artifact.projectId })
+    const version = await AppVersion.findOneByOrFail({ hash: artifact.hash })
     if (artifact.inProgress()) {
-      await this.checkSuiteService.runBundleCheck(artifact, project)
+      await this.checkSuiteService.runBundleCheck(artifact, project, version)
     } else {
       const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
-      await this.checkSuiteService.endBundleCheck(artifact, baseline, project, update)
+      await this.checkSuiteService.endBundleCheck(artifact, baseline, project, update, version)
     }
   }
 }
