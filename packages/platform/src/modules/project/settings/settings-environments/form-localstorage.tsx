@@ -112,8 +112,7 @@ export const FormLocalStorage = forwardRef((props: Props, ref) => {
 
   const onStorageRemove = useCallback((index: number) => {
     setStorages((storages) => {
-      storages.splice(index, 1)
-      return [...storages]
+      return storages.filter((_, i) => i !== index)
     })
   }, [])
 
