@@ -26,6 +26,10 @@ export const Header = styled.div(({ theme }) => ({
   fontSize: '24px',
   fontWeight: 500,
   minWidth: '500px',
+  gap: '16px',
+  '> *:first-child': {
+    flexGrow: 1,
+  },
 }))
 
 export const Description = styled.div({
