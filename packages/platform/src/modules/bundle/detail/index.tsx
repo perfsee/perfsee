@@ -117,6 +117,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
 
               {artifactSelectVisible && (
                 <ArtifactSelect
+                  defaultArtifactName={state.current.name}
                   currentArtifactId={state.current.id}
                   onSelect={handleSelectArtifact}
                   onDismiss={hideArtifactSelect}

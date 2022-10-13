@@ -23,6 +23,7 @@ import { FC, useState, useEffect, useMemo, useCallback } from 'react'
 import { Pagination, Table, TableColumnProps } from '@perfsee/components'
 
 import { useProject } from '../../shared'
+import { ArtifactNameSelector } from '../bundle-property'
 
 import { ArtifactSelectModule, Artifact } from './module'
 import {
@@ -39,6 +40,7 @@ import {
 type Props = {
   currentArtifactId?: number
   description?: React.ReactNode
+  defaultArtifactName?: string
   onSelect?: (payload: ArtifactSelectEventPayload) => void
   onDismiss?: () => void
 }
@@ -50,11 +52,12 @@ export type ArtifactSelectEventPayload = {
 const PAGE_SIZE = 12
 
 export const ArtifactSelect: FC<Props> = (props) => {
-  const { currentArtifactId, description, onSelect, onDismiss } = props
+  const { currentArtifactId, description, defaultArtifactName, onSelect, onDismiss } = props
 
   const [state, dispatcher] = useModule(ArtifactSelectModule)
   const project = useProject()
   const [page, setPage] = useState(1)
+  const [artifactName, setArtifactName] = useState(defaultArtifactName)
 
   const handleSelect = useCallback(
     (artifact: Artifact) => () => {
@@ -128,9 +131,9 @@ export const ArtifactSelect: FC<Props> = (props) => {
 
   useEffect(() => {
     if (project) {
-      dispatcher.fetchArtifacts({ projectId: project.id, pageNumber: page - 1, pageSize: PAGE_SIZE })
+      dispatcher.fetchArtifacts({ projectId: project.id, pageNumber: page - 1, pageSize: PAGE_SIZE, artifactName })
     }
-  }, [dispatcher, page, project])
+  }, [artifactName, dispatcher, page, project])
 
   useEffect(() => dispatcher.reset(), [dispatcher])
 
@@ -138,11 +141,14 @@ export const ArtifactSelect: FC<Props> = (props) => {
     <Modal isOpen={true} styles={{ scrollableContent: { overflow: 'visible' } }} onDismiss={onDismiss}>
       <Header>
         <span>Select baseline</span>
+
+        <ArtifactNameSelector defaultArtifactName={defaultArtifactName} onChange={setArtifactName} />
         <IconWrapper onClick={onDismiss}>
           <CloseOutlined />
         </IconWrapper>
       </Header>
       {description && <Description>{description}</Description>}
+
       <TableWrap>
         <Table
           columns={columns}
