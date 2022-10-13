@@ -65,7 +65,7 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
           report: report,
           content: moduleTree,
         },
-        options.severOptions,
+        options.serverOptions,
       )
     }
   } catch (e) {

@@ -77,7 +77,7 @@ type Options = {
   /**
    * 用于本地分析结果展示的服务配置。
    */
-  severOptions?: {
+  serverOptions?: {
     /**
      * 本地报告服务监听的端口
      *

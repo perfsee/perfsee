@@ -88,7 +88,7 @@ export interface CommonPluginOptions {
   /**
    * Server options used to start local report viewer
    */
-  severOptions?: ServerOptions
+  serverOptions?: ServerOptions
 
   /**
    * Authentication token used for uploading build to remote server.
