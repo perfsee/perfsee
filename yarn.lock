@@ -5378,7 +5378,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/chrome-finder@workspace:packages/chrome-finder"
   dependencies:
-    puppeteer-core: ^13.7.0
+    puppeteer-core: ^19.0.0
   peerDependencies:
     puppeteer-core: ">= 13"
   languageName: unknown
@@ -5487,7 +5487,7 @@ __metadata:
     lighthouse: ^9.6.3
     lighthouse-logger: ^1.3.0
     lodash: ^4.17.21
-    puppeteer-core: ^13.7.0
+    puppeteer-core: ^19.0.0
     ts-node: ^10.9.1
     uuid: ^9.0.0
     vm2: ^3.9.11
@@ -11408,6 +11408,13 @@ __metadata:
   bin:
     dev-ip: lib/dev-ip.js
   checksum: 274a6470c2143e4cdcb2b27e0bea137dbc2b42667eb59c890e703185054cb2bcaf2d8533e7ad2f532fe551a90542abc6b37053e8d73918a4fcfb7ffd76589620
+  languageName: node
+  linkType: hard
+
+"devtools-protocol@npm:0.0.1045489":
+  version: 0.0.1045489
+  resolution: "devtools-protocol@npm:0.0.1045489"
+  checksum: 670b2ecc8e890358b08da3095b4c927ffc5ef846a39e1526ff99aecaa623b339450dfe308e421e64bf94308441832b8e9497ebda97fb02266fef3f455286742f
   languageName: node
   linkType: hard
 
@@ -21583,6 +21590,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"puppeteer-core@npm:^19.0.0":
+  version: 19.0.0
+  resolution: "puppeteer-core@npm:19.0.0"
+  dependencies:
+    cross-fetch: 3.1.5
+    debug: 4.3.4
+    devtools-protocol: 0.0.1045489
+    extract-zip: 2.0.1
+    https-proxy-agent: 5.0.1
+    proxy-from-env: 1.1.0
+    rimraf: 3.0.2
+    tar-fs: 2.1.1
+    unbzip2-stream: 1.4.3
+    ws: 8.9.0
+  checksum: bc2a111761b1ef72ed715d72e339f0a3b74f9ae22fdac1e3b40ba2e673505143b399479f6f1bc2f701cb8b88a0a5ad13c3ba4286f508d686e7746379e749e818
+  languageName: node
+  linkType: hard
+
 "pvtsutils@npm:^1.3.2":
   version: 1.3.2
   resolution: "pvtsutils@npm:1.3.2"
@@ -26870,6 +26895,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 2152cf862cae0693f3775bc688a6afb2e989d19d626d215e70f5fcd8eb55b1c3b0d3a6a4052905ec320e2d7734e20aeedbf9744496d62f15a26ad79cf4cf7dae
+  languageName: node
+  linkType: hard
+
+"ws@npm:8.9.0":
+  version: 8.9.0
+  resolution: "ws@npm:8.9.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 23aa0f021b2eb65c108ec4c3e08c0d81ba01f82b500432dfe327fd6be36079c1d81fdb0eac6464d2a0eb49904d34a9ab8c59619d673fa07b8346f83aeb0cbf12
   languageName: node
   linkType: hard
 
