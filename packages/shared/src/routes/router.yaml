@@ -1,55 +1,115 @@
 base: /
+title: Perfsee
 paths:
   docs:
     base: /docs
     paths:
-      api: /api
+      api:
+        path: /api
   features:
     base: /features
     paths:
-      bundle: /bundle
-      lab: /lab
-      source: /source
-  projects: /projects
-  notFound: /404
-  status: /status
-  license: /license
-  applications: /applications
-  editPassword: /edit-password
-  resetPassword: /reset-password
+      bundle:
+        path: /bundle
+      lab:
+        path: /lab
+      source:
+        path: /source
+  projects:
+    path: /projects
+    title: Projects
+  notFound:
+    path: /404
+    title: Not found
+  status:
+    path: /status
+    title: Status
+  license:
+    path: /license
+    title: License
+  applications:
+    path: /applications
+  editPassword:
+    path: /edit-password
+    title: Edit password
+  resetPassword:
+    path: /reset-password
+    title: Reset password
   me:
     base: /me
+    title: Me
     paths:
-      connectedAccounts: /connected-accounts
-      billing: /billing
-      accessToken: /access-token
-  login: /login
-  importGithub: /import/github
-  register: /register
+      connectedAccounts:
+        path: /connected-accounts
+        title: Connected Accounts
+      billing:
+        path: /billing
+        title: Billing
+      accessToken:
+        path: /access-token
+        title: Access token
+  login:
+    path: /login
+    title: Login
+  importGithub:
+    path: /import/github
+    title: Import github
+  register:
+    path: /register
+    title: Register
   project:
     base: /projects/:projectId
+    title: '{projectId}'
     paths:
-      feature: /:feature?
-      home: /home
+      feature:
+        path: /:feature?
+        title: '{feature}'
+      home:
+        path: /home
+        title: Home
       statistics:
         base: /statistics
+        title: Statistics
         paths:
-          artifacts: /artifacts
-          snapshots: /snapshots
+          artifacts:
+            path: /artifacts
+            title: Artifacts
+          snapshots:
+            path: /snapshots
+            title: Snapshots
       bundle:
         base: /bundle
+        title: Bundle
         paths:
-          detail: /:bundleId
-          jobBundleContent: /:bundleId/bundle-content
+          detail:
+            path: /:bundleId
+            title: 'Bundle #{bundleId}'
+          jobBundleContent:
+            path: /:bundleId/bundle-content
+            title: 'Bundle content #{bundleId}'
       lab:
         base: /lab
+        title: Lab
         paths:
-          report: /reports/:reportId/:tabName?
+          report:
+            path: /reports/:reportId/:tabName?
+            title: 'Report #{reportId}'
       competitor:
         base: /competitor
+        title: Competitor
         paths:
-          report: /reports/:tabName
-      source: /source
-      report: /report
-      settings: /settings/:settingName?
-      jobTrace: /jobs/:type/:entityId
+          report:
+            path: /reports/:tabName
+            title: Competitor Report
+      source:
+        path: /source
+        title: Source
+      report:
+        path: /report
+        title: Report
+      settings:
+        path: /settings/:settingName?
+        title: 'Setting {settingName}'
+      jobTrace:
+        path: /jobs/:type/:entityId
+        title: '{type} job #{entityId}'

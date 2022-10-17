@@ -112,6 +112,12 @@ export const Settings = () => {
     )
   }, [onLinkClick, settingName])
 
+  useEffect(() => {
+    if (!settingName) {
+      history.push(generateProjectRoute(pathFactory.project.settings, { settingName: 'basic' }))
+    }
+  }, [generateProjectRoute, history, settingName])
+
   return (
     <div style={{ padding: '0 20px' }}>
       <Breadcrumb items={breadcrumbItems} />

@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Switch, Redirect, Route } from 'react-router'
+import { Switch, Redirect } from 'react-router'
 
+import { Route } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { ComparisonBox } from '../components/comparison-box'

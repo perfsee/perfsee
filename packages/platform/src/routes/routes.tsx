@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Route, Switch } from 'react-router'
+import { Switch } from 'react-router'
 
-import { NotFound } from '@perfsee/components'
+import { NotFound, Route } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { LoginRedirect } from '../modules/login/login-redirect'

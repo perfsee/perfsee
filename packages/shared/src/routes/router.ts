@@ -12,6 +12,10 @@ function makePathsFrom<Params = void>(path: string) {
   return compile(path) as PathMaker<Params, Params extends void ? false : true>
 }
 
+function makeTitlesFrom(title: string, data: Record<string, any>) {
+  return title.replace(/\{(.*?)\}/g, (match, key) => data[key] ?? match)
+}
+
 export interface RouteTypes {
   home: void
   docs: { home: void; api: void }
@@ -161,4 +165,56 @@ export const pathFactory = {
       '/projects/:projectId/jobs/:type/:entityId',
     ),
   },
+}
+
+export const titleFactory = {
+  '/': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/docs': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/docs/api': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/features': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/features/bundle': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/features/lab': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/features/source': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/projects': (data: Record<string, any>) => makeTitlesFrom('Projects | Perfsee', data),
+  '/404': (data: Record<string, any>) => makeTitlesFrom('Not found | Perfsee', data),
+  '/status': (data: Record<string, any>) => makeTitlesFrom('Status | Perfsee', data),
+  '/license': (data: Record<string, any>) => makeTitlesFrom('License | Perfsee', data),
+  '/applications': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/edit-password': (data: Record<string, any>) => makeTitlesFrom('Edit password | Perfsee', data),
+  '/reset-password': (data: Record<string, any>) => makeTitlesFrom('Reset password | Perfsee', data),
+  '/me': (data: Record<string, any>) => makeTitlesFrom('Me | Perfsee', data),
+  '/me/connected-accounts': (data: Record<string, any>) => makeTitlesFrom('Connected Accounts | Me | Perfsee', data),
+  '/me/billing': (data: Record<string, any>) => makeTitlesFrom('Billing | Me | Perfsee', data),
+  '/me/access-token': (data: Record<string, any>) => makeTitlesFrom('Access token | Me | Perfsee', data),
+  '/login': (data: Record<string, any>) => makeTitlesFrom('Login | Perfsee', data),
+  '/import/github': (data: Record<string, any>) => makeTitlesFrom('Import github | Perfsee', data),
+  '/register': (data: Record<string, any>) => makeTitlesFrom('Register | Perfsee', data),
+  '/projects/:projectId': (data: Record<string, any>) => makeTitlesFrom('{projectId} | Perfsee', data),
+  '/projects/:projectId/:feature?': (data: Record<string, any>) =>
+    makeTitlesFrom('{feature} | {projectId} | Perfsee', data),
+  '/projects/:projectId/home': (data: Record<string, any>) => makeTitlesFrom('Home | {projectId} | Perfsee', data),
+  '/projects/:projectId/statistics': (data: Record<string, any>) =>
+    makeTitlesFrom('Statistics | {projectId} | Perfsee', data),
+  '/projects/:projectId/statistics/artifacts': (data: Record<string, any>) =>
+    makeTitlesFrom('Artifacts | Statistics | {projectId} | Perfsee', data),
+  '/projects/:projectId/statistics/snapshots': (data: Record<string, any>) =>
+    makeTitlesFrom('Snapshots | Statistics | {projectId} | Perfsee', data),
+  '/projects/:projectId/bundle': (data: Record<string, any>) => makeTitlesFrom('Bundle | {projectId} | Perfsee', data),
+  '/projects/:projectId/bundle/:bundleId': (data: Record<string, any>) =>
+    makeTitlesFrom('Bundle #{bundleId} | Bundle | {projectId} | Perfsee', data),
+  '/projects/:projectId/bundle/:bundleId/bundle-content': (data: Record<string, any>) =>
+    makeTitlesFrom('Bundle content #{bundleId} | Bundle | {projectId} | Perfsee', data),
+  '/projects/:projectId/lab': (data: Record<string, any>) => makeTitlesFrom('Lab | {projectId} | Perfsee', data),
+  '/projects/:projectId/lab/reports/:reportId/:tabName?': (data: Record<string, any>) =>
+    makeTitlesFrom('Report #{reportId} | Lab | {projectId} | Perfsee', data),
+  '/projects/:projectId/competitor': (data: Record<string, any>) =>
+    makeTitlesFrom('Competitor | {projectId} | Perfsee', data),
+  '/projects/:projectId/competitor/reports/:tabName': (data: Record<string, any>) =>
+    makeTitlesFrom('Competitor Report | Competitor | {projectId} | Perfsee', data),
+  '/projects/:projectId/source': (data: Record<string, any>) => makeTitlesFrom('Source | {projectId} | Perfsee', data),
+  '/projects/:projectId/report': (data: Record<string, any>) => makeTitlesFrom('Report | {projectId} | Perfsee', data),
+  '/projects/:projectId/settings/:settingName?': (data: Record<string, any>) =>
+    makeTitlesFrom('Setting {settingName} | {projectId} | Perfsee', data),
+  '/projects/:projectId/jobs/:type/:entityId': (data: Record<string, any>) =>
+    makeTitlesFrom('{type} job #{entityId} | {projectId} | Perfsee', data),
 }

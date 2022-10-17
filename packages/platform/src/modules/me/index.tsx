@@ -17,9 +17,9 @@ limitations under the License.
 import { Icon, PersonaSize, Stack, Text } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
 import { useCallback, useEffect } from 'react'
-import { Link, Route, Switch } from 'react-router-dom'
+import { Link, Switch } from 'react-router-dom'
 
-import { BodyContainer, BodyPadding } from '@perfsee/components'
+import { BodyContainer, BodyPadding, Route } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { ConnectedAccount, ConnectedAccountsModule, UserModule } from '../shared'

@@ -17,10 +17,10 @@ limitations under the License.
 import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
 import { memo, useEffect, useMemo } from 'react'
-import { useParams, Redirect, Route } from 'react-router'
+import { useParams, Redirect } from 'react-router'
 import { Switch } from 'react-router-dom'
 
-import { NotFound } from '@perfsee/components'
+import { NotFound, Route } from '@perfsee/components'
 import { Permission } from '@perfsee/schema'
 import { staticPath, RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
