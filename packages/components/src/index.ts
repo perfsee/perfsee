@@ -55,6 +55,7 @@ export * from './audit-item'
 export * from './format-markdown-link'
 export * from './donut-chart'
 export * from './modal'
+export * from './pop-confirm'
 
 // if any of the components imported ever by non-async modules, then all components will be loaded in sync mode
 // which would involve a lot of useless downloading traffic.

@@ -28,6 +28,7 @@ import {
 import { Logger } from '@perfsee/platform-server/logger'
 import { Redis } from '@perfsee/platform-server/redis'
 import { BundleJobUpdate as BundleJobResultMessage } from '@perfsee/server-common'
+import { Permission } from '@perfsee/shared'
 
 import { ProjectService } from '../project/service'
 import { SettingService } from '../setting/service'
@@ -61,7 +62,7 @@ export class NotificationService {
 
     const project = await Project.findOneByOrFail({ id: artifact.projectId })
     const setting = await Setting.findOneByOrFail({ projectId: project.id })
-    const owners = await this.project.getProjectOwners(project)
+    const owners = await this.project.getProjectUsers(project, Permission.Admin)
 
     const info: BundleNotificationInfo = {
       artifact,
@@ -96,7 +97,7 @@ export class NotificationService {
 
     const project = await Project.findOneByOrFail({ id: snapshot.projectId })
     const setting = await Setting.findOneByOrFail({ projectId: project.id })
-    const owners = await this.project.getProjectOwners(project)
+    const owners = await this.project.getProjectUsers(project, Permission.Admin)
 
     const info: LabNotificationInfo = {
       snapshot,
@@ -132,7 +133,7 @@ export class NotificationService {
 
     const project = await this.project.loader.load(projectId)
     const setting = await this.setting.byProjectLoader.load(project.id)
-    const owners = await this.project.getProjectOwners(project)
+    const owners = await this.project.getProjectUsers(project, Permission.Admin)
 
     const info: CookieNotificationInfo = {
       project,

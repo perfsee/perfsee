@@ -6,9 +6,4 @@ fragment projectFields on Project {
   isPublic
   artifactBaselineBranch
   userPermission
-  owners {
-    username
-    avatarUrl
-    email
-  }
 }

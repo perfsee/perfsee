@@ -24,7 +24,7 @@ import { CurrentUser, Auth } from '../auth'
 import { PermissionGuard, Permission } from '../permission'
 
 import { ProjectService } from './service'
-import { CreateProjectInput, UpdateProjectInput } from './types'
+import { CreateProjectInput, UpdateProjectInput, UserWithPermission } from './types'
 
 @ObjectType()
 export class PaginatedProjects extends Paginated(Project) {}
@@ -140,14 +140,9 @@ export class ProjectResolver {
     return true
   }
 
-  @ResolveField(() => [User], { description: 'owners of this project' })
-  async owners(@Parent() project: Project) {
-    return this.projectService.getProjectUsers(project, Permission.Admin)
-  }
-
-  @ResolveField(() => [User], { description: 'viewers of this project' })
-  async viewers(@Parent() project: Project) {
-    return this.projectService.getProjectUsers(project, Permission.Read)
+  @ResolveField(() => [UserWithPermission], { description: 'authorized users of this project' })
+  async authorizedUsers(@Parent() project: Project) {
+    return this.projectService.getAuthorizedUsers(project)
   }
 
   @Mutation(() => Boolean, {

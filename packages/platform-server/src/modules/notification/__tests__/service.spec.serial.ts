@@ -54,7 +54,7 @@ test.beforeEach(async (t) => {
 
   t.context.module.get(Redis).exists.returns(Promise.resolve(false) as any)
 
-  t.context.module.get(ProjectService).getProjectOwners.returns(Promise.resolve([projectOwner]))
+  t.context.module.get(ProjectService).getProjectUsers.returns(Promise.resolve([projectOwner]))
 })
 
 test.serial('sendBundleJobNotification', async (t) => {

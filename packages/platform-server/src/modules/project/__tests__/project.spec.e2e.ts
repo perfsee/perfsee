@@ -209,14 +209,12 @@ test('get projects by namespace and name', async (t) => {
 
 test('update project', async (t) => {
   const newBranch = faker.git.branch()
-  const newUser = await create(User)
   await gqlClient.mutate({
     mutation: updateProjectMutation,
     variables: {
       projectId: project.slug,
       projectInput: {
         artifactBaselineBranch: newBranch,
-        owners: [user.email, newUser.email],
         isPublic: true,
       },
     },
@@ -230,10 +228,6 @@ test('update project', async (t) => {
   })
 
   t.is(response.project.artifactBaselineBranch, newBranch)
-  t.deepEqual(
-    response.project.owners.map((o) => o.email),
-    [user.email, newUser.email],
-  )
   t.is(response.project.isPublic, true)
 })
 
@@ -379,7 +373,8 @@ test.serial('update project user permissions', async (t) => {
     },
   })
 
-  t.truthy(response.project.owners.find((owner) => owner.email === user.email))
+  const user1 = response.project.authorizedUsers.find((u) => u.email === user.email)
+  t.is(user1?.permission, Permission.Admin)
 
   await t.throwsAsync(
     async () => {
@@ -413,7 +408,7 @@ test.serial('update project user permissions', async (t) => {
     },
   })
 
-  t.falsy(response2.project.owners.find((owner) => owner.email === user.email))
+  t.falsy(response2.project.authorizedUsers.find((u) => u.email === user.email))
 
   await t.throwsAsync(
     async () => {

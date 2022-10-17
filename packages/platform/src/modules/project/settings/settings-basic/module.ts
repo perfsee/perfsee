@@ -36,7 +36,6 @@ import { basicSettingsQuery, BasicSettingsQuery, updateBasicSettingsMutation } f
 import { ProjectModule } from '../../../shared'
 
 type ProjectChanging = {
-  owners?: string[]
   artifactBaselineBranch?: string
 }
 export type Settings = BasicSettingsQuery['project']['setting']

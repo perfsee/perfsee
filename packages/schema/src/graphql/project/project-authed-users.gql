@@ -1,14 +1,10 @@
 query projectAuthedUsers($projectId: ID!) {
   project(id: $projectId) {
-    owners {
+    authorizedUsers {
       username
       avatarUrl
       email
-    }
-    viewers {
-      username
-      avatarUrl
-      email
+      permission
     }
   }
 }

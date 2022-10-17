@@ -155,16 +155,30 @@ export class ProjectService {
   }
 
   async getProjectUsers(project: Project, permission: Permission) {
-    const owners = await this.permissionProvider.projectAllowList(project, permission)
-    if (typeof owners[0] === 'number') {
+    const users = await this.permissionProvider.projectAllowList(project, permission)
+
+    if (typeof users[0] === 'number') {
       return User.findBy({
-        id: In(owners),
+        id: In(users),
       })
     } else {
       return User.findBy({
-        email: In(owners),
+        email: In(users),
       })
     }
+  }
+
+  async getAuthorizedUsers(project: Project) {
+    const owners = await this.getProjectUsers(project, Permission.Admin)
+    const viewers = await this.getProjectUsers(project, Permission.Read)
+
+    return [
+      ...this.insertUserPermission(owners, Permission.Admin),
+      ...this.insertUserPermission(
+        viewers.filter((viewer) => owners.every((owner) => owner.email !== viewer.email)),
+        Permission.Read,
+      ),
+    ]
   }
 
   async checkPermission(payload: { user: User; slug: string; permission: Permission }) {
@@ -204,7 +218,7 @@ export class ProjectService {
   }
 
   async update(projectId: number, input: UpdateProjectInput) {
-    const { artifactBaselineBranch, owners, isPublic } = input
+    const { artifactBaselineBranch, isPublic } = input
 
     const projectPayload = omitBy({ artifactBaselineBranch, isPublic }, isUndefined)
 
@@ -212,13 +226,7 @@ export class ProjectService {
       await Project.update(projectId, projectPayload)
     }
 
-    const project = await this.loader.load(projectId)
-
-    if (owners) {
-      await this.updateProjectOwners(project, owners)
-    }
-
-    return project
+    return this.loader.load(projectId)
   }
 
   async updateProjectOwners(project: Project, owners: string[]) {
@@ -408,5 +416,9 @@ export class ProjectService {
       .where(`created_at > DATE_SUB(NOW(), INTERVAL ${value} ${period})`)
       .getRawOne<{ count: string }>()
       .then((result) => (result ? parseInt(result.count, 10) : undefined))
+  }
+
+  private insertUserPermission(users: User[], permission: Permission) {
+    return users.map((user) => ({ ...user, permission }))
   }
 }

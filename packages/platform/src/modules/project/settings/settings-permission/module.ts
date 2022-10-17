@@ -1,6 +1,5 @@
 import { Effect, EffectModule, ImmerReducer, Module } from '@sigi/core'
 import { Draft } from 'immer'
-import { differenceBy } from 'lodash'
 import { map, Observable, switchMap } from 'rxjs'
 
 import { createErrorCatcher, GraphQLClient } from '@perfsee/platform/common'
@@ -12,19 +11,16 @@ import {
   Permission,
 } from '@perfsee/schema'
 
-type Owner = ProjectAuthedUsersQuery['project']['owners'][0]
-type Viewer = ProjectAuthedUsersQuery['project']['viewers'][0]
+export type User = ProjectAuthedUsersQuery['project']['authorizedUsers'][0]
 
 type State = {
-  owners: Owner[]
-  viewers: Viewer[]
+  users: User[]
 }
 
 @Module('PermissionSettingsModule')
 export class PermissionSettingsModule extends EffectModule<State> {
   readonly defaultState: State = {
-    owners: [],
-    viewers: [],
+    users: [],
   }
 
   constructor(private readonly client: GraphQLClient, private readonly project: ProjectModule) {
@@ -44,8 +40,8 @@ export class PermissionSettingsModule extends EffectModule<State> {
             },
           })
           .pipe(
-            createErrorCatcher('Failed to update project owners'),
-            map((data) => this.getActions().setUsers(data.project)),
+            createErrorCatcher('Failed to update project authorized users'),
+            map((data) => this.getActions().setUsers(data.project.authorizedUsers)),
           ),
       ),
     )
@@ -75,8 +71,7 @@ export class PermissionSettingsModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setUsers(state: Draft<State>, payload: ProjectAuthedUsersQuery['project']) {
-    state.owners = payload.owners
-    state.viewers = differenceBy(payload.viewers, payload.owners, 'email')
+  setUsers(state: Draft<State>, users: User[]) {
+    state.users = users
   }
 }
