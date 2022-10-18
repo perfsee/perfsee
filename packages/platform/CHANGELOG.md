@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
+
+### Bug Fixes
+
+- **platform:** remove localstorage item crash ([fa22161](https://github.com/perfsee/perfsee/commit/fa22161495156b37023840678b9f96f0a19bb785))
+
+### Features
+
+- **platform:** artifact selector name filter ([30662fd](https://github.com/perfsee/perfsee/commit/30662fdcb6d8c60f8386719fba2655e32c032305))
+
 # [1.0.0-alpha.4](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2022-09-29)
 
 ### Bug Fixes

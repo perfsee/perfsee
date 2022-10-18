@@ -1,6 +1,6 @@
 {
   "name": "@examples/duplicate-libs",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0",
   "description": "App which contains duplicated libs",
   "private": true,
   "main": "./src/index.tsx",
