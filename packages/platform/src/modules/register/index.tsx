@@ -22,7 +22,7 @@ import { Link } from 'react-router-dom'
 import { BodyContainer, useQueryString } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
-import { UserModule } from '../shared'
+import { GlobalModule } from '../shared'
 
 import { CenterText, FormContainer, Title } from './styled'
 
@@ -39,7 +39,7 @@ export const Register = () => {
     statusCode: string
   }>()
 
-  const logged = useModuleState(UserModule, { selector: (s) => !!s.user, dependencies: [] })
+  const logged = useModuleState(GlobalModule, { selector: (s) => !!s.user, dependencies: [] })
 
   useEffect(() => {
     if (logged) {

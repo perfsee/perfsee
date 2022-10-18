@@ -15,26 +15,16 @@ limitations under the License.
 */
 
 import { GithubOutlined } from '@ant-design/icons'
-import {
-  MessageBar,
-  MessageBarType,
-  PrimaryButton,
-  Separator,
-  Spinner,
-  SpinnerSize,
-  Stack,
-  TextField,
-} from '@fluentui/react'
-import { useModule, useModuleState } from '@sigi/react'
+import { MessageBar, MessageBarType, PrimaryButton, Separator, Stack, TextField } from '@fluentui/react'
+import { useModuleState } from '@sigi/react'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { BodyContainer, ForeignLink, useQueryString } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
-import { UserModule } from '../shared'
+import { GlobalModule, useSettings } from '../shared'
 
-import { LoginModule } from './login.module'
 import { BlockButton, CenterText, FormContainer } from './styled'
 
 const Oauth2Provider = {
@@ -72,18 +62,13 @@ const StatusText = {
 }
 
 export const Login = () => {
+  const settings = useSettings()
   const [{ returnUrl = SERVER, statusCode }] = useQueryString<{
     returnUrl: string
     statusCode: string
   }>()
 
-  const [{ oauthProviders, loading: oauthProvidersLoading }, dispatch] = useModule(LoginModule)
-
-  const logged = useModuleState(UserModule, { selector: (s) => !!s.user, dependencies: [] })
-
-  useEffect(() => {
-    dispatch.getOauthProviders()
-  }, [dispatch])
+  const logged = useModuleState(GlobalModule, { selector: (s) => !!s.user, dependencies: [] })
 
   useEffect(() => {
     if (logged) {
@@ -100,45 +85,49 @@ export const Login = () => {
       >
         <FormContainer>
           <Stack tokens={{ childrenGap: 16 }}>
-            {statusCode && StatusText[statusCode] && (
-              <MessageBar messageBarType={StatusText[statusCode].type}>{StatusText[statusCode].message}</MessageBar>
-            )}
-            <TextField required name="email" label="Email" type="email" />
-            <TextField
-              required
-              name="password"
-              label="Password"
-              type="password"
-              canRevealPassword
-              revealPasswordAriaLabel="Show password"
-            />
+            {settings.enableSignup && (
+              <>
+                {statusCode && StatusText[statusCode] && (
+                  <MessageBar messageBarType={StatusText[statusCode].type}>{StatusText[statusCode].message}</MessageBar>
+                )}
+                <TextField required name="email" label="Email" type="email" />
+                <TextField
+                  required
+                  name="password"
+                  label="Password"
+                  type="password"
+                  canRevealPassword
+                  revealPasswordAriaLabel="Show password"
+                />
 
-            <PrimaryButton type="submit" text="Sign in" />
-            <Link to={staticPath.register}>
-              <BlockButton text="Register" />
-            </Link>
-            <CenterText>
-              Forgot your password? <Link to={staticPath.resetPassword}>Reset password</Link>
-            </CenterText>
-            <Separator />
-            {oauthProvidersLoading ? (
-              <Spinner size={SpinnerSize.large} />
-            ) : (
-              oauthProviders?.map((provider) => {
-                const { name = provider, icon } = Oauth2Provider[provider] ?? {}
-                return (
-                  <a
-                    key={provider}
-                    href={`/oauth2/login?returnUrl=${encodeURIComponent(returnUrl)}&provider=${provider}`}
-                  >
-                    <BlockButton>
-                      {icon}
-                      {icon && <>&nbsp;</>}
-                      {name}
-                    </BlockButton>
-                  </a>
-                )
-              })
+                <PrimaryButton type="submit" text="Sign in" />
+                <Link to={staticPath.register}>
+                  <BlockButton text="Register" />
+                </Link>
+                <CenterText>
+                  Forgot your password? <Link to={staticPath.resetPassword}>Reset password</Link>
+                </CenterText>
+              </>
+            )}
+            {settings.enableOauth && (
+              <>
+                <Separator />
+                {settings.oauthProviders.map((provider) => {
+                  const { name = provider, icon } = Oauth2Provider[provider] ?? {}
+                  return (
+                    <a
+                      key={provider}
+                      href={`/oauth2/login?returnUrl=${encodeURIComponent(returnUrl)}&provider=${provider}`}
+                    >
+                      <BlockButton>
+                        {icon}
+                        {icon && <>&nbsp;</>}
+                        {name}
+                      </BlockButton>
+                    </a>
+                  )
+                })}
+              </>
             )}
           </Stack>
         </FormContainer>

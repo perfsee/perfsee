@@ -451,7 +451,7 @@ type Application {
   authorizedProjects: [ApplicationAuthorizedProjectsNode!]!
 }
 
-type ApplicationSetting {
+type ApplicationSettings {
   enableSignup: Boolean!
   enableOauth: Boolean!
   enableProjectCreate: Boolean!
@@ -1083,7 +1083,7 @@ type Query {
   availableOAuthProviders: [ExternalAccount!]!
   application(id: Int!): Application!
   applications(pagination: PaginationInput = {first: 10}): PaginatedApplications!
-  applicationSettings: ApplicationSetting!
+  applicationSettings: ApplicationSettings!
   zone: Zone!
   runnerScripts(jobType: JobType!): [RunnerScript!]!
   activatedRunnerScripts(jobType: JobType!): RunnerScript
@@ -1191,6 +1191,7 @@ type Mutation {
   insertAvailableJobZones(zones: [String!]!): [String!]!
   deleteAvailableJobZones(zones: [String!]!): [String!]!
   setDefaultJobZone(zone: String!): String!
+  updateApplicationSettings(settings: UpdateApplicationSettingsInput!): ApplicationSettings!
   updateRunnerScript(jobType: JobType!, version: String!, input: UpdateRunnerScriptInput!): RunnerScript!
 }
 
@@ -1399,6 +1400,14 @@ input UpdateTimerInput {
   whether only specific pages/profiles/envs will be measured when task triggered
   """
   monitorType: ScheduleMonitorType
+}
+
+input UpdateApplicationSettingsInput {
+  enableSignup: Boolean
+  enableOauth: Boolean
+  enableProjectCreate: Boolean
+  enableProjectDelete: Boolean
+  enableProjectImport: Boolean
 }
 
 input UpdateRunnerScriptInput {

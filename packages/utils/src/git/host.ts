@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 export enum GitHost {
-  Unknown = 'unknown',
+  Unknown = 'Unknown',
   Github = 'Github',
   Gitlab = 'Gitlab',
 }
@@ -32,6 +32,7 @@ export interface IGitHost {
 export const hostDomains = {
   [GitHost.Github]: 'github.com',
   [GitHost.Gitlab]: 'gitlab.com',
+  [GitHost.Unknown]: 'unknown-git-host.com',
 }
 
 export class CommonGitHost implements IGitHost {

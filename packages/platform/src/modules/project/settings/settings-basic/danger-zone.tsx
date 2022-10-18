@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { ColorButton, Modal, ModalType, useToggleState } from '@perfsee/components'
-import { DeleteProgress, ProjectModule } from '@perfsee/platform/modules/shared'
+import { DeleteProgress, ProjectModule, useSettings } from '@perfsee/platform/modules/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import {
@@ -57,6 +57,7 @@ const DeleteProject = () => {
           <p>Delete this project</p>
           <span>All data will be deleted and can not be restored</span>
         </DangerDescription>
+
         <ColorButton color={SharedColors.red10} onClick={showDialog}>
           <ButtonInnerText>Delete</ButtonInnerText>
         </ColorButton>
@@ -151,11 +152,13 @@ const ProjectVisibility = () => {
 }
 
 export const DangerZone = () => {
+  const settings = useSettings()
+
   return (
     <div>
       <DangerTitle>Danger Zone</DangerTitle>
       <ProjectVisibility />
-      <DeleteProject />
+      {settings.enableProjectDelete && <DeleteProject />}
     </div>
   )
 }

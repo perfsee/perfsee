@@ -1,0 +1,13 @@
+#import '../fragments/user.gql'
+#import '../fragments/settings.gql'
+
+query globalState {
+  user {
+    ...user
+    starredProjects
+  }
+  
+  applicationSettings {
+    ...settings
+  }
+}

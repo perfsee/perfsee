@@ -25,16 +25,13 @@ import { staticPath } from '@perfsee/shared/routes'
 
 import { Notifications } from '../modules/components'
 import { Header, Footer } from '../modules/layout'
-import { UserModule } from '../modules/shared/user.module'
+import { GlobalModule } from '../modules/shared'
 
 import { Routes } from './routes'
 import { MainContainer, PageContainer } from './style'
 
 export const Entry = () => {
-  const [{ user, userLoading }, dispatcher] = useModule(UserModule, {
-    selector: (state) => ({ user: state.user, userLoading: state.userLoading }),
-    dependencies: [],
-  })
+  const [{ user, settings, loading }, dispatcher] = useModule(GlobalModule)
   const emotionTheme = useTheme()
   const theme = createTheme({
     defaultFontStyle: {
@@ -47,23 +44,23 @@ export const Entry = () => {
   }, [theme])
 
   useEffect(() => {
-    dispatcher.getUser()
+    dispatcher.init()
   }, [dispatcher])
 
-  const inProjectFeaturePages = !!useRouteMatch(staticPath.project.feature)
+  const shouldRenderNav = !!useRouteMatch([staticPath.project.feature, staticPath.admin.part])
   const isHomePages = !!useRouteMatch({ path: staticPath.home, exact: true })
   const isFeaturePages = !!useRouteMatch({ path: staticPath.features.home, exact: false })
 
-  if (userLoading) {
+  if (loading) {
     return <Spinner size={SpinnerSize.large} label="Loading..." />
   }
 
   return (
     <PageContainer>
-      {!(isHomePages || isFeaturePages) && <Header narrow={!inProjectFeaturePages} />}
+      {!(isHomePages || isFeaturePages) && <Header narrow={!shouldRenderNav} />}
       <MainContainer>
-        <Routes user={user} />
-        {!inProjectFeaturePages && <Footer isAdmin={user?.isAdmin} />}
+        <Routes user={user} settings={settings} />
+        {!shouldRenderNav && <Footer isAdmin={user?.isAdmin} />}
       </MainContainer>
       <Notifications />
     </PageContainer>

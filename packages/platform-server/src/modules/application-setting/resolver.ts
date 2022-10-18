@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { ForbiddenException } from '@nestjs/common'
-import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql'
+import { Args, InputType, Mutation, Parent, PartialType, Query, ResolveField, Resolver } from '@nestjs/graphql'
 
 import { Config } from '@perfsee/platform-server/config'
 import { ApplicationSetting, User } from '@perfsee/platform-server/db'
@@ -25,6 +25,9 @@ import { Auth, CurrentUser } from '../auth'
 
 import { ApplicationSettingService } from './service'
 import { Zone } from './types'
+
+@InputType()
+class UpdateApplicationSettingsInput extends PartialType(ApplicationSetting, InputType) {}
 
 @Auth()
 @Resolver(() => Zone)
@@ -84,5 +87,12 @@ export class AdminApplicationSettingResolver {
   @Mutation(() => String)
   setDefaultJobZone(@Args('zone') zone: string) {
     return this.service.setDefaultJobZone(zone)
+  }
+
+  @Mutation(() => ApplicationSetting)
+  updateApplicationSettings(
+    @Args({ name: 'settings', type: () => UpdateApplicationSettingsInput }) patches: UpdateApplicationSettingsInput,
+  ) {
+    return this.service.update(patches)
   }
 }

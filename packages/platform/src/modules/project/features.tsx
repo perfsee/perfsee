@@ -25,7 +25,7 @@ import { Permission } from '@perfsee/schema'
 import { staticPath, RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
 import { Footer, ProjectNav } from '../layout'
-import { ProjectModule, UserModule } from '../shared'
+import { ProjectModule, GlobalModule } from '../shared'
 
 import {
   BundleRoutes,
@@ -39,12 +39,12 @@ import {
   SettingsPage,
   JobTrace,
 } from './lazy-modules'
-import { BodyWrapper, ContentWrapper, NavWrapper, RouteWrapper } from './style'
+import { BodyWrapper, ContentWrapper, RouteWrapper } from './style'
 
 export const FeaturesPage = memo(() => {
   const { projectId, feature } = useParams<RouteTypes['project']['feature']>()
 
-  const { user } = useModuleState(UserModule)
+  const { user } = useModuleState(GlobalModule)
   const [{ project, loading }, dispatcher] = useModule(ProjectModule)
 
   const isAdminUser = useMemo(() => project?.userPermission.includes(Permission.Admin) ?? false, [project])
@@ -73,9 +73,7 @@ export const FeaturesPage = memo(() => {
 
   return (
     <BodyWrapper>
-      <NavWrapper>
-        <ProjectNav />
-      </NavWrapper>
+      <ProjectNav />
       <ContentWrapper>
         <RouteWrapper>
           <Switch>

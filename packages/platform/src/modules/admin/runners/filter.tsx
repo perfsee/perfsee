@@ -23,8 +23,8 @@ import { Tag } from '@perfsee/components'
 import { JobType } from '@perfsee/schema'
 
 import { PropertyModule } from '../../shared'
-import { JobTypeSelector } from '../job-type-selector'
 
+import { JobTypeSelector } from './job-type-selector'
 import { RunnersModule } from './module'
 
 const InlineCode = styled.code(({ theme }) => theme.markdown.inlineCode)
@@ -86,28 +86,33 @@ export function RunnersFilter() {
   return (
     <Stack tokens={{ childrenGap: 10 }} verticalAlign="start">
       <Stack tokens={{ childrenGap: 10 }}>
-        <p>runner registration token:</p>
         <p>
-          <InlineCode>{registrationToken}</InlineCode>
+          Runner registration token: <InlineCode>{registrationToken}</InlineCode>
         </p>
-        <JobTypeSelector
-          label="Job Type"
-          jobType={filter.jobType}
-          onChange={callbacks.onJobTypeChange}
-          styles={{ dropdown: { width: 200 } }}
-        />
-        <ComboBox
-          label="Zone"
-          selectedKey={filter.zone}
-          options={zones}
-          onChange={callbacks.onZoneChange}
-          useComboBoxAsMenuWidth
-        />
-        <Checkbox label="online" checked={!!filter.online} onChange={callbacks.onOnlineStatusChange} />
-        <Checkbox label="active" checked={!!filter.active} onChange={callbacks.onActiveStatusChange} />
+        <Stack horizontal tokens={{ childrenGap: 10 }}>
+          <JobTypeSelector
+            label="Job Type"
+            jobType={filter.jobType}
+            onChange={callbacks.onJobTypeChange}
+            styles={{ dropdown: { width: 200 } }}
+          />
+          <ComboBox
+            label="Zone"
+            selectedKey={filter.zone}
+            options={zones}
+            onChange={callbacks.onZoneChange}
+            useComboBoxAsMenuWidth
+          />
+        </Stack>
+        <Stack horizontal tokens={{ childrenGap: 10 }}>
+          <Checkbox label="online" checked={!!filter.online} onChange={callbacks.onOnlineStatusChange} />
+          <Checkbox label="active" checked={!!filter.active} onChange={callbacks.onActiveStatusChange} />
+        </Stack>
       </Stack>
       {Object.keys(filter).length > 0 && (
         <Stack
+          horizontal
+          wrap
           horizontalAlign="start"
           tokens={{ childrenGap: 4 }}
           styles={{
@@ -122,9 +127,9 @@ export function RunnersFilter() {
             .map(([key, val]) => (
               <FilterTag key={key} name={key} value={String(val)} onClear={callbacks.onClear} />
             ))}
-          <DefaultButton onClick={callbacks.onClearAll}>Clear Filters</DefaultButton>
         </Stack>
       )}
+      <DefaultButton onClick={callbacks.onClearAll}>Clear Filters</DefaultButton>
     </Stack>
   )
 }

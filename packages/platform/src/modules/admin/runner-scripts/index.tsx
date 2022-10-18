@@ -18,11 +18,11 @@ import { getTheme, SelectionMode, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useEffect, useMemo } from 'react'
 
-import { ColorButton, Table, TableColumnProps } from '@perfsee/components'
+import { ColorButton, ContentCard, Table, TableColumnProps } from '@perfsee/components'
 import { JobType } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
 
-import { JobTypeSelector } from '../job-type-selector'
+import { JobTypeSelector } from '../runners/job-type-selector'
 
 import { RunnerScriptModule, RunnerScript } from './module'
 import { UploadButton } from './upload'
@@ -131,7 +131,7 @@ export const RunnerScriptManager = () => {
   }, [dispatcher, state.activated?.version, theme.palette.green, theme.palette.red])
 
   return (
-    <>
+    <ContentCard>
       <Stack tokens={{ childrenGap: 10 }}>
         <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-between" verticalAlign="end">
           <JobTypeSelector
@@ -147,6 +147,6 @@ export const RunnerScriptManager = () => {
         </p>
       </Stack>
       <Table selectionMode={SelectionMode.none} items={state.scripts} columns={scriptTableColumns} />
-    </>
+    </ContentCard>
   )
 }

@@ -1,5 +1,5 @@
 query registrationToken {
-  applicationSetting {
+  applicationSettings {
     registrationToken
   }
 }

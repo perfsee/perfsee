@@ -19,7 +19,7 @@ import dayjs from 'dayjs'
 import { FC, memo, useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { Pagination } from '@perfsee/components'
+import { ContentCard, Pagination } from '@perfsee/components'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { CreateAppModal } from './create-app-modal'
@@ -28,7 +28,6 @@ import {
   AppDetailWrap,
   AppName,
   AppWrap,
-  Container,
   ListWrap,
   ProjectItemName,
   ProjectItemPermission,
@@ -58,19 +57,21 @@ export function Applications() {
   }, [dispatcher, page])
 
   return (
-    <Container>
+    <ContentCard>
       <div>
         <CreateAppModal />
       </div>
       <Wrap>
-        <ListWrap>
-          {applications.items.map((app) => (
-            <AppWrap key={app.id} appId={app.id} selectable={true} onClick={onSelectApp(app)}>
-              <AppName>{app.username}</AppName>
-            </AppWrap>
-          ))}
-          <Pagination page={page} total={applications.totalCount} pageSize={10} onChange={setPage} />
-        </ListWrap>
+        {applications.totalCount > 0 && (
+          <ListWrap>
+            {applications.items.map((app) => (
+              <AppWrap key={app.id} appId={app.id} selectable={true} onClick={onSelectApp(app)}>
+                <AppName>{app.username}</AppName>
+              </AppWrap>
+            ))}
+            <Pagination page={page} total={applications.totalCount} pageSize={10} onChange={setPage} hideOnSinglePage />
+          </ListWrap>
+        )}
         {selectedApp && (
           <AppDetailWrap>
             <p>
@@ -88,7 +89,7 @@ export function Applications() {
           </AppDetailWrap>
         )}
       </Wrap>
-    </Container>
+    </ContentCard>
   )
 }
 

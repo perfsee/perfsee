@@ -19,6 +19,7 @@ import { useDispatchers, useModule } from '@sigi/react'
 import { FC, useCallback, useEffect, useState } from 'react'
 
 import {
+  ContentCard,
   Empty,
   Pagination,
   Table,
@@ -57,6 +58,11 @@ const runnerTableColumns: TableColumnProps<Runner>[] = [
     fieldName: 'id',
     minWidth: 100,
     maxWidth: 300,
+    onRender: (runner) => (
+      <TooltipWithEllipsis width={240} content={runner.id}>
+        {runner.id}
+      </TooltipWithEllipsis>
+    ),
   },
   {
     key: 'name',
@@ -108,7 +114,7 @@ const runnerTableColumns: TableColumnProps<Runner>[] = [
   },
 ]
 
-export const RunnerStatus = () => {
+export const Runners = () => {
   const [state, dispatcher] = useModule(RunnersModule)
 
   useEffect(() => {
@@ -138,25 +144,29 @@ export const RunnerStatus = () => {
   }
 
   return (
-    <Stack horizontal tokens={{ childrenGap: 8 }}>
-      <RunnersFilter />
-      <Stack grow>
-        <Table
-          selectionMode={SelectionMode.none}
-          items={state.runners}
-          columns={runnerTableColumns}
-          onRenderRow={onRenderRow}
-        />
-        <Pagination
-          hideOnSinglePage={false}
-          total={state.runnerCount}
-          onChange={onPaginationChange}
-          pageSize={state.filter.first ?? 50}
-          pageSizeOptions={[20, 50, 100]}
-          showSizeChanger={true}
-        />
-      </Stack>
-    </Stack>
+    <>
+      <ContentCard>
+        <RunnersFilter />
+      </ContentCard>
+      <ContentCard>
+        <Stack grow>
+          <Table
+            selectionMode={SelectionMode.none}
+            items={state.runners}
+            columns={runnerTableColumns}
+            onRenderRow={onRenderRow}
+          />
+          <Pagination
+            hideOnSinglePage={false}
+            total={state.runnerCount}
+            onChange={onPaginationChange}
+            pageSize={state.filter.first ?? 50}
+            pageSizeOptions={[20, 50, 100]}
+            showSizeChanger={true}
+          />
+        </Stack>
+      </ContentCard>
+    </>
   )
 }
 

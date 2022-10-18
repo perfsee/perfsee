@@ -57,11 +57,11 @@ export const Footer: FC<Props> = memo(({ isAdmin }) => {
           <wbr />
           <FooterForeignLink href={staticPath.docs.api}>API</FooterForeignLink>
           <wbr />
+          {isAdmin && <FooterLink to={staticPath.admin.home}>Admin</FooterLink>}
+          <wbr />
           <FooterLink to={staticPath.status}>Status</FooterLink>
           <wbr />
           <FooterLink to={staticPath.license}>License</FooterLink>
-          <wbr />
-          {isAdmin && <FooterLink to={staticPath.applications}>Applications</FooterLink>}
           <wbr />
           <FooterForeignLink href="https://github.com/perfsee">Github</FooterForeignLink>
           <wbr />

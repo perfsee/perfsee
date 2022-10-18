@@ -16,13 +16,6 @@ limitations under the License.
 
 import styled from '@emotion/styled'
 
-export const Container = styled.div({
-  padding: '0 80px',
-  minHeight: 'calc(100vh - 120px)',
-  display: 'flex',
-  flexDirection: 'column',
-})
-
 export const Wrap = styled.div({
   display: 'flex',
   flexGrow: 1,

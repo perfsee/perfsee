@@ -16,7 +16,6 @@ limitations under the License.
 
 import { lazy } from '../common'
 
-export const Applications = lazy(() => import(/* webpackChunkName: "applications" */ '../modules/applications'))
 export const ProjectListPage = lazy(() => import(/* webpackChunkName: "project" */ '../modules/project/list'))
 export const ProjectFeaturePage = lazy(() => import(/* webpackChunkName: "project" */ '../modules/project/features'))
 export const ImportGithub = lazy(() => import(/* webpackChunkName: "import-github" */ '../modules/import-github'))
@@ -31,3 +30,4 @@ export const HomePage = lazy(() => import(/* webpackChunkName: "home" */ '../mod
 export const FeaturesBundle = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/bundle'))
 export const FeaturesLab = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/lab'))
 export const FeaturesSource = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/source'))
+export const Admin = lazy(() => import(/* webpackChunkName: "admin" */ '../modules/admin'))

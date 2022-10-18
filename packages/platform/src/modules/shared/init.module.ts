@@ -20,20 +20,23 @@ import { Observable, of } from 'rxjs'
 import { switchMap, map, catchError, exhaustMap, startWith, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { userQuery, UserQuery, toggleStarProjectMutation } from '@perfsee/schema'
+import { toggleStarProjectMutation, GlobalStateQuery, globalStateQuery } from '@perfsee/schema'
 
-export type User = NonNullable<UserQuery['user']>
+export type User = GlobalStateQuery['user']
+export type ApplicationSettings = GlobalStateQuery['applicationSettings']
 
 interface State {
   user: User | null
-  userLoading: boolean
+  settings: ApplicationSettings | null
+  loading: boolean
 }
 
-@Module('UserModule')
-export class UserModule extends EffectModule<State> {
+@Module('GlobalModule')
+export class GlobalModule extends EffectModule<State> {
   defaultState = {
     user: null,
-    userLoading: true,
+    settings: null,
+    loading: true,
   }
 
   constructor(private readonly client: GraphQLClient) {
@@ -41,23 +44,19 @@ export class UserModule extends EffectModule<State> {
   }
 
   @Effect()
-  getUser(payload$: Observable<void>) {
+  init(payload$: Observable<void>) {
     return payload$.pipe(
       switchMap(() =>
         this.client
           .query({
-            query: userQuery,
+            query: globalStateQuery,
           })
           .pipe(
             map((data) => {
-              if (data.user) {
-                return this.getActions().setUser(data.user)
-              }
-
-              return this.noop()
+              return this.getActions().setState(data)
             }),
             catchError(() => {
-              return of(this.getActions().setUser(null))
+              return of(this.reset())
             }),
             startWith(this.getActions().setUserLoading(true)),
             endWith(this.getActions().setUserLoading(false)),
@@ -67,8 +66,14 @@ export class UserModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setUser(state: Draft<State>, user: User | null) {
-    state.user = user
+  setState(state: Draft<State>, query: GlobalStateQuery) {
+    state.user = query.user
+    state.settings = query.applicationSettings
+  }
+
+  @ImmerReducer()
+  setSettings(state: Draft<State>, settings: ApplicationSettings) {
+    state.settings = settings
   }
 
   @Effect()
@@ -103,6 +108,6 @@ export class UserModule extends EffectModule<State> {
 
   @ImmerReducer()
   setUserLoading(state: Draft<State>, loading: boolean) {
-    state.userLoading = loading
+    state.loading = loading
   }
 }

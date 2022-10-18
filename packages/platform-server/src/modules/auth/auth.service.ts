@@ -112,11 +112,11 @@ export class AuthService {
 
   async getUserFromRequest(req: Request): Promise<User | null> {
     if (req.user) {
-      return req.user as User
+      return req.user
     }
 
     if (req.session.user) {
-      return req.session.user as User
+      return req.session.user
     }
 
     const token = this.extractTokenFromHeader(req.headers.authorization)
@@ -133,7 +133,7 @@ export class AuthService {
     const user = await User.findOneBy({ id: record.userId })
 
     req.user = user
-    return user ?? null
+    return user
   }
 
   private async findByToken(token: string) {

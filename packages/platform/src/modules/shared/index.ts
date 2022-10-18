@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 export * from './project.module'
-export * from './user.module'
+export * from './init.module'
 export * from './use-breadcrumb'
 export * from './user-search.module'
 export * from './compare.module'
@@ -28,3 +28,4 @@ export * from './use-generate-project-route'
 export * from './create-project.module'
 export * from './bundle-property.module'
 export * from './use-nav-type'
+export * from './use-settings'

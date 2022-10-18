@@ -20,7 +20,7 @@ import { useCallback, MouseEvent, FC } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 
-import { UserModule } from '../../shared'
+import { GlobalModule } from '../../shared'
 
 const getIconProps = (starred: boolean): IIconProps => {
   const styles = { root: { color: SharedColors.red20, height: 16, fontSize: 16 } }
@@ -39,7 +39,7 @@ interface StarringProps {
 }
 
 export const Starring: FC<StarringProps> = ({ projectId }) => {
-  const [starred, dispatcher] = useModule(UserModule, {
+  const [starred, dispatcher] = useModule(GlobalModule, {
     selector: (state) => state.user?.starredProjects?.includes(projectId) ?? false,
     dependencies: [projectId],
   })

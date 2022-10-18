@@ -15,7 +15,7 @@ import { useCallback, useState } from 'react'
 
 import { ColorButton, Form, RequiredTextField, useToggleState } from '@perfsee/components'
 
-import { JobTypeSelector } from '../job-type-selector'
+import { JobTypeSelector } from '../runners/job-type-selector'
 
 import { RunnerScriptModule } from './module'
 

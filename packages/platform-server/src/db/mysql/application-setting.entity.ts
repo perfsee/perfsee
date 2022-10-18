@@ -17,7 +17,7 @@ limitations under the License.
 import { Field, ObjectType } from '@nestjs/graphql'
 import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, BaseEntity } from 'typeorm'
 
-@ObjectType()
+@ObjectType('ApplicationSettings')
 @Entity()
 export class ApplicationSetting extends BaseEntity {
   static async defaultJobZone() {

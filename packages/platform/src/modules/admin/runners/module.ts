@@ -84,7 +84,7 @@ export class RunnersModule extends EffectModule<State> {
             mergeMap((data) =>
               of(
                 this.getActions().setRunners(data),
-                this.getActions().setRegistrationToken(data.applicationSetting.registrationToken),
+                this.getActions().setRegistrationToken(data.applicationSettings.registrationToken),
               ),
             ),
             createErrorCatcher('Failed to fetch runners'),

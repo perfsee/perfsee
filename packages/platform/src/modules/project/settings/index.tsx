@@ -114,7 +114,7 @@ export const Settings = () => {
 
   useEffect(() => {
     if (!settingName) {
-      history.push(generateProjectRoute(pathFactory.project.settings, { settingName: 'basic' }))
+      history.replace(generateProjectRoute(pathFactory.project.settings, { settingName: 'basic' }))
     }
   }, [generateProjectRoute, history, settingName])
 

@@ -20,14 +20,13 @@ import { NotFound, Route } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { LoginRedirect } from '../modules/login/login-redirect'
-import { User } from '../modules/shared'
+import { ApplicationSettings, User } from '../modules/shared'
 
 import {
   StatusPage,
   LicensePage,
   ProjectListPage,
   ProjectFeaturePage,
-  Applications,
   ImportGithub,
   Login,
   Register,
@@ -38,9 +37,10 @@ import {
   FeaturesBundle,
   FeaturesLab,
   FeaturesSource,
+  Admin,
 } from './lazy-modules'
 
-export const Routes = ({ user }: { user: User | null }) => {
+export const Routes = ({ user, settings }: { user: User | null; settings: ApplicationSettings | null }) => {
   return (
     <Switch>
       {/* pages without login */}
@@ -57,13 +57,15 @@ export const Routes = ({ user }: { user: User | null }) => {
       <Route exact={true} path={staticPath.resetPassword} component={ResetPassword} />
 
       {/* pages with login */}
-      {user ? (
+      {user && settings ? (
         <Switch>
-          <Route exact={true} path={staticPath.importGithub} component={ImportGithub} />
+          {settings.enableProjectImport && (
+            <Route exact={true} path={staticPath.importGithub} component={ImportGithub} />
+          )}
           <Route path={staticPath.me.home} component={Me} />
           <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
-          {user.isAdmin && <Route exact={true} path={staticPath.applications} component={Applications} />}
           <Route path={staticPath.project.feature} component={ProjectFeaturePage} />
+          {user.isAdmin && <Route path={staticPath.admin.part} component={Admin} />}
           <Route path="*" render={NotFound} />
         </Switch>
       ) : (

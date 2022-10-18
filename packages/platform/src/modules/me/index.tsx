@@ -22,7 +22,7 @@ import { Link, Switch } from 'react-router-dom'
 import { BodyContainer, BodyPadding, Route } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
-import { ConnectedAccount, ConnectedAccountsModule, UserModule } from '../shared'
+import { ConnectedAccount, ConnectedAccountsModule, GlobalModule } from '../shared'
 
 import { AccessToken } from './access-token'
 import { Account } from './account'
@@ -30,7 +30,7 @@ import { UserAvatar } from './avatar'
 import { NavbarContainer, NavbarItem as StyledNavbarItem, PageLayout, Title } from './styled'
 
 export const Me = () => {
-  const { user } = useModuleState(UserModule)
+  const { user } = useModuleState(GlobalModule)
 
   if (!user) {
     return null

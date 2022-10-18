@@ -23,24 +23,28 @@ import { ForeignLink } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { UserAvatar } from '../me/avatar'
-import { UserModule } from '../shared'
+import { GlobalModule } from '../shared'
 
 import { HeaderOperatorContainer, HeaderOperatorSmallWrap, HeaderOperatorWrap, HoverCardWrap } from './header.style'
 
 export const Operations = () => {
-  const loggedIn = useModuleState(UserModule, {
-    selector: (s) => !!s.user,
+  const { loggedIn, isAdmin } = useModuleState(GlobalModule, {
+    selector: (s) => ({
+      loggedIn: !!s.user,
+      isAdmin: s?.user?.isAdmin,
+    }),
     dependencies: [],
   })
 
   const operations = useMemo(
     () => (
       <>
+        {isAdmin && <Link to={staticPath.admin.home}>Admin</Link>}
         <ForeignLink href={staticPath.docs.home}>Docs</ForeignLink>
         {loggedIn && <a href={SERVER + `/auth/logout`}>Logout</a>}
       </>
     ),
-    [loggedIn],
+    [loggedIn, isAdmin],
   )
 
   const cardProps = useMemo<IPlainCardProps>(
