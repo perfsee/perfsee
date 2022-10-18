@@ -38,9 +38,7 @@ jobs:
           yarn build:npm
       - name: Publish
         run: |
-          # enable pre-dist-tag after first gurduated release
-          # yarn lerna publish from-package --exact --pre-dist-tag beta --yes
-          yarn lerna publish from-package --exact --yes
+          yarn lerna publish from-package --exact --pre-dist-tag beta --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   release-vscode:
