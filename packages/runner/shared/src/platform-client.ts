@@ -21,6 +21,8 @@ import { stat } from 'fs/promises'
 import { merge } from 'lodash'
 import fetch, { RequestInit, BodyInit } from 'node-fetch'
 
+import { SourceMap } from '@perfsee/shared'
+
 import { WorkerData } from './types'
 
 export class PlatformClient {
@@ -92,6 +94,34 @@ export class PlatformClient {
         },
       ),
     )
+  }
+
+  async getSourceMap(scriptHash: string): Promise<SourceMap | null> {
+    const res = await this.jsonFetch(`/api/jobs/sourcemap?jobId=${this.config.job.jobId}&key=${scriptHash}.json`, {
+      method: 'GET',
+    })
+    if (res.ok) {
+      return res.json()
+    }
+    if (res.status === 404) {
+      return null
+    }
+
+    throw new Error('Failed to download sourcemap.')
+  }
+
+  async uploadSourceMap(scriptHash: string, body: SourceMap) {
+    const res = await this.fetch(`/api/jobs/sourcemap?jobId=${this.config.job.jobId}&key=${scriptHash}.json`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'content-type': 'application/octet-stream',
+      },
+    })
+
+    if (!res.ok) {
+      throw new Error('Failed to upload sourcemap.')
+    }
   }
 
   async fetch(path: string, init?: RequestInit) {

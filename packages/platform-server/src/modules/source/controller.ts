@@ -27,14 +27,18 @@ export class SourceController {
   constructor(private readonly logger: Logger, private readonly service: SourceService) {}
 
   @OnEvent(`${JobType.SourceAnalyze}.update`)
-  async onReceiveAnalyzeResult({ projectId, hash, result }: SourceAnalyzeJobResult) {
+  async onReceiveAnalyzeResult({
+    projectId,
+    reportId,
+    diagnostics,
+    flameChartStorageKey,
+    sourceCoverageStorageKey,
+  }: SourceAnalyzeJobResult) {
     this.logger.log('receive deployment analyze result')
-    for (const item of result) {
-      await this.service.updateReportFlameChart(item.reportId, item.flameChartStorageKey)
-      if (item.sourceCoverageStorageKey) {
-        await this.service.updateReportSourceCoverage(item.reportId, item.sourceCoverageStorageKey)
-      }
-      await this.service.saveSourceIssues(projectId, hash, item.reportId, item.diagnostics)
+    await this.service.updateReportFlameChart(reportId, flameChartStorageKey)
+    if (sourceCoverageStorageKey) {
+      await this.service.updateReportSourceCoverage(reportId, sourceCoverageStorageKey)
     }
+    // await this.service.saveSourceIssues(projectId, hash, reportId, diagnostics)
   }
 }

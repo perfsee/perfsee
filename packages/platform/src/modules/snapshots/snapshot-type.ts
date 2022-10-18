@@ -16,7 +16,14 @@ limitations under the License.
 
 import { SharedColors } from '@perfsee/dls'
 import { SnapshotReportQuery } from '@perfsee/schema'
-import { TimingType, TimelineSchema, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
+import {
+  TimingType,
+  TimelineSchema,
+  MetricScoreSchema,
+  RequestSchema,
+  UserTimingSchema,
+  AuditsSchema,
+} from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
 export type SnapshotReportSchema = SnapshotReportQuery['project']['snapshotReport']
@@ -55,10 +62,6 @@ export enum AnalysisReportTabType {
   BestPractices = 'best-practices',
 }
 
-export type TraceTimesWithoutFCP = Omit<LH.Artifacts.TraceTimes, 'firstContentfulPaint'> & {
-  firstContentfulPaint?: number
-}
-
 export type SnapshotDetailType = {
   report: SnapshotReportSchema
   requests: RequestSchema[]
@@ -66,7 +69,6 @@ export type SnapshotDetailType = {
   audits: AuditsSchema
   traceData?: Task[]
   categories?: Record<string, LH.Result.Category>
-  timings: TraceTimesWithoutFCP
   timelines?: TimelineSchema[]
   metricScores?: MetricScoreSchema[]
   userFlow?: SnapshotUserFlowDetailType[]
@@ -90,8 +92,6 @@ export enum LighthouseGroupType {
 export type LighthouseAudit = LH.Audit.Result & {
   relevant?: string[] // metrics keys
 }
-
-export type AuditsSchema = Record<string, LH.Audit.Result>
 
 export enum RequestType {
   Document = 'Document',

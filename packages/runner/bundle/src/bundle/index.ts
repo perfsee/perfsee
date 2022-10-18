@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { rm } from 'fs/promises'
+import { createHash } from 'crypto'
+import { rm, readFile } from 'fs/promises'
 import { join, parse } from 'path'
 
 import { v4 as uuid } from 'uuid'
@@ -29,6 +30,7 @@ import {
   StatsParser,
   extractBundleFromStream,
   readStatsFile,
+  AssetTypeEnum,
 } from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
 import {
@@ -38,7 +40,7 @@ import {
   JobType,
   BundleJobEntryPoint,
 } from '@perfsee/server-common'
-import { BundleAuditWarning, BundleResult, diffBundleResult } from '@perfsee/shared'
+import { BundleAuditWarning, BundleResult, diffBundleResult, SourceMap } from '@perfsee/shared'
 
 export class BundleWorker extends JobWorker<BundleJobPayload> {
   private pwd!: string
@@ -71,7 +73,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     // parse bundle
     const stats = readStatsFile(this.statsFilePath)
     const parser = StatsParser.FromStats(stats, parse(this.statsFilePath).dir, this.logger)
-    const { report, moduleTree } = await parser.parse()
+    const { report, moduleTree, assets } = await parser.parse()
 
     const bundleReportName = `bundle-results/${uuid()}.json`
     const bundleReportKey = await this.client.uploadArtifact(bundleReportName, Buffer.from(JSON.stringify(report)))
@@ -102,6 +104,16 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
 
     this.logger.info('Generating bundle audit aggregated result')
     const entryPoints = this.generateEntryPoints(report, baselineResult)
+
+    this.logger.info('Uploading Sourcemaps')
+    for (const asset of assets) {
+      if (asset.type === AssetTypeEnum.Js && asset.sourcemap && asset.content) {
+        const scriptHash = createHash('sha256').update(asset.content).digest('hex')
+        const sourcemap = JSON.parse(await readFile(asset.sourcemap, 'utf-8')) as SourceMap
+        sourcemap.perfseeMetadata = { artifactId: this.payload.artifactId, artifactAssetPathName: asset.realName }
+        await this.client.uploadSourceMap(scriptHash, sourcemap)
+      }
+    }
 
     const message: BundleJobUpdate = {
       artifactId: this.payload.artifactId,

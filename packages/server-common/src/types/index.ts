@@ -115,24 +115,19 @@ export type E2EJobResult = {
 
 export interface SourceAnalyzeJob {
   projectId: number
-  snapshotId: number
-  hash: string
-  artifacts: string[]
-  snapshotReports: {
-    id: number
+  reportId: number
+  artifactBuildKeys: Record<string, string>
+  snapshotReport: {
     traceEventsStorageKey: string
     jsCoverageStorageKey: string
-    pageUrl: string
-  }[]
+    lighthouseStorageKey: string
+  }
 }
 
 export type SourceAnalyzeJobResult = {
   projectId: number
-  hash: string
-  result: Array<{
-    reportId: number
-    diagnostics: FlameChartDiagnostic[]
-    flameChartStorageKey: string
-    sourceCoverageStorageKey?: string
-  }>
+  reportId: number
+  diagnostics: FlameChartDiagnostic[]
+  flameChartStorageKey: string
+  sourceCoverageStorageKey?: string
 }

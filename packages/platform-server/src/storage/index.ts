@@ -16,7 +16,7 @@ limitations under the License.
 
 import { FactoryProvider, Module } from '@nestjs/common'
 
-import { ObjectStorage, LogObjectStorage } from './providers/local'
+import { ObjectStorage, LogObjectStorage, SourceMapObjectStorage } from './providers/local'
 
 /**
  * override in the way like:
@@ -43,10 +43,17 @@ const logProvider: FactoryProvider = {
   },
 }
 
+const sourceMapProvider: FactoryProvider = {
+  provide: SourceMapObjectStorage,
+  useFactory: () => {
+    return new LogObjectStorage()
+  },
+}
+
 @Module({
-  providers: [artifactProvider, logProvider],
-  exports: [artifactProvider, logProvider],
+  providers: [artifactProvider, logProvider, sourceMapProvider],
+  exports: [artifactProvider, logProvider, sourceMapProvider],
 })
 export class StorageModule {}
 
-export { ObjectStorage, LogObjectStorage as JobLogStorage }
+export { ObjectStorage, LogObjectStorage as JobLogStorage, SourceMapObjectStorage as SourceMapStorage }

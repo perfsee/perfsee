@@ -315,9 +315,6 @@ export class SnapshotService implements OnApplicationBootstrap {
     if (report && (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed)) {
       const completed = await this.tryCompleteSnapshot(report.snapshotId)
       if (completed) {
-        this.source.startSourceIssueAnalyze(report.snapshotId).catch((e) => {
-          this.logger.error(e, { phase: 'source analyze' })
-        })
         const snapshot = await Snapshot.findOneByOrFail({ id: report.snapshotId })
         const reports = await SnapshotReport.createQueryBuilder('report')
           .leftJoinAndSelect('report.page', 'page', 'page.id = report.page_id')
@@ -349,6 +346,9 @@ export class SnapshotService implements OnApplicationBootstrap {
     await SnapshotReport.update(report.id, report)
     if (report.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
+      this.source.startSourceIssueAnalyze(report.id).catch((e) => {
+        this.logger.error(e, { phase: 'source analyze' })
+      })
     } else if (report.status === SnapshotStatus.Failed) {
       this.metrics.snapshotReportFail(1)
     }

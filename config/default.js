@@ -49,6 +49,10 @@ module.exports = {
     bucket: process.env.JOB_LOG_STORAGE_BUCKET_NAME,
     accessToken: process.env.JOB_LOG_STORAGE_ACCESS_TOKEN,
   },
+  sourceMapStorage: {
+    bucket: process.env.SOURCE_MAP_STORAGE_BUCKET_NAME,
+    accessToken: process.env.SOURCE_MAP_STORAGE_ACCESS_TOKEN,
+  },
   /** @type {import('@nestjs/apollo').ApolloDriverConfig} */
   graphql: {
     path: path + '/graphql',

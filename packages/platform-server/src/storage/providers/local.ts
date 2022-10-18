@@ -77,3 +77,5 @@ export class ObjectStorage extends BaseObjectStorage {
 }
 
 export class LogObjectStorage extends ObjectStorage {}
+
+export class SourceMapObjectStorage extends ObjectStorage {}

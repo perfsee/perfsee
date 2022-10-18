@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { createHash } from 'crypto'
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname } from 'path'
 
 import lighthouseLogger from 'lighthouse-logger'
-import { groupBy, mapValues } from 'lodash'
+import { groupBy, mapValues, uniq } from 'lodash'
 import puppeteer from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
@@ -26,6 +27,7 @@ import { JobWorker } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
+  LHStoredSchema,
   LighthouseScoreMetric,
   LocalStorageType,
   MetricKeyType,
@@ -82,6 +84,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
+    const { scripts, artifactIds } = await this.getScriptsAndArtifacts(artifacts)
     const userTimings = this.getUserTimings(artifacts)
     const { requests, requestsBaseTimestamp } = this.getRequests(lhr)
     const metrics = this.getMetrics(lhr)
@@ -115,17 +118,18 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         lighthouseFile,
         Buffer.from(
           JSON.stringify({
+            url: this.payload.url,
             lighthouseVersion: lhr.lighthouseVersion,
             lhrAudit: lhr.audits,
             lhrCategories: lhr.categories,
             traceData,
             artifactsResult: requests,
             artifactsResultBaseTimestamp: requestsBaseTimestamp,
-            timings,
+            scripts,
             timelines,
             metricScores,
             userTimings,
-          }),
+          } as LHStoredSchema),
         ),
       )
     } catch (e) {
@@ -153,6 +157,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       screencastStorageKey,
       jsCoverageStorageKey,
       traceEventsStorageKey,
+      artifactIds,
       metrics,
     }
   }
@@ -387,6 +392,56 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     )
 
     return Object.values(userTimings)
+  }
+
+  private async getScriptsAndArtifacts(artifacts: LH.Artifacts) {
+    this.logger.info('Looking for sourcemap...')
+
+    const scripts = artifacts.ScriptElements
+
+    const results: LHStoredSchema['scripts'] = []
+
+    for (const script of scripts) {
+      if (script.src && script.content) {
+        try {
+          const scriptHash = createHash('sha256').update(script.content).digest('hex')
+          const sourcemap = await this.client.getSourceMap(scriptHash)
+          results.push({
+            src: script.src,
+            scriptHash,
+            artifactId: sourcemap?.perfseeMetadata?.artifactId,
+            artifactAssetPathName: sourcemap?.perfseeMetadata?.artifactAssetPathName,
+          })
+        } catch (err) {
+          this.logger.error(`Failed to get sourcemap for ${script.src}, skipped`)
+        }
+      }
+    }
+
+    const artifactIds = uniq(results.filter((result) => !!result.artifactId).map((r) => r.artifactId))
+
+    const grouped = groupBy(
+      results.filter((result) => !!result.artifactId),
+      (s) => s.artifactId,
+    )
+    const unknown = results.filter((result) => !result.artifactId)
+    this.logger.info(`Find ${results.length} scripts, in ${Object.keys(grouped).length} artifacts`)
+
+    for (const artifactIid in grouped) {
+      this.logger.verbose(`  #${artifactIid}`)
+      for (const script of grouped[artifactIid]) {
+        this.logger.verbose(`    ${script.src}`)
+      }
+    }
+
+    if (unknown.length > 0) {
+      this.logger.verbose(`unknown`)
+      for (const script of unknown) {
+        this.logger.verbose(`    ${script.src}`)
+      }
+    }
+
+    return { scripts: results, artifactIds }
   }
 
   private computeMainThreadTask(lhResult: LH.Result, artifacts: LH.Artifacts) {

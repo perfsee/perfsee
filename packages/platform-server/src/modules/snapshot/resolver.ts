@@ -171,8 +171,7 @@ export class SnapshotResolver {
     @Args({ name: 'hash', type: () => String }) hash: string,
   ) {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
-    const snapshot = await this.service.setSnapshotHash(projectRawId, iid, hash)
-    await this.sourceService.startSourceIssueAnalyze(snapshot)
+    await this.service.setSnapshotHash(projectRawId, iid, hash)
 
     return true
   }

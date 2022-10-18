@@ -39,9 +39,9 @@ impl Deref for SourceMap {
 #[derive(Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 struct FileMeta {
-  file_name: String,
+  src: String,
   disk_path: String,
-  stats_index: usize,
+  bundle_id: String,
 }
 
 #[derive(Deserialize)]
@@ -56,7 +56,7 @@ struct Bundle {
 #[serde(rename_all(deserialize = "camelCase"))]
 struct BundleMeta {
   files: Vec<FileMeta>,
-  bundles: Vec<Bundle>,
+  bundles: HashMap<String, Bundle>,
 }
 
 impl BundleMeta {
@@ -65,8 +65,8 @@ impl BundleMeta {
     self
       .files
       .iter()
-      .find(|file_meta| file.ends_with(&file_meta.file_name))
-      .and_then(|file_meta| self.bundles.get(file_meta.stats_index))
+      .find(|file_meta| file == &file_meta.src)
+      .and_then(|file_meta| self.bundles.get(&file_meta.bundle_id))
   }
 
   fn module_name_by_file(&self, file: &str, mod_id: &str) -> Option<&str> {
@@ -75,7 +75,7 @@ impl BundleMeta {
       .and_then(|bundle| bundle.module_map.get(mod_id).map(|s| s.as_str()))
   }
 
-  fn generate_source_maps(&self) -> Vec<(usize, &str, SourceMap)> {
+  fn generate_source_maps(&self) -> Vec<(&str, &str, SourceMap)> {
     self
       .files
       .par_iter()
@@ -85,8 +85,8 @@ impl BundleMeta {
         match File::open(&source_map_file) {
           Ok(file_reader) => match RawSourceMap::from_reader(file_reader) {
             Ok(source_map) => Some((
-              meta.stats_index,
-              meta.file_name.as_str(),
+              meta.bundle_id.as_str(),
+              meta.src.as_str(),
               SourceMap(source_map),
             )),
             Err(e) => {
@@ -131,8 +131,8 @@ impl BundleMeta {
   /// returns: './packages/platform/xxx'
   /// ```
   ///
-  fn to_relative_path(&self, bundle_index: usize, path: &str) -> String {
-    let bundle = self.bundles.get(bundle_index).unwrap();
+  fn to_relative_path(&self, bundle_id: &str, path: &str) -> String {
+    let bundle = self.bundles.get(bundle_id).unwrap();
     if bundle.repo_path.is_none() {
       return path.to_owned();
     }
@@ -228,7 +228,7 @@ pub fn parse(profile_path: &str, bundle_meta_path: &str) -> Result<Profile> {
 
       let source_map = source_maps
         .iter()
-        .find(|(_, asset, _)| frame.file.ends_with(*asset));
+        .find(|(_, asset, _)| frame.file == *asset);
 
       if source_map.is_none() {
         return;

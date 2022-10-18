@@ -22,7 +22,7 @@ import { SourceCoverageResult } from '@perfsee/shared'
 export interface GenerateSourceCoverageTreemapDataOptions {
   pageUrl: string
   jsCoverageData: LH.GathererArtifacts['JsUsage']
-  source: { filename: string; content: string; map?: LH.Artifacts.RawSourceMap }[]
+  source: { url: string; content: string; map?: LH.Artifacts.RawSourceMap }[]
 }
 
 export async function generateSourceCoverageTreemapData(options: GenerateSourceCoverageTreemapDataOptions) {
@@ -30,12 +30,12 @@ export async function generateSourceCoverageTreemapData(options: GenerateSourceC
 
   const scripts = scriptUrls
     .map((url) => {
-      const source = options.source.find((source) => url.endsWith(source.filename))
+      const source = options.source.find((source) => url === source.url)
 
       if (source) {
         return {
-          url,
           ...source,
+          url,
         }
       } else {
         return undefined

@@ -37,6 +37,7 @@ import { EventEmitter } from '@perfsee/platform-server/event'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { SourceMapObjectStorage } from '@perfsee/platform-server/storage/providers/local'
 import {
   JobRequestParams,
   JobRequestResponse,
@@ -64,6 +65,7 @@ export class JobController {
     private readonly redlock: Redlock,
     private readonly maintenance: MaintenanceService,
     private readonly storage: ObjectStorage,
+    private readonly sourceMapStorage: SourceMapObjectStorage,
   ) {
     const jobConfig = this.config.jobs
 
@@ -189,6 +191,85 @@ export class JobController {
     return {
       key: finalKey,
     }
+  }
+
+  @Post('/sourcemap')
+  @HttpCode(HttpStatus.CREATED)
+  async uploadSourceMap(
+    @Body() buf: Buffer,
+    @Query('jobId') jobId: string,
+    @Query('key') key: string,
+    @Headers('x-runner-token') token: string,
+  ) {
+    let id
+    try {
+      id = parseInt(jobId)
+      // eslint-disable-next-line no-empty
+    } catch {}
+    if (!id) {
+      throw new ForbiddenException('Invalid jobId')
+    }
+
+    const runner = await this.runner.authenticateRunner(token)
+    const job = await Job.findOneBy({ id })
+
+    if (!job) {
+      throw new NotFoundException('Job not found')
+    }
+
+    if (job.runnerId !== runner.id) {
+      throw new ForbiddenException('JobId not match the runner')
+    }
+
+    const finalKey = 'sourcemap/' + job.projectId + '/' + key
+    await this.sourceMapStorage.upload(finalKey, buf)
+    return {
+      key: finalKey,
+    }
+  }
+
+  @Get('/sourcemap')
+  async getSourceMap(
+    @Query('key') key: string,
+    @Query('jobId') jobId: string,
+    @Res() res: Response,
+    @Headers('x-runner-token') token: string,
+  ) {
+    let id
+    try {
+      id = parseInt(jobId)
+      // eslint-disable-next-line no-empty
+    } catch {}
+    if (!id) {
+      throw new ForbiddenException('Invalid jobId')
+    }
+
+    const runner = await this.runner.authenticateRunner(token)
+    const job = await Job.findOneBy({ id })
+
+    if (!job) {
+      throw new NotFoundException('Job not found')
+    }
+
+    if (job.runnerId !== runner.id) {
+      throw new ForbiddenException('JobId not match the runner')
+    }
+
+    const finalKey = 'sourcemap/' + job.projectId + '/' + key
+    const stream = await this.sourceMapStorage.getStream(finalKey)
+    stream.on('error', (error: any) => {
+      switch (error.code) {
+        case 'ENAMETOOLONG':
+        case 'ENOENT':
+        case 'ENOTDIR':
+          res.sendStatus(404)
+          break
+        default:
+          res.sendStatus(500)
+          break
+      }
+    })
+    stream.pipe(res)
   }
 
   @Get('/artifacts')

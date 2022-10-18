@@ -43,6 +43,7 @@ export class LabJobWorker extends LighthouseJobWorker {
       traceEventsStorageKey,
       metrics,
       failedReason,
+      artifactIds,
     } = await this.audit()
 
     if (failedReason) {
@@ -52,7 +53,6 @@ export class LabJobWorker extends LighthouseJobWorker {
           snapshotReport: {
             id: payload.reportId,
             screencastStorageKey,
-            jsCoverageStorageKey,
             status: SnapshotStatus.Failed,
             failedReason: failedReason,
           },
@@ -68,6 +68,7 @@ export class LabJobWorker extends LighthouseJobWorker {
             screencastStorageKey,
             jsCoverageStorageKey,
             traceEventsStorageKey,
+            artifactIds,
             status: SnapshotStatus.Completed,
             performanceScore: metrics![LighthouseScoreMetric.Performance],
             metrics,

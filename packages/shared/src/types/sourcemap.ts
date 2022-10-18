@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './lighthouse-score'
-export * from './snapshot'
-export * from './profile'
-export * from './health-check'
-export * from './job-log'
-export * from './source-coverage'
-export * from './external-account'
-export * from './sourcemap'
-export * from '@perfsee/bundle-analyzer/types'
-export * from '@perfsee/bundle-analyzer/stats'
-export type { BuildUploadParams } from '@perfsee/plugin-utils'
+export interface SourceMap {
+  version?: number
+  file?: string
+  mappings?: string
+  sources?: string[]
+  names?: string[]
+  sourceRoot?: string
+  perfseeMetadata?: {
+    artifactId: number
+    artifactAssetPathName: string
+  }
+}

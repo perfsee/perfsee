@@ -14,6 +14,7 @@
   "devDependencies": {
     "@perfsee/bundle-analyzer": "workspace:*",
     "@perfsee/flamechart": "workspace:*",
+    "@perfsee/tracehouse": "workspace:*",
     "@perfsee/plugin-utils": "workspace:*"
   }
 }

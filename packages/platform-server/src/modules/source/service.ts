@@ -15,22 +15,18 @@ limitations under the License.
 */
 
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
-import { uniqBy } from 'lodash'
 
-import { Artifact, InternalIdUsage, Page, Snapshot, SnapshotReport, SourceIssue } from '@perfsee/platform-server/db'
+import { Artifact, InternalIdUsage, SnapshotReport, SourceIssue } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
-import { JobType, SnapshotStatus, SourceAnalyzeJob } from '@perfsee/server-common'
+import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
 import { FlameChartDiagnostic } from '@perfsee/shared'
-
-import { SnapshotReportService } from '../snapshot/snapshot-report/service'
 
 @Injectable()
 export class SourceService implements OnApplicationBootstrap {
   constructor(
-    private readonly reportService: SnapshotReportService,
     private readonly logger: Logger,
     private readonly internalIdService: InternalIdService,
     private readonly event: EventEmitter,
@@ -67,66 +63,50 @@ export class SourceService implements OnApplicationBootstrap {
     await SourceIssue.insert(sourceIssues)
   }
 
-  async startSourceIssueAnalyze(snapshotOrId: number | Snapshot) {
-    const snapshot = typeof snapshotOrId === 'number' ? await Snapshot.findOneBy({ id: snapshotOrId }) : snapshotOrId
-    if (snapshot?.hash) {
-      this.logger.verbose('Emit source code analyse', { snapshotId: snapshot.id })
-      await this.event.emitAsync('job.create', {
-        type: JobType.SourceAnalyze,
-        payload: {
-          entityId: snapshot.id,
-          projectId: snapshot.projectId,
-        },
-      })
-    }
+  async startSourceIssueAnalyze(snapshotReportId: number) {
+    const snapshotReport = await SnapshotReport.findOneByOrFail({ id: snapshotReportId })
+
+    this.logger.verbose('Emit source code analyse', { snapshotReportId: snapshotReport.id })
+    await this.event.emitAsync('job.create', {
+      type: JobType.SourceAnalyze,
+      payload: {
+        entityId: snapshotReport.id,
+        projectId: snapshotReport.projectId,
+      },
+    })
   }
 
-  async getSourceJobPayload(snapshotId: number): Promise<SourceAnalyzeJob | null> {
-    const snapshot = await Snapshot.findOneBy({ id: snapshotId })
-    if (!snapshot?.hash) {
+  async getSourceJobPayload(snapshotReportId: number): Promise<SourceAnalyzeJob | null> {
+    const snapshotReport = await SnapshotReport.findOneByOrFail({ id: snapshotReportId })
+
+    if (
+      !(
+        snapshotReport.traceEventsStorageKey &&
+        snapshotReport.lighthouseStorageKey &&
+        snapshotReport.jsCoverageStorageKey
+      )
+    ) {
       return null
     }
 
-    const artifacts = await Artifact.find({
-      where: {
-        projectId: snapshot.projectId,
-        hash: snapshot.hash,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    }).then((res) => uniqBy(res, 'name'))
+    const artifacts = await Artifact.createQueryBuilder()
+      .where('id in (:...artifactIds)', {
+        artifactIds: snapshotReport.artifactIds ?? [],
+      })
+      .select(['build_key as buildKey', 'id'])
+      .getRawMany<{ id: number; buildKey: string }>()
 
-    if (!artifacts.length) {
-      return null
-    }
-
-    const reports = await this.reportService.getNonCompetitorReports(snapshot.projectId, snapshot.id).then((reports) =>
-      Promise.all(
-        reports
-          .filter((report) => report.status === SnapshotStatus.Completed && report.traceEventsStorageKey)
-          .map(async (report) => {
-            const page = await Page.findOneByOrFail({ id: report.pageId })
-            return {
-              id: report.id,
-              traceEventsStorageKey: report.traceEventsStorageKey!,
-              jsCoverageStorageKey: report.jsCoverageStorageKey!,
-              pageUrl: page.url,
-            }
-          }),
-      ),
-    )
-
-    if (!reports.length) {
-      return null
-    }
+    const artifactBuildKeys = Object.fromEntries(artifacts.map((a) => [a.id, a.buildKey]))
 
     return {
-      snapshotId,
-      projectId: snapshot.projectId,
-      hash: snapshot.hash,
-      artifacts: artifacts.map((artifact) => artifact.buildKey),
-      snapshotReports: reports,
+      projectId: snapshotReport.projectId,
+      reportId: snapshotReport.id,
+      artifactBuildKeys,
+      snapshotReport: {
+        jsCoverageStorageKey: snapshotReport.jsCoverageStorageKey,
+        lighthouseStorageKey: snapshotReport.lighthouseStorageKey,
+        traceEventsStorageKey: snapshotReport.traceEventsStorageKey,
+      },
     }
   }
 

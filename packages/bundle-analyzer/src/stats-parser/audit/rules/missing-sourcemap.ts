@@ -18,7 +18,7 @@ import { Audit, AssetTypeEnum, BundleAuditScore } from '../../types'
 
 export const missingSourceMap: Audit = ({ assets }) => {
   const missingSourceMapAssets = assets.filter(
-    (asset) => asset.type === AssetTypeEnum.Js && asset.sourcemap === false && asset.size.raw >= 1024,
+    (asset) => asset.type === AssetTypeEnum.Js && !asset.sourcemap && asset.size.raw >= 1024,
   )
   return {
     id: 'missing-sourcemap',

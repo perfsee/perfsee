@@ -34,6 +34,7 @@ declare module 'config' {
 
   export const objectStorage: ObjectStorageConfig
   export const jobLogStorage: ObjectStorageConfig
+  export const sourceMapStorage: ObjectStorageConfig
 
   interface OAuthConfig {
     readonly clientId: string
