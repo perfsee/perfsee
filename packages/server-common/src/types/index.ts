@@ -19,11 +19,11 @@ import {
   FlameChartDiagnostic,
   Size,
   BundleAuditWarning,
-  EntryDiff,
   HeaderType,
   CookieType,
   MetricKeyType,
   LocalStorageType,
+  EntryDiffBrief,
 } from '@perfsee/shared'
 
 type PartialSnapshotReport = {
@@ -73,7 +73,7 @@ export interface BundleJobPayload {
   baselineReportKey?: string | null
 }
 
-export type BundleJobEntryPoint = EntryDiff & {
+export type BundleJobEntryPoint = EntryDiffBrief & {
   name: string
   warnings: BundleAuditWarning[]
 }
