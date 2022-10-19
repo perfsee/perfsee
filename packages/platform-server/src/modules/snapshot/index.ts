@@ -21,11 +21,14 @@ import { StorageModule } from '@perfsee/platform-server/storage'
 
 import { AppVersionModule } from '../app-version'
 import { CheckSuiteModule } from '../checksuite'
+import { EnvironmentModule } from '../environment'
 import { NotificationModule } from '../notification'
 import { PageModule } from '../page'
+import { ProfileModule } from '../profile'
 import { ProjectModule } from '../project'
 import { SourceModule } from '../source'
 
+import { SnapshotController } from './controller'
 import { ProjectSnapshotResolver, SnapshotResolver } from './resolver'
 import { SnapshotService } from './service'
 import { SnapshotReportModule } from './snapshot-report'
@@ -41,7 +44,10 @@ import { SnapshotReportModule } from './snapshot-report'
     CheckSuiteModule,
     NotificationModule,
     AppVersionModule,
+    EnvironmentModule,
+    ProfileModule,
   ],
+  controllers: [SnapshotController],
   providers: [SnapshotResolver, ProjectSnapshotResolver, SnapshotService],
   exports: [SnapshotService],
 })
