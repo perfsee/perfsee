@@ -85,7 +85,7 @@ export class ProjectArtifactResolver {
   }
 
   @ResolveField(() => [ArtifactEntrypoint], { name: 'artifactHistory', description: 'all artifact historical data' })
-  asyncartifactHistoryData(
+  asyncArtifactHistoryData(
     @Parent() project: Project,
     @Args({ name: 'from', type: () => GraphQLISODateTime, nullable: true }) from: Date | undefined,
     @Args({ name: 'to', type: () => GraphQLISODateTime, nullable: true }) to: Date | undefined,
