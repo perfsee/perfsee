@@ -1,11 +1,11 @@
-The Perfsee offocial vscode extension.
+The Perfsee official vscode extension.
 
 ![extension](./images/vscode-codelens.png)
 
 ## Features
 
 - Authentication with Perfsee
-- Retrive and view runtime flamegraphs in the editor
+- Retrieve and view runtime flame graphs in the editor
 - Codelens for function execution costs
 - Aggregated folder execution costs in the tree view
 
