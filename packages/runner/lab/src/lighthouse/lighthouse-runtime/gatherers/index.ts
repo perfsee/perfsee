@@ -16,3 +16,4 @@ limitations under the License.
 
 export * from './screencast'
 export * from './request-interception'
+export * from './console-logger'

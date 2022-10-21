@@ -19,7 +19,7 @@ import run from 'lighthouse'
 import defaultConfig from 'lighthouse/lighthouse-core/config/default-config'
 
 import { NetworkRequests, WhiteScreen } from './audits'
-import { RequestInterception, Screencast } from './gatherers'
+import { ConsoleLogger, RequestInterception, Screencast } from './gatherers'
 
 type KeyAuditName = 'first-contentful-paint' | 'interactive'
 
@@ -98,7 +98,7 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
       passes: defaultConfig.passes.map((pass: LH.PerfseePassJson) => {
         pass = {
           ...pass,
-          gatherers: [new RequestInterception(customFlags?.headers), ...(pass.gatherers ?? [])],
+          gatherers: [new RequestInterception(customFlags?.headers), new ConsoleLogger(), ...(pass.gatherers ?? [])],
         }
 
         if (pass.passName === 'defaultPass') {

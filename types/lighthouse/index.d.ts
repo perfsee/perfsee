@@ -47,6 +47,7 @@ module LH {
     RequestInterception: null
     Screencast: ScreencastGathererResult | null
     CpuProfiler: Crdp.Profiler.Profile
+    ConsoleLogger: null
   }
 
   export interface PerfseeGathererInstance extends Gatherer.GathererInstance {
