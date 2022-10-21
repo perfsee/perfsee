@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Persona, PersonaSize } from '@fluentui/react'
+import { IPersonaProps, Persona, PersonaSize } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 
 import { adjustOSSImgSize } from '@perfsee/platform/common'
 
 import { UserModule } from '../../modules/shared'
 
-export const UserAvatar = () => {
+export const UserAvatar: React.FC<Partial<IPersonaProps>> = ({ ...otherProps }) => {
   const { user } = useModuleState(UserModule)
 
   if (user) {
@@ -31,6 +31,7 @@ export const UserAvatar = () => {
         imageAlt={user.username}
         imageUrl={user.avatarUrl ? adjustOSSImgSize(user.avatarUrl, { size: 32 }) : void 0}
         hidePersonaDetails={true}
+        {...otherProps}
       />
     )
   }

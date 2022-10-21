@@ -29,7 +29,7 @@ export const HeaderContainer = styled.div<{ narrow?: boolean }>(({ theme, narrow
   alignItems: 'center',
   justifyContent: 'space-between',
   backgroundColor: theme.colors.white,
-  minWidth: '900px',
+  // minWidth: '900px',
   boxShadow: narrow ? theme.boxShadowBase : 'none',
   zIndex: 3,
 }))
@@ -49,7 +49,7 @@ export const HeaderTitleContainer = styled.div({
   display: 'flex',
   alignItems: 'center',
 
-  '@media screen and (max-width: 1400px)': {
+  '@media screen and (max-width: 992px)': {
     flexDirection: 'column',
     marginLeft: '10px',
     alignItems: 'flex-start',
@@ -109,7 +109,7 @@ export const HeaderOperatorSmallWrap = styled.div({
 })
 
 export const HeaderOperatorWrap = styled.div({
-  '@media screen and (max-width: 1300px)': {
+  '@media screen and (max-width: 992px)': {
     [`${HeaderOperatorContainer}`]: {
       display: 'none',
     },
@@ -123,4 +123,9 @@ export const Logo = styled.img({
   ':hover': {
     cursor: 'pointer',
   },
+})
+
+export const UserInfoCalloutContainer = styled.div({
+  padding: '16px',
+  minWidth: '300px',
 })

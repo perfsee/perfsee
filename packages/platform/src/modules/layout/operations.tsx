@@ -36,7 +36,6 @@ export const Operations = () => {
   const operations = useMemo(
     () => (
       <>
-        <Link to={staticPath.accessToken}>API</Link>
         <ForeignLink href={staticPath.docs.home}>Docs</ForeignLink>
         {loggedIn && <a href={SERVER + `/auth/logout`}>Logout</a>}
       </>
@@ -49,7 +48,7 @@ export const Operations = () => {
       onRenderPlainCard: () => {
         return (
           <HoverCardWrap>
-            {loggedIn && <Link to={staticPath.me.home}>Your profile</Link>}
+            {loggedIn && <Link to={staticPath.me.home}>Settings</Link>}
             {operations}
           </HoverCardWrap>
         )

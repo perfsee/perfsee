@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 export const resetLink = (color: string) => ({
-  ':hover, :visited, :active': {
+  ':hover, :visited, :active, :focus': {
     color,
   },
 })

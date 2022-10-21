@@ -14,20 +14,51 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DefaultButton, Text } from '@fluentui/react'
-import { useModule } from '@sigi/react'
+import { Icon, PersonaSize, Stack, Text } from '@fluentui/react'
+import { useModule, useModuleState } from '@sigi/react'
 import { useCallback, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Route, Switch } from 'react-router-dom'
 
-import { BodyContainer } from '@perfsee/components'
+import { BodyContainer, BodyPadding } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
-import { ConnectedAccount, ConnectedAccountsModule } from '../shared'
+import { ConnectedAccount, ConnectedAccountsModule, UserModule } from '../shared'
 
+import { AccessToken } from './access-token'
 import { Account } from './account'
-import { Container } from './styled'
+import { UserAvatar } from './avatar'
+import { NavbarContainer, NavbarItem as StyledNavbarItem, PageLayout, Title } from './styled'
 
 export const Me = () => {
+  const { user } = useModuleState(UserModule)
+
+  if (!user) {
+    return null
+  }
+
+  return (
+    <Stack tokens={{ childrenGap: 24 }}>
+      <Stack tokens={{ childrenGap: 8 }}>
+        <Title>Account</Title>
+        <UserAvatar size={PersonaSize.size72} />
+        <Text variant="xLarge">{user.username}</Text>
+        <Text variant="medium">{user.email}</Text>
+      </Stack>
+      <Stack.Item>
+        <Title>Actions</Title>
+        <Text variant="medium">
+          <a href={SERVER + '/auth/logout'}>Logout</a>
+        </Text>
+        <br />
+        <Text variant="medium">
+          <Link to={staticPath.resetPassword}>Reset Password</Link>
+        </Text>
+      </Stack.Item>
+    </Stack>
+  )
+}
+
+export const ConnectedAccounts = () => {
   const [{ connectedAccounts }, dispatch] = useModule(ConnectedAccountsModule)
 
   useEffect(() => {
@@ -39,23 +70,67 @@ export const Me = () => {
   const onDisconnect = useCallback((account: ConnectedAccount) => dispatch.disconnectedAccounts(account), [dispatch])
 
   return (
-    <BodyContainer>
-      <Container tokens={{ childrenGap: 16 }}>
-        <Text variant="xLarge">Connected Accounts</Text>
+    <Stack tokens={{ childrenGap: 24 }}>
+      <Stack.Item>
+        <Title>Connected Accounts</Title>
         {connectedAccounts?.map((account) => (
           <Account key={account.provider} account={account} onDisconnect={onDisconnect} />
         ))}
-        <br />
-        <br />
-        <br />
-        <a href={SERVER + '/auth/logout'}>
-          <DefaultButton>Logout</DefaultButton>
-        </a>
-        <br />
-        <Link to={staticPath.me.resetPassword}>
-          <DefaultButton>Reset Password</DefaultButton>
-        </Link>
-      </Container>
+      </Stack.Item>
+    </Stack>
+  )
+}
+
+const navbarItemStyle = (isActive: boolean) => ({
+  borderLeft: '3px solid ' + (isActive ? '#000' : 'transparent'),
+  background: isActive ? '#eee' : undefined,
+  fontWeight: isActive ? 600 : undefined,
+})
+const NavbarItem: React.FunctionComponent<{ to: string; children: React.ReactNode }> = ({ to, children }) => {
+  return (
+    <StyledNavbarItem exact to={to} style={navbarItemStyle}>
+      {children}
+    </StyledNavbarItem>
+  )
+}
+
+const Navbar = () => {
+  return (
+    <NavbarContainer>
+      <NavbarItem to={staticPath.me.home}>
+        <Icon iconName="settings" /> Account
+      </NavbarItem>
+      <NavbarItem to={staticPath.me.connectedAccounts}>
+        <Icon iconName="user" /> Connected accounts
+      </NavbarItem>
+      <NavbarItem to={staticPath.me.accessToken}>
+        <Icon iconName="key" /> Personal access tokens
+      </NavbarItem>
+      <NavbarItem to={staticPath.me.billing}>
+        <Icon iconName="creditCard" /> Billing (coming soon)
+      </NavbarItem>
+    </NavbarContainer>
+  )
+}
+
+const MePage = () => {
+  return (
+    <BodyContainer>
+      <BodyPadding>
+        <PageLayout tokens={{ childrenGap: 32 }}>
+          <Navbar />
+          <Stack.Item grow={1} tokens={{ padding: '0 16px' }}>
+            <Switch>
+              <Route exact={true} path={staticPath.me.home} component={Me} />
+              <Route exact={true} path={staticPath.me.connectedAccounts} component={ConnectedAccounts} />
+              <Route exact={true} path={staticPath.me.accessToken} component={AccessToken} />
+              <Route exact={true} path={staticPath.me.billing} component={Me} />
+            </Switch>
+          </Stack.Item>
+        </PageLayout>
+      </BodyPadding>
     </BodyContainer>
   )
 }
+
+export default MePage

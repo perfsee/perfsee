@@ -28,7 +28,6 @@ import {
   ProjectListPage,
   ProjectFeaturePage,
   Applications,
-  AccessToken,
   ImportGithub,
   Login,
   Register,
@@ -54,17 +53,16 @@ export const Routes = ({ user }: { user: User | null }) => {
       <Route exact={true} path={staticPath.register} component={Register} />
       <Route exact={true} path={staticPath.status} component={StatusPage} />
       <Route exact={true} path={staticPath.license} component={LicensePage} />
-      <Route exact={true} path={staticPath.me.editPassword} component={EditPassword} />
-      <Route exact={true} path={staticPath.me.resetPassword} component={ResetPassword} />
+      <Route exact={true} path={staticPath.editPassword} component={EditPassword} />
+      <Route exact={true} path={staticPath.resetPassword} component={ResetPassword} />
 
       {/* pages with login */}
       {user ? (
         <Switch>
           <Route exact={true} path={staticPath.importGithub} component={ImportGithub} />
-          <Route exact={true} path={staticPath.me.home} component={Me} />
+          <Route path={staticPath.me.home} component={Me} />
           <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
           {user.isAdmin && <Route exact={true} path={staticPath.applications} component={Applications} />}
-          <Route exact={true} path={staticPath.accessToken} component={AccessToken} />
           <Route path={staticPath.project.feature} component={ProjectFeaturePage} />
           <Route path="*" render={NotFound} />
         </Switch>

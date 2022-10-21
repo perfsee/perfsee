@@ -118,7 +118,7 @@ export const Login = () => {
               <BlockButton text="Register" />
             </Link>
             <CenterText>
-              Forgot your password? <Link to={staticPath.me.resetPassword}>Reset password</Link>
+              Forgot your password? <Link to={staticPath.resetPassword}>Reset password</Link>
             </CenterText>
             <Separator />
             {oauthProvidersLoading ? (
