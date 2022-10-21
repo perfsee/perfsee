@@ -12,6 +12,9 @@ import {
   updateProjectMutation,
   vscodeGetProjectsByNamespaceAndNameQuery,
   addProjectOwnerMutation,
+  updateProjectUserPermissionMutation,
+  Permission,
+  projectAuthedUsersQuery,
 } from '@perfsee/schema'
 
 let gqlClient: GraphQLTestingClient
@@ -206,14 +209,12 @@ test('get projects by namespace and name', async (t) => {
 
 test('update project', async (t) => {
   const newBranch = faker.git.branch()
-  const newUser = await create(User)
   await gqlClient.mutate({
     mutation: updateProjectMutation,
     variables: {
       projectId: project.slug,
       projectInput: {
         artifactBaselineBranch: newBranch,
-        owners: [user.email, newUser.email],
         isPublic: true,
       },
     },
@@ -227,10 +228,6 @@ test('update project', async (t) => {
   })
 
   t.is(response.project.artifactBaselineBranch, newBranch)
-  t.deepEqual(
-    response.project.owners.map((o) => o.email),
-    [user.email, newUser.email],
-  )
   t.is(response.project.isPublic, true)
 })
 
@@ -353,5 +350,93 @@ test('unable to star no read permission project', async (t) => {
       })
     },
     { message: '[User Error] Unauthorized user' },
+  )
+})
+
+test.serial('update project user permissions', async (t) => {
+  const user = await create(User)
+
+  await gqlClient.mutate({
+    mutation: updateProjectUserPermissionMutation,
+    variables: {
+      projectId: project.slug,
+      email: user.email,
+      permission: Permission.Admin,
+      isAdd: true,
+    },
+  })
+
+  const response = await gqlClient.query({
+    query: projectAuthedUsersQuery,
+    variables: {
+      projectId: project.slug,
+    },
+  })
+
+  const user1 = response.project.authorizedUsers.find((u) => u.email === user.email)
+  t.is(user1?.permission, Permission.Admin)
+
+  await t.throwsAsync(
+    async () => {
+      await gqlClient.mutate({
+        mutation: updateProjectUserPermissionMutation,
+        variables: {
+          projectId: project.slug,
+          email: user.email,
+          permission: Permission.Read,
+          isAdd: true,
+        },
+      })
+    },
+    { message: '[User Error] User already has this permission' },
+  )
+
+  await gqlClient.mutate({
+    mutation: updateProjectUserPermissionMutation,
+    variables: {
+      projectId: project.slug,
+      email: user.email,
+      permission: Permission.Admin,
+      isAdd: false,
+    },
+  })
+
+  const response2 = await gqlClient.query({
+    query: projectAuthedUsersQuery,
+    variables: {
+      projectId: project.slug,
+    },
+  })
+
+  t.falsy(response2.project.authorizedUsers.find((u) => u.email === user.email))
+
+  await t.throwsAsync(
+    async () => {
+      await gqlClient.mutate({
+        mutation: updateProjectUserPermissionMutation,
+        variables: {
+          projectId: project.slug,
+          email: user.email,
+          permission: Permission.Admin,
+          isAdd: false,
+        },
+      })
+    },
+    { message: '[User Error] User do not has this permission' },
+  )
+
+  await t.throwsAsync(
+    async () => {
+      await gqlClient.mutate({
+        mutation: updateProjectUserPermissionMutation,
+        variables: {
+          projectId: project.slug,
+          email: faker.internet.email(),
+          permission: Permission.Read,
+          isAdd: true,
+        },
+      })
+    },
+    { message: '[User Error] No such user' },
   )
 })

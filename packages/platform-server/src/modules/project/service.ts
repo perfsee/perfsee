@@ -154,17 +154,31 @@ export class ProjectService {
     return projects.map((project) => ('slug' in project ? project.slug : null)).filter(Boolean)
   }
 
-  async getProjectOwners(project: Project) {
-    const owners = await this.permissionProvider.projectAllowList(project, Permission.Admin)
-    if (typeof owners[0] === 'number') {
+  async getProjectUsers(project: Project, permission: Permission) {
+    const users = await this.permissionProvider.projectAllowList(project, permission)
+
+    if (typeof users[0] === 'number') {
       return User.findBy({
-        id: In(owners),
+        id: In(users),
       })
     } else {
       return User.findBy({
-        email: In(owners),
+        email: In(users),
       })
     }
+  }
+
+  async getAuthorizedUsers(project: Project) {
+    const owners = await this.getProjectUsers(project, Permission.Admin)
+    const viewers = await this.getProjectUsers(project, Permission.Read)
+
+    return [
+      ...this.insertUserPermission(owners, Permission.Admin),
+      ...this.insertUserPermission(
+        viewers.filter((viewer) => owners.every((owner) => owner.email !== viewer.email)),
+        Permission.Read,
+      ),
+    ]
   }
 
   async checkPermission(payload: { user: User; slug: string; permission: Permission }) {
@@ -204,7 +218,7 @@ export class ProjectService {
   }
 
   async update(projectId: number, input: UpdateProjectInput) {
-    const { artifactBaselineBranch, owners, isPublic } = input
+    const { artifactBaselineBranch, isPublic } = input
 
     const projectPayload = omitBy({ artifactBaselineBranch, isPublic }, isUndefined)
 
@@ -212,18 +226,12 @@ export class ProjectService {
       await Project.update(projectId, projectPayload)
     }
 
-    const project = await this.loader.load(projectId)
-
-    if (owners) {
-      await this.updateProjectOwners(project, owners)
-    }
-
-    return project
+    return this.loader.load(projectId)
   }
 
   async updateProjectOwners(project: Project, owners: string[]) {
     const users = await this.userService.findOrCreateByEmails(owners)
-    const old = await this.getProjectOwners(project)
+    const old = await this.getProjectUsers(project, Permission.Admin)
     const removed = differenceBy(old, users, (user) => user.email)
     const added = differenceBy(users, old, (user) => user.email)
 
@@ -231,6 +239,28 @@ export class ProjectService {
       ...removed.map((user) => this.permissionProvider.revoke(user, project.id, Permission.Admin)),
       ...added.map((user) => this.permissionProvider.grant(user, project.id, Permission.Admin)),
     ])
+  }
+
+  async updateProjectUserPermission(projectId: number, email: string, permission: Permission, isAdd: boolean) {
+    const user = await this.userService.findUserByEmail(email)
+
+    if (!user) {
+      throw new UserError('No such user')
+    }
+
+    const hasPermission = await this.permissionProvider.check(user, projectId, permission)
+
+    if (isAdd && hasPermission) {
+      throw new UserError('User already has this permission')
+    } else if (!isAdd && !hasPermission) {
+      throw new UserError('User do not has this permission')
+    }
+
+    if (isAdd) {
+      await this.permissionProvider.grant(user, projectId, permission)
+    } else {
+      await this.permissionProvider.revoke(user, projectId, permission)
+    }
   }
 
   async verifyNewSlug(newSlug: string): Promise<{ error?: string; ok: boolean }> {
@@ -386,5 +416,9 @@ export class ProjectService {
       .where(`created_at > DATE_SUB(NOW(), INTERVAL ${value} ${period})`)
       .getRawOne<{ count: string }>()
       .then((result) => (result ? parseInt(result.count, 10) : undefined))
+  }
+
+  private insertUserPermission(users: User[], permission: Permission) {
+    return users.map((user) => ({ ...user, permission }))
   }
 }

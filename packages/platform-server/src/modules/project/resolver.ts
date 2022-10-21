@@ -24,7 +24,7 @@ import { CurrentUser, Auth } from '../auth'
 import { PermissionGuard, Permission } from '../permission'
 
 import { ProjectService } from './service'
-import { CreateProjectInput, UpdateProjectInput } from './types'
+import { CreateProjectInput, UpdateProjectInput, UserWithPermission } from './types'
 
 @ObjectType()
 export class PaginatedProjects extends Paginated(Project) {}
@@ -116,6 +116,19 @@ export class ProjectResolver {
     return true
   }
 
+  @PermissionGuard(Permission.Admin, 'projectId')
+  @Mutation(() => Boolean)
+  async updateProjectUserPermission(
+    @Args({ name: 'projectId', type: () => ID }) slug: string,
+    @Args({ name: 'email', type: () => String }) email: string,
+    @Args({ name: 'permission', type: () => Permission }) permission: Permission,
+    @Args({ name: 'isAdd', type: () => Boolean }) isAdd: boolean,
+  ) {
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(slug)
+    await this.projectService.updateProjectUserPermission(projectRawId, email, permission, isAdd)
+    return true
+  }
+
   @PermissionGuard(Permission.Read, 'projectId')
   @Mutation(() => Boolean)
   async toggleStarProject(
@@ -127,9 +140,9 @@ export class ProjectResolver {
     return true
   }
 
-  @ResolveField(() => [User], { description: 'owners of this project' })
-  async owners(@Parent() project: Project) {
-    return this.projectService.getProjectOwners(project)
+  @ResolveField(() => [UserWithPermission], { description: 'authorized users of this project' })
+  async authorizedUsers(@Parent() project: Project) {
+    return this.projectService.getAuthorizedUsers(project)
   }
 
   @Mutation(() => Boolean, {

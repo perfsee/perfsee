@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Field, InputType, PartialType, PickType } from '@nestjs/graphql'
+import { Field, InputType, ObjectType, PartialType, PickType } from '@nestjs/graphql'
 
-import { GitHost } from '@perfsee/shared'
+import { User } from '@perfsee/platform-server/db'
+import { GitHost, Permission } from '@perfsee/shared'
 
 @InputType()
 export class CreateProjectInput {
@@ -38,9 +39,12 @@ export class CreateProjectInput {
 
 @InputType()
 export class UpdateProjectInput extends PartialType(PickType(CreateProjectInput, ['artifactBaselineBranch'])) {
-  @Field(() => [String], { description: 'email list of owners', nullable: true })
-  owners?: string[]
-
   @Field(() => Boolean, { description: 'project visibility', nullable: true })
   isPublic?: boolean
+}
+
+@ObjectType()
+export class UserWithPermission extends User {
+  @Field(() => Permission, { description: 'user permission of project' })
+  permission?: Permission
 }

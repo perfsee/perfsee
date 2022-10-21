@@ -25,24 +25,34 @@ import { CloseableUserTag } from './user-tag'
 
 interface UserEmailsInputProps {
   emails: string[]
-  onChange: (emails: string[]) => void
   label: string
   required?: boolean
+  onChange?: (emails: string[]) => void
+  onAdd?: (email: string) => void
+  onDelete?: (email: string) => void
 }
 
-export const UserEmailsInput: FC<UserEmailsInputProps> = ({ emails, onChange, label, required }) => {
+export const UserEmailsInput: FC<UserEmailsInputProps> = ({ emails, onChange, label, required, onAdd, onDelete }) => {
   const handleRemove = useCallback(
     (removedEmail: string) => {
-      onChange(emails.filter((email) => email !== removedEmail))
+      if (onDelete) {
+        onDelete(removedEmail)
+      } else if (onChange) {
+        onChange(emails.filter((email) => email !== removedEmail))
+      }
     },
-    [onChange, emails],
+    [onDelete, onChange, emails],
   )
 
   const handleAdd = useCallback(
     (email: string) => {
-      onChange(uniq([...emails, email]))
+      if (onAdd) {
+        onAdd(email)
+      } else if (onChange) {
+        onChange(uniq([...emails, email]))
+      }
     },
-    [onChange, emails],
+    [onAdd, onChange, emails],
   )
 
   return (

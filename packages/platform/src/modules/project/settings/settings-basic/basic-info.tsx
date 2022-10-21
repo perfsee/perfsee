@@ -21,12 +21,11 @@ import { FC, useCallback, useMemo, useState } from 'react'
 
 import { ForeignLink } from '@perfsee/components'
 import { notify } from '@perfsee/platform/common'
-import { UserEmailsInput } from '@perfsee/platform/modules/components'
 import { ProjectModule } from '@perfsee/platform/modules/shared'
 import { CommonGitHost } from '@perfsee/shared'
 import { isBaselineRegex } from '@perfsee/shared/utils'
 
-import { BasicSettingsModule, ProjectChangingKeys } from './module'
+import { BasicSettingsModule } from './module'
 import { BranchRegexWarning, Field } from './style'
 
 const SelectWidth = 500
@@ -75,13 +74,6 @@ export const BasicInfo = () => {
 
   const gitHostRepoUrl = useMemo(() => project && new CommonGitHost(project).repoUrl(), [project])
 
-  const handleProjectFieldUpdate = useCallback(
-    (field: ProjectChangingKeys) => (value: any) => {
-      updateProjectField({ field, value })
-    },
-    [updateProjectField],
-  )
-
   const onChangeBaseline = useCallback(
     (value?: string) => {
       updateProjectField({ field: 'artifactBaselineBranch', value })
@@ -100,11 +92,7 @@ export const BasicInfo = () => {
       })
   }, [project?.id])
 
-  const { owners: updatedOwners, artifactBaselineBranch: updatedArtifactBaselineBranch } = projectChanging
-
-  const ownerEmails = useMemo(() => {
-    return updatedOwners ?? (project?.owners ?? []).map(({ email }) => email)
-  }, [updatedOwners, project?.owners])
+  const { artifactBaselineBranch: updatedArtifactBaselineBranch } = projectChanging
 
   if (!project) {
     return null
@@ -127,7 +115,6 @@ export const BasicInfo = () => {
           <ForeignLink href={gitHostRepoUrl}>{gitHostRepoUrl}</ForeignLink>
         </Stack.Item>
       )}
-      <UserEmailsInput required label="Owners" emails={ownerEmails} onChange={handleProjectFieldUpdate('owners')} />
       <Stack.Item styles={{ root: { maxWidth: SelectWidth } }} tokens={{ padding: '8px 0 0 0' }}>
         <BaselineInput
           defaultValue={updatedArtifactBaselineBranch ?? artifactBaselineBranch}

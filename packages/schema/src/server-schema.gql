@@ -134,8 +134,8 @@ type Project {
   """project created timestamp"""
   createdAt: DateTime!
 
-  """owners of this project"""
-  owners: [User!]!
+  """authorized users of this project"""
+  authorizedUsers: [UserWithPermission!]!
 
   """current user permission to this project"""
   userPermission: [Permission!]!
@@ -837,6 +837,27 @@ type PaginatedGithubInstallations {
   pageInfo: PageInfo!
 }
 
+type UserWithPermission {
+  username: String!
+  email: String!
+  firstName: String
+  lastName: String
+  avatarUrl: String
+
+  """issue created timestamp"""
+  createdAt: DateTime!
+
+  """is application"""
+  isApp: Boolean!
+  isAdmin: Boolean!
+  starredProjects: [ID!]!
+  connectedAccounts: [Account!]!
+  accessTokens: [AccessToken!]!
+
+  """user permission of project"""
+  permission: Permission!
+}
+
 type ProjectEdge {
   cursor: String!
   node: Project!
@@ -1092,6 +1113,7 @@ type Mutation {
   createProject(input: CreateProjectInput!): Project!
   updateProject(projectId: ID!, input: UpdateProjectInput!): Project!
   addProjectOwner(projectId: ID!, email: String!): Boolean!
+  updateProjectUserPermission(projectId: ID!, email: String!, permission: Permission!, isAdd: Boolean!): Boolean!
   toggleStarProject(projectId: ID!, star: Boolean!): Boolean!
 
   """
@@ -1178,9 +1200,6 @@ input CreateProjectInput {
 
 input UpdateProjectInput {
   artifactBaselineBranch: String
-
-  """email list of owners"""
-  owners: [String!]
 
   """project visibility"""
   isPublic: Boolean
