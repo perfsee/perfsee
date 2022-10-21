@@ -3,7 +3,6 @@
   "extends": [
     "config:base",
     "group:allNonMajor",
-    "group:linters",
     ":preserveSemverRanges",
     ":disablePeerDependencies"
   ],
@@ -54,6 +53,13 @@
         "^@?rollup"
       ],
       "groupName": "rollup"
+    },
+    {
+      "matchPackagePatterns": [
+        "^eslint",
+        "^@typescript-eslint"
+      ],
+      "groupName": "linter"
     }
   ],
   "commitMessagePrefix": "chore: ",
