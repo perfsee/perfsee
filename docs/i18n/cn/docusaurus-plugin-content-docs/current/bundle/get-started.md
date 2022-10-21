@@ -71,7 +71,7 @@ yarn build
 ```
 
 :::note
-前往 [API](../api) 查看如果生成 Perfsee Token。
+前往 [API](../api) 查看如何生成 Perfsee Token。
 :::
 
 ### Option 2: 仅在 CI 中分析
