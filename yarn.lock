@@ -2494,9 +2494,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/cli@npm:2.13.6":
-  version: 2.13.6
-  resolution: "@graphql-codegen/cli@npm:2.13.6"
+"@graphql-codegen/cli@npm:2.13.7":
+  version: 2.13.7
+  resolution: "@graphql-codegen/cli@npm:2.13.7"
   dependencies:
     "@babel/generator": ^7.18.13
     "@babel/template": ^7.18.10
@@ -2541,7 +2541,7 @@ __metadata:
     graphql-code-generator: cjs/bin.js
     graphql-codegen: cjs/bin.js
     graphql-codegen-esm: esm/bin.js
-  checksum: 9fc0b1e18c2f62dbe36ee2addee49f99976ab4579b6a240f8b5f4ebfac255e5458ba2a0b1eb2a976d66ea7a5d6597633ae21832f653ef7a92ab6d465dab5def1
+  checksum: c025e311c072c1d992451f27625c863eef1236e5f01e2aeb6f00e67a60e99c7812a13481481a8fc6ea2967fffd77433d582f10365244d677608fdc7aa13bbe29
   languageName: node
   linkType: hard
 
@@ -20274,7 +20274,7 @@ __metadata:
     "@commitlint/config-conventional": ^17.0.3
     "@commitlint/config-lerna-scopes": ^17.0.2
     "@graphql-codegen/add": ^3.2.0
-    "@graphql-codegen/cli": 2.13.6
+    "@graphql-codegen/cli": 2.13.7
     "@graphql-codegen/typescript": ^2.7.1
     "@graphql-codegen/typescript-operations": ^2.5.1
     "@mdx-js/loader": ^2.1.3

@@ -2512,9 +2512,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@easyops-cn/docusaurus-search-local@npm:^0.32.0":
-  version: 0.32.0
-  resolution: "@easyops-cn/docusaurus-search-local@npm:0.32.0"
+"@easyops-cn/docusaurus-search-local@npm:^0.33.0":
+  version: 0.33.0
+  resolution: "@easyops-cn/docusaurus-search-local@npm:0.33.0"
   dependencies:
     "@docusaurus/plugin-content-docs": ^2.0.0-rc.1
     "@docusaurus/theme-translations": ^2.0.0-rc.1
@@ -2536,7 +2536,7 @@ __metadata:
     "@docusaurus/theme-common": ^2.0.0-rc.1
     react: ^16.14.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
-  checksum: 77744840f6d9fd289343ed437ab8e363b375cc3ac7e644487f8aa52871505739cd06866d2c612682b5443c59d17588cfaa0e3c09751700d83c4da2906a1ffa63
+  checksum: fe4a2c3d7de7cc0f4ecd319a47f1d8c341a077befd028f6a64235ec657981b794325a100ea37a7b56a74c171b6e67986cae9fdb9a31bacd684374ed5de5ff936
   languageName: node
   linkType: hard
 
@@ -5411,7 +5411,7 @@ __metadata:
     "@docusaurus/plugin-content-pages": ^2.0.1
     "@docusaurus/preset-classic": 2.1.0
     "@docusaurus/theme-common": ^2.0.1
-    "@easyops-cn/docusaurus-search-local": ^0.32.0
+    "@easyops-cn/docusaurus-search-local": ^0.33.0
     "@emotion/babel-plugin": ^11.10.0
     "@emotion/react": ^11.10.0
     "@emotion/styled": ^11.10.0
