@@ -38,7 +38,7 @@ import {
   JobType,
   BundleJobEntryPoint,
 } from '@perfsee/server-common'
-import { BundleAuditWarning, BundleResult, diffBundleResult } from '@perfsee/shared'
+import { briefEntryDiff, BundleAuditWarning, BundleResult, diffBundleResult } from '@perfsee/shared'
 
 export class BundleWorker extends JobWorker<BundleJobPayload> {
   private pwd!: string
@@ -154,7 +154,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     const result: Record<string, BundleJobEntryPoint> = {}
 
     for (const entryPointName in diffResult) {
-      const entryPoint = diffResult[entryPointName]
+      const entryPoint = briefEntryDiff(diffResult[entryPointName])
       const warnings = this.generateWarnings(
         jobResult.entryPoints.find(({ name }) => name === entryPointName)!,
         baselineResult?.entryPoints?.find(({ name }) => name === entryPointName),

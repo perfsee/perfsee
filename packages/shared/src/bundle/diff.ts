@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { keyBy, sortBy, uniq } from 'lodash'
+import { keyBy, sortBy, uniq, pick } from 'lodash'
 
 import {
   Asset,
@@ -127,26 +127,47 @@ export function parseResult(job: BundleResult) {
   }
 }
 
-export interface EntryDiff {
-  assetsDiff: Diff<AssetInfo[]>
+export interface EntryDiffBrief {
   assetsCountDiff: Diff<number>
   sizeDiff: Diff
   initialSizeDiff: Diff
   initialJsSizeDiff: Diff
   initialCssSizeDiff: Diff
-  initialAssetsDiff: Diff<AssetInfo[]>
   jsSizeDiff: Diff
   cssSizeDiff: Diff
-  chunksDiff: Diff<Chunk[]>
-  packagesDiff: Diff<PackageInfo[]>
   cacheInvalidation: Diff
   chunksCountDiff: Diff<number>
   packagesCountDiff: Diff<number>
   duplicatedPackagesCountDiff: Diff<number>
+  score: Diff<number | undefined>
+}
+
+export interface EntryDiff extends EntryDiffBrief {
+  assetsDiff: Diff<AssetInfo[]>
+  initialAssetsDiff: Diff<AssetInfo[]>
+  chunksDiff: Diff<Chunk[]>
+  packagesDiff: Diff<PackageInfo[]>
   duplicatedPackages: DuplicatePackage[]
   packageIssueMap: PackageIssueMap
   audits: BundleAuditResult[]
-  score: Diff<number | undefined>
+}
+
+export function briefEntryDiff(entryDiff: EntryDiff): EntryDiffBrief {
+  return pick(
+    entryDiff,
+    'assetsCountDiff',
+    'sizeDiff',
+    'initialSizeDiff',
+    'initialJsSizeDiff',
+    'initialCssSizeDiff',
+    'jsSizeDiff',
+    'cssSizeDiff',
+    'cacheInvalidation',
+    'chunksCountDiff',
+    'packagesCountDiff',
+    'duplicatedPackagesCountDiff',
+    'score',
+  )
 }
 
 export interface BundleDiff {
