@@ -16,31 +16,12 @@ limitations under the License.
 
 import test from 'ava'
 
-import { Size } from '../../types'
-import { addSize, getDefaultSize } from '../size'
+import { GitHost } from '../'
+import { getCommitLink } from '../codebase'
 
-test('get default size', (t) => {
-  const size = getDefaultSize()
+test('get commit link', (t) => {
+  const hash = 'abc'
+  const url = getCommitLink({ host: GitHost.Github, namespace: 'test-namespace', name: 'test' }, hash)
 
-  t.like(size, { raw: 0, gzip: 0, brotli: 0 })
-})
-
-test('add size', (t) => {
-  const sizeA: Size = {
-    raw: 1,
-    gzip: 1,
-    brotli: 1,
-  }
-
-  const sizeB: Size = {
-    raw: 2,
-    gzip: 3,
-    brotli: 4,
-  }
-
-  const result = addSize(sizeA, sizeB)
-
-  t.is(result.raw, 3)
-  t.is(result.gzip, 4)
-  t.is(result.brotli, 5)
+  t.is(url, `https://github.com/test-namespace/test/commits/${hash}`)
 })

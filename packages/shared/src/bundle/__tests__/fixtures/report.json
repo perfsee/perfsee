@@ -1,0 +1,480 @@
+{
+  "score": 93,
+  "entryPoints": [
+    {
+      "name": "main",
+      "size": {
+        "raw": 147699,
+        "gzip": 46305,
+        "brotli": 41899
+      },
+      "initialSize": {
+        "raw": 147699,
+        "gzip": 46305,
+        "brotli": 41899
+      },
+      "assetRefs": [
+        1
+      ],
+      "chunkRefs": [
+        1
+      ],
+      "initialChunkRefs": [
+        1
+      ],
+      "packageAppendixes": [
+        {
+          "ref": 1,
+          "size": {
+            "raw": 131470,
+            "gzip": 41414,
+            "brotli": 37636
+          },
+          "issuerRefs": [],
+          "assetRefs": [
+            1
+          ],
+          "notes": []
+        },
+        {
+          "ref": 2,
+          "size": {
+            "raw": 3874,
+            "gzip": 1585,
+            "brotli": 1457
+          },
+          "issuerRefs": [
+            1
+          ],
+          "assetRefs": [
+            1
+          ],
+          "notes": []
+        },
+        {
+          "ref": 3,
+          "size": {
+            "raw": 7105,
+            "gzip": 2880,
+            "brotli": 2721
+          },
+          "issuerRefs": [
+            1
+          ],
+          "assetRefs": [
+            1
+          ],
+          "notes": []
+        },
+        {
+          "ref": 4,
+          "size": {
+            "raw": 4696,
+            "gzip": 1800,
+            "brotli": 1658
+          },
+          "issuerRefs": [],
+          "assetRefs": [
+            1
+          ],
+          "notes": []
+        }
+      ],
+      "audits": [
+        {
+          "id": "compression-notice",
+          "title": "Enable compression when transferring your assets",
+          "desc": "Use correct compression algorithm could significantly decrease transfer size.",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Asset"
+              },
+              {
+                "key": "raw",
+                "itemType": "text",
+                "name": "Raw Size"
+              },
+              {
+                "key": "gzip",
+                "itemType": "text",
+                "name": "Gzip"
+              },
+              {
+                "key": "brotli",
+                "itemType": "text",
+                "name": "Brotli"
+              }
+            ],
+            "items": [
+              {
+                "name": "main.8dd73b00.js",
+                "raw": "148 kB",
+                "gzip": "46.3 kB (save: 69%)",
+                "brotli": "41.9 kB (save: 72%)"
+              }
+            ]
+          },
+          "score": 2,
+          "weight": 0
+        },
+        {
+          "id": "duplicate-libraries",
+          "title": "Deduplicate versions of libraries",
+          "desc": "Different version of same library resolved by package manager.",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Name"
+              },
+              {
+                "key": "versions",
+                "itemType": "list",
+                "name": "Versions"
+              }
+            ],
+            "items": [
+              {
+                "name": "scheduler",
+                "versions": [
+                  "node_modules/react-dom/node_modules/scheduler@0.23.0",
+                  "node_modules/scheduler@0.18.0"
+                ]
+              }
+            ]
+          },
+          "score": 1,
+          "numericScore": {
+            "value": 0.6309297535714575,
+            "absoluteWarningThrottle": 0.4,
+            "relativeWarningThrottle": 0
+          },
+          "weight": 20
+        },
+        {
+          "id": "http2-notice",
+          "title": "Use HTTP/2",
+          "desc": "HTTP/2 offers many benefits over HTTP/1.1, including binary headers, multiplexing, and server push.",
+          "link": "https://http2.github.io/faq/",
+          "score": 3,
+          "weight": 0
+        },
+        {
+          "id": "large-synchronous-assets",
+          "title": "Split assets into smaller pieces",
+          "desc": "Large synchronous assets will increase page load time. Use proper `SplitChunk` optimization configuration and lazy load non-critical code.",
+          "link": "https://web.dev/reduce-javascript-payloads-with-code-splitting/",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Asset"
+              },
+              {
+                "key": "size",
+                "itemType": "size",
+                "name": "Size"
+              }
+            ],
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 0.75,
+            "relativeWarningThrottle": 0.1
+          },
+          "weight": 20
+        },
+        {
+          "id": "large-synchronous-decomposable-assets",
+          "title": "Avoid large assets with smaller candidates",
+          "desc": "Large synchronous assets will increase page load time.\nReplace them with smaller candidates or use higher compression rate encoding format.",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Asset"
+              },
+              {
+                "key": "size",
+                "itemType": "size",
+                "name": "Size"
+              },
+              {
+                "key": "type",
+                "itemType": "text",
+                "name": "Type"
+              }
+            ],
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 0.75,
+            "relativeWarningThrottle": 0.1
+          },
+          "weight": 0
+        },
+        {
+          "id": "large-libraries",
+          "title": "Avoid large JavaScript libraries with smaller alternatives",
+          "desc": "Large JavaScript libraries can lead to poor performance.\nPrefer smaller, functionally equivalent libraries to reduce your bundle size, or on-demand loading with dynamic import statement `import('lib')`.",
+          "link": "https://developers.google.com/web/fundamentals/performance/webpack/decrease-frontend-size#optimize_dependencies",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Name"
+              },
+              {
+                "key": "size",
+                "itemType": "size",
+                "name": "Size"
+              }
+            ],
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 0.9,
+            "relativeWarningThrottle": 0.1
+          },
+          "weight": 10
+        },
+        {
+          "id": "mix-content-assets",
+          "title": "Separate mixed content assets files",
+          "desc": "Listed files are consist of both source code and third party libraries.\nFor most scenarios, they are in different updating lifecycle, which means putting them in same chunk(asset) will lead to high cache invalidation.\nSeparate them to achieve better long term predictable cache.",
+          "link": "https://developers.google.com/web/fundamentals/performance/webpack/use-long-term-caching",
+          "detail": {
+            "type": "list",
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 0.5,
+            "relativeWarningThrottle": 0
+          },
+          "weight": 20
+        },
+        {
+          "id": "non-minified-assets",
+          "title": "Avoid non-minified assets",
+          "desc": "Minify assets in bundle phase can reduce network payload sizes and script parsing time.",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "name": "File",
+                "itemType": "text"
+              },
+              {
+                "key": "saving",
+                "name": "Potential saving bytes (at most)",
+                "itemType": "size"
+              },
+              {
+                "key": "wastedPercentile",
+                "name": "Wasted bytes in percent",
+                "itemType": "text"
+              }
+            ],
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 1
+          },
+          "weight": 20
+        },
+        {
+          "id": "uncontrolled-libraries",
+          "title": "Uncontrolled libraries used in bundle result",
+          "desc": "Some packing tools may resolve dependencies to the versions that are not specified in project's package.json,\nwhich will cause those dependencies' versions can't be controlled by npm or yarn.\nIn other words, they may cause duplicate versions of same packages bundled or, even worse, cause critical compatibility bugs.",
+          "detail": {
+            "type": "list",
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 1
+          },
+          "weight": 0
+        },
+        {
+          "id": "pre-connect-origin",
+          "title": "Improve page load speed with `preconnect` or `dns-prefetch`",
+          "desc": "Establishing connections often involves significant time in slow networks, particularly when it comes\n to secure connections, as it may involve DNS lookups, redirects, and several round trips to the final\n server that handles the user's request.",
+          "detail": {
+            "type": "list",
+            "items": []
+          },
+          "link": "https://web.dev/uses-rel-preconnect/",
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 1
+          },
+          "weight": 5
+        },
+        {
+          "id": "unhealthy-libraries",
+          "title": "Unhealthy Libraries",
+          "desc": "List libraries that are not in good conditions or some may require proper adjustment to achieve best packing results.",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Name"
+              },
+              {
+                "key": "desc",
+                "itemType": "text",
+                "name": "desc"
+              },
+              {
+                "key": "link",
+                "itemType": "link",
+                "name": ""
+              }
+            ],
+            "items": []
+          },
+          "score": 3,
+          "numericScore": {
+            "value": 1,
+            "absoluteWarningThrottle": 0.5,
+            "relativeWarningThrottle": 0
+          },
+          "weight": 5
+        },
+        {
+          "id": "missing-sourcemap",
+          "title": "Missing sourcemap for js assets.",
+          "desc": "Missing sourcemap will not be able to use the source analysis.",
+          "detail": {
+            "type": "table",
+            "headings": [
+              {
+                "key": "name",
+                "itemType": "text",
+                "name": "Name"
+              }
+            ],
+            "items": [
+              {
+                "name": "main.8dd73b00.js"
+              }
+            ]
+          },
+          "score": 1,
+          "weight": 0
+        }
+      ],
+      "score": 93
+    }
+  ],
+  "assets": [
+    {
+      "ref": 1,
+      "size": {
+        "raw": 147699,
+        "gzip": 46305,
+        "brotli": 41899
+      },
+      "name": "main.8dd73b00.js",
+      "type": "js",
+      "packageRefs": [
+        {
+          "ref": 1,
+          "size": {
+            "raw": 131470,
+            "gzip": 41414,
+            "brotli": 37636
+          }
+        },
+        {
+          "ref": 3,
+          "size": {
+            "raw": 7105,
+            "gzip": 2880,
+            "brotli": 2721
+          }
+        },
+        {
+          "ref": 4,
+          "size": {
+            "raw": 4696,
+            "gzip": 1800,
+            "brotli": 1658
+          }
+        },
+        {
+          "ref": 2,
+          "size": {
+            "raw": 3874,
+            "gzip": 1585,
+            "brotli": 1457
+          }
+        }
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "ref": 1,
+      "entry": true,
+      "async": false,
+      "assetRefs": [
+        1
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "name": "react-dom",
+      "path": "node_modules/react-dom",
+      "ref": 1,
+      "version": "18.2.0"
+    },
+    {
+      "name": "scheduler",
+      "path": "node_modules/react-dom/node_modules/scheduler",
+      "ref": 2,
+      "version": "0.23.0"
+    },
+    {
+      "name": "react",
+      "path": "node_modules/react",
+      "ref": 3,
+      "version": "18.2.0"
+    },
+    {
+      "name": "scheduler",
+      "path": "node_modules/scheduler",
+      "ref": 4,
+      "version": "0.18.0"
+    }
+  ]
+}

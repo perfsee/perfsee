@@ -16,31 +16,14 @@ limitations under the License.
 
 import test from 'ava'
 
-import { Size } from '../../types'
-import { addSize, getDefaultSize } from '../size'
+import { isBaseline } from '../is-baseline'
 
-test('get default size', (t) => {
-  const size = getDefaultSize()
+test('is baseline', (t) => {
+  const branch = 'release-test'
+  const baselineBranch = 'release-test'
 
-  t.like(size, { raw: 0, gzip: 0, brotli: 0 })
-})
+  const baselineRegex = '/^release-*/'
 
-test('add size', (t) => {
-  const sizeA: Size = {
-    raw: 1,
-    gzip: 1,
-    brotli: 1,
-  }
-
-  const sizeB: Size = {
-    raw: 2,
-    gzip: 3,
-    brotli: 4,
-  }
-
-  const result = addSize(sizeA, sizeB)
-
-  t.is(result.raw, 3)
-  t.is(result.gzip, 4)
-  t.is(result.brotli, 5)
+  t.truthy(isBaseline(branch, baselineBranch))
+  t.truthy(isBaseline(branch, baselineRegex))
 })
