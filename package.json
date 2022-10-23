@@ -83,7 +83,7 @@
     "shx": "^0.3.4",
     "sinon": "^14.0.0",
     "supertest": "^6.2.4",
-    "svgo": "^2.8.0",
+    "svgo": "^3.0.0",
     "svgo-loader": "^3.0.1",
     "terser-webpack-plugin": "^5.3.3",
     "thread-loader": "^3.0.4",
