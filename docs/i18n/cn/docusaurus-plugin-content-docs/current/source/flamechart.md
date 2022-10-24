@@ -19,7 +19,7 @@ sidebar_position: 4
 root
   => mysqld`handle_select
     => mysqld`mysql_select
-      => mydqld`JOIN::exec
+      => mysqld`JOIN::exec
         => mysqld`create_sort_index
           => ...
 ```

@@ -17,7 +17,7 @@ In the flame graph, the function calls from bottom to top. Taking the above diag
 root
   => mysqld`handle_select
     => mysqld`mysql_select
-      => mydqld`JOIN::exec
+      => mysqld`JOIN::exec
         => mysqld`create_sort_index
           => ...
 ```
