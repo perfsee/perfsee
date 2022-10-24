@@ -29,6 +29,9 @@ import { Config } from './config'
           {
             rootPath: path.join(process.cwd(), 'assets', 'docs'),
             serveRoot: config.path + '/docs',
+            serveStaticOptions: {
+              redirect: false,
+            },
           },
           {
             rootPath: path.join(process.cwd(), 'assets', 'platform'),
