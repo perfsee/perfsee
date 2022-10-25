@@ -65,7 +65,7 @@ jobs:
       - name: Test
         run: yarn test:concurrent
       - name: Upload coverage
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: test-coverage
           path: ${{ env.NODE_V8_COVERAGE }}
