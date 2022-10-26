@@ -1,5 +1,4 @@
 import { HttpStatus } from '@nestjs/common'
-import config from 'config'
 import request from 'supertest'
 
 import { Artifact, Job, JobStatus, Runner } from '@perfsee/platform-server/db'
@@ -18,7 +17,7 @@ test('should return pending job when job requested', async (t) => {
   })
   const job = await create(Job, { jobType: JobType.BundleAnalyze, entityId: artifact.id })
 
-  const res = await request(config.host).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
+  const res = await request(perfsee.baseUrl).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
 
   const jobRes = (res.body as JobRequestResponse).job
   t.assert(res.ok)
@@ -28,7 +27,7 @@ test('should return pending job when job requested', async (t) => {
 })
 
 test('should forbid invalid runner token for requesting job', async (t) => {
-  const res = await request(config.host).post('/api/jobs/request').set('x-runner-token', 'invalid token').send({})
+  const res = await request(perfsee.baseUrl).post('/api/jobs/request').set('x-runner-token', 'invalid token').send({})
 
   t.is(res.statusCode, HttpStatus.FORBIDDEN)
 })
@@ -37,7 +36,7 @@ test('should still return even no pending job', async (t) => {
   const runner = await create(Runner, {
     jobType: JobType.LabAnalyze,
   })
-  const res = await request(config.host).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
+  const res = await request(perfsee.baseUrl).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
 
   t.is(res.statusCode, HttpStatus.OK)
   t.falsy(res.body.job)
@@ -48,7 +47,7 @@ test('should not assign job if runner is inactivated', async (t) => {
     active: false,
   })
 
-  const res = await request(config.host).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
+  const res = await request(perfsee.baseUrl).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
 
   t.is(res.statusCode, HttpStatus.OK)
   t.falsy(res.body.job)
@@ -56,7 +55,7 @@ test('should not assign job if runner is inactivated', async (t) => {
 
 test('should successfully update trace', async (t) => {
   const job = await create(Job, { runner })
-  const res = await request(config.host)
+  const res = await request(perfsee.baseUrl)
     .post('/api/jobs/trace')
     .set('x-runner-token', runner.token)
     .send({
@@ -70,7 +69,7 @@ test('should successfully update trace', async (t) => {
 
 test('should return canceled status if job canceled', async (t) => {
   const job = await create(Job, { status: JobStatus.Canceled, runner })
-  const res = await request(config.host)
+  const res = await request(perfsee.baseUrl)
     .post('/api/jobs/trace')
     .set('x-runner-token', runner.token)
     .send({
@@ -83,7 +82,7 @@ test('should return canceled status if job canceled', async (t) => {
 })
 
 test('should forbid invalid runner', async (t) => {
-  const res = await request(config.host)
+  const res = await request(perfsee.baseUrl)
     .post('/api/jobs/trace')
     .set('x-runner-token', 'invalid token')
     .send({
@@ -97,7 +96,7 @@ test('should forbid invalid runner', async (t) => {
 test('should forbid non-assigned runner', async (t) => {
   const job = await create(Job, { runner })
   const otherRunner = await create(Runner)
-  const res = await request(config.host)
+  const res = await request(perfsee.baseUrl)
     .post('/api/jobs/trace')
     .set('x-runner-token', otherRunner.token)
     .send({
@@ -109,7 +108,7 @@ test('should forbid non-assigned runner', async (t) => {
 })
 
 test('should return 404 if job not found', async (t) => {
-  const res = await request(config.host)
+  const res = await request(perfsee.baseUrl)
     .post('/api/jobs/trace')
     .set('x-runner-token', runner.token)
     .send({
@@ -125,7 +124,7 @@ test('upload and download artifact', async (t) => {
 
   const job = await create(Job, { status: JobStatus.Running, runner })
 
-  const upload = await request(config.host)
+  const upload = await request(perfsee.baseUrl)
     .post('/api/jobs/artifacts')
     .query({ key: filename, jobId: job.id })
     .set('x-runner-token', runner.token)
@@ -137,7 +136,7 @@ test('upload and download artifact', async (t) => {
   const { key } = upload.body
   t.truthy(key)
 
-  const download = await request(config.host)
+  const download = await request(perfsee.baseUrl)
     .get('/api/jobs/artifacts')
     .query({ key })
     .set('x-runner-token', runner.token)
@@ -151,7 +150,7 @@ test('should forbid invalid runner upload & download artifact', async (t) => {
 
   const job = await create(Job, { status: JobStatus.Running, runner })
 
-  const upload = await request(config.host)
+  const upload = await request(perfsee.baseUrl)
     .post('/api/jobs/artifacts')
     .query({ key, jobId: job.id })
     .set('x-runner-token', 'invalid token')
@@ -160,7 +159,7 @@ test('should forbid invalid runner upload & download artifact', async (t) => {
 
   t.is(upload.statusCode, HttpStatus.FORBIDDEN)
 
-  const download = await request(config.host)
+  const download = await request(perfsee.baseUrl)
     .get('/api/jobs/artifacts')
     .query({ key })
     .set('x-runner-token', 'invalid token')
@@ -171,7 +170,7 @@ test('should forbid invalid runner upload & download artifact', async (t) => {
 test('should forbid invalid jobId', async (t) => {
   const key = 'test.txt'
 
-  const upload = await request(config.host)
+  const upload = await request(perfsee.baseUrl)
     .post('/api/jobs/artifacts')
     .query({ key, jobId: 'not-number' })
     .set('x-runner-token', runner.token)
@@ -180,7 +179,7 @@ test('should forbid invalid jobId', async (t) => {
 
   t.is(upload.statusCode, HttpStatus.FORBIDDEN)
 
-  const upload2 = await request(config.host)
+  const upload2 = await request(perfsee.baseUrl)
     .post('/api/jobs/artifacts')
     .query({ key, jobId: '123456' })
     .set('x-runner-token', runner.token)
@@ -196,7 +195,7 @@ test('should return 403 if jobId and runner do not match', async (t) => {
   const otherRunner = await create(Runner)
   const job = await create(Job, { status: JobStatus.Running, runner: otherRunner })
 
-  const upload = await request(config.host)
+  const upload = await request(perfsee.baseUrl)
     .post('/api/jobs/artifacts')
     .query({ key, jobId: job.id })
     .set('x-runner-token', runner.token)
@@ -207,7 +206,7 @@ test('should return 403 if jobId and runner do not match', async (t) => {
 })
 
 test('should return 404 if no artifact found', async (t) => {
-  const download = await request(config.host)
+  const download = await request(perfsee.baseUrl)
     .get('/api/jobs/artifacts')
     .query({ key: 'not-found.txt' })
     .set('x-runner-token', runner.token)

@@ -1,10 +1,8 @@
 import { createHash } from 'crypto'
 
 import { HttpStatus } from '@nestjs/common'
-import config from 'config'
 import request from 'supertest'
 
-import { ApplicationSetting } from '@perfsee/platform-server/db'
 import test, { initTestDB } from '@perfsee/platform-server/test'
 import { RegisterRunnerParams } from '@perfsee/server-common'
 
@@ -12,10 +10,6 @@ const registrationToken = 'registrationToken'
 let runnerToken = ''
 test.before(async () => {
   await initTestDB()
-
-  await ApplicationSetting.create({
-    registrationToken,
-  }).save()
   const params: RegisterRunnerParams = {
     token: registrationToken,
     info: {
@@ -28,7 +22,7 @@ test.before(async () => {
     },
   }
 
-  const res = await request(config.host).post('/api/runners/register').send(params)
+  const res = await request(perfsee.baseUrl).post('/api/runners/register').send(params)
   runnerToken = res.body.token
 })
 
@@ -37,7 +31,7 @@ test.serial('create runner script', async (t) => {
   const checksum = createHash('sha256').update(buffer).digest('base64')
 
   {
-    const res = await request(config.host)
+    const res = await request(perfsee.baseUrl)
       .post(`/api/runners/scripts/LabAnalyze/1.0.0?enable=true`)
       .set('x-registration-token', registrationToken)
       .set('x-checksum', checksum)
@@ -49,7 +43,7 @@ test.serial('create runner script', async (t) => {
 
   // Failed to validate script checksum
   {
-    const res = await request(config.host)
+    const res = await request(perfsee.baseUrl)
       .post(`/api/runners/scripts/LabAnalyze/1.0.0?enable=true`)
       .set('x-registration-token', registrationToken)
       .set('x-checksum', '123')
@@ -61,7 +55,7 @@ test.serial('create runner script', async (t) => {
   }
 
   {
-    const res = await request(config.host)
+    const res = await request(perfsee.baseUrl)
       .get('/api/runners/scripts/LabAnalyze/activated')
       .set('x-runner-token', runnerToken)
       .send()
@@ -72,7 +66,7 @@ test.serial('create runner script', async (t) => {
   }
 
   {
-    const res = await request(config.host)
+    const res = await request(perfsee.baseUrl)
       .get('/api/runners/scripts/LabAnalyze/1.0.0/download')
       .set('x-runner-token', runnerToken)
       .buffer()

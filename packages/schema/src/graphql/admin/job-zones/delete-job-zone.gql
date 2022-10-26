@@ -1,0 +1,3 @@
+mutation deleteJobZones($zones: [String!]!) {
+  deleteAvailableJobZones(zones: $zones)
+}

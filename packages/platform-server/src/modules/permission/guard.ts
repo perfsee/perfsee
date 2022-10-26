@@ -19,7 +19,7 @@ import { Reflector } from '@nestjs/core'
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { Request } from 'express'
 
-import { AuthService } from '../auth/auth.service'
+import { getUserFromContext } from '../auth'
 
 import { Permission } from './def'
 import { PermissionProvider } from './providers'
@@ -34,14 +34,10 @@ export const PermissionGuard = (...params: PermissionGuardParams) => {
 
 @Injectable()
 export class PermissionGuardImpl implements CanActivate {
-  constructor(
-    private readonly permission: PermissionProvider,
-    private readonly reflector: Reflector,
-    private readonly auth: AuthService,
-  ) {}
+  constructor(private readonly permission: PermissionProvider, private readonly reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const user = await this.auth.getUserFromContext(context)
+    const user = this.getUserFromContext(context)
     if (!user) {
       return false
     }
@@ -74,5 +70,12 @@ export class PermissionGuardImpl implements CanActivate {
     }
 
     return this.permission.check(user, id, permission)
+  }
+
+  /**
+   * for easier test mocking
+   */
+  getUserFromContext(context: ExecutionContext) {
+    return getUserFromContext(context)
   }
 }

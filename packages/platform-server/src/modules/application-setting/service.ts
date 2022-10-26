@@ -17,20 +17,75 @@ limitations under the License.
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { isUndefined, omitBy } from 'lodash'
 
+import { Config } from '@perfsee/platform-server/config'
 import { ApplicationSetting } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { CryptoService } from '@perfsee/platform-server/helpers'
+import { Logger } from '@perfsee/platform-server/logger'
+import { Redis } from '@perfsee/platform-server/redis'
+import { DeepPartial } from '@perfsee/platform-server/utils/types'
 
 @Injectable()
 export class ApplicationSettingService implements OnApplicationBootstrap {
-  constructor(private readonly crypto: CryptoService) {}
+  private readonly cacheKey = `ApplicationSetting:${this.config.version}`
+
+  private get cached(): Promise<ApplicationSetting | null> {
+    return this.redis
+      .get(this.cacheKey)
+      .then((str) => str && ApplicationSetting.create(JSON.parse(str)))
+      .catch(() => null)
+  }
+
+  constructor(
+    private readonly crypto: CryptoService,
+    private readonly config: Config,
+    private readonly redis: Redis,
+    private readonly logger: Logger,
+  ) {}
 
   async onApplicationBootstrap() {
     await this.init()
   }
 
+  async currentWithoutCache(): Promise<ApplicationSetting> {
+    return ApplicationSetting.findOneBy({ id: 1 })
+      .then(async (settings) => {
+        return settings || this.createFromDefaults()
+      })
+      .then((settings) => this.cache(settings))
+  }
+
+  async current(): Promise<ApplicationSetting> {
+    return this.cached
+      .then((cache) => {
+        return cache || this.currentWithoutCache()
+      })
+      .catch((e) => {
+        if (this.config.prod) {
+          this.logger.error(e)
+        } else {
+          throw e
+        }
+        return this.currentWithoutCache()
+      })
+  }
+
+  async withSettings<T>(cb: (settings: ApplicationSetting) => T | Promise<T>): Promise<T> {
+    return this.current().then((settings) => cb(settings))
+  }
+
+  async save(settings: ApplicationSetting) {
+    await settings.save()
+    return this.currentWithoutCache()
+  }
+
+  async update(input: DeepPartial<ApplicationSetting>) {
+    await ApplicationSetting.update(1, omitBy(input, isUndefined))
+    return this.currentWithoutCache()
+  }
+
   async resetRegistrationToken() {
-    const newToken = this.generateNewToken()
+    const newToken = this.generateNewRegistrationToken()
     await this.update({
       registrationToken: newToken,
     })
@@ -39,25 +94,13 @@ export class ApplicationSettingService implements OnApplicationBootstrap {
   }
 
   async validateRegistrationToken(token: string) {
-    if (process.env.NODE_ENV === 'development') {
-      return true
-    }
-
-    const setting = await this.get()
-    return token === setting.registrationToken
-  }
-
-  async get() {
-    const setting = await ApplicationSetting.findOneBy({ id: 1 })
-    if (!setting) {
-      return this.init()
-    }
-
-    return setting
+    return this.withSettings(
+      (settings) => !this.config.runner.validateRegistrationToken || settings.registrationToken === token,
+    )
   }
 
   async getZones() {
-    const settings = await this.get()
+    const settings = await this.current()
     return {
       all: settings.jobZones,
       default: settings.defaultJobZone,
@@ -65,15 +108,15 @@ export class ApplicationSettingService implements OnApplicationBootstrap {
   }
 
   async insertAvailableJobZones(zones: string[]) {
-    const settings = await this.get()
+    const settings = await this.current()
     settings.jobZones = Array.from(new Set([...zones, ...settings.jobZones]))
-    await settings.save()
+    await this.save(settings)
 
     return settings.jobZones
   }
 
   async deleteAvailableJobZones(zones: string[]) {
-    const settings = await this.get()
+    const settings = await this.current()
 
     const set = new Set(settings.jobZones)
     zones.forEach((zone) => {
@@ -88,41 +131,62 @@ export class ApplicationSettingService implements OnApplicationBootstrap {
     }
 
     settings.jobZones = Array.from(set)
-    await settings.save()
+    await this.save(settings)
 
     return settings.jobZones
   }
 
   async setDefaultJobZone(zone: string) {
-    const settings = await this.get()
+    const settings = await this.current()
     if (!settings.jobZones.includes(zone)) {
       throw new UserError('Trying to set default job zone that is not in available zones.')
     }
     settings.defaultJobZone = zone
-    await settings.save()
+    await this.save(settings)
+    return settings.defaultJobZone
   }
 
   private async init() {
-    let setting = await ApplicationSetting.findOneBy({ id: 1 })
-    if (!setting) {
-      try {
-        setting = await ApplicationSetting.create({
-          id: 1,
-          registrationToken: this.generateNewToken(),
-        }).save()
-      } catch {
-        // means other instance already init the settings
-        setting = await ApplicationSetting.findOneBy({ id: 1 })
-      }
-    }
-    return setting!
+    await this.createFromDefaults()
   }
 
-  private update(input: Partial<ApplicationSetting>) {
-    return ApplicationSetting.update(1, omitBy(input, isUndefined))
-  }
-
-  private generateNewToken() {
+  private generateNewRegistrationToken() {
     return this.crypto.randomBytes(16).toString('base64')
+  }
+
+  private async createFromDefaults() {
+    return ApplicationSetting.getRepository().manager.transaction(async (manager) => {
+      const settings = await manager.findOneBy(ApplicationSetting, { id: 1 })
+      if (settings) {
+        return settings
+      }
+
+      return manager.save(ApplicationSetting, this.getDefaultSettings())
+    })
+  }
+
+  private getDefaultSettings(): DeepPartial<ApplicationSetting> {
+    return {
+      id: 1,
+      registrationToken: this.crypto.randomBytes(16).toString('base64'),
+      jobZones: this.config.job.zones,
+      defaultJobZone: this.config.job.defaultZone,
+      enableSignup: this.config.auth.enableSignup,
+      enableOauth: this.config.auth.enableOauth,
+      enableProjectCreate: this.config.project.enableCreate,
+      enableProjectDelete: this.config.project.enableDelete,
+      enableProjectImport: this.config.project.enableImport,
+      enableEmail: this.config.email.enable,
+      userEmailConfirmation: true,
+    }
+  }
+
+  private cache(settings: ApplicationSetting) {
+    this.redis
+      .set(this.cacheKey, JSON.stringify(settings), 'EX', this.config.applicationSettingCacheSec || 60)
+      .catch((e) => {
+        this.logger.error('Failed to cache application settings', e)
+      })
+    return settings
   }
 }

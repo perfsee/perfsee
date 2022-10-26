@@ -22,7 +22,7 @@ import { switchMap, map, startWith, endWith } from 'rxjs/operators'
 import { createErrorCatcher, GraphQLClient } from '@perfsee/platform/common'
 import { disconnectAccountMutation, UserConnectedAccountsQuery, userConnectedAccountsQuery } from '@perfsee/schema'
 
-export type ConnectedAccount = UserConnectedAccountsQuery['user']['connectedAccounts'][number]
+export type ConnectedAccount = NonNullable<UserConnectedAccountsQuery['user']>['connectedAccounts'][number]
 
 interface State {
   connectedAccounts: ConnectedAccount[] | null
@@ -50,7 +50,7 @@ export class ConnectedAccountsModule extends EffectModule<State> {
           })
           .pipe(
             map((data) => {
-              return this.getActions().setConnectedAccounts(data.user.connectedAccounts)
+              return this.getActions().setConnectedAccounts(data.user!.connectedAccounts)
             }),
             startWith(this.getActions().setLoading(true)),
             endWith(this.getActions().setLoading(false)),

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { Stack, Image, NeutralColors } from '@fluentui/react'
+import { Stack, Image } from '@fluentui/react'
 
 export const Cell = styled(Stack)(({ theme }) => ({
   cursor: 'pointer',
@@ -47,13 +47,6 @@ export const TextImage = styled(Image)(({ theme, title }) => ({
 export const BodyWrapper = styled.div({
   height: '100%',
   display: 'flex',
-})
-
-export const NavWrapper = styled.div({
-  flexShrink: 0,
-  height: '100%',
-  backgroundColor: 'white',
-  boxShadow: `0px 0px 10px 0px ${NeutralColors.gray20}`,
 })
 
 export const ContentWrapper = styled.div({

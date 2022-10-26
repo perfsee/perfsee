@@ -27,38 +27,50 @@ export const SkipAuth = (_reason: string) => {
   return SetMetadata(SKIP_AUTH, true)
 }
 
-@Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(private readonly auth: AuthService, private readonly reflector: Reflector) {}
+export function getUserFromContext(context: ExecutionContext) {
+  const req = getRequestFromContext(context)
+  return req.user ?? req.session?.user
+}
+
+export class PreAuthGuard implements CanActivate {
+  constructor(private readonly auth: AuthService) {}
 
   async canActivate(context: ExecutionContext) {
-    const user = await this.auth.getUserFromContext(context)
+    await this.auth.getUserFromContext(context)
+    return true
+  }
+}
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext) {
     if (this.reflector.get<boolean>(SKIP_AUTH, context.getHandler())) {
       return true
     }
 
-    return !!user
+    return !!getUserFromContext(context)
   }
 }
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private readonly auth: AuthService, private readonly reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
-  async canActivate(context: ExecutionContext) {
+  canActivate(context: ExecutionContext) {
     if (this.reflector.get<boolean>(SKIP_AUTH, context.getHandler())) {
       return true
     }
 
-    const user = await this.auth.getUserFromContext(context)
+    const user = getUserFromContext(context)
 
     return user?.isAdmin ?? false
   }
 }
 
 export const CurrentUser = createParamDecorator((_: unknown, context: ExecutionContext) => {
-  const req = getRequestFromContext(context)
-  return req?.user ?? req?.session.user
+  return getUserFromContext(context)
 })
 
 export const Auth = (role?: 'admin') => {

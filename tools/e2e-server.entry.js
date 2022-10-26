@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-process.env.NODE_ENV = 'test'
-process.env.TS_NODE_PROJECT = './tsconfigs/tsconfig.cjs.json'
 require('ts-node/register/transpile-only')
 require('tsconfig-paths/register')
 require('@perfsee/platform-server/index.ts')

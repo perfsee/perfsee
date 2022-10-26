@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ForkOutlined } from '@ant-design/icons'
 import { css } from '@emotion/react'
 import {
   Stack,
@@ -48,17 +49,20 @@ import { GitHost } from '@perfsee/schema'
 import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
 import { Starring } from '../components'
+import { useSettings } from '../shared'
 
 import { ProjectsModule, ProjectNode } from './list.module'
+import { CreateProjectAction } from './project-actions'
 import { TextImage, Cell } from './style'
 
 const stackTokens: IStackTokens = {
   childrenGap: 8,
 }
 
-const IconMap = {
+const IconMap: { [key in GitHost]: React.ComponentType } = {
   [GitHost.Gitlab]: GitlabIcon,
   [GitHost.Github]: GithubIcon,
+  [GitHost.Unknown]: ForkOutlined,
 }
 
 const ProjectItem = ({ project }: { project: ProjectNode }) => {
@@ -140,6 +144,7 @@ export const ProjectList = () => {
   const [{ projects, loading, totalCount }, dispatcher] = useModule(ProjectsModule)
   const [starredOnly, setStarredOnly] = useState(false)
   const history = useHistory()
+  const settings = useSettings()
 
   const [{ page = 1, pageSize = 10, query = '' }, updateQueryString] = useQueryString<{
     page: number
@@ -204,9 +209,12 @@ export const ProjectList = () => {
               />
             </Stack>
           </Stack.Item>
-          <Link to={staticPath.importGithub}>
-            <PrimaryButton text="Import From Github" styles={GithubButtonStyles} />
-          </Link>
+          {settings.enableProjectCreate && <CreateProjectAction />}
+          {settings.enableProjectImport && (
+            <Link to={staticPath.importGithub}>
+              <PrimaryButton text="Import From Github" styles={GithubButtonStyles} />
+            </Link>
+          )}
         </Stack>
         <Pivot
           styles={{ root: { marginTop: 4 } }}

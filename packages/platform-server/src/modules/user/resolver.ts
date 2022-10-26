@@ -34,15 +34,18 @@ export class Account {
   externUsername?: string
 }
 
+@Resolver(() => User)
+export class CurrentUserResolver {
+  @Query(() => User, { nullable: true })
+  user(@CurrentUser() user: User) {
+    return user
+  }
+}
+
 @Auth()
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly service: UserService) {}
-
-  @Query(() => User)
-  user(@CurrentUser() user: User) {
-    return user
-  }
 
   @Query(() => [SearchUserResult])
   searchUsers(@Args({ name: 'query', type: () => String }) _query: string) {

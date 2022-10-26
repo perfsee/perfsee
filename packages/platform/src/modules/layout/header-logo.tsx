@@ -20,13 +20,13 @@ import { useHistory } from 'react-router'
 
 import { staticPath } from '@perfsee/shared/routes'
 
-import { UserModule } from '../shared'
+import { GlobalModule } from '../shared'
 
 import { HeaderMenusContainer, HeaderTitleContainer, Logo, Title } from './header.style'
 import LogoUrl from './logo.png'
 
 export const HeaderLogo = () => {
-  const loggedIn = useModuleState(UserModule, {
+  const loggedIn = useModuleState(GlobalModule, {
     selector: (s) => !!s.user,
     dependencies: [],
   })

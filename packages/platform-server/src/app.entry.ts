@@ -25,7 +25,7 @@ import { AppModule } from './app.module'
 import { Config } from './config'
 import { Logger } from './logger'
 import { Metric } from './metrics'
-import { RedisStore } from './modules'
+import { RedisStore, PreAuthGuard, AuthService } from './modules'
 import { QueryErrorFilter, UnauthorizedExceptionFilter, AnyErrorFilter, RedisThrottleGuard } from './nestjs-extends'
 import { Redis } from './redis'
 
@@ -64,6 +64,7 @@ export async function createApp() {
   app.useGlobalFilters(new QueryErrorFilter())
   app.useGlobalFilters(new UnauthorizedExceptionFilter())
   app.useGlobalGuards(new RedisThrottleGuard({ limit: 120, ttl: 60 }, redis, metrics, app.get(Reflector)))
+  app.useGlobalGuards(new PreAuthGuard(app.get(AuthService)))
 
   async function start() {
     await app.listen(config.port)

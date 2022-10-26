@@ -4,7 +4,7 @@ import qs from 'query-string'
 import sinon from 'sinon'
 import request from 'supertest'
 
-import { ConfigModule } from '@perfsee/platform-server/config'
+import { ConfigModule, PerfseeConfig } from '@perfsee/platform-server/config'
 import { User } from '@perfsee/platform-server/db'
 import { UrlService } from '@perfsee/platform-server/helpers'
 import test, { createMock } from '@perfsee/platform-server/test'
@@ -39,6 +39,19 @@ const oauth2AccessToken = 'test-token'
 const testStateCode = 'test-state-code'
 const testStateData = { provider: 'github', returnUrl: '/foo/bar' }
 
+class FakeOAuthProvider extends OAuthProvider {
+  protected globalConfig: PerfseeConfig = {} as any
+  getAuthUrl() {
+    return oauth2AuthUrl
+  }
+  async getToken() {
+    return Promise.resolve(oauth2AccessToken)
+  }
+  async getUser() {
+    return Promise.resolve(githubUser)
+  }
+}
+
 test.beforeEach(async (t) => {
   t.context.module = await Test.createTestingModule({
     imports: [ConfigModule.forRoot()],
@@ -48,11 +61,7 @@ test.beforeEach(async (t) => {
     .useMocker(createMock)
     .compile()
 
-  oauthProviderStub = sinon.stub({
-    getAuthUrl: () => undefined!,
-    getToken: () => undefined!,
-    getUser: () => undefined!,
-  } as OAuthProvider)
+  oauthProviderStub = sinon.stub(new FakeOAuthProvider() as OAuthProvider)
   t.context.module.get(OAuthProviderFactory).getProvider.returns(oauthProviderStub)
 
   const auth = t.context.module.get(AuthService)

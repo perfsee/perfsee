@@ -14,14 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { ForbiddenException } from '@nestjs/common'
+import { Args, InputType, Mutation, Parent, PartialType, Query, ResolveField, Resolver } from '@nestjs/graphql'
 
-import { ApplicationSetting } from '@perfsee/platform-server/db'
+import { Config } from '@perfsee/platform-server/config'
+import { ApplicationSetting, User } from '@perfsee/platform-server/db'
+import { ExternalAccount } from '@perfsee/shared'
 
-import { Auth } from '../auth'
+import { Auth, CurrentUser } from '../auth'
 
 import { ApplicationSettingService } from './service'
 import { Zone } from './types'
+
+@InputType()
+class UpdateApplicationSettingsInput extends PartialType(ApplicationSetting, InputType) {}
 
 @Auth()
 @Resolver(() => Zone)
@@ -34,14 +40,33 @@ export class ZoneResolver {
   }
 }
 
-@Auth('admin')
 @Resolver(() => ApplicationSetting)
-export class ApplicationSettingResolver {
-  constructor(private readonly service: ApplicationSettingService) {}
+export class PublicApplicationSettingResolver {
+  constructor(private readonly service: ApplicationSettingService, private readonly config: Config) {}
 
   @Query(() => ApplicationSetting)
-  applicationSetting() {
-    return this.service.get()
+  applicationSettings() {
+    return this.service.current()
+  }
+
+  @ResolveField(() => [ExternalAccount])
+  oauthProviders() {
+    return Object.keys(this.config.auth.oauthProviders)
+  }
+}
+
+@Auth('admin')
+@Resolver(() => ApplicationSetting)
+export class AdminApplicationSettingResolver {
+  constructor(private readonly service: ApplicationSettingService) {}
+
+  @ResolveField(() => String)
+  registrationToken(@Parent() settings: ApplicationSetting, @CurrentUser() user?: User) {
+    if (!user?.isAdmin) {
+      throw new ForbiddenException('Forbidden access')
+    }
+
+    return settings.registrationToken
   }
 
   @Mutation(() => String)
@@ -62,5 +87,12 @@ export class ApplicationSettingResolver {
   @Mutation(() => String)
   setDefaultJobZone(@Args('zone') zone: string) {
     return this.service.setDefaultJobZone(zone)
+  }
+
+  @Mutation(() => ApplicationSetting)
+  updateApplicationSettings(
+    @Args({ name: 'settings', type: () => UpdateApplicationSettingsInput }) patches: UpdateApplicationSettingsInput,
+  ) {
+    return this.service.update(patches)
   }
 }

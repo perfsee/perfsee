@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Controller, Get, HttpException, HttpStatus, Query, Req, Res } from '@nestjs/common'
+import { Controller, ForbiddenException, Get, HttpException, HttpStatus, Query, Req, Res } from '@nestjs/common'
 import { Response, Request } from 'express'
 import qs from 'query-string'
 
@@ -23,6 +23,7 @@ import { UrlService } from '@perfsee/platform-server/helpers'
 import { ExternalAccount } from '@perfsee/shared'
 import { staticPath } from '@perfsee/shared/routes'
 
+import { ApplicationSettingService } from '../application-setting'
 import { UserService } from '../user'
 
 import { AuthService } from './auth.service'
@@ -35,10 +36,15 @@ export class OAuth2Controller {
     private readonly user: UserService,
     private readonly providerFactory: OAuthProviderFactory,
     private readonly url: UrlService,
+    private readonly settings: ApplicationSettingService,
   ) {}
 
   @Get('/login')
   async login(@Res() res: Response, @Query('provider') providerName: string, @Query('returnUrl') returnUrl: string) {
+    const settings = await this.settings.current()
+    if (!settings.enableOauth) {
+      throw new ForbiddenException('Oauth login is disabled')
+    }
     const provider = this.getProvider(providerName)
 
     if (!provider) {

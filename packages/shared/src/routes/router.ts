@@ -24,7 +24,6 @@ export interface RouteTypes {
   notFound: void
   status: void
   license: void
-  applications: void
   editPassword: void
   resetPassword: void
   me: { home: void; connectedAccounts: void; billing: void; accessToken: void }
@@ -47,6 +46,15 @@ export interface RouteTypes {
     settings: Params<'projectId'> & Partial<Params<'settingName'>>
     jobTrace: Params<'projectId' | 'type' | 'entityId'>
   }
+  admin: {
+    home: void
+    part: Partial<Params<'part'>>
+    settings: void
+    status: void
+    applications: void
+    runners: void
+    scripts: void
+  }
 }
 
 export const staticPath = {
@@ -57,7 +65,6 @@ export const staticPath = {
   notFound: '/404',
   status: '/status',
   license: '/license',
-  applications: '/applications',
   editPassword: '/edit-password',
   resetPassword: '/reset-password',
   me: {
@@ -89,6 +96,15 @@ export const staticPath = {
     settings: '/projects/:projectId/settings/:settingName?',
     jobTrace: '/projects/:projectId/jobs/:type/:entityId',
   },
+  admin: {
+    home: '/admin',
+    part: '/admin/:part?',
+    settings: '/admin/settings',
+    status: '/admin/status',
+    applications: '/admin/applications',
+    runners: '/admin/runners',
+    scripts: '/admin/runner-scripts',
+  },
 }
 
 export const pathFactory = {
@@ -107,7 +123,6 @@ export const pathFactory = {
   notFound: makePathsFrom<FactoryParams<RouteTypes['notFound']>>('/404'),
   status: makePathsFrom<FactoryParams<RouteTypes['status']>>('/status'),
   license: makePathsFrom<FactoryParams<RouteTypes['license']>>('/license'),
-  applications: makePathsFrom<FactoryParams<RouteTypes['applications']>>('/applications'),
   editPassword: makePathsFrom<FactoryParams<RouteTypes['editPassword']>>('/edit-password'),
   resetPassword: makePathsFrom<FactoryParams<RouteTypes['resetPassword']>>('/reset-password'),
   me: {
@@ -165,6 +180,15 @@ export const pathFactory = {
       '/projects/:projectId/jobs/:type/:entityId',
     ),
   },
+  admin: {
+    home: makePathsFrom<FactoryParams<RouteTypes['admin']['home']>>('/admin'),
+    part: makePathsFrom<FactoryParams<RouteTypes['admin']['part']>>('/admin/:part?'),
+    settings: makePathsFrom<FactoryParams<RouteTypes['admin']['settings']>>('/admin/settings'),
+    status: makePathsFrom<FactoryParams<RouteTypes['admin']['status']>>('/admin/status'),
+    applications: makePathsFrom<FactoryParams<RouteTypes['admin']['applications']>>('/admin/applications'),
+    runners: makePathsFrom<FactoryParams<RouteTypes['admin']['runners']>>('/admin/runners'),
+    scripts: makePathsFrom<FactoryParams<RouteTypes['admin']['scripts']>>('/admin/runner-scripts'),
+  },
 }
 
 export const titleFactory = {
@@ -179,7 +203,6 @@ export const titleFactory = {
   '/404': (data: Record<string, any>) => makeTitlesFrom('Not found | Perfsee', data),
   '/status': (data: Record<string, any>) => makeTitlesFrom('Status | Perfsee', data),
   '/license': (data: Record<string, any>) => makeTitlesFrom('License | Perfsee', data),
-  '/applications': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/edit-password': (data: Record<string, any>) => makeTitlesFrom('Edit password | Perfsee', data),
   '/reset-password': (data: Record<string, any>) => makeTitlesFrom('Reset password | Perfsee', data),
   '/me': (data: Record<string, any>) => makeTitlesFrom('Me | Perfsee', data),
@@ -217,4 +240,11 @@ export const titleFactory = {
     makeTitlesFrom('Setting {settingName} | {projectId} | Perfsee', data),
   '/projects/:projectId/jobs/:type/:entityId': (data: Record<string, any>) =>
     makeTitlesFrom('{type} job #{entityId} | {projectId} | Perfsee', data),
+  '/admin': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/:part?': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/settings': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/status': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/applications': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/runners': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/runner-scripts': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
 }

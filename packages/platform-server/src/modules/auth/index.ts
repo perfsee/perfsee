@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+export * from './auth.service'
 export * from './auth.guard'
 export * from './auth.module'
 export * from './redis-store'

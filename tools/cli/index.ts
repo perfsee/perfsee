@@ -23,7 +23,6 @@ import { DevCommand } from './dev'
 import { ExampleCommand } from './example'
 import { ExtractCommand } from './extract'
 import { GenerateLicenseCommand } from './generate-license'
-import { InitCommand } from './init'
 import { UpdateWorkspaceCommand } from './update-workspace'
 import { UploadScriptsCommand } from './upload-scripts'
 import { VscodeExtensionCommand } from './vscode'
@@ -38,7 +37,6 @@ cli.register(BuildCommand)
 cli.register(BundleCommand)
 cli.register(DevCommand)
 cli.register(ExampleCommand)
-cli.register(InitCommand)
 cli.register(CodegenCommand)
 cli.register(GenerateLicenseCommand)
 cli.register(VscodeExtensionCommand)

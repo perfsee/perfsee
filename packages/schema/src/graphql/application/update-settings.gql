@@ -1,0 +1,7 @@
+#import '../fragments/settings.gql'
+
+mutation updateApplicationSettings($patches: UpdateApplicationSettingsInput!) {
+  updateApplicationSettings(settings: $patches) {
+    ...settings
+  }
+}

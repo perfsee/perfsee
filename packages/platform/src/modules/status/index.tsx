@@ -21,15 +21,13 @@ import { useEffect } from 'react'
 
 import { BodyContainer } from '@perfsee/components'
 
-import { UserModule } from '../shared'
+import { GlobalModule } from '../shared'
 
-import { RunnerScriptManager } from './runner-script'
-import { RunnerStatus } from './runners'
 import { StatusModule } from './status.module'
 import { HealthCategoryItem } from './style'
 
 export const StatusPage = () => {
-  const { user } = useModuleState(UserModule)
+  const { user } = useModuleState(GlobalModule)
 
   if (!user) {
     return null
@@ -42,14 +40,6 @@ export const StatusPage = () => {
         <SystemHealth />
         <h2>Pending Jobs</h2>
         <PendingJobs />
-        {user.isAdmin && (
-          <>
-            <h2>Runners</h2>
-            <RunnerStatus />
-            <h2>Runner Scripts</h2>
-            <RunnerScriptManager />
-          </>
-        )}
       </Stack>
     </BodyContainer>
   )

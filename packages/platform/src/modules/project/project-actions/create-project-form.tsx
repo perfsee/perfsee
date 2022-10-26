@@ -94,7 +94,7 @@ export const CreateProjectForm: FC<CreateProjectFormProps> = memo(({ onClose }) 
         required
       />
       <TextField
-        placeholder="Id"
+        placeholder="Uniq id for your project. e.g: perfsee_sample"
         errorMessage={idVerifying ? undefined : idVerification?.error || undefined}
         onChange={onIdChange}
         iconProps={idVerifying ? loadingIconProps : undefined}

@@ -27,8 +27,6 @@ paths:
   license:
     path: /license
     title: License
-  applications:
-    path: /applications
   editPassword:
     path: /edit-password
     title: Edit password
@@ -113,3 +111,18 @@ paths:
       jobTrace:
         path: /jobs/:type/:entityId
         title: '{type} job #{entityId}'
+  admin:
+    base: /admin
+    paths:
+      part: 
+        path: /:part?
+      settings:
+        path: /settings
+      status:
+        path: /status
+      applications:
+        path: /applications
+      runners:
+        path: /runners
+      scripts:
+        path: /runner-scripts

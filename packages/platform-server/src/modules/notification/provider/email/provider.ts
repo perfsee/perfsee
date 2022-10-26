@@ -43,7 +43,7 @@ export class EmailNotificationProvider implements NotificationProvider {
       return false
     }
 
-    const template = bundleEmailTemplate(info, this.config.host)
+    const template = bundleEmailTemplate(info, this.config.baseUrl)
 
     if (!template) {
       return false
@@ -62,7 +62,7 @@ export class EmailNotificationProvider implements NotificationProvider {
       return false
     }
 
-    const template = labEmailTemplate(info, this.config.host)
+    const template = labEmailTemplate(info, this.config.baseUrl)
 
     return this.email.sendMail({
       ...template,
@@ -77,7 +77,7 @@ export class EmailNotificationProvider implements NotificationProvider {
       return false
     }
 
-    const template = cookieEmailTemplate(info, this.config.host)
+    const template = cookieEmailTemplate(info, this.config.baseUrl)
 
     return this.email.sendMail({
       ...template,

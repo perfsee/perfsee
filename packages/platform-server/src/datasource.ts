@@ -14,16 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import 'dotenv/config'
+import './prelude'
 import { join } from 'path'
 
-import config from 'config'
 import { DataSource } from 'typeorm'
 
 import { SnakeNamingStrategy } from './db/mysql/utils'
 
 export const dataSource = new DataSource({
-  ...config.mysql,
+  ...perfsee.mysql,
   type: 'mysql',
   namingStrategy: new SnakeNamingStrategy(),
   entities: [join(__dirname, './db/mysql/*.entity.ts')],

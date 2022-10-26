@@ -21,7 +21,7 @@ test.serial('user', async (t) => {
     query: userQuery,
   })
 
-  t.is(result.user.username, user.username)
+  t.is(result.user!.username, user.username)
 })
 
 test.serial('connectedAccounts', async (t) => {
@@ -39,10 +39,10 @@ test.serial('connectedAccounts', async (t) => {
     query: userConnectedAccountsQuery,
   })
 
-  t.is(result.user.connectedAccounts.length, Object.values(ExternalAccount).length)
+  t.is(result.user!.connectedAccounts.length, Object.values(ExternalAccount).length)
 
   t.is(
-    result.user.connectedAccounts.find((a) => a.provider === ExternalAccount.github)!.externUsername,
+    result.user!.connectedAccounts.find((a) => a.provider === ExternalAccount.github)!.externUsername,
     githubAccount.externUsername,
   )
 })
@@ -70,7 +70,7 @@ test.serial('disconnectAccount', async (t) => {
   const queryResult = await gqlClient.query({
     query: userConnectedAccountsQuery,
   })
-  t.is(queryResult.user.connectedAccounts.find((a) => a.provider === ExternalAccount.github)!.externUsername, null)
+  t.is(queryResult.user!.connectedAccounts.find((a) => a.provider === ExternalAccount.github)!.externUsername, null)
 })
 
 test.serial('avatarUrl', async (t) => {
@@ -82,5 +82,5 @@ test.serial('avatarUrl', async (t) => {
     query: userQuery,
   })
 
-  t.is(result.user.avatarUrl, user.avatarUrl)
+  t.is(result.user!.avatarUrl, user.avatarUrl)
 })

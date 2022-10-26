@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { join } from 'path'
+
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { GraphQLModule } from '@nestjs/graphql'
@@ -31,6 +33,8 @@ import { Metric } from './metrics'
       useFactory(config: Config, metrics: Metric, logger: Logger) {
         return {
           ...config.graphql,
+          path: `${config.path}/graphql`,
+          autoSchemaFile: join(__dirname, '..', '..', 'schema', 'src', 'server-schema.gql'),
           resolvers: { JSON: GraphQLJSON },
           plugins: [new LogPlugin(metrics, logger)],
         }

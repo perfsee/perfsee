@@ -10,6 +10,9 @@ module.exports = {
   require: ['./tools/ava.setup'],
   environmentVariables: {
     TS_NODE_PROJECT: './tsconfigs/tsconfig.cjs.json',
+    NODE_ENV: 'test',
+    PERFSEE_SERVER_PORT: '3001',
+    MYSQL_DB: 'perfsee_testing',
   },
   timeout: '300s',
   files: runSerialTestCases
@@ -28,13 +31,20 @@ function startServer() {
       stdio: 'inherit',
       env: {
         ...process.env,
-        NODE_ENV: 'test',
+        MYSQL_DB: 'perfsee_testing',
       },
     },
   )
 
   const server = fork(`${path.resolve(__dirname, 'tools/e2e-server.entry.js')}`, {
     stdio: 'inherit',
+    env: {
+      ...process.env,
+      TS_NODE_PROJECT: './tsconfigs/tsconfig.cjs.json',
+      NODE_ENV: 'test',
+      PERFSEE_SERVER_PORT: 3001,
+      MYSQL_DB: 'perfsee_testing',
+    },
   })
 
   server.unref()

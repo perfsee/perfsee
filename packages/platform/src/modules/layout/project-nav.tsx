@@ -15,51 +15,19 @@ limitations under the License.
 */
 
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import styled from '@emotion/styled'
 import { DirectionalHint, INavLink, INavLinkGroup, Nav } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { useState, useCallback, useMemo } from 'react'
 import { useHistory, useParams } from 'react-router'
 
 import { TeachingBubbleHost } from '@perfsee/components'
-import { alpha } from '@perfsee/dls'
 import { Permission } from '@perfsee/schema'
 import { pathFactory, RouteTypes } from '@perfsee/shared/routes'
 
 import { ProjectModule, useNavType } from '../shared'
 
 import { NavItem } from './nav-items'
-
-const NavContainer = styled.div({
-  height: '100%',
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-})
-
-const CollapseContainer = styled.div(({ theme }) => ({
-  height: '44px',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '0 8px',
-  cursor: 'pointer',
-  borderTop: `1px solid ${alpha(theme.border.color, 0.6)}`,
-  userSelect: 'none',
-
-  svg: {
-    fontSize: '16px',
-  },
-
-  span: {
-    marginLeft: '8px',
-    fontSize: '12px',
-  },
-
-  ':hover': {
-    backgroundColor: alpha(theme.border.color, 0.3),
-  },
-}))
+import { NavContainer, CollapseContainer } from './nav.style'
 
 export const ProjectNav = () => {
   const history = useHistory()

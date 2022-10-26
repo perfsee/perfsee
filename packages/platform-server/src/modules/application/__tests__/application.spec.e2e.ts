@@ -67,7 +67,7 @@ test.serial('create application', async (t) => {
     query: userQuery,
   })
 
-  t.is(userResponse.user.username, name)
+  t.is(userResponse.user!.username, name)
 
   // clear
   await AccessToken.delete({ userId: createResponse.createApplication.application.id })

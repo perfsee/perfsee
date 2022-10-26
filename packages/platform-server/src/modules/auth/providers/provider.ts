@@ -14,14 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { PerfseeConfig } from '@perfsee/platform-server/config'
+
 export interface ExternalAccountUser {
   username: string
   email?: string
   avatarUrl: string
 }
 
-export interface OAuthProvider {
-  getAuthUrl: (state?: string) => string
-  getToken: (code: string) => Promise<string>
-  getUser: (token: string) => Promise<ExternalAccountUser>
+export abstract class OAuthProvider {
+  protected abstract globalConfig: PerfseeConfig
+  get redirectUri() {
+    return this.globalConfig.baseUrl + '/oauth2/callback'
+  }
+  abstract getAuthUrl(state?: string): string
+  abstract getToken(code: string): Promise<string>
+  abstract getUser(token: string): Promise<ExternalAccountUser>
 }

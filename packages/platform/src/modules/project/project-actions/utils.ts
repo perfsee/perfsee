@@ -26,4 +26,8 @@ export const GitHostOptions = [
     key: GitHost.Gitlab,
     text: hostDomains[GitHost.Gitlab],
   },
+  {
+    key: GitHost.Unknown,
+    text: 'any',
+  },
 ]

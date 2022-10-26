@@ -19,10 +19,10 @@ import { useModuleState } from '@sigi/react'
 
 import { adjustOSSImgSize } from '@perfsee/platform/common'
 
-import { UserModule } from '../../modules/shared'
+import { GlobalModule } from '../../modules/shared'
 
 export const UserAvatar: React.FC<Partial<IPersonaProps>> = ({ ...otherProps }) => {
-  const { user } = useModuleState(UserModule)
+  const { user } = useModuleState(GlobalModule)
 
   if (user) {
     return (

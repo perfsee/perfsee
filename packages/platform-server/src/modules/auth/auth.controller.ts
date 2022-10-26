@@ -26,6 +26,7 @@ import {
   Body,
   Post,
   OnApplicationBootstrap,
+  ForbiddenException,
 } from '@nestjs/common'
 import { Response, Request } from 'express'
 import qs from 'query-string'
@@ -35,6 +36,7 @@ import { Config } from '@perfsee/platform-server/config'
 import { CryptoService, UrlService } from '@perfsee/platform-server/helpers'
 import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
+import { ApplicationSettingService } from '../application-setting/service'
 import { EmailService } from '../email'
 import { compileEmailTemplate } from '../notification/provider/email/utils'
 import { UserService } from '../user'
@@ -70,6 +72,7 @@ export class AuthController implements OnApplicationBootstrap {
     private readonly crypto: CryptoService,
     private readonly user: UserService,
     private readonly email: EmailService,
+    private readonly settings: ApplicationSettingService,
     private readonly config: Config,
     private readonly url: UrlService,
   ) {}
@@ -129,14 +132,13 @@ export class AuthController implements OnApplicationBootstrap {
       throw new HttpException('Invalid email', HttpStatus.BAD_REQUEST)
     }
 
-    const host = this.config.host
     const token = await this.auth.generatePasswordResetToken(user)
 
     const resetUrl = this.url.platformUrl(pathFactory.editPassword, void 0, { token })
 
     const title = 'Reset your password'
     const content =
-      `Someone, hopefully you, has requested to reset the password for your account on ${host}.\n\n` +
+      `Someone, hopefully you, has requested to reset the password for your account on ${this.config.baseUrl}.\n\n` +
       'If you did not perform this request, you can safely ignore this email.\n\n' +
       'Otherwise, click the link below to complete the process.\n\n'
 
@@ -191,6 +193,11 @@ export class AuthController implements OnApplicationBootstrap {
     @Session() session: PerfseeSession,
     @Query('returnUrl') returnUrl: string,
   ) {
+    const settings = await this.settings.current()
+    if (!settings.enableSignup) {
+      throw new ForbiddenException('Signup is disabled')
+    }
+
     if (!body.email || !body.email.trim()) {
       throw new HttpException("Email can't be empty", HttpStatus.BAD_REQUEST)
     }

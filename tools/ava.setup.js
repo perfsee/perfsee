@@ -17,5 +17,6 @@ limitations under the License.
 require('ts-node/register/transpile-only')
 require('tsconfig-paths/register')
 require('@abraham/reflection')
+require('@perfsee/platform-server/prelude.ts')
 
 global.__IS_SERVER__ = false

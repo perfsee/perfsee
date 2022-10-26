@@ -27,7 +27,7 @@ import {
   deleteAccessTokenMutation,
 } from '@perfsee/schema'
 
-export type AccessToken = AccessTokensQuery['user']['accessTokens'][0]
+export type AccessToken = NonNullable<AccessTokensQuery['user']>['accessTokens'][0]
 
 interface State {
   tokens: AccessToken[]
@@ -72,7 +72,7 @@ export class AccessTokenModule extends EffectModule<State> {
           })
           .pipe(
             createErrorCatcher('get access tokens failed'),
-            map((data) => this.getActions().setAccessTokens(data.user.accessTokens)),
+            map((data) => this.getActions().setAccessTokens(data.user!.accessTokens)),
           ),
       ),
     )
