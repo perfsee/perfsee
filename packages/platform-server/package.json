@@ -62,7 +62,7 @@
     "@types/nodemailer": "^6.4.4",
     "@types/redlock": "^4.0.3",
     "@types/uuid": "^8.3.4",
-    "ava": "^4.3.1",
+    "ava": "^5.0.0",
     "sinon": "^14.0.0",
     "supertest": "^6.2.4"
   }
