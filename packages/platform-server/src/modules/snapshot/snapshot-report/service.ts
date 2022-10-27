@@ -88,10 +88,11 @@ export class SnapshotReportService {
     ])
 
     const pageIds = pageId && filter.withCompetitor ? [pageId] : []
+    let competitorIds: number[] = []
 
     if (pageId) {
       if (filter.withCompetitor) {
-        const competitorIds = await PageWithCompetitor.createQueryBuilder()
+        competitorIds = await PageWithCompetitor.createQueryBuilder()
           .select('competitor_id as competitorId')
           .where('page_id = :pageId', { pageId })
           .getRawMany<{ competitorId: number }>()
@@ -108,10 +109,10 @@ export class SnapshotReportService {
       if (filter.withCompetitor) {
         const envIds = await PageWithEnv.createQueryBuilder()
           .select('env_id as envId')
-          .where('page_id in (:...pageIds)', { pageIds })
+          .where('page_id in (:...competitorIds)', { competitorIds })
           .getRawMany<{ envId: number }>()
           .then((rows) => rows.map(({ envId }) => envId))
-        qb.andWhere('env_id in (:...envIds)', { envIds })
+        qb.andWhere('env_id in (:...envIds)', { envIds: [...envIds, envId] })
       } else {
         qb.andWhere('env_id = :envId', { envId })
       }

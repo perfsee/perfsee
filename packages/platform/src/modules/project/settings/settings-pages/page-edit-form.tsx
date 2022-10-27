@@ -80,10 +80,7 @@ export const PageEditForm = (props: FromProps) => {
   }, [pages])
 
   const environmentItems = useMemo(
-    () =>
-      environments
-        .filter((env) => !env.isCompetitor)
-        .map((e) => ({ id: e.id, name: !e.disable ? e.name : e.name + ' (disabled)' })),
+    () => environments.map((e) => ({ id: e.id, name: !e.disable ? e.name : e.name + ' (disabled)' })),
     [environments],
   )
 

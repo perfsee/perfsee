@@ -552,7 +552,7 @@ type Environment {
   """
   tells whether this environment could be used in temporary pages and competitor pages auditing
   """
-  isCompetitor: Boolean!
+  isCompetitor: Boolean! @deprecated(reason: "No need to use it")
 
   """Filtering environments when executing timed reminder tasks"""
   needReminder: Boolean!

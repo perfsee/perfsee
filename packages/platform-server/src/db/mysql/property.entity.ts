@@ -205,6 +205,7 @@ export class Environment extends BaseEntity {
   projectId!: number
 
   @Field(() => Boolean, {
+    deprecationReason: 'No need to use it',
     description: 'tells whether this environment could be used in temporary pages and competitor pages auditing',
   })
   @Column({ type: 'boolean', default: false })

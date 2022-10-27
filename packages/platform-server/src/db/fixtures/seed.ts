@@ -83,7 +83,7 @@ export async function seedProjectProperty(projectId = 1) {
       { projectId, id: 1, iid: 1 },
       { projectId, id: 2, iid: 2 },
       { projectId, id: 3, disable: true },
-      { projectId, id: 4, isCompetitor: true },
+      { projectId, id: 4 },
     ]),
     create(Profile, [
       { projectId, id: 1, iid: 1 },

@@ -83,9 +83,7 @@ export function SettingScheduleSelectors(props: Props) {
       />
       <MultiSelector
         required={false}
-        options={environments
-          .filter((env) => !env.isCompetitor)
-          .map((env) => ({ id: env.id, name: `${env.name} ${env.disable ? '(disabled)' : ''}` }))}
+        options={environments.map((env) => ({ id: env.id, name: `${env.name} ${env.disable ? '(disabled)' : ''}` }))}
         ids={envIds}
         onSelectChange={onChangeEnvType}
         label="Environments"
