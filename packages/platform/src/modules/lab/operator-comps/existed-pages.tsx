@@ -32,7 +32,7 @@ export const ExistedPages: FC<Props> = ({ onCloseModal }) => {
     selector: (s) => ({
       pages: s.pages.filter((p) => !p.isCompetitor && !p.isTemp && !p.disable),
       profiles: s.profiles.filter((p) => !p.disable),
-      environments: s.environments.filter((env) => !env.isCompetitor && !env.disable),
+      environments: s.environments.filter((env) => !env.disable),
     }),
     dependencies: [],
   })

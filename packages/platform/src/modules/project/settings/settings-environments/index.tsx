@@ -15,9 +15,8 @@ limitations under the License.
 */
 
 import { GlobalOutlined, StopOutlined } from '@ant-design/icons'
-import { PrimaryButton, Separator, Stack } from '@fluentui/react'
+import { PrimaryButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { partition } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
@@ -145,25 +144,12 @@ export const SettingsEnvironments = () => {
     )
   }, [env, onUpdateEnv, closeModal, deleteProgress, onDelete, closeDeleteModal, visible])
 
-  const [envItems, competitorItems] = useMemo(() => partition(environments, ['isCompetitor', false]), [environments])
-
-  const competitor = useMemo(() => {
-    return (
-      <>
-        <Separator />
-        <h3>Competitor Environments</h3>
-        <SettingCards items={competitorItems} onRenderCell={onRenderCell} />
-      </>
-    )
-  }, [competitorItems, onRenderCell])
-
   return (
     <div>
       <Stack horizontalAlign="end">
         <PrimaryButton onClick={onClickCreate}>Create Environment</PrimaryButton>
       </Stack>
-      <SettingCards items={envItems} onRenderCell={onRenderCell} />
-      {competitor}
+      <SettingCards items={environments} onRenderCell={onRenderCell} />
       {settingDialog}
     </div>
   )

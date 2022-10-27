@@ -151,9 +151,9 @@ export class SnapshotService implements OnApplicationBootstrap {
       isTemp: true,
     }).save()
 
-    const env = await Environment.findOneBy({ projectId, iid: envIid, isCompetitor: true })
+    const env = await Environment.findOneBy({ projectId, iid: envIid })
     if (!env) {
-      throw new UserError('Competitor environment not found')
+      throw new UserError('Environment not found')
     }
     const profiles = await Profile.findBy({ projectId, iid: In(profileIids) })
 

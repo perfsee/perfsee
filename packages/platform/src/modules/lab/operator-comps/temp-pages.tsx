@@ -48,7 +48,7 @@ const TableContent: FC<Props> = ({ onCloseModal }) => {
   const { profiles, environments } = useModuleState(PropertyModule, {
     selector: (s) => ({
       profiles: s.profiles,
-      environments: s.environments.filter((env) => env.isCompetitor),
+      environments: s.environments,
     }),
     dependencies: [],
   })
@@ -123,8 +123,7 @@ const TableContent: FC<Props> = ({ onCloseModal }) => {
           ids={page.envId ? [page.envId] : []}
           onSelectChange={onEnvChange}
           multiSelect={false}
-          label="Temporary environment"
-          tips="Need to use headers and cookies of this environment. Pick from competitor environments."
+          label="Environment"
           errorMessage="Required"
         />
       </Stack>

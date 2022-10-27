@@ -19,7 +19,6 @@ import {
   PrimaryButton,
   DefaultButton,
   ITextField,
-  Checkbox,
   Stack,
   IDropdownOption,
   ComboBox,
@@ -27,7 +26,7 @@ import {
 import { useModuleState } from '@sigi/react'
 import { useCallback, useState, useRef } from 'react'
 
-import { IconWithTips, RequiredTextField } from '@perfsee/components'
+import { RequiredTextField } from '@perfsee/components'
 
 import { CookieSchema, EnvSchema, PropertyModule, LocalStorageSchema, HeaderSchema } from '../../../shared'
 
@@ -55,7 +54,6 @@ export const EnvEditForm = (props: FromProps) => {
   const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
   const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
   const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageSchema[] }>()
-  const [isCompetitor, setAsCompetitor] = useState<boolean>(!!defaultEnv?.isCompetitor)
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
   const onSave = useCallback(
@@ -77,17 +75,12 @@ export const EnvEditForm = (props: FromProps) => {
         headers,
         cookies,
         localStorage,
-        isCompetitor,
         needReminder,
         zone,
       })
     },
-    [onSubmit, defaultEnv, isCompetitor, zone],
+    [onSubmit, defaultEnv, zone],
   )
-
-  const onIsCompetitorChange = useCallback((_: any, checked?: boolean) => {
-    setAsCompetitor(!!checked)
-  }, [])
 
   const onZoneChange = useCallback((_: any, option?: IDropdownOption) => {
     if (!option) {
@@ -105,21 +98,6 @@ export const EnvEditForm = (props: FromProps) => {
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">
-        <Stack.Item shrink={false}>
-          <Stack horizontal verticalAlign="center">
-            <Checkbox
-              data-type="competitor"
-              disabled={!!defaultEnv}
-              label="Competitor Environment"
-              checked={isCompetitor}
-              onChange={onIsCompetitorChange}
-            />
-            <IconWithTips
-              marginLeft="8px"
-              content="Competitor environments will be used by temporary pages and competitor pages."
-            />
-          </Stack>
-        </Stack.Item>
         <DialogFooter>
           <PrimaryButton onClick={onSave} text="Save" />
           <DefaultButton onClick={closeModal} text="Cancel" />
