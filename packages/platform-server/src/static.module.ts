@@ -28,9 +28,14 @@ import { Config } from './config'
         return [
           {
             rootPath: path.join(process.cwd(), 'assets', 'docs'),
+            renderPath: config.path + '/docs',
+          },
+          {
+            rootPath: path.join(process.cwd(), 'assets', 'docs'),
             serveRoot: config.path + '/docs',
             serveStaticOptions: {
               redirect: false,
+              extensions: ['html'],
             },
           },
           {
