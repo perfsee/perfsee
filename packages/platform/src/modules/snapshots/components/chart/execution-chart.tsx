@@ -29,9 +29,10 @@ import {
   renderTooltip,
 } from '@perfsee/components/chart'
 import { formatTime } from '@perfsee/platform/common'
+import { TraceTimesWithoutFCP } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
-import { TraceTimesWithoutFCP, RecordCategory, RecordType } from '../../snapshot-type'
+import { RecordCategory, RecordType } from '../../snapshot-type'
 
 import { ExecutionChartTooltip } from './chart-tooltip'
 import { getRecordTypeParams, getSortedTimingType } from './helper'

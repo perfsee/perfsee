@@ -46,6 +46,7 @@ test.serial('get project setting', async (t) => {
 
 test.serial('update project setting', async (t) => {
   const input = {
+    autoDetectVersion: false,
     bundleMessageSource: BundleMessageSource.Branch,
     bundleMessageFilter: BundleMessageFilter.Warning,
     bundleMessageBranches: ['main'],

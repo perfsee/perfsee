@@ -94,6 +94,14 @@ export class Setting extends BaseEntity {
   })
   bundleMessageBranches!: string[]
 
+  @Field(() => Boolean, { description: 'Whether to enable the experimental feature of automatic source association' })
+  @Column({
+    type: 'boolean',
+    default: false,
+    comment: 'Whether to enable the experimental feature of automatic source association',
+  })
+  autoDetectVersion!: boolean
+
   @Field(() => LabMessageSource, { description: 'what kind of lab message would be sent' })
   @Column({ type: 'tinyint', default: LabMessageSource.All, comment: 'what kind of lab message would be sent' })
   labMessageSource!: LabMessageSource

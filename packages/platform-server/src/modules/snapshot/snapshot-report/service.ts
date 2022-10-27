@@ -18,6 +18,7 @@ import { Injectable } from '@nestjs/common'
 import { EntityManager, FindOptionsWhere, In } from 'typeorm'
 
 import {
+  Artifact,
   Environment,
   Page,
   PageWithCompetitor,
@@ -25,6 +26,7 @@ import {
   Profile,
   Snapshot,
   SnapshotReport,
+  SnapshotReportWithArtifact,
   SourceIssue,
 } from '@perfsee/platform-server/db'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -63,6 +65,13 @@ export class SnapshotReportService {
 
   async getReportByIid(projectId: number, iid: number) {
     return SnapshotReport.findOneBy({ projectId, iid })
+  }
+
+  async getSnapshotReportArtifacts(snapshotReportId: number) {
+    return Artifact.createQueryBuilder('artifact')
+      .innerJoin(SnapshotReportWithArtifact, 'item', 'artifact.id = item.artifact_id')
+      .where('item.snapshot_report_id = :report_id', { report_id: snapshotReportId })
+      .getMany()
   }
 
   async filterReports(projectId: number, filter: SnapshotReportFilter) {

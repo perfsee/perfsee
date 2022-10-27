@@ -7,6 +7,7 @@ mutation updateBasicSettings($projectId: ID!, $settingsInput: UpdateSettingInput
     bundleMessageSource
     bundleMessageBranches
     messageTargetType
+    autoDetectVersion
     messageTarget {
       userEmails
     }

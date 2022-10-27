@@ -17,22 +17,34 @@ limitations under the License.
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { uniqBy } from 'lodash'
 
-import { Artifact, InternalIdUsage, Page, Snapshot, SnapshotReport, SourceIssue } from '@perfsee/platform-server/db'
+import {
+  Artifact,
+  InternalIdUsage,
+  Page,
+  Snapshot,
+  SnapshotReport,
+  SnapshotReportWithArtifact,
+  SourceIssue,
+} from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
-import { JobType, SnapshotStatus, SourceAnalyzeJob } from '@perfsee/server-common'
-import { FlameChartDiagnostic } from '@perfsee/shared'
+import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
+import { FlameChartDiagnostic, LHStoredSchema } from '@perfsee/shared'
 
-import { SnapshotReportService } from '../snapshot/snapshot-report/service'
+import { ScriptFileService } from '../script-file/service'
+import { SettingService } from '../setting/service'
 
 @Injectable()
 export class SourceService implements OnApplicationBootstrap {
   constructor(
-    private readonly reportService: SnapshotReportService,
     private readonly logger: Logger,
     private readonly internalIdService: InternalIdService,
+    private readonly scriptFile: ScriptFileService,
+    private readonly settingService: SettingService,
+    private readonly objectStorage: ObjectStorage,
     private readonly event: EventEmitter,
   ) {}
 
@@ -40,23 +52,29 @@ export class SourceService implements OnApplicationBootstrap {
     this.event.emit('job.register_payload_getter', JobType.SourceAnalyze, this.getSourceJobPayload.bind(this))
   }
 
-  async updateReportFlameChart(id: number, key: string) {
-    await SnapshotReport.update(id, { flameChartStorageKey: key })
+  async updateReport(
+    id: number,
+    artifactIds: number[],
+    flameChartStorageKey: string,
+    sourceCoverageStorageKey: string | undefined,
+  ) {
+    await SnapshotReport.update(id, { sourceCoverageStorageKey, flameChartStorageKey })
+    await SnapshotReportWithArtifact.insert(artifactIds.map((artifactId) => ({ snapshotReportId: id, artifactId })))
   }
 
-  async updateReportSourceCoverage(id: number, key: string) {
-    await SnapshotReport.update(id, { sourceCoverageStorageKey: key })
-  }
-
-  async saveSourceIssues(projectId: number, hash: string, reportId: number, issues: FlameChartDiagnostic[]) {
+  async saveSourceIssues(projectId: number, reportId: number, issues: FlameChartDiagnostic[]) {
     const sourceIssues = []
 
     for (const issue of issues) {
+      if (!issue.bundleHash) {
+        continue
+      }
+
       const iid = await this.internalIdService.generate(projectId, InternalIdUsage.SourceIssue)
       sourceIssues.push({
         projectId,
         iid,
-        hash,
+        hash: issue.bundleHash,
         snapshotReportId: reportId,
         frameKey: String(issue.frame.key),
         code: issue.code,
@@ -67,66 +85,99 @@ export class SourceService implements OnApplicationBootstrap {
     await SourceIssue.insert(sourceIssues)
   }
 
-  async startSourceIssueAnalyze(snapshotOrId: number | Snapshot) {
-    const snapshot = typeof snapshotOrId === 'number' ? await Snapshot.findOneBy({ id: snapshotOrId }) : snapshotOrId
-    if (snapshot?.hash) {
-      this.logger.verbose('Emit source code analyse', { snapshotId: snapshot.id })
-      await this.event.emitAsync('job.create', {
+  async startSourceIssueAnalyze(snapshotReports: SnapshotReport[]) {
+    this.logger.verbose('Emit source code analyser', { snapshotReportIds: snapshotReports.map((report) => report.id) })
+    await this.event.emitAsync(
+      'job.create',
+      snapshotReports.map((snapshotReport) => ({
         type: JobType.SourceAnalyze,
         payload: {
-          entityId: snapshot.id,
-          projectId: snapshot.projectId,
+          entityId: snapshotReport.id,
+          projectId: snapshotReport.projectId,
         },
-      })
-    }
+      })),
+    )
   }
 
-  async getSourceJobPayload(snapshotId: number): Promise<SourceAnalyzeJob | null> {
-    const snapshot = await Snapshot.findOneBy({ id: snapshotId })
-    if (!snapshot?.hash) {
-      return null
+  async getSourceJobPayload(snapshotReportId: number): Promise<SourceAnalyzeJob> {
+    const snapshotReport = await SnapshotReport.findOneByOrFail({ id: snapshotReportId })
+    const snapshot = await Snapshot.findOneByOrFail({ id: snapshotReport.snapshotId })
+
+    if (!snapshotReport.traceEventsStorageKey) {
+      throw new Error('Snapshot report has no traceEventsStorageKey')
     }
 
-    const artifacts = await Artifact.find({
-      where: {
-        projectId: snapshot.projectId,
-        hash: snapshot.hash,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    }).then((res) => uniqBy(res, 'name'))
-
-    if (!artifacts.length) {
-      return null
+    if (!snapshotReport.jsCoverageStorageKey) {
+      throw new Error('Snapshot report has no jsCoverageStorageKey')
     }
 
-    const reports = await this.reportService.getNonCompetitorReports(snapshot.projectId, snapshot.id).then((reports) =>
-      Promise.all(
-        reports
-          .filter((report) => report.status === SnapshotStatus.Completed && report.traceEventsStorageKey)
-          .map(async (report) => {
-            const page = await Page.findOneByOrFail({ id: report.pageId })
-            return {
-              id: report.id,
-              traceEventsStorageKey: report.traceEventsStorageKey!,
-              jsCoverageStorageKey: report.jsCoverageStorageKey!,
-              pageUrl: page.url,
-            }
-          }),
-      ),
-    )
-
-    if (!reports.length) {
-      return null
+    if (!snapshotReport.lighthouseStorageKey) {
+      throw new Error('Snapshot report has no lighthouseStorageKey')
     }
+
+    const artifacts = []
+    const snapshotArtifactIds = []
+
+    const settings = await this.settingService.loader.load(snapshotReport.projectId)
+
+    if (settings.autoDetectVersion) {
+      const lighthouseResult = JSON.parse(
+        (await this.objectStorage.get(snapshotReport.lighthouseStorageKey)).toString('utf-8'),
+      ) as LHStoredSchema
+
+      if (lighthouseResult.scripts && lighthouseResult.scripts.length > 0) {
+        const searchedArtifacts = await this.scriptFile.findArtifactsByScript(
+          snapshotReport.projectId,
+          lighthouseResult.scripts,
+        )
+
+        const artifactIds = searchedArtifacts.map((a) => a.id)
+
+        artifacts.push(
+          ...(artifactIds.length > 0
+            ? await Artifact.createQueryBuilder()
+                .where('id in (:...artifactIds)', {
+                  artifactIds,
+                })
+                .select(['build_key as buildKey', 'id', 'hash'])
+                .getRawMany<{ id: number; buildKey: string; hash: string }>()
+            : []),
+        )
+
+        snapshotArtifactIds.push(...artifactIds)
+      }
+    }
+
+    if (snapshot.hash) {
+      artifacts.push(
+        ...(await Artifact.find({
+          where: {
+            projectId: snapshot.projectId,
+            hash: snapshot.hash,
+          },
+          order: {
+            createdAt: 'DESC',
+          },
+        }).then((res) => uniqBy(res, 'name'))),
+      )
+    }
+
+    const page = await Page.findOneByOrFail({ id: snapshotReport.pageId })
 
     return {
-      snapshotId,
-      projectId: snapshot.projectId,
-      hash: snapshot.hash,
-      artifacts: artifacts.map((artifact) => artifact.buildKey),
-      snapshotReports: reports,
+      projectId: snapshotReport.projectId,
+      reportId: snapshotReport.id,
+      artifacts: uniqBy(artifacts, (a) => a.id).map((a) => ({
+        id: a.id,
+        buildKey: a.buildKey,
+        hash: a.hash,
+      })),
+      snapshotReport: {
+        jsCoverageStorageKey: snapshotReport.jsCoverageStorageKey,
+        traceEventsStorageKey: snapshotReport.traceEventsStorageKey,
+        pageUrl: page.url,
+        artifactIds: snapshotArtifactIds,
+      },
     }
   }
 

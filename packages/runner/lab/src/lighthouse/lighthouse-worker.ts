@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
-import { join, dirname } from 'path'
+import { join, dirname, basename } from 'path'
 
 import lighthouseLogger from 'lighthouse-logger'
 import { groupBy, mapValues } from 'lodash'
@@ -26,6 +26,7 @@ import { JobWorker } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
+  LHStoredSchema,
   LighthouseScoreMetric,
   LocalStorageType,
   MetricKeyType,
@@ -82,6 +83,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
+    const scripts = this.getScripts(artifacts)
     const userTimings = this.getUserTimings(artifacts)
     const { requests, requestsBaseTimestamp } = this.getRequests(lhr)
     const metrics = this.getMetrics(lhr)
@@ -125,7 +127,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             timelines,
             metricScores,
             userTimings,
-          }),
+            scripts,
+          } as LHStoredSchema),
         ),
       )
     } catch (e) {
@@ -387,6 +390,32 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     )
 
     return Object.values(userTimings)
+  }
+
+  private getScripts(artifacts: LH.Artifacts) {
+    this.logger.info('Calculate scripts hash...')
+
+    const scripts = artifacts.ScriptElements
+
+    const results = []
+
+    try {
+      for (const script of scripts) {
+        if (script.src) {
+          const url = new URL(script.src)
+          const fileName = basename(url.pathname)
+          if ((url.protocol === 'https:' || url.protocol === 'http:') && fileName) {
+            results.push({
+              fileName,
+            })
+          }
+        }
+      }
+    } catch (err) {
+      this.logger.error('Failed to gather scripts', { error: err })
+    }
+
+    return results
   }
 
   private computeMainThreadTask(lhResult: LH.Result, artifacts: LH.Artifacts) {

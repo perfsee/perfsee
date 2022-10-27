@@ -48,6 +48,7 @@ import {
   RunnerModule,
   ApplicationSettingModule,
   RunnerScriptModule,
+  ScriptFileModule,
 } from './modules'
 import { RedisModule } from './redis'
 import { RestfulModule } from './restful.module'
@@ -97,6 +98,7 @@ const businessModules: ModuleMetadata['imports'] = [
   RunnerScriptModule,
   RunnerModule,
   JobModule,
+  ScriptFileModule,
 ]
 
 @Module({

@@ -19,9 +19,9 @@ import { flatMap } from 'lodash'
 import { FC, useMemo } from 'react'
 
 import { HeaderWithVerticalLineStyles, onRenderVerticalLineRow, Table, TableColumnProps } from '@perfsee/components'
-import { PrettyBytes, RequestSchema, TimingType } from '@perfsee/shared'
+import { PrettyBytes, RequestSchema, TimingType, TraceTimesWithoutFCP } from '@perfsee/shared'
 
-import { SnapshotDetailType, SnapshotReportSchema, TraceTimesWithoutFCP } from '../../../../snapshot-type'
+import { SnapshotDetailType, SnapshotReportSchema } from '../../../../snapshot-type'
 import { HeaderTitle } from '../style'
 
 type beforeMetric = {

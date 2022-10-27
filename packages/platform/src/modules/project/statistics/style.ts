@@ -19,6 +19,8 @@ import styled from '@emotion/styled'
 import { IShimmeredDetailsListProps, SharedColors, Stack } from '@fluentui/react'
 import { Link } from 'react-router-dom'
 
+import { getStringColor } from '@perfsee/components'
+
 export const tableHeaderStyles: IShimmeredDetailsListProps['detailsListStyles'] = {
   headerWrapper: {
     '> div[role="row"]': {
@@ -212,18 +214,6 @@ export const PanelHeaderWrap = styled.div(({ theme }) => ({
     marginRight: '8px',
   },
 }))
-
-function getStringColor(text: string) {
-  let c = 0
-  for (const char of text) {
-    c = c ^ char.codePointAt(0)!
-  }
-
-  const colors = Object.keys(SharedColors)
-    .filter((n) => n.endsWith('10'))
-    .map((n) => SharedColors[n])
-  return colors[c % colors.length]
-}
 
 export const ArtifactLabel = styled.span(({ children }) => ({
   display: 'inline-block',

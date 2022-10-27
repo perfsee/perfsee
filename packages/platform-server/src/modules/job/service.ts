@@ -24,7 +24,6 @@ import {
   Job,
   JobStatus,
   Runner,
-  Snapshot,
   SnapshotReport,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
@@ -212,7 +211,7 @@ export class JobService {
   // JobType.LabAnalyze: projectId + snapshotReportIid
   // JobType.E2eAnalyze: projectId + snapshotReportIid
   // JobType.BundleAnalyze: projectId + artifactIid
-  // JobType.SourceAnalyze: projectId + snapshotIid
+  // JobType.SourceAnalyze: projectId + snapshotReportIid
   // else: entityId
   async getJobByEntityId(jobType: JobType, entityId: number, projectId: number) {
     const realId = await this.getEntityRealId(jobType, entityId, projectId)
@@ -403,8 +402,8 @@ export class JobService {
         const snapshotReport = await SnapshotReport.findOneBy({ projectId, iid: entityId })
         return snapshotReport?.id
       case JobType.SourceAnalyze:
-        const snapshot = await Snapshot.findOneBy({ projectId, iid: entityId })
-        return snapshot?.id
+        const sourceSnapshotReport = await SnapshotReport.findOneBy({ projectId, iid: entityId })
+        return sourceSnapshotReport?.id
       default:
         return null
     }

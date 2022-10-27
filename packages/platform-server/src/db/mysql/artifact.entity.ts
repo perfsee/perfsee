@@ -25,11 +25,13 @@ import {
   RelationId,
   Index,
   BaseEntity,
+  OneToMany,
 } from 'typeorm'
 
 import { BundleJobStatus } from '@perfsee/server-common'
 
 import type { Project } from './project.entity'
+import { ScriptFile } from './script-file.entity'
 
 registerEnumType(BundleJobStatus, {
   name: 'BundleJobStatus',
@@ -119,6 +121,9 @@ export class Artifact extends BaseEntity {
   @Field(() => GraphQLISODateTime, { description: 'artifact updated timestamp' })
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date
+
+  @OneToMany('ScriptFile', 'fromArtifact')
+  addedScriptFiles!: ScriptFile[]
 
   inProgress() {
     return this.status === BundleJobStatus.Pending || this.status === BundleJobStatus.Running

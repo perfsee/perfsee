@@ -29,6 +29,12 @@ query snapshotReportsByIds($projectId: ID!, $reportIds: [Int!]!) {
         title
         id
       }
+      artifacts {
+        id
+        name
+        hash
+        branch
+      }
     }
   }
 }

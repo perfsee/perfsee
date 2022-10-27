@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { rm } from 'fs/promises'
-import { join, parse } from 'path'
+import { join, parse, basename } from 'path'
 
 import { v4 as uuid } from 'uuid'
 
@@ -29,6 +29,7 @@ import {
   StatsParser,
   extractBundleFromStream,
   readStatsFile,
+  AssetTypeEnum,
 } from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
 import {
@@ -71,7 +72,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     // parse bundle
     const stats = readStatsFile(this.statsFilePath)
     const parser = StatsParser.FromStats(stats, parse(this.statsFilePath).dir, this.logger)
-    const { report, moduleTree } = await parser.parse()
+    const { report, moduleTree, assets } = await parser.parse()
 
     const bundleReportName = `bundle-results/${uuid()}.json`
     const bundleReportKey = await this.client.uploadArtifact(bundleReportName, Buffer.from(JSON.stringify(report)))
@@ -103,6 +104,15 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     this.logger.info('Generating bundle audit aggregated result')
     const entryPoints = this.generateEntryPoints(report, baselineResult)
 
+    const scripts = []
+    for (const asset of assets) {
+      if (asset.type === AssetTypeEnum.Js && asset.sourcemap && asset.content) {
+        scripts.push({
+          fileName: basename(asset.name),
+        })
+      }
+    }
+
     const message: BundleJobUpdate = {
       artifactId: this.payload.artifactId,
       status: BundleJobStatus.Passed,
@@ -112,6 +122,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
       entryPoints,
       duration: this.timeSpent,
       totalSize: this.calculateTotalSize(report),
+      scripts,
     }
     this.updateJob({
       type: JobType.BundleAnalyze,

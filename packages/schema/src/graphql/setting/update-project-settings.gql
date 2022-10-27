@@ -4,6 +4,7 @@ mutation updateProjectSettings($projectId: ID!, $settingsInput: UpdateSettingInp
     bundleMessageFilter
     bundleMessageSource
     bundleMessageBranches
+    autoDetectVersion
     messageTargetType
     messageTarget {
       userEmails

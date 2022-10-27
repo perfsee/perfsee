@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { AuditsSchema, LighthouseAudit, LighthouseGroupType } from '../../../snapshot-type'
+import { AuditsSchema } from '@perfsee/shared'
+
+import { LighthouseAudit, LighthouseGroupType } from '../../../snapshot-type'
 
 export const getGroupedAuditLists = (
   audits: AuditsSchema,

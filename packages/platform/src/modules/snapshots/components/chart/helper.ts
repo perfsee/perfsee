@@ -17,10 +17,10 @@ limitations under the License.
 import { isNumber } from 'lodash'
 
 import { SharedColors, NeutralColors, darken, lighten } from '@perfsee/dls'
-import { TimingType } from '@perfsee/shared'
+import { TimingType, TraceTimesWithoutFCP } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
-import { RecordType, TraceTimesWithoutFCP } from '../../snapshot-type'
+import { RecordType } from '../../snapshot-type'
 
 export const getRecordTypeParams = (type: RecordType | TimingType | string) => {
   switch (type) {

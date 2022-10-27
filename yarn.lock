@@ -5820,6 +5820,7 @@ __metadata:
     "@perfsee/bundle-analyzer": "workspace:*"
     "@perfsee/flamechart": "workspace:*"
     "@perfsee/plugin-utils": "workspace:*"
+    "@perfsee/tracehouse": "workspace:*"
     "@perfsee/utils": "workspace:*"
     lodash: ^4.17.21
   languageName: unknown

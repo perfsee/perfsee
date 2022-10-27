@@ -21,6 +21,9 @@
       "path": "../bundle-analyzer"
     },
     {
+      "path": "../tracehouse"
+    },
+    {
       "path": "../plugins/utils"
     }
   ]

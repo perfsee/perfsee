@@ -44,9 +44,11 @@ pub fn get_all_rules() -> Vec<Box<dyn Rule>> {
 }
 
 #[derive(Serialize, Debug, Default)]
+#[serde(rename_all(serialize = "camelCase"))]
 pub struct Diagnostic {
   pub code: String,
   pub frame: Frame,
+  pub bundle_hash: Option<String>,
   pub info: JsonValue,
 }
 
@@ -60,6 +62,7 @@ impl Context {
     self.diagnostics.push(Diagnostic {
       code: code.to_string(),
       frame: frame.clone(),
+      bundle_hash: frame.bundle_hash.clone(),
       info,
     })
   }

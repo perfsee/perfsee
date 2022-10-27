@@ -33,6 +33,7 @@ impl From<&str> for Frame {
       file: String::from(""),
       line: None,
       col: None,
+      bundle_hash: None,
       sourced: false,
       node_module: None,
     };
