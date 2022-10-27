@@ -14,7 +14,7 @@ API 的访问点端是 `https://perfsee.com/graphql`
 
 ## 鉴权
 
-所有 API 皆需要鉴权，请在 [Token Management](https://perfsee.com/access-token) 页面申请 API Token。
+所有 API 皆需要鉴权，请在 [Token Management](https://perfsee.com/me/access-token) 页面申请 API Token。
 
 点击 「Generate new token」
 
