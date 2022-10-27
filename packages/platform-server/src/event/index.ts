@@ -30,7 +30,7 @@ type EventPayload =
     }
   | {
       type: 'job.register_payload_getter'
-      payload: [JobType, (entityId: number) => Promise<any>]
+      payload: [JobType, (entityId: number, extra: { key: string }) => Promise<any>]
     }
   | {
       type: `${JobType}.error`

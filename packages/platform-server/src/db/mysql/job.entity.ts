@@ -100,6 +100,9 @@ export class Job extends BaseEntity {
   @ManyToOne('Runner', 'jobs')
   runner!: Runner
 
+  @Column({ type: 'json', nullable: true })
+  extra!: Record<string, string> | null
+
   canceled() {
     return this.status === JobStatus.Canceled
   }

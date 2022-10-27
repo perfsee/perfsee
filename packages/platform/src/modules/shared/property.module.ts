@@ -43,6 +43,9 @@ import {
   propertyQuery,
   PropertyQuery,
   createPageMutation,
+  pingResultQuery,
+  PingResultQuery,
+  pingMutation,
 } from '@perfsee/schema'
 
 import { ProjectModule } from './project.module'
@@ -57,6 +60,8 @@ import {
   DeleteProgress,
 } from './property-type'
 
+export type PingResult = PingResultQuery['project']['pingResult'][0]
+
 interface State {
   loading: boolean
   pages: PageSchema[]
@@ -67,6 +72,7 @@ interface State {
   zones: string[]
   defaultZone: string
   pageRelationMap: Map<number /* pageId */, PageRelation>
+  pingResultMap: Map<number /**pageId */, PingResult[]>
   pageMap: Map<number /* pageId */, PageSchema>
   profileMap: Map<number /* profileId */, ProfileSchema>
   envMap: Map<number /* envId */, EnvSchema>
@@ -91,6 +97,7 @@ export class PropertyModule extends EffectModule<State> {
     entries: [],
     labels: [],
     pageRelationMap: new Map<number, PageRelation>(),
+    pingResultMap: new Map<number, PingResult[]>(),
     pageMap: new Map() as Map<number, PageSchema>,
     profileMap: new Map() as Map<number, ProfileSchema>,
     envMap: new Map() as Map<number, EnvSchema>,
@@ -168,6 +175,36 @@ export class PropertyModule extends EffectModule<State> {
       relationMap.set(relation.pageId, relation)
     })
     state.pageRelationMap = relationMap
+  }
+
+  @Reducer()
+  setPingResult(state: Draft<State>, payload: { pageId: number; result: PingResult[] }) {
+    const map = new Map(state.pingResultMap)
+    map.set(payload.pageId, payload.result)
+
+    return { ...state, pingResultMap: map }
+  }
+
+  @Reducer()
+  addPingResult(state: Draft<State>, payload: { pageId: number; profileId?: number; envId?: number }) {
+    const { pageId, profileId, envId } = payload
+    const pingResult = state.pingResultMap.get(pageId) ?? []
+    const map = new Map(state.pingResultMap)
+
+    if (profileId && envId) {
+      const key = `${pageId}-${profileId}-${envId}`
+      const index = pingResult.findIndex((result) => result.key === key)
+      if (index !== -1) {
+        pingResult[index] = { key, status: 'pending' }
+      } else {
+        pingResult.push({ key, status: 'pending' })
+      }
+    } else {
+      pingResult.forEach((result) => (result.status = 'pending'))
+    }
+
+    map.set(payload.pageId, pingResult)
+    return { ...state, pingResultMap: map }
   }
 
   @Reducer()
@@ -291,6 +328,50 @@ export class PropertyModule extends EffectModule<State> {
             createErrorCatcher('Failed to fetch page relations'),
             map((data) => this.getActions().setRelations(data.project.pageRelations)),
             startWith(this.getActions().resetRelations()),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
+  fetchPingCheckStatus(payload$: Observable<number>) {
+    return payload$.pipe(
+      withLatestFrom(this.projectModule.state$),
+      filter(([, { project }]) => !!project?.id),
+      switchMap(([pageId, { project }]) =>
+        this.client
+          .query({
+            query: pingResultQuery,
+            variables: {
+              projectId: project!.id,
+              pageId: pageId,
+            },
+          })
+          .pipe(
+            createErrorCatcher('Failed to fetch ping result'),
+            map((data) => this.getActions().setPingResult({ pageId, result: data.project.pingResult })),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
+  pingCheck(payload$: Observable<{ pageId: number; envId?: number; profileId?: number }>) {
+    return payload$.pipe(
+      withLatestFrom(this.projectModule.state$),
+      filter(([, { project }]) => !!project?.id),
+      switchMap(([payload, { project }]) =>
+        this.client
+          .query({
+            query: pingMutation,
+            variables: {
+              projectId: project!.id,
+              ...payload,
+            },
+          })
+          .pipe(
+            createErrorCatcher('Failed to ping check'),
+            map(() => this.getActions().addPingResult(payload)),
           ),
       ),
     )

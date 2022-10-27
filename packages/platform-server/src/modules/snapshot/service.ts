@@ -28,6 +28,8 @@ import {
   Profile,
   SnapshotTrigger,
   AppVersion,
+  PageWithProfile,
+  PageWithEnv,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
@@ -35,9 +37,19 @@ import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
-import { JobType, LabJobPayload, SnapshotStatus, LabJobResult, E2EJobResult } from '@perfsee/server-common'
+import { Redis } from '@perfsee/platform-server/redis'
+import {
+  JobType,
+  LabJobPayload,
+  SnapshotStatus,
+  LabJobResult,
+  E2EJobResult,
+  PingJobResult,
+  PingJobPayload,
+  CreateJobEvent,
+} from '@perfsee/server-common'
 
-import { getLighthouseRunData, createDataLoader } from '../../utils'
+import { getLighthouseRunData, createDataLoader, getLabPingData } from '../../utils'
 import { AppVersionService } from '../app-version/service'
 import { CheckSuiteService } from '../checksuite/service'
 import { NotificationService } from '../notification/service'
@@ -65,13 +77,16 @@ export class SnapshotService implements OnApplicationBootstrap {
     private readonly checkSuite: CheckSuiteService,
     private readonly notification: NotificationService,
     private readonly appVersion: AppVersionService,
+    private readonly redis: Redis,
   ) {}
 
   onApplicationBootstrap() {
     const payloadGetter = this.getReportJobPayload.bind(this)
+    const pingPayloadGetter = this.getPingJobPayload.bind(this)
 
     this.event.emit('job.register_payload_getter', JobType.LabAnalyze, payloadGetter)
     this.event.emit('job.register_payload_getter', JobType.E2EAnalyze, payloadGetter)
+    this.event.emit('job.register_payload_getter', JobType.LabPing, pingPayloadGetter)
   }
 
   async getSnapshots(
@@ -238,6 +253,31 @@ export class SnapshotService implements OnApplicationBootstrap {
     return snapshot
   }
 
+  async pingConnection(options: { projectId: number; pageIid: number; profileIid?: number; envIid?: number }) {
+    const { projectId, pageIid, profileIid, envIid } = options
+
+    const page = await Page.findOneByOrFail({ iid: pageIid, projectId })
+    try {
+      // single one
+      if (profileIid && envIid) {
+        const profile = await Profile.findOneByOrFail({ iid: profileIid, projectId })
+        const env = await Environment.findOneByOrFail({ iid: envIid, projectId })
+        await this.emitPingJobs(projectId, page.id, [profile], [env])
+      } else {
+        const pageWithProfile = await PageWithProfile.findBy({ pageId: page.id })
+        const pageWithEnv = await PageWithEnv.findBy({ pageId: page.id })
+        const envs = await Environment.findBy({ id: In(pageWithEnv.map(({ envId }) => envId)) })
+        const profiles = await Profile.findBy({ id: In(pageWithProfile.map(({ profileId }) => profileId)) })
+        await this.emitPingJobs(projectId, page.id, profiles, envs)
+      }
+    } catch (e) {
+      this.logger.error(e as Error, { phase: 'ping connection' })
+      return false
+    }
+
+    return true
+  }
+
   async dispatchReport(report: SnapshotReport) {
     const page = await Page.findOneByOrFail({ id: report.pageId })
     const env = await Environment.findOneByOrFail({ id: report.envId })
@@ -270,6 +310,15 @@ export class SnapshotService implements OnApplicationBootstrap {
     const { pages, profiles, envs } = await this.getAllProperties([report.projectId])
 
     return getLighthouseRunData(pages, profiles, envs, [report])[0]
+  }
+
+  async getPingJobPayload(_pageId: number, extra: { key: string }): Promise<PingJobPayload> {
+    const [pageId, profileId, envId] = extra.key.split('-')
+    const page = await Page.findOneByOrFail({ id: parseInt(pageId) })
+    const profile = await Profile.findOneByOrFail({ id: parseInt(profileId) })
+    const env = await Environment.findOneByOrFail({ id: parseInt(envId) })
+
+    return getLabPingData(page, profile, env)
   }
 
   async getAllProperties(projectIds: number[]) {
@@ -305,6 +354,31 @@ export class SnapshotService implements OnApplicationBootstrap {
         })),
       )
     }
+  }
+
+  async emitPingJobs(projectId: number, pageId: number, profiles: Profile[], envs: Environment[]) {
+    const payloads: CreateJobEvent<JobType.LabPing>[] = []
+
+    for (const profile of profiles) {
+      for (const env of envs) {
+        const key = `${pageId}-${profile.id}-${env.id}`
+        await this.redis.set(key, 'pending', 'EX', /* 7 days */ 3600 * 7 * 24)
+
+        payloads.push({
+          type: JobType.LabPing,
+          payload: {
+            entityId: pageId,
+            extra: {
+              key,
+            },
+            projectId,
+          },
+          zone: env.zone,
+        })
+      }
+    }
+
+    await this.event.emitAsync('job.create', payloads)
   }
 
   // Update report -> try completed -> start source analyze -> send notification
@@ -452,6 +526,11 @@ export class SnapshotService implements OnApplicationBootstrap {
     await this.updateLabReport(data)
   }
 
+  @OnEvent(`${JobType.LabPing}.update`)
+  async handlePingUpdate(data: PingJobResult) {
+    await this.redis.set(data.key, data.status, 'EX', /* 7 days */ 3600 * 7 * 24)
+  }
+
   @OnEvent(`${JobType.LabAnalyze}.error`)
   async handleReportFailure(reportId: number, reason: string) {
     await this.updateLabReport({
@@ -472,6 +551,11 @@ export class SnapshotService implements OnApplicationBootstrap {
         failedReason: reason,
       },
     })
+  }
+
+  @OnEvent(`${JobType.LabPing}.error`)
+  handlePingFailure(pageId: number, reason: string) {
+    this.logger.error(pageId, { phase: 'ping check failed', reason })
   }
 
   // Update to running

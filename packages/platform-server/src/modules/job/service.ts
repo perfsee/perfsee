@@ -43,7 +43,7 @@ import { TimeUsageInput } from './types'
 // @ts-expect-error by design
 const JOB_GROUPS: Record<JobType, JobType[]> = {
   [JobType.BundleAnalyze]: [JobType.BundleAnalyze],
-  [JobType.LabAnalyze]: [JobType.LabAnalyze, JobType.E2EAnalyze],
+  [JobType.LabAnalyze]: [JobType.LabAnalyze, JobType.E2EAnalyze, JobType.LabPing],
   [JobType.SourceAnalyze]: [JobType.SourceAnalyze],
 }
 
@@ -80,7 +80,7 @@ function getLogStorageKey(job: Job) {
 
 const LATEST_DONE_JOB_KEY = 'LATEST_DONE_JOB_ID'
 
-type PayloadGetter = (entityId: number) => Promise<any>
+type PayloadGetter = (entityId: number, extra: Record<string, string> | null) => Promise<any>
 
 @Injectable()
 export class JobService {
@@ -224,7 +224,7 @@ export class JobService {
   }
 
   async getJobPayload(job: Job): Promise<any> {
-    const { jobType, entityId } = job
+    const { jobType, entityId, extra } = job
 
     const payloadGetter = this.jobPayloadGetters.get(jobType)
     if (!payloadGetter) {
@@ -232,7 +232,7 @@ export class JobService {
     }
 
     try {
-      return await payloadGetter(entityId)
+      return await payloadGetter(entityId, extra)
     } catch (e) {
       this.logger.error(e as Error, { ...job, phase: 'fetch job payload' })
       await this.jobDone(job.id, 0, true, [[JobLogLevel.error, Date.now(), 'Failed to fetch job payload.', String(e)]])
@@ -364,6 +364,7 @@ export class JobService {
       projectId: projectId,
       entityId,
       zone: zone ?? (await ApplicationSetting.defaultJobZone()),
+      extra: 'extra' in event.payload ? event.payload.extra : undefined,
     })
   }
 
@@ -405,6 +406,8 @@ export class JobService {
       case JobType.SourceAnalyze:
         const snapshot = await Snapshot.findOneBy({ projectId, iid: entityId })
         return snapshot?.id
+      case JobType.LabPing:
+        return entityId
       default:
         return null
     }

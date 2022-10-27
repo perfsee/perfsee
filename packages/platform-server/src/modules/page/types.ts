@@ -60,3 +60,12 @@ export class PageRelation {
   @Field(() => [Int], { description: 'related competitor page ids' })
   competitorIds!: number[]
 }
+
+@ObjectType()
+export class PingResult {
+  @Field(() => String, { description: 'pageId-profileId-envId' })
+  key!: string
+
+  @Field(() => String, { nullable: true, description: 'ping status' })
+  status!: string
+}

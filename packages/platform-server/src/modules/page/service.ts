@@ -32,6 +32,7 @@ import {
 import { UserError } from '@perfsee/platform-server/error'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
+import { Redis } from '@perfsee/platform-server/redis'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 
 import { SnapshotReportService } from '../snapshot/snapshot-report/service'
@@ -57,6 +58,7 @@ export class PageService {
     private readonly moduleRef: ModuleRef,
     private readonly internalIdService: InternalIdService,
     private readonly logger: Logger,
+    private readonly redis: Redis,
   ) {}
 
   async getPages(projectId: number) {
@@ -91,6 +93,31 @@ export class PageService {
         envIds: envMap.get(id) ?? [],
         competitorIds: competitorMap.get(id) ?? [],
       }
+    })
+  }
+
+  async getPingResult(projectId: number, pageIid: number) {
+    const page = await Page.findOneByOrFail({ iid: pageIid, projectId })
+    const pageWithProfiles = await PageWithProfile.findBy({ pageId: page.id })
+    const pageWithEnvs = await PageWithEnv.findBy({ pageId: page.id })
+    const envs = await Environment.findBy({ projectId })
+    const profiles = await Profile.findBy({ projectId })
+
+    const keys: string[] = []
+    const iidKeys: string[] = []
+    pageWithProfiles.forEach(({ profileId }) => {
+      pageWithEnvs.forEach(({ pageId, envId }) => {
+        const env = envs.find((e) => e.id === envId)!
+        const profile = profiles.find((p) => p.id === profileId)!
+        keys.push(`${pageId}-${profileId}-${envId}`)
+        iidKeys.push(`${pageIid}-${profile.iid}-${env.iid}`)
+      })
+    })
+
+    const state = await this.redis.mget(keys)
+
+    return state.map((result, i) => {
+      return { key: iidKeys[i], status: result }
     })
   }
 

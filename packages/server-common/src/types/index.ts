@@ -52,6 +52,10 @@ export type E2EJobPayload = LabJobPayload & {
   e2eScript: string | null
 }
 
+export type PingJobPayload = Pick<LabJobPayload, 'url' | 'cookies' | 'deviceId' | 'headers'> & {
+  key: string
+}
+
 export enum BundleJobStatus {
   Pending,
   Running,
@@ -111,6 +115,11 @@ export type LabJobResult = {
 
 export type E2EJobResult = {
   snapshotReport: PartialSnapshotReport & { id: number }
+}
+
+export type PingJobResult = {
+  key: string
+  status: 'success' | 'failed' | 'running' | 'pending'
 }
 
 export interface SourceAnalyzeJob {

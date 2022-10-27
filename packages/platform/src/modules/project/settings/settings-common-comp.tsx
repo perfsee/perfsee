@@ -15,12 +15,12 @@ limitations under the License.
 */
 
 import {
+  ApiOutlined,
   BlockOutlined,
   DeleteOutlined,
   DesktopOutlined,
   EditOutlined,
   GlobalOutlined,
-  LinkOutlined,
   RollbackOutlined,
   StopOutlined,
 } from '@ant-design/icons'
@@ -48,6 +48,7 @@ export enum DialogVisible {
   Off = 0,
   Edit,
   Delete,
+  Ping,
 }
 
 type Props = {
@@ -56,35 +57,36 @@ type Props = {
   onCloseDialog: () => void
   editContent: JSX.Element
   deleteContent: JSX.Element
+  pingContent?: JSX.Element
   isCreate?: boolean
 }
 
 export const SettingDialogs = memo((props: Props) => {
-  const { type, editContent, deleteContent, visible, onCloseDialog, isCreate } = props
+  const { type, editContent, deleteContent, pingContent, visible, onCloseDialog, isCreate } = props
 
   const contentProps = {
     type: DialogType.normal,
-    title: `${visible === DialogVisible.Delete ? 'Delete' : isCreate ? 'Create' : 'Edit'} ${type}`,
+    title: `${
+      visible === DialogVisible.Delete
+        ? 'Delete'
+        : visible === DialogVisible.Ping
+        ? 'Ping'
+        : isCreate
+        ? 'Create'
+        : 'Edit'
+    } ${type}`,
   }
 
   return (
     <>
       <Dialog
         minWidth="700px"
-        hidden={visible !== DialogVisible.Edit}
+        hidden={visible === DialogVisible.Off}
         onDismiss={onCloseDialog}
         dialogContentProps={contentProps}
         modalProps={{ isBlocking: true }}
       >
-        {editContent}
-      </Dialog>
-      <Dialog
-        minWidth="700px"
-        hidden={visible !== DialogVisible.Delete}
-        dialogContentProps={{ ...contentProps, showCloseButton: false }}
-        modalProps={{ isBlocking: true }}
-      >
-        {deleteContent}
+        {visible === DialogVisible.Edit ? editContent : visible === DialogVisible.Delete ? deleteContent : pingContent}
       </Dialog>
     </>
   )
@@ -97,6 +99,7 @@ type ButtonProps<T> = {
   hideDeleteButton?: boolean
   clickEditButton: (item: T) => void
   clickDeleteButton: (item: T) => void
+  clickPingButton?: (item: T) => void
   clickRestoreButton?: (item: T) => void
   clickDisableButton?: (item: T) => void
 }
@@ -106,6 +109,7 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
     item,
     hideDeleteButton,
     clickEditButton,
+    clickPingButton,
     clickDeleteButton,
     clickDisableButton,
     clickRestoreButton,
@@ -116,6 +120,10 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
   const onClickDisableButton = useCallback(() => {
     typeof clickDisableButton === 'function' && clickDisableButton(item)
   }, [item, clickDisableButton])
+
+  const onClickPingButton = useCallback(() => {
+    typeof clickPingButton === 'function' && clickPingButton(item)
+  }, [item, clickPingButton])
 
   const onClickRestoreButton = useCallback(() => {
     typeof clickRestoreButton === 'function' && clickRestoreButton(item)
@@ -137,6 +145,14 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
         </div>
         <span>Edit</span>
       </OperationItemWrap>
+      {clickPingButton && (
+        <OperationItemWrap onClick={onClickPingButton}>
+          <div>
+            <ApiOutlined />
+          </div>
+          <span>Ping</span>
+        </OperationItemWrap>
+      )}
       {showDisableButton && (
         <OperationItemWrap onClick={onClickDisableButton}>
           <div>
@@ -150,7 +166,7 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
           <div>
             <RollbackOutlined />
           </div>
-          <span>Restore</span>
+          <span>Enable</span>
         </OperationItemWrap>
       )}
       {!hideDeleteButton && (
@@ -249,7 +265,6 @@ export const CountBlock: FC<CountBlockProps> = ({ count, title }) => {
 }
 
 export enum PagePropertyType {
-  Link,
   Profile,
   Environment,
   Competitor,
@@ -261,10 +276,6 @@ type PagePropertyProps = {
 }
 
 const PagePropertyIconMap = {
-  [PagePropertyType.Link]: {
-    icon: <LinkOutlined />,
-    title: 'Link',
-  },
   [PagePropertyType.Profile]: {
     icon: <DesktopOutlined />,
     title: 'Profile',
