@@ -23,16 +23,23 @@ import { emptyRelation } from '../helper'
 import { DialogVisible, RightCreateButton, SettingDialogs, DeleteContent } from '../settings-common-comp'
 import { PageEditForm } from '../settings-pages/page-edit-form'
 import { PageListCell } from '../settings-pages/page-list-cell'
+import { PingContent } from '../settings-pages/ping-content'
 
 export const SettingsE2e = () => {
-  const [{ pages, pageRelationMap, deleteProgress }, dispatcher] = useModule(PropertyModule, {
-    selector: (state) => ({
-      pages: state.pages,
-      pageRelationMap: state.pageRelationMap,
-      deleteProgress: state.deleteProgress.page,
-    }),
-    dependencies: [],
-  })
+  const [{ pages, pageRelationMap, deleteProgress, pingResultMap, envMap, profileMap }, dispatcher] = useModule(
+    PropertyModule,
+    {
+      selector: (state) => ({
+        pages: state.pages,
+        pageRelationMap: state.pageRelationMap,
+        deleteProgress: state.deleteProgress.page,
+        pingResultMap: state.pingResultMap,
+        envMap: state.envMap,
+        profileMap: state.profileMap,
+      }),
+      dependencies: [],
+    },
+  )
 
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
   const [e2eTest, setE2eTest] = useState<Partial<PageSchema>>({})
@@ -52,6 +59,17 @@ export const SettingsE2e = () => {
       setDialogVisible(DialogVisible.Edit)
     }
   }, [])
+
+  const openPingModal = useCallback(
+    (e2e?: PageSchema) => {
+      if (e2e) {
+        setE2eTest(e2e)
+        setDialogVisible(DialogVisible.Ping)
+        dispatcher.fetchPingCheckStatus(e2e.id)
+      }
+    },
+    [dispatcher],
+  )
 
   const openDeleteModal = useCallback((e2e: PageSchema) => {
     setE2eTest(e2e)
@@ -109,11 +127,31 @@ export const SettingsE2e = () => {
           openDeleteModal={openDeleteModal}
           onClickRestore={onClickRestore}
           onClickDisable={onClickDisable}
+          openPingModal={openPingModal}
         />
       )
     },
-    [onClickDisable, onClickRestore, openDeleteModal, openEditModal],
+    [onClickDisable, onClickRestore, openDeleteModal, openEditModal, openPingModal],
   )
+
+  const pingCheck = useCallback(
+    (pageId: number, profileId?: number, envId?: number) => {
+      return dispatcher.pingCheck({ pageId, profileId, envId })
+    },
+    [dispatcher],
+  )
+
+  const pingContent = useMemo(() => {
+    return (
+      <PingContent
+        onClickCheck={pingCheck}
+        page={e2eTest}
+        pingResultMap={pingResultMap}
+        profileMap={profileMap}
+        envMap={envMap}
+      />
+    )
+  }, [e2eTest, envMap, pingCheck, pingResultMap, profileMap])
 
   const editContent = useMemo(() => {
     return <PageEditForm defaultPage={e2eTest} onSubmit={onUpdate} closeModal={closeModal} />
@@ -145,6 +183,7 @@ export const SettingsE2e = () => {
         deleteContent={deleteContent}
         visible={visible}
         isCreate={!e2eTest.id}
+        pingContent={pingContent}
       />
     </div>
   )

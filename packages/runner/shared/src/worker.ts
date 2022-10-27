@@ -51,7 +51,7 @@ export abstract class JobWorker<Payload = any> {
   async run() {
     try {
       this.postMessage('start', undefined)
-      this.logger.info(`Start working on job: '${this.job.jobType}'.`, this.payload)
+      this.logger.info(`Start working on job: '${this.job.jobType}'.`, this.payload as any)
       this.logger.verbose(`Start working at: ${this.startedAt.toISOString()}.`)
 
       this.logger.info('Start running preparation scripts.')

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Page, Profile, SnapshotReport, Environment } from '@perfsee/platform-server/db'
-import { E2EJobPayload, LabJobPayload } from '@perfsee/server-common'
+import { E2EJobPayload, LabJobPayload, PingJobPayload } from '@perfsee/server-common'
 
 import { CONNECTIONS } from '../modules/profile/constants'
 
@@ -55,4 +55,16 @@ export function getLighthouseRunData(
       localStorage: env.localStorage ?? [],
     }
   })
+}
+
+export function getLabPingData(page: Page, profile: Profile, env: Environment): PingJobPayload {
+  const deviceId = profile.device
+
+  return {
+    key: `${page.id}-${profile.id}-${env.id}`,
+    url: page.url,
+    deviceId,
+    headers: env.headers,
+    cookies: env.cookies,
+  }
 }

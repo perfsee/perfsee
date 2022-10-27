@@ -1,0 +1,8 @@
+query pingResult($projectId: ID!, $pageId: Int!) {
+  project(id: $projectId) {
+    pingResult(pageId: $pageId) {
+      key
+      status
+    }
+  }
+}

@@ -123,6 +123,24 @@ export class SnapshotResolver {
     })
   }
 
+  @PermissionGuard(Permission.Admin, 'projectId')
+  @Mutation(() => Boolean, { name: 'pingConnection' })
+  async pingConnection(
+    @Args({ name: 'projectId', type: () => ID }) projectId: string,
+    @Args({ name: 'pageId', type: () => Int }) pageIid: number,
+    @Args({ name: 'profileId', type: () => Int, nullable: true }) profileIid?: number,
+    @Args({ name: 'envId', type: () => Int, nullable: true }) envIid?: number,
+  ) {
+    const rawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+
+    return this.service.pingConnection({
+      projectId: rawId,
+      pageIid,
+      profileIid,
+      envIid,
+    })
+  }
+
   @PermissionGuard(Permission.Read, 'projectId')
   @Mutation(() => Snapshot, { name: 'takeTempSnapshot' })
   async takeTempSnapshot(

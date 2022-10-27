@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IContextualMenuProps, PrimaryButton, Stack } from '@fluentui/react'
+import { IContextualMenuProps, PrimaryButton, Separator, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useMemo, useState, useEffect } from 'react'
-
-import { SearchSelect } from '@perfsee/components'
 
 import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { SettingCards } from '../cards'
@@ -28,40 +26,23 @@ import { DeleteContent, DialogVisible, SettingDialogs } from '../settings-common
 import { CompetitorPageEditForm } from './competitor-page-edit-form'
 import { PageEditForm } from './page-edit-form'
 import { PageListCell } from './page-list-cell'
-
-const PageTypeFilters = {
-  all: {
-    key: 'all',
-    text: 'All',
-    selector: () => true,
-  },
-  normal: {
-    key: 'normal',
-    text: 'Page',
-    selector: (page: PageSchema) => !page.isCompetitor,
-  },
-  competitor: {
-    key: 'competitor',
-    text: 'Competitor Page',
-    selector: (page: PageSchema) => page.isCompetitor,
-  },
-  disabled: {
-    key: 'disabled',
-    text: 'Disabled',
-    selector: (page: PageSchema) => page.disable,
-  },
-}
+import { PingContent } from './ping-content'
+import { TempPageList } from './temp-list'
 
 export const SettingsPages = () => {
-  const [{ pages, pageRelationMap, hasCompetitorEnv, deleteProgress }, dispatcher] = useModule(PropertyModule, {
-    selector: (state) => ({
-      pages: state.pages,
-      pageRelationMap: state.pageRelationMap,
-      hasCompetitorEnv: !!state.environments.filter((env) => env.isCompetitor).length,
-      deleteProgress: state.deleteProgress.page,
-    }),
-    dependencies: [],
-  })
+  const [{ pages, pageRelationMap, pingResultMap, hasCompetitorEnv, deleteProgress, envMap, profileMap }, dispatcher] =
+    useModule(PropertyModule, {
+      selector: (state) => ({
+        pages: state.pages.filter((page) => !page.isE2e),
+        pageRelationMap: state.pageRelationMap,
+        hasCompetitorEnv: !!state.environments.filter((env) => env.isCompetitor).length,
+        deleteProgress: state.deleteProgress.page,
+        envMap: state.envMap,
+        profileMap: state.profileMap,
+        pingResultMap: state.pingResultMap,
+      }),
+      dependencies: [],
+    })
 
   useEffect(() => {
     dispatcher.fetchPageRelation()
@@ -69,11 +50,22 @@ export const SettingsPages = () => {
 
   const [page, setPage] = useState<Partial<PageSchema>>({})
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
-  const [filterKey, setFilterKey] = useState<keyof typeof PageTypeFilters>('all')
 
-  const onChangeFilterKey = useCallback((key: string) => {
-    setFilterKey(key as keyof typeof PageTypeFilters)
-  }, [])
+  const { tempList, competitorList, pageList } = useMemo(() => {
+    const tempList: PageSchema[] = []
+    const competitorList: PageSchema[] = []
+    const pageList: PageSchema[] = []
+    pages.forEach((p) => {
+      if (p.isCompetitor) {
+        competitorList.push(p)
+      } else if (p.isTemp) {
+        tempList.push(p)
+      } else {
+        pageList.push(p)
+      }
+    })
+    return { tempList, competitorList, pageList }
+  }, [pages])
 
   const onCreatePage = useCallback(() => {
     setPage({ isCompetitor: false })
@@ -113,6 +105,17 @@ export const SettingsPages = () => {
     }
   }, [])
 
+  const openPingModal = useCallback(
+    (p?: PageSchema) => {
+      if (p) {
+        setPage(p)
+        setDialogVisible(DialogVisible.Ping)
+        dispatcher.fetchPingCheckStatus(p.id)
+      }
+    },
+    [dispatcher],
+  )
+
   const onClickDisable = useCallback(
     (page: PageSchema) => {
       dispatcher.updateOrCreatePage({
@@ -144,6 +147,7 @@ export const SettingsPages = () => {
       return (
         <PageListCell
           page={item}
+          openPingModal={openPingModal}
           openEditModal={openEditModal}
           openDeleteModal={openDeleteModal}
           onClickRestore={onClickRestore}
@@ -151,7 +155,14 @@ export const SettingsPages = () => {
         />
       )
     },
-    [onClickDisable, onClickRestore, openDeleteModal, openEditModal],
+    [onClickDisable, onClickRestore, openDeleteModal, openEditModal, openPingModal],
+  )
+
+  const pingCheck = useCallback(
+    (pageId: number, profileId?: number, envId?: number) => {
+      return dispatcher.pingCheck({ pageId, profileId, envId })
+    },
+    [dispatcher],
   )
 
   const menuProps = useMemo<IContextualMenuProps>(
@@ -169,24 +180,24 @@ export const SettingsPages = () => {
           iconProps: { iconName: 'competitor' },
           disabled: !hasCompetitorEnv,
           onClick: onCreateCompetitor,
+          title: !hasCompetitorEnv ? 'Create a competitor environment first.' : undefined,
         },
       ],
     }),
     [hasCompetitorEnv, onCreateCompetitor, onCreatePage],
   )
 
-  const typeOptions = useMemo(() => Object.values(PageTypeFilters), [])
-
-  const pageList = useMemo(() => {
-    const allPages = pages.filter((page) => !page.isE2e && !page.isTemp)
-    const selector = PageTypeFilters[filterKey]?.selector
-
-    if (selector) {
-      return allPages.filter(selector)
-    }
-
-    return allPages
-  }, [filterKey, pages])
+  const pingContent = useMemo(() => {
+    return (
+      <PingContent
+        onClickCheck={pingCheck}
+        page={page}
+        pingResultMap={pingResultMap}
+        profileMap={profileMap}
+        envMap={envMap}
+      />
+    )
+  }, [envMap, page, pingCheck, pingResultMap, profileMap])
 
   const editContent = useMemo(() => {
     if (page.isCompetitor) {
@@ -210,20 +221,18 @@ export const SettingsPages = () => {
 
   return (
     <div>
-      <Stack horizontal horizontalAlign="space-between">
+      <Stack horizontal horizontalAlign="end">
         <PrimaryButton text="Create" iconProps={{ iconName: 'plus' }} menuProps={menuProps} />
-        <Stack horizontal horizontalAlign="space-between" tokens={{ childrenGap: '12px' }}>
-          <SearchSelect
-            title="Type"
-            value={filterKey}
-            options={typeOptions}
-            selectOptions={typeOptions}
-            onChange={onChangeFilterKey}
-          />
-        </Stack>
       </Stack>
       {!!pageRelationMap.size && <SettingCards items={pageList} onRenderCell={onRenderCell} />}
-
+      {!!competitorList.length && (
+        <>
+          <Separator />
+          <h3>Competitor Pages</h3>
+        </>
+      )}
+      {!!pageRelationMap.size && <SettingCards items={competitorList} onRenderCell={onRenderCell} />}
+      <TempPageList list={tempList} clickDeleteButton={openDeleteModal} />
       <SettingDialogs
         type={page.isCompetitor ? 'Competitor Page' : 'Page'}
         visible={visible}
@@ -231,6 +240,7 @@ export const SettingsPages = () => {
         editContent={editContent}
         deleteContent={deleteContent}
         isCreate={!page.id}
+        pingContent={pingContent}
       />
     </div>
   )

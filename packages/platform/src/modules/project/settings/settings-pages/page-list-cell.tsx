@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { CloseCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { BlockOutlined, CloseCircleOutlined, StopOutlined } from '@ant-design/icons'
 import { useTheme } from '@emotion/react'
 import { TooltipHost } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
@@ -24,18 +24,9 @@ import { FC } from 'react'
 import { PageSchema, PropertyModule } from '@perfsee/platform/modules/shared'
 
 import { ButtonOperators, PagePropertyItem, PagePropertyType } from '../settings-common-comp'
-import { EllipsisText } from '../style'
+import { EllipsisText, PropertyCard, PropertyCardTop, PropertyName, PropertyIcon, PropertyInfos } from '../style'
 
-import {
-  PageCard,
-  PageCardTop,
-  PageHeaderInfo,
-  PageHeaderLink,
-  PageHeaderWrap,
-  PageIcon,
-  PageInfos,
-  PageName,
-} from './style'
+import { PageHeaderInfo, PageHeaderLink, PageHeaderWrap } from './style'
 import WebIcon from './web.svg'
 
 type Props = {
@@ -44,6 +35,7 @@ type Props = {
   openEditModal: (page: PageSchema) => void
   onClickRestore: (page: PageSchema) => void
   onClickDisable: (page: PageSchema) => void
+  openPingModal: (page: PageSchema) => void
 }
 
 export const PageListCell: FC<Props> = (props) => {
@@ -66,35 +58,44 @@ export const PageListCell: FC<Props> = (props) => {
   const envs = compact(relation.envIds.map((envId) => envMap.get(envId)?.name))
   const profiles = compact(relation.profileIds.map((profileId) => profileMap.get(profileId)?.name))
   const competitors = compact(relation.competitorIds.map((pageId) => pageMap.get(pageId)?.name))
+  const lackOfRelation = !envs.length || !profiles.length
 
   return (
-    <PageCard>
-      <PageCardTop>
-        <PageIcon disable={page.disable} error={!envs.length || !profiles.length}>
-          {page.disable ? <StopOutlined /> : !envs.length || !profiles.length ? <CloseCircleOutlined /> : <WebIcon />}
-        </PageIcon>
-        <PageInfos>
+    <PropertyCard>
+      <PropertyCardTop>
+        <PropertyIcon disable={page.disable} error={lackOfRelation}>
+          {page.disable ? (
+            <StopOutlined />
+          ) : lackOfRelation ? (
+            <CloseCircleOutlined />
+          ) : page.isCompetitor ? (
+            <BlockOutlined />
+          ) : (
+            <WebIcon />
+          )}
+        </PropertyIcon>
+        <PropertyInfos>
           <EllipsisText>
-            <PageHeader warning={!envs.length || !profiles.length} item={page} disable={page.disable} />
+            <PageHeader warning={lackOfRelation} item={page} disable={page.disable} />
             <div>
-              {/* <PagePropertyItem type={PagePropertyType.Link} value={page.url} /> */}
               <PagePropertyItem type={PagePropertyType.Environment} value={envs.join(', ') || '-'} />
               <PagePropertyItem type={PagePropertyType.Profile} value={profiles.join(', ') || '-'} />
               <PagePropertyItem type={PagePropertyType.Competitor} value={competitors.join(', ')} />
             </div>
           </EllipsisText>
-        </PageInfos>
-      </PageCardTop>
+        </PropertyInfos>
+      </PropertyCardTop>
       <ButtonOperators
         item={page}
         clickDeleteButton={props.openDeleteModal}
         clickEditButton={props.openEditModal}
+        clickPingButton={lackOfRelation ? undefined : props.openPingModal}
         clickDisableButton={props.onClickDisable}
         clickRestoreButton={props.onClickRestore}
         showDisableButton={!page.disable}
         showRestoreButton={page.disable}
       />
-    </PageCard>
+    </PropertyCard>
   )
 }
 
@@ -104,7 +105,7 @@ const PageHeader: FC<{ item: PageSchema; warning: boolean; disable: boolean }> =
   return (
     <PageHeaderWrap>
       <PageHeaderInfo>
-        <PageName>
+        <PropertyName>
           <TooltipHost
             styles={{
               root: { color: disable ? theme.colors.disabled : warning ? theme.colors.error : theme.text.color },
@@ -113,7 +114,7 @@ const PageHeader: FC<{ item: PageSchema; warning: boolean; disable: boolean }> =
           >
             {item.name}
           </TooltipHost>
-        </PageName>
+        </PropertyName>
       </PageHeaderInfo>
       <PageHeaderLink>{item.url}</PageHeaderLink>
     </PageHeaderWrap>

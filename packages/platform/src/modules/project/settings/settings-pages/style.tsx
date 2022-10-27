@@ -43,40 +43,6 @@ export const ErrorMessage = styled.span(({ theme }) => ({
   color: theme.colors.error,
 }))
 
-export const PageCard = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-})
-
-export const PageCardTop = styled.div({
-  padding: '16px',
-  display: 'flex',
-  flex: 1,
-})
-
-export const PageIcon = styled.div<{ disable: boolean; error: boolean }>(({ theme, disable, error }) => ({
-  flexShrink: 0,
-  width: '42px',
-  height: '42px',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  borderRadius: '50%',
-  backgroundColor: disable ? theme.colors.disabled : error ? theme.colors.error : theme.colors.primary,
-
-  fontSize: '21px',
-  color: theme.colors.white,
-
-  userSelect: 'none',
-}))
-
-export const PageInfos = styled.div({
-  flex: 1,
-  marginLeft: '16px',
-  overflow: 'hidden',
-})
-
 export const PageHeaderWrap = styled.div({
   marginBottom: '12px',
 })
@@ -99,16 +65,6 @@ export const PageHeaderLink = styled.div(({ theme }) => ({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 }))
-
-export const PageName = styled.span({
-  flex: 1,
-  fontSize: '18px',
-  lineHeight: '24px',
-  fontWeight: 600,
-  marginRight: '4px',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-})
 
 export const Tag = styled(RawTag)({
   flexShrink: 0,
