@@ -40,6 +40,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
 
     const installation = await this.github.getInstallationByRepository(action.project.namespace, action.project.name)
     const accessToken = await this.github.getInstallationAccessToken(installation.id)
+    const repository = await this.github.getRepository(action.project.namespace, action.project.name, accessToken)
 
     const params: GithubCheckRunParameters = {
       name: `${action.project.slug} - ${checkName}`,
@@ -64,7 +65,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
         accessToken,
         params,
       )
-      pullRequests = updated.pull_requests.map((pr) => ({ id: pr.id, number: pr.number }))
+      pullRequests = updated.pull_requests
     } else {
       const newCheckRun = await this.github.createCheckRun(
         action.commitHash,
@@ -73,7 +74,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
         accessToken,
         params,
       )
-      pullRequests = newCheckRun.pull_requests.map((pr) => ({ id: pr.id, number: pr.number }))
+      pullRequests = newCheckRun.pull_requests
       await GithubCheckRunsAssociation.create({
         checkId: checkId,
         githubCheckRunId: newCheckRun.id,
@@ -83,6 +84,10 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
     if (action.status === CheckStatus.completed && pullRequests.length > 0) {
       const commentBody = params.output?.summary ?? ''
       for (const pr of pullRequests) {
+        if (pr.base.repo.id !== repository.id) {
+          // skip pull requests not belong to this repository
+          continue
+        }
         // TODO: need a lock here to prevent duplicate comment
         const existedCommentId = (await GithubPullRequestsAssociation.findOneBy({ githubPullRequestId: pr.id }))
           ?.githubPullRequestCommentId
