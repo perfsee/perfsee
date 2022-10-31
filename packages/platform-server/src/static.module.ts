@@ -17,35 +17,37 @@ limitations under the License.
 import path from 'path'
 
 import { Module } from '@nestjs/common'
-import { ServeStaticModule } from '@nestjs/serve-static'
+import { HttpAdapterHost } from '@nestjs/core'
+import { Application, static as expressStatic } from 'express'
 
 import { Config } from './config'
 
 @Module({
-  imports: [
-    ServeStaticModule.forRootAsync({
-      useFactory: (config: Config) => {
-        return [
-          {
-            rootPath: path.join(process.cwd(), 'assets', 'docs'),
-            renderPath: config.path + '/docs',
-          },
-          {
-            rootPath: path.join(process.cwd(), 'assets', 'docs'),
-            serveRoot: config.path + '/docs',
-            serveStaticOptions: {
-              redirect: false,
-              extensions: ['html'],
-            },
-          },
-          {
-            rootPath: path.join(process.cwd(), 'assets', 'platform'),
-            serveRoot: config.path,
-          },
-        ]
-      },
-      inject: [Config],
-    }),
-  ],
+  imports: [],
 })
-export class StaticModule {}
+export class StaticModule {
+  constructor(private readonly config: Config, private readonly adapterHost: HttpAdapterHost) {}
+
+  onModuleInit() {
+    const assets = (...n: string[]) => path.join(process.cwd(), 'assets', ...n)
+    const basePath = this.config.path
+
+    const app = this.adapterHost.httpAdapter.getInstance() as Application
+
+    app.use(
+      basePath + '/docs',
+      expressStatic(assets('docs'), {
+        redirect: false,
+        extensions: ['html'],
+      }),
+    )
+    app.get([basePath + '/docs', basePath + '/docs/*'], (_req, res) => {
+      res.sendFile(assets('docs', 'index.html'))
+    })
+
+    app.use(basePath, expressStatic(assets('platform')))
+    app.get('*', (_req, res) => {
+      res.sendFile(assets('platform', 'index.html'))
+    })
+  }
+}
