@@ -62,7 +62,7 @@ Bundle 分析时会将该分支作为基准分支与当前分支进行对比。
 
 ![specific branch notification](/settings/specific-branch-notification.png)
 
-### Lab Notification Filter (Lab 通知过滤设置）)
+### Lab Notification Filter (Lab 通知过滤设置)
 
 可选项为:
 

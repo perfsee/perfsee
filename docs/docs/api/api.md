@@ -18,7 +18,7 @@ All API share rate limit to 120 times/minute. Some tasks are triggered by indepe
 
 ## Authorization
 
-Open api need authorization, please apply API Token on the [Token Management](https://perfsee.com/access-token) page.
+Open api need authorization, please apply API Token on the [Token Management](https://perfsee.com/me/access-token) page.
 
 Click 「Generate new token」
 

@@ -16,6 +16,7 @@ const config = {
   organizationName: 'perfsee',
   projectName: 'perfsee',
   staticDirectories: ['assets'],
+  trailingSlash: false,
 
   presets: [
     [
