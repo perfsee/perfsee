@@ -42,9 +42,21 @@ You can set the cookie for the environment for the following usage:
 - Abandon advertisements to simplify the page for develops
 - A/B test
 
+#### Input type
+
+Table mode is default, just input data according to the prompt. Click the button to switch to Stringify mode that can bulk create cookies.
+
+##### Table
+
+![](/settings/cookies-table.png)
+
+##### Stringify
+
+We don't have a convenient way to export cookies in Chrome, so we recommend installing [EditThisCookie](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg) to export cookies.
+![](/settings/cookies-stringify.png)
+
 ### Headers
 
-设置自定义的 Headers
 Set custom headers for the environment.
 
 ![environment headers](/settings/environment-headers.png)
@@ -54,3 +66,9 @@ Set custom headers for the environment.
 3. You can input **any host**, and the corresponding header would be added to the matched host.
 
 ![environment header host](/settings/environment-header-host.png)
+
+#### Input type
+
+Table mode is default, just input data according to the prompt. Click the button to switch to Stringify mode that can bulk create headers.
+
+![](/settings/headers-stringify.png)

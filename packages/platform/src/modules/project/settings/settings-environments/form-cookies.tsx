@@ -24,8 +24,11 @@ import {
   DatePicker,
   ComboBox,
   IComboBoxOption,
+  TextField,
+  Toggle,
 } from '@fluentui/react'
 import dayjs from 'dayjs'
+import { capitalize, pick } from 'lodash'
 import { FormEvent, forwardRef, useMemo, useState, useCallback, useImperativeHandle } from 'react'
 
 import { RequiredTextField, TooltipWithEllipsis, useToggleState } from '@perfsee/components'
@@ -127,7 +130,11 @@ const FormCookie = (props: CookieProps) => {
     <Stack horizontal verticalAlign="center" horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
       Cookie #{index + 1}
       <div>
-        <IconButton iconProps={!editing ? editIconProps : saveIconProps} onClick={!editing ? open : close} />
+        <IconButton
+          disabled={editing ? !cookie.name || !cookie.value : false}
+          iconProps={!editing ? editIconProps : saveIconProps}
+          onClick={!editing ? open : close}
+        />
         <IconButton
           iconProps={removeIconProps}
           styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
@@ -152,12 +159,16 @@ const FormCookie = (props: CookieProps) => {
           </TooltipWithEllipsis>
         </Stack>
         <Stack styles={{ root: { '> div': { width: '50%' } } }} horizontal>
-          <TooltipWithEllipsis content={cookie.domain ?? ''}>
-            <b>Domain: </b> {cookie.domain}
-          </TooltipWithEllipsis>
-          <TooltipWithEllipsis content={cookie.path ?? ''}>
-            <b>Path: </b> {cookie.path}
-          </TooltipWithEllipsis>
+          {!!cookie.domain && (
+            <TooltipWithEllipsis content={cookie.domain}>
+              <b>Domain: </b> {cookie.domain}
+            </TooltipWithEllipsis>
+          )}
+          {!!cookie.path && (
+            <TooltipWithEllipsis content={cookie.path}>
+              <b>Path: </b> {cookie.path}
+            </TooltipWithEllipsis>
+          )}
         </Stack>
         <Stack styles={{ root: { '> div': { width: '50%' } } }} horizontal>
           <div>
@@ -190,7 +201,7 @@ const FormCookie = (props: CookieProps) => {
       {header}
       <Stack horizontal tokens={NormalToken}>
         <RequiredTextField
-          value={cookie.name}
+          defaultValue={cookie.name}
           styles={TextFieldStyles}
           placeholder="Name"
           onChange={onChange}
@@ -198,22 +209,22 @@ const FormCookie = (props: CookieProps) => {
         />
         <RequiredTextField
           data-type="value"
-          value={cookie.value}
+          defaultValue={cookie.value}
           styles={TextFieldStyles}
           placeholder="Value"
           onChange={onChange}
         />
       </Stack>
       <Stack horizontal tokens={NormalToken}>
-        <RequiredTextField
-          value={cookie.domain}
+        <TextField
+          defaultValue={cookie.domain ?? undefined}
           onChange={onChange}
           styles={TextFieldStyles}
           placeholder="Domain"
           data-type="domain"
         />
-        <RequiredTextField
-          value={cookie.path}
+        <TextField
+          defaultValue={cookie.path ?? undefined}
           onChange={onChange}
           styles={TextFieldStyles}
           placeholder="Path: e.g / "
@@ -272,13 +283,18 @@ const FormCookie = (props: CookieProps) => {
   )
 }
 
+const defaultCookie = { httpOnly: true, secure: false, sameSite: 'Lax' }
+
 export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }, ref) => {
   const [cookies, setCookies] = useState<PartialCookie[]>(props.defaultCookies)
+  const [isTable, toggle] = useState<boolean>(true)
+  const [errorInfo, setErrorInfo] = useState<string>()
+
   useImperativeHandle(
     ref,
     () => ({
       getCookies: () => {
-        return cookies.filter((c) => c.name && c.domain && c.path)
+        return cookies.filter((c) => c.name && c.value) // before updating env
       },
     }),
     [cookies],
@@ -302,10 +318,46 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
   )
 
   const onAddCookie = useCallback(() => {
-    setCookies([...cookies, { httpOnly: true, secure: false, sameSite: 'Lax' }])
+    setCookies([...cookies, defaultCookie])
   }, [cookies])
 
-  const newCookies = useMemo(() => {
+  const onToggle = useCallback(() => {
+    toggle((checked) => !checked)
+  }, [toggle])
+
+  const cookieString = useMemo(() => {
+    return cookies.length ? JSON.stringify(cookies) : undefined
+  }, [cookies])
+
+  const onCookiesChange = useCallback((_e: any, value?: string) => {
+    if (!value) {
+      setCookies([])
+      return
+    }
+
+    try {
+      const newCookies = (JSON.parse(value) as CookieSchema[]).map((c) => {
+        const sameSite = capitalize(c.sameSite)
+        return {
+          ...defaultCookie,
+          ...pick(c, 'name', 'value', 'domain', 'path', 'httpOnly', 'secure'),
+          sameSite: sameSite === 'Lax' || sameSite === 'Strict' ? sameSite : 'None',
+        }
+      })
+
+      if (newCookies.some((c) => !c.name || !c.value)) {
+        setErrorInfo('Lack of name or value')
+        return
+      }
+
+      setCookies(newCookies)
+      setErrorInfo(undefined)
+    } catch (e) {
+      setErrorInfo('Invalid JSON formatting')
+    }
+  }, [])
+
+  const formCookies = useMemo(() => {
     return cookies.map((_, i) => {
       return (
         <FormCookie
@@ -323,9 +375,28 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
     <>
       <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
         <Label htmlFor="cookies">Cookies</Label>
-        <DefaultButton onClick={onAddCookie}>add Cookies</DefaultButton>
+        <Stack horizontal verticalAlign="center">
+          <Toggle
+            defaultChecked={isTable}
+            styles={{ root: { marginBottom: 0 } }}
+            onText="Table"
+            offText="Stringify"
+            onClick={onToggle}
+          />
+          {isTable && <DefaultButton onClick={onAddCookie}>add Cookies</DefaultButton>}
+        </Stack>
       </Stack>
-      {newCookies}
+      {isTable ? (
+        formCookies
+      ) : (
+        <TextField
+          defaultValue={cookieString}
+          onChange={onCookiesChange}
+          multiline={true}
+          errorMessage={errorInfo}
+          placeholder={`[{"name": "a", "value": "b", "domain": "localhost", "path": "/" }]`}
+        />
+      )}
     </>
   )
 })

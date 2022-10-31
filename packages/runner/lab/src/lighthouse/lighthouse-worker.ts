@@ -42,6 +42,7 @@ import {
   DEVICE_DESCRIPTORS,
   slimTraceData,
   getLighthouseMetricScores,
+  formatCookies,
 } from './helpers'
 import { computeMedianRun, getFCP, getNumericValue, getTTI, lighthouse, MetricsRecord } from './lighthouse-runtime'
 
@@ -193,6 +194,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const { cookies, headers, localStorageContent } = this
     const { url, deviceId, throttle, runs } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
+    const domain = new URL(url).host
 
     this.logger.info(`Will load page: ${url}`, {
       device,
@@ -243,7 +245,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           if (!page) {
             return
           }
-          await page.setCookie(...cookies)
+          await page.setCookie(...formatCookies(cookies, domain))
           await page.setViewport(device.viewport)
 
           if (localStorageContent.length) {

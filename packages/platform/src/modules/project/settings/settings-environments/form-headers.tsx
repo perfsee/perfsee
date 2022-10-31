@@ -14,7 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IComboBoxOption, ComboBox, DefaultButton, Label, Stack, IconButton, SharedColors } from '@fluentui/react'
+import {
+  IComboBoxOption,
+  ComboBox,
+  DefaultButton,
+  Label,
+  Stack,
+  IconButton,
+  SharedColors,
+  Toggle,
+  TextField,
+} from '@fluentui/react'
 import { FormEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useState, memo } from 'react'
 
 import { RequiredTextField } from '@perfsee/components'
@@ -83,7 +93,7 @@ const FormHeader = memo((props: FormHeaderProps) => {
       </Stack>
       <Stack horizontal tokens={NormalToken}>
         <RequiredTextField
-          value={header.key}
+          defaultValue={header.key}
           data-type="key"
           onChange={onChange}
           styles={{ root: { flexGrow: 2 } }}
@@ -92,7 +102,7 @@ const FormHeader = memo((props: FormHeaderProps) => {
         <RequiredTextField
           data-type="value"
           onChange={onChange}
-          value={typeof header.value === 'undefined' ? undefined : String(header.value)}
+          defaultValue={header.value}
           styles={{ root: { flexGrow: 2 } }}
           placeholder="Value"
         />
@@ -114,6 +124,8 @@ type Props = { defaultHeaders: HeaderType[] }
 
 export const FormHeaders = forwardRef((props: Props, ref) => {
   const [headers, setHeaders] = useState<Partial<HeaderType>[]>(props.defaultHeaders)
+  const [isTable, toggle] = useState<boolean>(true)
+  const [errorInfo, setErrorInfo] = useState<string>()
 
   useImperativeHandle(
     ref,
@@ -147,7 +159,45 @@ export const FormHeaders = forwardRef((props: Props, ref) => {
     setHeaders([...headers, {}])
   }, [headers])
 
-  const newHeaders = useMemo(() => {
+  const onToggle = useCallback(() => {
+    toggle((checked) => !checked)
+  }, [toggle])
+
+  const onHeadersChange = useCallback(
+    (_: any, headerString?: string) => {
+      if (!headerString) {
+        setHeaders([])
+        return
+      }
+
+      try {
+        const map = new Map(headers.map((h) => [h.key, h]))
+        const newHeaders: HeaderType[] = []
+        Object.entries<string>(JSON.parse(headerString)).forEach(([key, value]) => {
+          if (key && value) {
+            const header = map.get(key)
+            newHeaders.push({ host: HeaderHostType.Self, ...header, key, value })
+          }
+        })
+        setHeaders(newHeaders)
+        setErrorInfo(undefined)
+      } catch (e) {
+        setErrorInfo('Invalid JSON formatting')
+      }
+    },
+    [headers],
+  )
+
+  const headerString = useMemo(() => {
+    return headers.length
+      ? `{${headers
+          .filter((h) => h.key && h.value)
+          .map((h) => `"${h.key}":"${h.value!.replaceAll('"', '\\"')}"`)
+          .join(',')}}`
+      : ''
+  }, [headers])
+
+  const formHeaders = useMemo(() => {
     return headers.map((_, i) => {
       const header = headers[i]
       return (
@@ -160,9 +210,28 @@ export const FormHeaders = forwardRef((props: Props, ref) => {
     <>
       <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
         <Label htmlFor="headers">Headers</Label>
-        <DefaultButton onClick={onAddHeader}>add header</DefaultButton>
+        <Stack horizontal verticalAlign="center">
+          <Toggle
+            defaultChecked={isTable}
+            styles={{ root: { marginBottom: 0 } }}
+            onText="Table"
+            offText="Stringify"
+            onClick={onToggle}
+          />
+          {isTable && <DefaultButton onClick={onAddHeader}>add header</DefaultButton>}
+        </Stack>
       </Stack>
-      {newHeaders}
+      {isTable ? (
+        formHeaders
+      ) : (
+        <TextField
+          defaultValue={headerString}
+          onChange={onHeadersChange}
+          multiline={true}
+          errorMessage={errorInfo}
+          placeholder={`{"x-header":"a","x-other-header":"b"}`}
+        />
+      )}
     </>
   )
 })

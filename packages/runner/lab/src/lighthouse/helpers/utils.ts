@@ -150,20 +150,10 @@ export function transformHeadersToHostHeaders(headers: HeaderType[]): HostHeader
   return headersWithHost
 }
 
-export function appendCookieHeaders(cookies: CookieType[], hostHeaders: HostHeaders) {
-  cookies.forEach((c) => {
-    const cookieString = `${c.name}=${c.value}`
-
-    const host = c.domain.replace(/\/$/, '')
-    const headers = hostHeaders[host]
-    if (headers) {
-      if (headers.cookie) {
-        headers.cookie += `;${cookieString}`
-      } else {
-        headers.cookie = cookieString
-      }
-    } else {
-      hostHeaders[host] = { cookie: cookieString }
-    }
-  })
+export function formatCookies(cookies: CookieType[], domain: string) {
+  return cookies.map((c) => ({
+    ...c,
+    path: c.path || '/',
+    domain: c.domain || domain,
+  }))
 }

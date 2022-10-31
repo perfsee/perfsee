@@ -62,10 +62,10 @@ export class CookieType implements Cookie {
   @Field()
   value!: string
 
-  @Field()
+  @Field({ nullable: true })
   domain!: string
 
-  @Field()
+  @Field({ nullable: true })
   path!: string
 
   @Field()
