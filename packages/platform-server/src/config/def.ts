@@ -268,6 +268,10 @@ export interface PerfseeConfig {
      */
     pollingTimeoutSec: number
     /**
+     * timeout for job execution
+     */
+    executionTimeoutSec: number
+    /**
      * default job zone
      */
     defaultZone: string
