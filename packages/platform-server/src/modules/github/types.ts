@@ -38,10 +38,16 @@ export interface GithubPullRequest {
   head: {
     ref: string
     sha: string
+    repo: {
+      id: number
+    }
   }
   base: {
     ref: string
     sha: string
+    repo: {
+      id: number
+    }
   }
 }
 
