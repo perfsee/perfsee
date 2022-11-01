@@ -93,13 +93,15 @@ export const SettingsEnvironments = () => {
       const headerCount = item.headers.length
       const cookieCount = item.cookies.length
       return (
-        <PropertyItemWrap>
-          <EllipsisText>
-            <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
-            <CountBlock title="cookie" count={cookieCount} />
-            <CountBlock title="header" count={headerCount} />
-            <StyledDesc size="12px">{item.zone}</StyledDesc>
-          </EllipsisText>
+        <div>
+          <PropertyItemWrap>
+            <EllipsisText>
+              <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
+              <CountBlock title="cookie" count={cookieCount} />
+              <CountBlock title="header" count={headerCount} />
+              <StyledDesc size="12px">{item.zone}</StyledDesc>
+            </EllipsisText>
+          </PropertyItemWrap>
           <ButtonOperators
             item={item}
             showDisableButton={!item.disable}
@@ -109,7 +111,7 @@ export const SettingsEnvironments = () => {
             clickDisableButton={onDisableEnv}
             clickRestoreButton={onRestoreEnv}
           />
-        </PropertyItemWrap>
+        </div>
       )
     },
     [onDisableEnv, onRestoreEnv, openDeleteModal, openEditModal],
@@ -146,7 +148,7 @@ export const SettingsEnvironments = () => {
       <>
         <Separator />
         <h3>Competitor Environments</h3>
-        <List items={competitorItems} onRenderCell={onRenderCell} />
+        <SettingCards items={competitorItems} onRenderCell={onRenderCell} />
       </>
     )
   }, [competitorItems, onRenderCell])
@@ -156,7 +158,7 @@ export const SettingsEnvironments = () => {
       <>
         <Separator />
         <h3>Disabled Environments</h3>
-        <List items={disabledItems} onRenderCell={onRenderCell} />
+        <SettingCards items={disabledItems} onRenderCell={onRenderCell} />
       </>
     )
   }, [disabledItems, onRenderCell])
@@ -168,7 +170,6 @@ export const SettingsEnvironments = () => {
       </Stack>
       <SettingCards items={envItems} onRenderCell={onRenderCell} />
 
-      <List items={envItems} onRenderCell={onRenderCell} />
       {competitor}
       {disabled}
       {settingDialog}

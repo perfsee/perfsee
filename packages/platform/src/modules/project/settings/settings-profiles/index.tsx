@@ -21,6 +21,7 @@ import { useCallback, useState, useMemo } from 'react'
 import { SharedColors } from '@perfsee/dls'
 
 import { DeleteProgress, ProfileSchema, PropertyModule } from '../../../shared'
+import { SettingCards } from '../cards'
 import { getConnectionTitleByKey, getDeviceTitleByKey } from '../helper'
 import { ButtonOperators, DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
 import { StyledDesc, EllipsisText } from '../style'
@@ -97,17 +98,14 @@ export const SettingsProfiles = () => {
       const deviceTitle = getDeviceTitleByKey(devices, item.device)
 
       return (
-        <Stack
-          tokens={{ padding: '8px 0 8px 8px' }}
-          horizontal={true}
-          horizontalAlign="space-between"
-          verticalAlign="center"
-        >
-          <EllipsisText>
-            <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
-            {<StyledDesc>{deviceTitle}</StyledDesc>}
-            {<StyledDesc>{bandWidthTitle}</StyledDesc>}
-          </EllipsisText>
+        <div>
+          <Stack tokens={{ padding: '16px' }} horizontal={true} horizontalAlign="space-between" verticalAlign="center">
+            <EllipsisText>
+              <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
+              {<StyledDesc>{deviceTitle}</StyledDesc>}
+              {<StyledDesc>{bandWidthTitle}</StyledDesc>}
+            </EllipsisText>
+          </Stack>
           <ButtonOperators
             item={item}
             clickDeleteButton={openDeleteModal}
@@ -117,7 +115,7 @@ export const SettingsProfiles = () => {
             showDisableButton={!item.disable}
             showRestoreButton={item.disable}
           />
-        </Stack>
+        </div>
       )
     },
     [connections, devices, openDeleteModal, openEditModal, onDisableProfile, onRestoreProfile],
@@ -161,7 +159,7 @@ export const SettingsProfiles = () => {
           Create Profile
         </PrimaryButton>
       </Stack>
-      <List items={normalItems} onRenderCell={onRenderCell} />
+      <SettingCards items={normalItems} onRenderCell={onRenderCell} />
       {disabledItems.length > 0 && (
         <>
           <Separator />
