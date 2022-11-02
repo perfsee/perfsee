@@ -14,6 +14,7 @@
   "devDependencies": {
     "@perfsee/bundle-analyzer": "workspace:*",
     "@perfsee/flamechart": "workspace:*",
-    "@perfsee/plugin-utils": "workspace:*"
+    "@perfsee/plugin-utils": "workspace:*",
+    "@puppeteer/replay": "^2.0.2"
   }
 }

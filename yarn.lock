@@ -5555,6 +5555,7 @@ __metadata:
     "@perfsee/job-runner-shared": "workspace:*"
     "@perfsee/shared": "workspace:*"
     "@perfsee/tracehouse": "workspace:*"
+    "@puppeteer/replay": ^2.0.2
     "@types/fluent-ffmpeg": ^2.1.20
     fluent-ffmpeg: ^2.1.2
     jimp: ^0.16.1
@@ -5821,6 +5822,7 @@ __metadata:
     "@perfsee/flamechart": "workspace:*"
     "@perfsee/plugin-utils": "workspace:*"
     "@perfsee/utils": "workspace:*"
+    "@puppeteer/replay": ^2.0.2
     lodash: ^4.17.21
   languageName: unknown
   linkType: soft
@@ -5953,6 +5955,24 @@ __metadata:
   version: 1.1.0
   resolution: "@protobufjs/utf8@npm:1.1.0"
   checksum: f9bf3163d13aaa3b6f5e6fbf37a116e094ea021c0e1f2a7ccd0e12a29e2ce08dafba4e8b36e13f8ed7397e1591610ce880ed1289af4d66cf4ace8a36a9557278
+  languageName: node
+  linkType: hard
+
+"@puppeteer/replay@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@puppeteer/replay@npm:2.0.2"
+  dependencies:
+    cli-table3: 0.6.3
+    colorette: 2.0.19
+    yargs: 17.6.0
+  peerDependencies:
+    puppeteer: ">=18.0.5"
+  peerDependenciesMeta:
+    puppeteer:
+      optional: true
+  bin:
+    replay: lib/cli.js
+  checksum: 0785a8eb0d6517d95ff9daaf15d91cde2db95a065bd68754f411d5735d4cd9a4841b119e4aa59843507cc3f3bea9197f24ef83a326027fcfa205a7cc87483700
   languageName: node
   linkType: hard
 
@@ -9846,6 +9866,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cli-table3@npm:0.6.3":
+  version: 0.6.3
+  resolution: "cli-table3@npm:0.6.3"
+  dependencies:
+    "@colors/colors": 1.5.0
+    string-width: ^4.2.0
+  dependenciesMeta:
+    "@colors/colors":
+      optional: true
+  checksum: 09897f68467973f827c04e7eaadf13b55f8aec49ecd6647cc276386ea660059322e2dd8020a8b6b84d422dbdd619597046fa89cbbbdc95b2cea149a2df7c096c
+  languageName: node
+  linkType: hard
+
 "cli-truncate@npm:^0.2.1":
   version: 0.2.1
   resolution: "cli-truncate@npm:0.2.1"
@@ -9927,6 +9960,17 @@ __metadata:
     strip-ansi: ^6.0.0
     wrap-ansi: ^7.0.0
   checksum: ce2e8f578a4813806788ac399b9e866297740eecd4ad1823c27fd344d78b22c5f8597d548adbcc46f0573e43e21e751f39446c5a5e804a12aace402b7a315d7f
+  languageName: node
+  linkType: hard
+
+"cliui@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "cliui@npm:8.0.1"
+  dependencies:
+    string-width: ^4.2.0
+    strip-ansi: ^6.0.1
+    wrap-ansi: ^7.0.0
+  checksum: 79648b3b0045f2e285b76fb2e24e207c6db44323581e421c3acbd0e86454cba1b37aea976ab50195a49e7384b871e6dfb2247ad7dec53c02454ac6497394cb56
   languageName: node
   linkType: hard
 
@@ -10093,7 +10137,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:^2.0.10, colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.17":
+"colorette@npm:2.0.19, colorette@npm:^2.0.10, colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.17":
   version: 2.0.19
   resolution: "colorette@npm:2.0.19"
   checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
@@ -27259,6 +27303,21 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: b05a9467937172e01a4af7a7ad4361a22ee510cd12d1d5a3ad3b4c2e57eb8c35ca94ee22e4bdfbb40fe693fbf8000771e41824f77f6b224f1496c57f20f192b6
+  languageName: node
+  linkType: hard
+
+"yargs@npm:17.6.0":
+  version: 17.6.0
+  resolution: "yargs@npm:17.6.0"
+  dependencies:
+    cliui: ^8.0.1
+    escalade: ^3.1.1
+    get-caller-file: ^2.0.5
+    require-directory: ^2.1.1
+    string-width: ^4.2.3
+    y18n: ^5.0.5
+    yargs-parser: ^21.0.0
+  checksum: 604bdb4a6395a870540d2f3fea083c8e28441f12da8fd05b172b1e68480f00ed73d76be4a05fac19de9bf55ec7729b41e81cf555cccaed700aa192e4fff64872
   languageName: node
   linkType: hard
 

@@ -17,6 +17,7 @@ limitations under the License.
 import { promises as fs } from 'fs'
 import { dirname, join } from 'path'
 
+import { createRunner } from '@puppeteer/replay'
 // @ts-expect-error
 import defaultConfig from 'lighthouse/lighthouse-core/fraggle-rock/config/default-config'
 import { v4 as uuid } from 'uuid'
@@ -26,10 +27,8 @@ import { E2EJobPayload } from '@perfsee/server-common'
 import { CookieType, LighthouseScoreMetric, MetricKeyType, MetricType, RequestSchema } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
-import { createSandbox } from './e2e-runtime/sandbox'
+import { LighthouseRunnerExtension } from './e2e-runtime/runner-extension'
 import { ScreenRecorder } from './e2e-runtime/screen-recorder'
-import { LighthouseFlow } from './e2e-runtime/wrapper/flow'
-import { puppeteerNodeWrapper } from './e2e-runtime/wrapper/puppeteer'
 import {
   createBrowser,
   HostHeaders,
@@ -42,6 +41,7 @@ import {
   getNetworkRecords,
   NetworkRecord,
 } from './helpers'
+import './helpers/puppeteer-patch'
 
 export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
   protected headers!: HostHeaders
@@ -75,25 +75,30 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
     screenRecorder.record(page)
 
-    const flow = new LighthouseFlow(page, {
-      name: 'e2e flow',
-      config: {
-        ...defaultConfig,
-        settings: {
-          ...defaultConfig.settings,
-          screenEmulation: { disabled: true, width: device.viewport.width, height: device.viewport.height },
-          emulatedUserAgent: device.userAgent,
-          throttling: {
-            cpuSlowdownMultiplier: device.cpuSlowdownMultiplier,
-            downloadThroughputKbps: throttle.download ? throttle.download / 125 : 40000,
-            uploadThroughputKbps: throttle.upload ? throttle.upload / 125 : 40000,
-            requestLatencyMs: throttle.latency ?? 20,
-            throughputKbps: throttle.download ? throttle.download / 125 : 40000,
-            rttMs: throttle.rtt ?? 0,
+    const runnerExtension = new LighthouseRunnerExtension(
+      browser,
+      page,
+      { timeout: 1000 * 60 * 5 },
+      {
+        name: 'e2e flow',
+        config: {
+          ...defaultConfig,
+          settings: {
+            ...defaultConfig.settings,
+            screenEmulation: { disabled: true, width: device.viewport.width, height: device.viewport.height },
+            emulatedUserAgent: device.userAgent,
+            throttling: {
+              cpuSlowdownMultiplier: device.cpuSlowdownMultiplier,
+              downloadThroughputKbps: throttle.download ? throttle.download / 125 : 40000,
+              uploadThroughputKbps: throttle.upload ? throttle.upload / 125 : 40000,
+              requestLatencyMs: throttle.latency ?? 20,
+              throughputKbps: throttle.download ? throttle.download / 125 : 40000,
+              rttMs: throttle.rtt ?? 0,
+            },
           },
         },
       },
-    })
+    )
 
     // --- collect network requests ---
     const client = await page.target().createCDPSession()
@@ -127,48 +132,102 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     client.on('Fetch.requestPaused', requestHandler)
     await client.send('Fetch.enable', { patterns: [{ urlPattern: '*' }] })
 
-    const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
-      page,
-      browser,
-      flow,
-      ignoreEmulate: true,
-    })
-
-    const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
-
-    // create sandbox
-    const sandbox = createSandbox(
-      {
-        require: (m: string) => {
-          return m === 'puppeteer' ? wrappedPuppeteer : undefined
-        },
-        page: wrappedPage,
-        flow: {
-          startStep: (name: string) => {
-            if (typeof name !== 'string' || name.trim() === '') {
-              throw new Error(`Invalid step name: ${name}`)
-            }
-            return flow.startStep(name)
-          },
-          endStep: () => {
-            return flow.endStep()
-          },
-        },
-      },
-      (method, message) => this.logger.info(`[From E2E Script] ${message} - [${method}]`),
-    )
-
     // run
     let failedReason
     const screencastName = `screencast/${uuid()}.mp4`
     let screencastStorageKey
     let userFlowResult
+    let userFlowArtifacts: LH.UserFlow.FlowArtifacts | undefined
     const startTime = Date.now()
     try {
       this.logger.info('Start run E2E script')
-      await sandbox.run(this.payload.e2eScript!)
+      const runner = await createRunner(
+        {
+          title: 'Recording 11/2/2022 at 3:33:20 PM',
+          steps: [
+            {
+              type: 'setViewport',
+              width: 1892,
+              height: 781,
+              deviceScaleFactor: 1,
+              isMobile: false,
+              hasTouch: false,
+              isLandscape: false,
+            },
+            {
+              type: 'navigate',
+              url: 'https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9',
+              assertedEvents: [
+                {
+                  type: 'navigation',
+                  url: 'https://wiki.biligame.com/ys/%E5%8E%9F%E7%A5%9E%E5%9C%B0%E5%9B%BE%E5%B7%A5%E5%85%B7_%E5%85%A8%E5%9C%B0%E6%A0%87%E4%BD%8D%E7%BD%AE%E7%82%B9',
+                  title: '原神地图工具_全地标位置点',
+                },
+              ],
+            },
+            {
+              type: 'click',
+              target: 'main',
+              selectors: [
+                ['#map-menu > div.mapMenu > div.menu-search-box > input'],
+                ['xpath///*[@id="map-menu"]/div[3]/div[2]/input'],
+              ],
+              offsetY: 16.2734375,
+              offsetX: 52,
+            },
+            {
+              type: 'change',
+              value: '普通的宝箱',
+              selectors: [
+                ['#map-menu > div.mapMenu > div.menu-search-box > input'],
+                ['xpath///*[@id="map-menu"]/div[3]/div[2]/input'],
+              ],
+              target: 'main',
+            },
+            {
+              type: 'click',
+              target: 'main',
+              frame: [],
+              selectors: [
+                ['#menuList > div:nth-child(7) > div.order-h5 > span'],
+                ['xpath///*[@id="menuList"]/div[7]/div[1]/span'],
+              ],
+              offsetX: 20,
+              offsetY: 10,
+            },
+            {
+              type: 'click',
+              target: 'main',
+              selectors: [
+                ['#menuList > div:nth-child(7) > div.items-wrap > div:nth-child(4) > span.catTit > span'],
+                ['xpath///*[@id="menuList"]/div[7]/div[2]/div[4]/span[1]/span'],
+              ],
+              offsetX: 22.6640625,
+              offsetY: 12.5546875,
+            },
+            {
+              type: 'click',
+              selectors: [
+                ['aria/放大'],
+                [
+                  '#map3 > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control > a.leaflet-control-zoom-in',
+                ],
+                ['xpath///*[@id="map3"]/div[2]/div[4]/div[1]/a[1]'],
+              ],
+              offsetX: 0,
+              offsetY: 0,
+              frame: [],
+              target: 'main',
+            },
+          ],
+          timeout: 10000,
+        } as any,
+        runnerExtension,
+      )
+
+      await runner.run()
     } catch (err) {
-      failedReason = 'JavaScript Error: ' + (err instanceof Error ? err.message : err)
+      failedReason = 'E2E script Error: ' + (err instanceof Error ? err.stack : err)
       this.logger.error('E2E script ' + failedReason)
     }
     const finishTime = Date.now()
@@ -176,9 +235,10 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     this.logger.info('E2E Script finished')
 
     try {
-      userFlowResult = await flow.endFlow()
+      userFlowResult = await runnerExtension.createFlowResult()
+      userFlowArtifacts = runnerExtension.createArtifactsJson()
     } catch (err) {
-      this.logger.error('Failed to end flow', { error: err })
+      this.logger.error('Failed to create flow result', { error: err })
     }
 
     if (screenRecorder.isStarted) {
@@ -202,7 +262,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
       }
     }
 
-    if (!userFlowResult) {
+    if (!userFlowResult || !userFlowArtifacts) {
       return {
         failedReason: 'no user flow data',
         screencastStorageKey,
@@ -210,11 +270,12 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     }
 
     const metrics = this.averageMetrics(
-      userFlowResult.map(({ lhr }) => {
+      userFlowResult.steps.map(({ lhr }) => {
         return this.getMetrics(lhr)
       }),
     )
-    userFlowResult = userFlowResult.map(({ lhr, artifacts, stepName }) => {
+    userFlowResult = userFlowResult.steps.map(({ lhr, name }, i) => {
+      const artifacts = userFlowArtifacts!.gatherSteps[i].artifacts
       // format overview render timeline data
       // @ts-expect-error
       const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
@@ -227,7 +288,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
       lhr.audits['network-requests'] = {}
 
       return {
-        stepName,
+        stepName: name,
         stepUrl: lhr.requestedUrl,
         stepMode: lhr.gatherMode,
         lhrAudit: lhr.audits,
