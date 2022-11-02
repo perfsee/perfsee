@@ -122,6 +122,7 @@ export class JobController {
         job: {
           jobId: job.id,
           jobType: job.jobType,
+          timeout: this.config.job.executionTimeoutSec,
           payload,
         },
         set: runnerUpdates,

@@ -86,6 +86,7 @@ export const getDefaultPerfseeConfig: () => PerfseeConfig = () => ({
     pollingLimit: 10,
     pollingQueueLimit: 10,
     pollingTimeoutSec: 5,
+    executionTimeoutSec: 1800,
     defaultZone: 'China',
     zones: ['China'],
   },

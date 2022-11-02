@@ -143,16 +143,16 @@ perfsee.project.externalProviders = ['github']
 // ##                   8. Job settings                         ##
 // ###############################################################
 // # maximum job pulling requests per instance can handle concurrently
-// # `process.env.JOB_POLLING_LIMIT` if set
 // perfsee.job.pollingLimit = 10
 
 // # maximum job pulling requests in queue per instance, if reach polling limit
-// # `process.env.JOB_POLLING_QUEUE_LIMIT` if set
 // perfsee.job.pollingQueueLimit = 10
 
 // # timeout for job pulling requests
-// # `process.env.JOB_POLLING_TIMEOUT` if set
 // perfsee.job.pollingTimeoutSec = 5
+
+// # timeout for job execution
+// perfsee.job.executionTimeoutSec = 30 * 60
 
 // ###############################################################
 // ##                  9. Runner settings                       ##
