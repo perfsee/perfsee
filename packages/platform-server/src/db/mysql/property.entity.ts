@@ -76,6 +76,9 @@ export class CookieType implements Cookie {
 
   @Field({ nullable: true })
   expire!: string
+
+  @Field({ defaultValue: 'Lax' })
+  sameSite!: 'Strict' | 'Lax' | 'None'
 }
 
 @ObjectType({ description: 'project page asset' })

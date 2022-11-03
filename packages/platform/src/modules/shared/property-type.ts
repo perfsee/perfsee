@@ -22,6 +22,9 @@ export type EnvSchema = PropertyQuery['project']['environments'][0]
 export type ConnectionType = SettingPropertyQuery['connections'][0]
 export type DeviceType = SettingPropertyQuery['devices'][0]
 export type PageRelation = PageRelationsQuery['project']['pageRelations'][0]
+export type CookieSchema = PropertyQuery['project']['environments'][0]['cookies'][0]
+export type HeaderSchema = PropertyQuery['project']['environments'][0]['headers'][0]
+export type LocalStorageSchema = NonNullable<PropertyQuery['project']['environments'][0]['localStorage']>[0]
 
 export type UpdatePagePayload = {
   page: Partial<PageSchema>

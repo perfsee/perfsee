@@ -484,6 +484,7 @@ type CookieType {
   httpOnly: Boolean!
   secure: Boolean!
   expire: String
+  sameSite: String!
 }
 
 """project page asset"""
@@ -1353,6 +1354,7 @@ input CookieInputType {
   httpOnly: Boolean!
   secure: Boolean!
   expire: String
+  sameSite: String = "Lax"
 }
 
 input HeaderInputType {

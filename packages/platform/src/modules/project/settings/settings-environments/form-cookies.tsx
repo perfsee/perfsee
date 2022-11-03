@@ -30,11 +30,11 @@ import { FormEvent, forwardRef, useMemo, useState, useCallback, useImperativeHan
 
 import { RequiredTextField, TooltipWithEllipsis, useToggleState } from '@perfsee/components'
 import { lighten, SharedColors } from '@perfsee/dls'
-import { CookieType } from '@perfsee/shared'
+import { CookieSchema } from '@perfsee/platform/modules/shared'
 
 import { NormalToken, TextFieldStyles } from '../style'
 
-export type PartialCookie = Partial<CookieType>
+export type PartialCookie = Partial<CookieSchema>
 
 type CookieProps = {
   cookie: PartialCookie
@@ -272,7 +272,7 @@ const FormCookie = (props: CookieProps) => {
   )
 }
 
-export const FormCookies = forwardRef((props: { defaultCookies: CookieType[] }, ref) => {
+export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }, ref) => {
   const [cookies, setCookies] = useState<PartialCookie[]>(props.defaultCookies)
   useImperativeHandle(
     ref,
@@ -302,7 +302,7 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieType[] }, 
   )
 
   const onAddCookie = useCallback(() => {
-    setCookies([...cookies, { httpOnly: true, secure: false }])
+    setCookies([...cookies, { httpOnly: true, secure: false, sameSite: 'Lax' }])
   }, [cookies])
 
   const newCookies = useMemo(() => {
