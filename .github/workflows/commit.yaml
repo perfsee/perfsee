@@ -65,6 +65,7 @@ jobs:
       - name: Test
         run: yarn test:concurrent
       - name: Upload coverage
+        if: ${{ matrix.host == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v3.1.1
         with:
           name: test-coverage
@@ -72,10 +73,11 @@ jobs:
 
   integration-test:
     runs-on: ubuntu-latest
-    container: node:16-bullseye
     services:
       redis:
         image: redis
+        ports:
+          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -86,6 +88,8 @@ jobs:
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
           MYSQL_DATABASE: 'perfsee_testing'
+        ports:
+          - 3306:3306
         options: >-
           --health-cmd "mysqladmin status"
           --health-interval 10s
@@ -101,9 +105,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Test
-        env:
-          REDIS_HOST: redis
-          MYSQL_HOST: mysql
         run: |
           yarn codegen
           yarn test:serial
