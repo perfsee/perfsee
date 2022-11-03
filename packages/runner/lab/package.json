@@ -9,6 +9,7 @@
     "@perfsee/job-runner-shared": "workspace:*",
     "@perfsee/shared": "workspace:*",
     "@perfsee/tracehouse": "workspace:*",
+    "@puppeteer/replay": "^2.0.2",
     "fluent-ffmpeg": "^2.1.2",
     "jimp": "^0.16.1",
     "lighthouse": "^9.6.3",
