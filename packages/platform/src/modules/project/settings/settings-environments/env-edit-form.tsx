@@ -28,9 +28,8 @@ import { useModuleState } from '@sigi/react'
 import { useCallback, useState, useRef } from 'react'
 
 import { IconWithTips, RequiredTextField } from '@perfsee/components'
-import { CookieType, HeaderType, LocalStorageType } from '@perfsee/shared'
 
-import { EnvSchema, PropertyModule } from '../../../shared'
+import { CookieSchema, EnvSchema, PropertyModule, LocalStorageSchema, HeaderSchema } from '../../../shared'
 
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
@@ -53,9 +52,9 @@ export const EnvEditForm = (props: FromProps) => {
   })
 
   const nameRef = useRef<ITextField>({ value: '' } as any)
-  const headersRef = useRef<{ getHeaders: () => HeaderType[] }>()
-  const cookiesRef = useRef<{ getCookies: () => CookieType[] }>()
-  const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageType[] }>()
+  const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
+  const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
+  const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageSchema[] }>()
   const [isCompetitor, setAsCompetitor] = useState<boolean>(!!defaultEnv?.isCompetitor)
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
@@ -102,7 +101,7 @@ export const EnvEditForm = (props: FromProps) => {
     <Stack tokens={{ childrenGap: 8 }}>
       <RequiredTextField id="name" label="Environment name" defaultValue={defaultEnv?.name} componentRef={nameRef} />
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
-      <FormCookies defaultCookies={(defaultEnv?.cookies ?? []) as CookieType[]} ref={cookiesRef} />
+      <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">

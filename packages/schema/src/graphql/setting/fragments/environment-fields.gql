@@ -9,6 +9,7 @@ fragment environmentFields on Environment {
       httpOnly
       secure
       expire
+      sameSite
     }
     headers {
       key
