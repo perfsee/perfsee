@@ -18,13 +18,13 @@ export function DonutChart({ centerNode, showEmpty, showLegend, data, total }: D
 
   const parts = useMemo(() => {
     const minWeight = 0.02
-    const maxWeight = 1 - (data.length - 1) * minWeight
+    const weights = data.map(({ value }) => (showEmpty ? Math.max(value / total, minWeight) : value / total))
+    const totalWeight = weights.reduce((p, c) => p + c, 0)
 
     let offset = 0
 
-    return data.map(({ key, value, color }) => {
-      const take = showEmpty ? Math.min(Math.max(value / total, minWeight), maxWeight) : value / total
-
+    return data.map(({ key, color }, i) => {
+      const take = weights[i] / totalWeight
       const circle = (
         <circle
           key={key}
