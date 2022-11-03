@@ -29,7 +29,7 @@ import { v4 as uuid } from 'uuid'
 import { PerfseeReportStats } from '@perfsee/bundle-analyzer'
 import { PrettyBytes } from '@perfsee/utils'
 
-import { BUILD_ENV } from './build-env'
+import { getBuildEnv } from './build-env'
 import { CommonPluginOptions } from './options'
 
 function encodeStatsJson(stats: PerfseeReportStats) {
@@ -84,7 +84,7 @@ export class BuildUploadClient {
   ) {}
 
   async uploadBuild(stats: PerfseeReportStats) {
-    if (!BUILD_ENV.upload) {
+    if (!getBuildEnv().upload) {
       console.info(chalk.yellow('[perfsee] found no upload flag, skip uploading build.'))
       return
     }
@@ -175,8 +175,8 @@ export class BuildUploadClient {
   }
 
   private async uploadPack(packPath: string) {
-    const git = await BUILD_ENV.git
-    if (!git.host) {
+    const git = await getBuildEnv().git
+    if (!git?.host) {
       console.error(chalk.red('[perfsee] Did not find relative codebase host for current project.'))
       return
     }
@@ -204,7 +204,7 @@ export class BuildUploadClient {
       })
       .join('&')
 
-    const res = await fetch(`${BUILD_ENV.platform}/api/v1/artifacts?${query}`, {
+    const res = await fetch(`${getBuildEnv().platform}/api/v1/artifacts?${query}`, {
       method: 'POST',
       body: stream,
       headers: {

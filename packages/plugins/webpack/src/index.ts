@@ -26,7 +26,7 @@ import {
   BuildUploadClient,
   getAllPackagesVersions,
   generateReports,
-  BUILD_ENV,
+  getBuildEnv,
   catchModuleVersionFromRequest,
 } from '@perfsee/plugin-utils'
 
@@ -95,7 +95,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
       compiler.resolverFactory.hooks.resolver.for('normal').tap(PerfseePlugin.PluginName, (resolver) => {
         try {
           resolver.hooks.result.tap(PerfseePlugin.PluginName, (request) => {
-            catchModuleVersionFromRequest(request, this.modules, process.cwd(), BUILD_ENV.pwd)
+            catchModuleVersionFromRequest(request, this.modules, process.cwd(), getBuildEnv().pwd)
           })
         } catch (e) {
           console.error('failed when applying module version catcher: ', e)
@@ -118,8 +118,8 @@ export class PerfseePlugin implements WebpackPluginInstance {
   // @internal
   setStats(stats: Stats) {
     this.stats = stats.toJson(webpackStatsToJsonOptions) as any
-    this.stats.packageVersions = getAllPackagesVersions(BUILD_ENV.pwd, this.modules)
-    this.stats.repoPath = BUILD_ENV.pwd
+    this.stats.packageVersions = getAllPackagesVersions(getBuildEnv().pwd, this.modules)
+    this.stats.repoPath = getBuildEnv().pwd
     this.stats.buildPath = process.cwd()
     this.stats.buildTool = BundleToolkit.Webpack
 

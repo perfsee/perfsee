@@ -18,7 +18,7 @@ import chalk from 'chalk'
 
 import { calcBundleScore, StatsParser, PerfseeReportStats } from '@perfsee/bundle-analyzer'
 
-import { BUILD_ENV } from './build-env'
+import { getBuildEnv } from './build-env'
 import { formatAuditResult } from './formater'
 import { CommonPluginOptions } from './options'
 import { startServer } from './viewer'
@@ -40,7 +40,7 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
     const score = calcBundleScore(report.entryPoints)
 
     // directly output formatted content in CI
-    if (BUILD_ENV.isCi) {
+    if (getBuildEnv().isCi) {
       console.info(formatAuditResult(report))
 
       if (typeof score === 'number') {

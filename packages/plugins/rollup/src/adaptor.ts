@@ -18,7 +18,7 @@ import { partition, union } from 'lodash'
 import { OutputAsset, OutputBundle, OutputChunk, PluginContext } from 'rollup'
 
 import { BundleModule, BundleToolkit, PerfseeReportStats } from '@perfsee/bundle-analyzer'
-import { BUILD_ENV } from '@perfsee/plugin-utils'
+import { getBuildEnv } from '@perfsee/plugin-utils'
 
 import { recursivelyFindEntryChunks } from './util'
 
@@ -168,7 +168,7 @@ export function rollupOutput2WebpackStats(this: PluginContext, outputBundle: Out
 
   return {
     packageVersions: [],
-    repoPath: BUILD_ENV.pwd,
+    repoPath: getBuildEnv().pwd,
     buildPath: process.cwd(),
     _showErrors: false,
     _showWarnings: false,

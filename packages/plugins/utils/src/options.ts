@@ -18,7 +18,7 @@ import { merge } from 'lodash'
 
 import { BundleResult } from '@perfsee/bundle-analyzer'
 
-import { BUILD_ENV } from './build-env'
+import { getBuildEnv } from './build-env'
 import { ServerOptions } from './viewer'
 
 export interface CommonPluginOptions {
@@ -104,7 +104,7 @@ export function getDefaultOptions(): Required<
 > {
   return {
     artifactName: 'main',
-    enableAudit: !!process.env.PERFSEE_AUDIT || BUILD_ENV.isCi,
+    enableAudit: !!process.env.PERFSEE_AUDIT || getBuildEnv().isCi,
     token: process.env.PERFSEE_TOKEN!,
     toolkit: 'webpack',
   }
