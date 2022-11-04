@@ -126,15 +126,22 @@ export const SnapshotHeader = memo(function SnapshotHeader(props: Props) {
 
   return (
     <div style={{ width: '100%' }}>
-      <Stack styles={{ root: { marginBottom: '16px' } }} horizontal verticalAlign="center">
-        <SnapshotKey>{snapshotTitle}</SnapshotKey>
-        <SnapshotHeaderTime>
-          <ClockCircleOutlined />
-          {dayjs(report.createdAt).format('MMM D, YYYY h:mm A')}
-          {detail?.lighthouseVersion ? ` · Lighthouse v${detail.lighthouseVersion}` : undefined}
-        </SnapshotHeaderTime>
+      <Stack
+        styles={{ root: { marginBottom: '16px' } }}
+        horizontal
+        verticalAlign="center"
+        horizontalAlign="space-between"
+      >
+        <div>
+          <SnapshotKey>{snapshotTitle}</SnapshotKey>
+          <SnapshotHeaderTime>
+            <ClockCircleOutlined />
+            {dayjs(report.createdAt).format('MMM D, YYYY h:mm A')}
+            {detail?.lighthouseVersion ? ` · Lighthouse v${detail.lighthouseVersion}` : undefined}
+          </SnapshotHeaderTime>
+        </div>
       </Stack>
-      <Stack horizontal horizontalAlign="space-between">
+      <Stack styles={{ root: { marginBottom: '16px' } }} horizontal horizontalAlign="space-between">
         <Stack horizontal tokens={{ childrenGap: 12 }}>
           <Select
             onClick={fetchReports}

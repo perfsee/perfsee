@@ -21,7 +21,7 @@ import { v4 as uuid } from 'uuid'
 
 import { extractBundleFromStream, readJSONFile, readStatsFile, trimModuleName } from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
-import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult } from '@perfsee/server-common'
+import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
 import { FlameChartData, FlameChartDiagnostic } from '@perfsee/shared'
 import { generateSourceCoverageTreemapData, GenerateSourceCoverageTreemapDataOptions } from '@perfsee/source-coverage'
 
@@ -34,6 +34,23 @@ try {
   console.warn('@perfsee/ori module is not available')
 }
 
+interface BundleMeta {
+  files: {
+    fileName: string
+    bundleId: string
+    diskPath: string
+  }[]
+  bundles: {
+    [k: string]: {
+      moduleMap: Record<string, string>
+      dir: string
+      hash: string
+      repoPath: string | undefined
+      buildPath: string | undefined
+    }
+  }
+}
+
 const KEY_EVENT_NAMES = new Set(['Profile', 'thread_name', 'ProfileChunk'])
 interface ProfileAnalyzeResult {
   diagnostics: FlameChartDiagnostic[]
@@ -43,7 +60,7 @@ interface ProfileAnalyzeResult {
 export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private pwd!: string
   private bundleMetaPath!: string
-  private readonly tracePaths: (string | null)[] = []
+  private tracePath: string | null = null
 
   protected async before() {
     if (!analyseProfile) {
@@ -52,7 +69,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
 
     const { payload } = this
 
-    this.pwd = join(process.cwd(), 'tmp', payload.projectId.toString(), payload.hash.slice(0, 8))
+    this.pwd = join(process.cwd(), 'tmp', payload.projectId.toString(), uuid())
     await mkdir(this.pwd, { recursive: true })
 
     await Promise.all([this.prepareArtifacts(), this.prepareTraces()])
@@ -61,64 +78,36 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   protected async work() {
     const { payload } = this
 
-    const sourceCoverageResult = await this.SourceCoverage()
+    const sourceCoverageStorageKey = await this.SourceCoverage()
 
-    const result = await Promise.allSettled(
-      this.tracePaths.map(async (tracePath, i) => {
-        // nullable for failed downloading
-        if (tracePath) {
-          const snapshotReport = payload.snapshotReports[i]
+    const startTime = Date.now()
+    this.logger.info(`Start analyze profile of snapshot report.`)
+    const analyzeResultStr = await analyseProfile!(this.tracePath!, this.bundleMetaPath, false)
+    this.logger.info(`Profile analysis finished, timeSpent=${Date.now() - startTime}ms].`)
 
-          const startTime = Date.now()
-          this.logger.info(`Start analyze profile of snapshot report [id=${snapshotReport.id}].`)
-          const analyzeResultStr = await analyseProfile!(tracePath, this.bundleMetaPath, false)
-          this.logger.info(
-            `Profile analysis finished [id=${snapshotReport.id}, timeSpent=${Date.now() - startTime}ms].`,
-          )
+    const { diagnostics, profile } = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
+    const flameChartStorageName = `flame-charts/${uuid()}.json`
+    this.logger.info(`Uploading analysis flame chart data to artifacts. [name=${flameChartStorageName}]`)
+    const flameChartStorageKey = await this.client.uploadArtifact(
+      flameChartStorageName,
+      Buffer.from(JSON.stringify(profile), 'utf-8'),
+    )
+    this.logger.info(`Finished uploading. [key=${flameChartStorageKey}]`)
 
-          const { diagnostics, profile } = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
-          const flameChartStorageName = `flame-charts/${uuid()}.json`
-          this.logger.info(`Uploading analysis flame chart data to artifacts. [name=${flameChartStorageName}]`)
-          const flameChartStorageKey = await this.client.uploadArtifact(
-            flameChartStorageName,
-            Buffer.from(JSON.stringify(profile), 'utf-8'),
-          )
-          this.logger.info(`Finished uploading. [key=${flameChartStorageKey}]`)
-
-          const sourceCoverageStorageKey = sourceCoverageResult.find(
-            (item) => item.reportId === snapshotReport.id,
-          )?.sourceCoverageStorageKey
-
-          return {
-            reportId: snapshotReport.id,
-            diagnostics,
-            flameChartStorageKey,
-            sourceCoverageStorageKey,
-          }
-        }
-      }),
-    ).then((settledList) => {
-      return settledList
-        .map((settledResult) => {
-          if (settledResult.status === 'fulfilled') {
-            return settledResult.value
-          } else {
-            this.logger.error('Failed to analyze profile', settledResult.reason)
-            return undefined
-          }
-        })
-        .filter(Boolean) as SourceAnalyzeJobResult['result']
-    })
+    const result = {
+      projectId: payload.projectId,
+      reportId: payload.reportId,
+      artifactIds: payload.snapshotReport.artifactIds ?? [],
+      diagnostics: diagnostics,
+      flameChartStorageKey: flameChartStorageKey,
+      sourceCoverageStorageKey: sourceCoverageStorageKey,
+    }
 
     this.logger.info('Return source analysis result', { result })
 
     this.updateJob({
       type: JobType.SourceAnalyze,
-      payload: {
-        projectId: payload.projectId,
-        hash: payload.hash,
-        result: result ?? [],
-      },
+      payload: result,
     })
   }
 
@@ -133,44 +122,41 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private async prepareArtifacts() {
     this.logger.info('Downloading bundle artifacts.')
     const pwd = this.pwd
-    const artifacts = this.payload.artifacts
 
-    const statsPathList = await Promise.allSettled(
-      artifacts.map(async (artifact, i) => {
-        const readStream = await this.client.getArtifactStream(artifact)
-        this.logger.verbose(`Downloading ${artifact} now.`)
-        const path = await extractBundleFromStream(readStream, join(pwd, `artifact-${i}`))
-        this.logger.verbose(`Downloading ${artifact} finished.`)
-        return path
+    const statsList = await Promise.allSettled(
+      this.payload.artifacts.map(async ({ id: artifactId, buildKey, hash }) => {
+        const readStream = await this.client.getArtifactStream(buildKey)
+        this.logger.verbose(`Downloading ${[artifactId, buildKey]} now.`)
+        const statsPath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
+        this.logger.verbose(`Downloading ${[artifactId, buildKey]} finished.`)
+        return { artifactId, hash, statsPath }
       }),
     ).then((list) => {
-      const result: string[] = []
-      list.forEach((item, i) => {
+      const result = []
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i]
         if (item.status === 'fulfilled') {
           result.push(item.value)
         } else {
-          this.logger.error(`Failed to download artifact ${artifacts[i]}`, item.reason)
+          this.logger.error(`Failed to download artifact ${this.payload.artifacts[i]}`, item.reason)
         }
-      })
+      }
       return result
     })
 
-    const files: Array<{ fileName: string; diskPath: string; statsIndex: number }> = []
-    const bundles: Array<{
-      moduleMap: Record</* moduleId */ string, /* moduleName */ string>
-      repoPath?: string
-      buildPath?: string
-    }> = []
+    const files: BundleMeta['files'] = []
+    const bundles: BundleMeta['bundles'] = {}
 
-    statsPathList.forEach((path, i) => {
+    for (const { artifactId, hash, statsPath } of statsList) {
       const moduleMap: Record<string, string> = {}
-      const baseDir = parse(path).dir
-      const stats = readStatsFile(path)
+      const stats = readStatsFile(statsPath)
+      const baseDir = parse(statsPath).dir
+
       stats.assets?.forEach((asset) => {
         if (asset.name.endsWith('.js')) {
           files.push({
             fileName: asset.name,
-            statsIndex: i,
+            bundleId: artifactId.toString(),
             diskPath: join(baseDir, asset.name),
           })
         }
@@ -184,18 +170,20 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
         })
       })
 
-      bundles.push({
+      bundles[artifactId] = {
         moduleMap,
+        dir: baseDir,
         repoPath: stats.repoPath,
+        hash,
         buildPath:
           stats.buildPath && stats.repoPath && stats.buildPath !== stats.repoPath
             ? relative(stats.repoPath, stats.buildPath)
             : undefined,
-      })
-    })
+      }
+    }
 
     const bundleMetaPath = join(pwd, 'bundle-meta.json')
-    await writeFile(bundleMetaPath, JSON.stringify({ files, bundles }))
+    await writeFile(bundleMetaPath, JSON.stringify({ files, bundles } as BundleMeta))
     this.bundleMetaPath = bundleMetaPath
     this.logger.info('Finished downloading artifacts.')
   }
@@ -203,22 +191,21 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private async prepareTraces() {
     this.logger.info('Downloading runtime trace profiles.')
     const pwd = this.pwd
-    const reports = this.payload.snapshotReports
+    const { traceEventsStorageKey } = this.payload.snapshotReport
 
-    for (const { id, traceEventsStorageKey } of reports) {
-      this.logger.verbose(`Downloading profile ${traceEventsStorageKey}`)
-      try {
-        const buf = await this.client.getArtifact(traceEventsStorageKey)
-        this.logger.verbose(`Downloading profile ${traceEventsStorageKey} finished`)
-        const events = JSON.parse(buf.toString('utf8')) as LH.TraceEvent[]
+    this.logger.verbose(`Downloading profile ${traceEventsStorageKey}`)
+    try {
+      const buf = await this.client.getArtifact(traceEventsStorageKey)
+      this.logger.verbose(`Downloading profile ${traceEventsStorageKey} finished`)
+      const events = JSON.parse(buf.toString('utf8')) as LH.TraceEvent[]
 
-        const profileFile = join(pwd, `profile-${id}.json`)
-        await writeFile(profileFile, JSON.stringify(events.filter((event) => KEY_EVENT_NAMES.has(event.name))))
-        this.tracePaths.push(profileFile)
-      } catch (e) {
-        this.tracePaths.push(null)
-        this.logger.error(`Failed to download profile ${traceEventsStorageKey}`, { error: e })
-      }
+      const profileFile = join(pwd, `profile.json`)
+      await writeFile(profileFile, JSON.stringify(events.filter((event) => KEY_EVENT_NAMES.has(event.name))))
+      this.tracePath = profileFile
+    } catch (e) {
+      this.tracePath = null
+      this.logger.error(`Failed to download profile ${traceEventsStorageKey}`, { error: e })
+      throw e
     }
 
     this.logger.info('Finished downloading runtime trace profiles.')
@@ -229,58 +216,49 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       this.logger.error('Prepare artifacts first.')
     }
 
-    const reports = this.payload.snapshotReports
+    const { jsCoverageStorageKey } = this.payload.snapshotReport
 
-    const result: { reportId: number; sourceCoverageStorageKey: string }[] = []
+    const pageUrl = this.payload.snapshotReport.pageUrl
 
-    const files = readJSONFile<{ files: Array<{ fileName: string; diskPath: string; statsIndex: number }> }>(
-      this.bundleMetaPath,
-    ).files
-    for (const { id: reportId, pageUrl, jsCoverageStorageKey } of reports) {
-      if (!jsCoverageStorageKey) {
+    const files = readJSONFile<BundleMeta>(this.bundleMetaPath).files
+
+    if (!jsCoverageStorageKey) {
+      return
+    }
+    const buf = await this.client.getArtifact(jsCoverageStorageKey)
+    const jsCoverageData = JSON.parse(buf.toString('utf8')) as LH.Artifacts['JsUsage']
+    const scriptUrls = Object.keys(jsCoverageData)
+
+    const source: GenerateSourceCoverageTreemapDataOptions['source'] = []
+
+    for (const scriptUrl of scriptUrls) {
+      const file = files.find((file) => scriptUrl.endsWith(file.fileName))
+
+      if (!file) {
         continue
       }
-      const buf = await this.client.getArtifact(jsCoverageStorageKey)
-      const jsCoverageData = JSON.parse(buf.toString('utf8')) as LH.Artifacts['JsUsage']
-      const scriptUrls = Object.keys(jsCoverageData)
 
-      const source: GenerateSourceCoverageTreemapDataOptions['source'] = []
+      const content = await readFile(file.diskPath, 'utf-8')
 
-      for (const scriptUrl of scriptUrls) {
-        const file = files.find((file) => scriptUrl.endsWith(file.fileName))
-
-        if (!file) {
-          continue
-        }
-
-        const content = await readFile(file.diskPath, 'utf-8')
-
-        try {
-          const sourcemap = readJSONFile<LH.Artifacts.RawSourceMap>(file.diskPath + '.map')
-          source.push({
-            filename: file.fileName,
-            content,
-            map: sourcemap,
-          })
-        } catch (err) {
-          this.logger.error('error load sourcemap: ' + file.diskPath + '.map', { error: err })
-          // error load sourcemap
-          source.push({
-            filename: file.fileName,
-            content,
-          })
-        }
+      try {
+        const sourcemap = readJSONFile<LH.Artifacts.RawSourceMap>(file.diskPath + '.map')
+        source.push({
+          filename: file.fileName,
+          content,
+          map: sourcemap,
+        })
+      } catch (err) {
+        this.logger.error('error load sourcemap: ' + file.diskPath + '.map', { error: err })
+        // error load sourcemap
+        source.push({
+          filename: file.fileName,
+          content,
+        })
       }
-
-      const coverageData = await generateSourceCoverageTreemapData({ jsCoverageData, source, pageUrl })
-      const storageName = `source-coverage/${uuid()}.json`
-      const sourceCoverageStorageKey = await this.client.uploadArtifact(
-        storageName,
-        Buffer.from(JSON.stringify(coverageData), 'utf-8'),
-      )
-      result.push({ reportId, sourceCoverageStorageKey })
     }
 
-    return result
+    const coverageData = await generateSourceCoverageTreemapData({ jsCoverageData, source, pageUrl })
+    const storageName = `source-coverage/${uuid()}.json`
+    return this.client.uploadArtifact(storageName, Buffer.from(JSON.stringify(coverageData), 'utf-8'))
   }
 }

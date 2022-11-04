@@ -315,9 +315,6 @@ export class SnapshotService implements OnApplicationBootstrap {
     if (report && (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed)) {
       const completed = await this.tryCompleteSnapshot(report.snapshotId)
       if (completed) {
-        this.source.startSourceIssueAnalyze(report.snapshotId).catch((e) => {
-          this.logger.error(e, { phase: 'source analyze' })
-        })
         const snapshot = await Snapshot.findOneByOrFail({ id: report.snapshotId })
         const reports = await SnapshotReport.createQueryBuilder('report')
           .leftJoinAndSelect('report.page', 'page', 'page.id = report.page_id')
@@ -347,8 +344,13 @@ export class SnapshotService implements OnApplicationBootstrap {
   async updateSnapshotReport(report: Partial<SnapshotReport> & { id: number }) {
     this.logger.verbose('Receive snapshot report update message', report)
     await SnapshotReport.update(report.id, report)
-    if (report.status === SnapshotStatus.Completed) {
+    const reportItem = await SnapshotReport.findOneByOrFail({ id: report.id })
+
+    if (reportItem.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
+      this.source.startSourceIssueAnalyze([reportItem]).catch((e) => {
+        this.logger.error(e, { phase: 'source analyze' })
+      })
     } else if (report.status === SnapshotStatus.Failed) {
       this.metrics.snapshotReportFail(1)
     }
@@ -356,15 +358,12 @@ export class SnapshotService implements OnApplicationBootstrap {
     this.logger.verbose('Snapshot report synced to DB', { reportId: report.id })
 
     try {
-      const reportItem = await SnapshotReport.findOneBy({ id: report.id })
-      if (reportItem) {
-        await this.updateSnapshotStatus(reportItem.snapshotId)
-      }
+      await this.updateSnapshotStatus(reportItem.snapshotId)
     } catch (e) {
       this.logger.error(e as Error, { phase: 'update snapshot status' })
     }
 
-    return SnapshotReport.findOneBy({ id: report.id })
+    return reportItem
   }
 
   async tryCompleteSnapshot(snapshotId: number) {

@@ -14,19 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { PerfseeFlameChartData, Frame } from '@perfsee/flamechart'
+import { Module } from '@nestjs/common'
 
-export interface FlameChartDiagnostic {
-  code: string
-  frame: Frame
-  info: FlameChartDiagnosticInfo
-  bundleHash?: string
-}
+import { DBModule } from '@perfsee/platform-server/db'
 
-export interface FlameChartDiagnosticInfo {
-  unit: 'us'
-  value: number
-  isSource?: boolean
-}
+import { ScriptFileService } from './service'
 
-export type FlameChartData = PerfseeFlameChartData
+@Module({
+  imports: [DBModule],
+  providers: [ScriptFileService],
+  exports: [ScriptFileService],
+})
+export class ScriptFileModule {}

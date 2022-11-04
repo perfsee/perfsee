@@ -52,7 +52,6 @@ export class LabJobWorker extends LighthouseJobWorker {
           snapshotReport: {
             id: payload.reportId,
             screencastStorageKey,
-            jsCoverageStorageKey,
             status: SnapshotStatus.Failed,
             failedReason: failedReason,
           },

@@ -15,10 +15,7 @@ limitations under the License.
 */
 
 import { ArtifactByCommitQuery, SnapshotReportsByCommitQuery, IssuesByReportIdQuery } from '@perfsee/schema'
-import { MetricScoreSchema } from '@perfsee/shared'
-
-import { AuditsSchema } from '../snapshots/snapshot-type'
-import { LHStoredSchema } from '../snapshots/utils/format-storage-result-to-snapshot-detail'
+import { AuditsSchema, LHStoredSchema, MetricScoreSchema } from '@perfsee/shared'
 
 type Unwrap<Element> = Element extends Array<infer S> ? S : unknown
 

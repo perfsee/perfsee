@@ -33,6 +33,8 @@ pub struct Frame {
   pub line: Option<u32>,
   pub col: Option<u32>,
   #[serde(skip)]
+  pub bundle_hash: Option<String>,
+  #[serde(skip)]
   pub sourced: bool,
   #[serde(skip)]
   pub node_module: Option<String>,

@@ -5,9 +5,7 @@ import test, { createMock } from '@perfsee/platform-server/test'
 import { SourceController } from '../controller'
 import { SourceService } from '../service'
 
-type AnalyzeResult = Parameters<SourceController['onReceiveAnalyzeResult']>['0']['result'] extends Array<infer R>
-  ? R
-  : never
+type AnalyzeResult = Parameters<SourceController['onReceiveAnalyzeResult']>['0']
 
 test.beforeEach(async (t) => {
   t.context.module = await Test.createTestingModule({
@@ -17,44 +15,18 @@ test.beforeEach(async (t) => {
     .compile()
 })
 
-test('items have no coverage report', async (t) => {
-  const service = t.context.module.get(SourceService)
-  const controller = t.context.module.get(SourceController)
-
-  const analyzeResult1 = createMock<AnalyzeResult>({
-    sourceCoverageStorageKey: undefined,
-    reportId: 1,
-  })
-  const analyzeResult2 = createMock<AnalyzeResult>({
-    sourceCoverageStorageKey: undefined,
-    reportId: 2,
-  })
-
-  await controller.onReceiveAnalyzeResult({
-    projectId: 1,
-    hash: 'commitHash',
-    result: [analyzeResult1, analyzeResult2],
-  })
-
-  t.is(service.updateReportFlameChart.getCall(1).args[0], 2)
-  t.true(service.saveSourceIssues.calledTwice)
-  t.true(service.updateReportSourceCoverage.notCalled)
-})
-
 test('items have coverage report', async (t) => {
   const service = t.context.module.get(SourceService)
   const controller = t.context.module.get(SourceController)
 
   const analyzeResult = createMock<AnalyzeResult>({
+    projectId: 1,
+    reportId: 1,
     sourceCoverageStorageKey: 'StorageKey',
   })
-  await controller.onReceiveAnalyzeResult({
-    projectId: 1,
-    hash: 'commitHash',
-    result: [analyzeResult, analyzeResult],
-  })
+  await controller.onReceiveAnalyzeResult(analyzeResult)
 
-  t.true(service.updateReportFlameChart.calledTwice)
-  t.true(service.saveSourceIssues.calledTwice)
-  t.true(service.updateReportSourceCoverage.calledTwice)
+  t.is(service.updateReport.getCall(0).args[0], 1)
+  t.true(service.updateReport.calledOnce)
+  t.true(service.saveSourceIssues.calledOnce)
 })

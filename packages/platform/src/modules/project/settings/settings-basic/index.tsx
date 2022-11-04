@@ -19,6 +19,7 @@ import { useModule } from '@sigi/react'
 import { useEffect } from 'react'
 
 import { BasicInfo } from './basic-info'
+import { BetaFeatures } from './beta-feature'
 import { DangerZone } from './danger-zone'
 import { BasicSettingsModule } from './module'
 import { Notification } from './notification'
@@ -50,6 +51,7 @@ export function SettingsBasic() {
     <Stack tokens={tokens}>
       <BasicInfo />
       <Notification />
+      <BetaFeatures />
       <Field>
         <PrimaryButton
           onClick={dispatcher.saveSettings}

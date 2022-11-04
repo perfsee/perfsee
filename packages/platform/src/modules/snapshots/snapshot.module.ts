@@ -21,11 +21,12 @@ import { switchMap, map, withLatestFrom, filter, startWith, mergeMap, endWith } 
 
 import { GraphQLClient, createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
 import { snapshotReportsByIdsQuery, snapshotReportQuery } from '@perfsee/schema'
+import { LHStoredSchema } from '@perfsee/shared'
 
 import { ProjectModule } from '../shared'
 
 import { SnapshotDetailType, SnapshotReportSchema } from './snapshot-type'
-import { formatStorageResultToSnapshotDetail, LHStoredSchema } from './utils/format-storage-result-to-snapshot-detail'
+import { formatStorageResultToSnapshotDetail } from './utils/format-storage-result-to-snapshot-detail'
 
 interface State {
   snapshotReports: { [reportId: number]: SnapshotReportSchema }

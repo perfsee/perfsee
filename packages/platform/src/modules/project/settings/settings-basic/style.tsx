@@ -24,7 +24,7 @@ const FieldName = styled.div({
   fontWeight: 600,
 })
 
-export const Field: FC<PropsWithChildren<{ name?: string; note?: string | JSX.Element }>> = ({
+export const Field: FC<PropsWithChildren<{ name?: string | JSX.Element; note?: string | JSX.Element }>> = ({
   name,
   note,
   children,
@@ -93,3 +93,11 @@ export const DangerDescription = styled.div(({ theme }) => ({
 export const ButtonInnerText = styled.span({
   fontWeight: 600,
 })
+
+export const BetaFeature = styled.span(({ theme }) => ({
+  border: `1px solid ${theme.colors.success}`,
+  color: theme.colors.success,
+  fontWeight: 400,
+  borderRadius: '12px',
+  padding: '1px 4px',
+}))

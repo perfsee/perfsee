@@ -98,6 +98,7 @@ export type BundleJobPassedUpdate = {
   duration: number
   score: number
   totalSize: Size
+  scripts?: { fileName: string }[]
 }
 
 export type BundleJobUpdate = BundleJobRunningUpdate | BundleJobFailedUpdate | BundleJobPassedUpdate
@@ -115,24 +116,25 @@ export type E2EJobResult = {
 
 export interface SourceAnalyzeJob {
   projectId: number
-  snapshotId: number
-  hash: string
-  artifacts: string[]
-  snapshotReports: {
+  reportId: number
+  artifacts: {
     id: number
+    hash: string
+    buildKey: string
+  }[]
+  snapshotReport: {
+    pageUrl: string
     traceEventsStorageKey: string
     jsCoverageStorageKey: string
-    pageUrl: string
-  }[]
+    artifactIds?: number[]
+  }
 }
 
 export type SourceAnalyzeJobResult = {
   projectId: number
-  hash: string
-  result: Array<{
-    reportId: number
-    diagnostics: FlameChartDiagnostic[]
-    flameChartStorageKey: string
-    sourceCoverageStorageKey?: string
-  }>
+  reportId: number
+  artifactIds: number[]
+  diagnostics: FlameChartDiagnostic[]
+  flameChartStorageKey: string
+  sourceCoverageStorageKey?: string
 }

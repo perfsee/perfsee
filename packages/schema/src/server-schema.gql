@@ -415,6 +415,9 @@ type SnapshotReport {
 
   """found performance issues"""
   issues: [SourceIssue!]!
+
+  """artifacts used in this report"""
+  artifacts: [Artifact!]
 }
 
 """
@@ -576,6 +579,11 @@ type Setting {
 
   """branches where message should be sent if"""
   bundleMessageBranches: [String!]!
+
+  """
+  Whether to enable the experimental feature of automatic source association
+  """
+  autoDetectVersion: Boolean!
 
   """what kind of lab message would be sent"""
   labMessageSource: LabMessageSource!
@@ -1230,6 +1238,11 @@ input UpdateSettingInput {
 
   """branches where message should be sent if"""
   bundleMessageBranches: [String!]
+
+  """
+  Whether to enable the experimental feature of automatic source association
+  """
+  autoDetectVersion: Boolean
 
   """what kind of lab message would be sent"""
   labMessageSource: LabMessageSource

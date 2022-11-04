@@ -20,9 +20,8 @@ import { buildProfileFromTracehouse, FlamechartContainer, lightTheme, Timing } f
 import { Color } from '@perfsee/flamechart/lib/color'
 import { triangle } from '@perfsee/flamechart/lib/utils'
 import { formatMsDuration } from '@perfsee/platform/common'
+import { TraceTimesWithoutFCP } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
-
-import { TraceTimesWithoutFCP } from '../../snapshot-type'
 
 import { getRecordTypeParams, getSortedTimingType } from './helper'
 import {

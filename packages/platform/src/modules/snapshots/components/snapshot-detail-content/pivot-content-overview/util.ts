@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { AuditsSchema, LighthouseAudit } from '../../../snapshot-type'
+import { AuditsSchema } from '@perfsee/shared'
+
+import { LighthouseAudit } from '../../../snapshot-type'
 
 export const getCategoryCount = (audits: AuditsSchema, auditRefs: LH.Result.AuditRef[]) => {
   let passed = 0

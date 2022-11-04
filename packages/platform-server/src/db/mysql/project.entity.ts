@@ -31,6 +31,7 @@ import type { AppVersion } from './app-version.entity'
 import type { Artifact } from './artifact.entity'
 import type { Job } from './job.entity'
 import type { Environment, Page, Profile } from './property.entity'
+import type { ScriptFile } from './script-file.entity'
 import type { Setting } from './setting.entity'
 import type { SnapshotReport } from './snapshot-report.entity'
 import type { Snapshot } from './snapshot.entity'
@@ -111,6 +112,9 @@ export class Project extends BaseEntity {
 
   @OneToMany('UserPermission', 'project')
   permissions!: UserPermission[]
+
+  @OneToMany('ScriptFile', 'project')
+  scriptFiles!: ScriptFile[]
 
   @OneToOne('Timer', 'project')
   timer!: Timer

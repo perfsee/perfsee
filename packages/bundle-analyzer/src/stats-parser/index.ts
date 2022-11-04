@@ -51,7 +51,6 @@ import {
   BundleResult,
   EntryPoint,
   Size,
-  ModuleTreeNode,
 } from './types'
 
 const defaultLogger = getConsoleLogger()
@@ -84,7 +83,7 @@ export class StatsParser {
     private readonly logger: Logger,
   ) {}
 
-  async parse(): Promise<{ report: BundleResult; moduleTree: ModuleTreeNode[] }> {
+  async parse() {
     this.logger.info('Start parsing stats file.')
 
     if (!this.stats.entrypoints || !this.stats.assets || typeof this.stats.publicPath === 'undefined') {
@@ -104,6 +103,7 @@ export class StatsParser {
     return {
       report: this.serializeResult(),
       moduleTree: bundleContent,
+      assets: Array.from(this.assetsMap.values()),
     }
   }
 

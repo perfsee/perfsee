@@ -14,35 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { TimelineSchema, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
-import { Task } from '@perfsee/tracehouse'
+import { LHStoredSchema } from '@perfsee/shared'
 
-import { AuditsSchema, SnapshotDetailType, TraceTimesWithoutFCP } from '../snapshot-type'
-
-type LHTosUserFlowSchema = {
-  stepName: string
-  stepUrl: string
-  stepMode: LH.Result.GatherMode
-  lhrAudit: AuditsSchema
-  lhrCategories: Record<string, LH.Result.Category>
-  timings: TraceTimesWithoutFCP
-  timelines: TimelineSchema[]
-  metricScores: MetricScoreSchema[]
-}
-
-export type LHStoredSchema = {
-  lhrAudit: AuditsSchema
-  lhrCategories: Record<string, LH.Result.Category>
-  traceData: Task[]
-  artifactsResult: RequestSchema[]
-  artifactsResultBaseTimestamp?: number
-  timings: TraceTimesWithoutFCP
-  timelines: TimelineSchema[]
-  metricScores: MetricScoreSchema[]
-  userFlow?: LHTosUserFlowSchema[]
-  userTimings?: UserTimingSchema[]
-  lighthouseVersion?: string
-}
+import { SnapshotDetailType } from '../snapshot-type'
 
 export const formatStorageResultToSnapshotDetail = (payload: LHStoredSchema): Omit<SnapshotDetailType, 'report'> => {
   return {
