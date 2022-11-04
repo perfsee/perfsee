@@ -25,7 +25,7 @@ import {
   BundleToolkit,
   BundleChunkGroup,
 } from '@perfsee/bundle-analyzer'
-import { BUILD_ENV, getAllPackagesVersions, resolveModuleVersion } from '@perfsee/plugin-utils'
+import { getBuildEnv, getAllPackagesVersions, resolveModuleVersion } from '@perfsee/plugin-utils'
 
 import { Chunk } from './type'
 import {
@@ -46,7 +46,7 @@ const resolveModulesVersion = ({ inputs }: Metafile, rootPath: string, buildPath
       .filter(Boolean) as [string, string][],
   )
 
-  return getAllPackagesVersions(BUILD_ENV.pwd, modulesMap)
+  return getAllPackagesVersions(getBuildEnv().pwd, modulesMap)
 }
 
 export const esbuildResult2Stats = (
@@ -151,8 +151,8 @@ export const esbuildResult2Stats = (
   const assetsByChunkName = Object.fromEntries([...chunkMap.entries()].map(([name, { files }]) => [name, files]))
 
   return {
-    packageVersions: resolveModulesVersion(metafile, BUILD_ENV.pwd, process.cwd()),
-    repoPath: BUILD_ENV.pwd,
+    packageVersions: resolveModulesVersion(metafile, getBuildEnv().pwd, process.cwd()),
+    repoPath: getBuildEnv().pwd,
     buildPath: process.cwd(),
     publicPath,
     outputPath,

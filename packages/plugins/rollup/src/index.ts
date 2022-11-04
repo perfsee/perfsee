@@ -19,7 +19,7 @@ import { dirname, resolve } from 'path'
 import { Plugin } from 'rollup'
 
 import {
-  BUILD_ENV,
+  getBuildEnv,
   generateReports,
   getAllPackagesVersions,
   resolveModuleVersion,
@@ -49,7 +49,7 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
 
   const modulesMap = new Map<string, string>()
   const buildPath = process.cwd()
-  const repoPath = BUILD_ENV.pwd
+  const repoPath = getBuildEnv().pwd
   let publicPath = '/'
 
   return {
@@ -82,7 +82,7 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
       const stats = Object.assign(rollupOutput2WebpackStats.call(this, outputBundle), {
         outputPath,
         publicPath,
-        packageVersions: getAllPackagesVersions(BUILD_ENV.pwd, modulesMap),
+        packageVersions: getAllPackagesVersions(getBuildEnv().pwd, modulesMap),
       })
 
       const client = new BuildUploadClient(options, outputPath, version)

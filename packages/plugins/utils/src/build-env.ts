@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import chalk from 'chalk'
 import envCI, { CiEnv } from 'env-ci'
+
+import { GitHost } from '@perfsee/utils'
 
 import { getCurrentCommit, getProjectInfoFromGit } from './git'
 
@@ -52,12 +55,10 @@ type BuildEnv = {
   platform: string
   upload: boolean
 } & {
-  git: Promise<GitEnv>
+  git: Promise<GitEnv | null>
 }
 
 const envs = envCI() as CiEnv | GithubEnv
-
-const gitEnvPromise: Promise<GitEnv | null> = Promise.resolve(null)
 
 function getPr(): GitEnv['pr'] {
   try {
@@ -102,38 +103,70 @@ function getCiBranch() {
 }
 
 async function getGitEnv(): Promise<GitEnv> {
-  if (envs.isCi && (envs.service === 'github' || envs.service === 'gitlab')) {
-    const [namespace, name] = envs.slug.split('/')
-    return {
-      host: envs.service === 'github' ? 'github.com' : 'gitlab.com',
-      namespace,
-      name,
-      branch: getCiBranch() || envs.branch,
-      commit: getCiCommit() || envs.commit,
-      tag: 'tag' in envs ? (envs.tag !== 'undefined' ? envs.tag : void 0) : void 0,
-      pr: getPr(),
-    }
-  } else {
-    const project = await getProjectInfoFromGit()
-    const commit = await getCurrentCommit()
-    if (!project || !commit) {
-      throw new Error('Failed to get repository info')
-    }
+  if (envs.isCi) {
+    if (envs.service === 'github' || envs.service === 'gitlab') {
+      const commit = getCiCommit() || envs.commit
+      const branch = getCiBranch() || envs.branch
+      const [namespace, name] = envs.slug.split('/')
 
-    return {
-      host: project.host,
-      namespace: project.namespace,
-      name: project.name,
-      branch: project.branch,
-      commit,
+      return {
+        host: envs.service === 'github' ? GitHost.Github : GitHost.Gitlab,
+        namespace,
+        name,
+        commit,
+        branch,
+        pr: getPr(),
+      }
+    } else if (
+      // @ts-expect-error type is outdated
+      envs.service === 'vercel'
+    ) {
+      return {
+        namespace: process.env.VERCEL_GIT_REPO_OWNER!,
+        name: process.env.VERCEL_GIT_REPO_SLUG!,
+        branch: process.env.VERCEL_GIT_COMMIT_REF!,
+        commit: process.env.VERCEL_GIT_COMMIT_SHA!,
+        host:
+          process.env.VERCEL_GIT_PROVIDER === 'github'
+            ? GitHost.Github
+            : process.env.VERCEL_GIT_PROVIDER === 'gitlab'
+            ? GitHost.Gitlab
+            : GitHost.Unknown,
+      }
+    } else {
+      console.error(
+        chalk.red(`[perfsee] Unsupported CI service ${envs.service}. We will try to support it in the future.`),
+      )
     }
+  }
+
+  const project = await getProjectInfoFromGit()
+  const commit = await getCurrentCommit()
+  if (!project || !commit) {
+    throw new Error('Failed to get repository info')
+  }
+
+  return {
+    host: project.host,
+    namespace: project.namespace,
+    name: project.name,
+    branch: project.branch,
+    commit,
   }
 }
 
-export const BUILD_ENV: BuildEnv = {
-  isCi: envs.isCi,
-  pwd: 'root' in envs && envs.root ? envs.root : process.cwd(),
-  platform: process.env.PERFSEE_PLATFORM_HOST ?? 'https://perfsee.com',
-  upload: !process.env.PERFSEE_NO_UPLOAD && envs.isCi,
-  git: gitEnvPromise.then((gitEnv) => (gitEnv ? Promise.resolve(gitEnv) : getGitEnv())),
+let buildEnv: BuildEnv | null = null
+
+export function getBuildEnv() {
+  if (!buildEnv) {
+    buildEnv = {
+      isCi: envs.isCi,
+      pwd: 'root' in envs && envs.root ? envs.root : process.cwd(),
+      platform: process.env.PERFSEE_PLATFORM_HOST ?? 'https://perfsee.com',
+      upload: !process.env.PERFSEE_NO_UPLOAD && envs.isCi,
+      git: getGitEnv().catch(() => null),
+    }
+  }
+
+  return buildEnv
 }
