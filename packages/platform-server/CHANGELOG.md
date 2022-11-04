@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
+
+### Bug Fixes
+
+- broken doc links ([631be09](https://github.com/perfsee/perfsee/commit/631be095cb66aab9e3616f771b3374dfe35fa652))
+- **platform-server:** fix docs path redirect ([03bd0b3](https://github.com/perfsee/perfsee/commit/03bd0b34dc25c8ce9eec58732269b3f3558317c7))
+- **platform-server:** github comment to wrong issues ([b731ed6](https://github.com/perfsee/perfsee/commit/b731ed660914218f2d11e99eee1411e8717138ef))
+- **platform-server:** mysql username env and job timeout env ([5a23a16](https://github.com/perfsee/perfsee/commit/5a23a16faa7be98320430d15084ebf2b2d411284))
+- **platform-server:** static assets path ([ec2804a](https://github.com/perfsee/perfsee/commit/ec2804a67bb115cb0387c6a82cb29593f44e19cf))
+- **platform:** update environment with same site ([45b164c](https://github.com/perfsee/perfsee/commit/45b164c059445bf5374dede3397ed91247214a71))
+
+### Features
+
+- **platform-server,job-runner,bundle-analyzer:** optimize source analyzer ([7ffd788](https://github.com/perfsee/perfsee/commit/7ffd7882d96daf9b716d2e81fbd2d78a2f3c4b9d))
+- **platform-server:** impl application config and settings ([87432b5](https://github.com/perfsee/perfsee/commit/87432b584f967b75d4858b4c105a5b796ebf478d))
+- **platform-server:** take snapshot restful api ([b4c5a48](https://github.com/perfsee/perfsee/commit/b4c5a48aba4e66f597f618acb611303938d17046))
+- **platform,platform-server:** allow project to add read permission users ([6410428](https://github.com/perfsee/perfsee/commit/64104286ca114f7f96097f8bb643439dccf58e1b))
+- **platform:** adapt frontend with application settings ([233a8f2](https://github.com/perfsee/perfsee/commit/233a8f2fb09ef50534428fdb3a66dfd9fbb5cc01))
+- **platform:** merge owners and viewer into one table ([7fe13bd](https://github.com/perfsee/perfsee/commit/7fe13bd12a7e0fa9030bcc46041080ce7f39f841))
+- **platform:** user info ([c131f14](https://github.com/perfsee/perfsee/commit/c131f14153d3a21e6c203ef8719d5294a51d0e37))
+
 # [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
 
 **Note:** Version bump only for package @perfsee/platform-server

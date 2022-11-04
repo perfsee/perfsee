@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
+
+### Features
+
+- **platform:** user info ([c131f14](https://github.com/perfsee/perfsee/commit/c131f14153d3a21e6c203ef8719d5294a51d0e37))
+
 # [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
 
 **Note:** Version bump only for package @perfsee/dls

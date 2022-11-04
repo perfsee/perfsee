@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
+
+### Bug Fixes
+
+- **platform:** update environment with same site ([45b164c](https://github.com/perfsee/perfsee/commit/45b164c059445bf5374dede3397ed91247214a71))
+
+### Features
+
+- **platform-server,job-runner,bundle-analyzer:** optimize source analyzer ([7ffd788](https://github.com/perfsee/perfsee/commit/7ffd7882d96daf9b716d2e81fbd2d78a2f3c4b9d))
+- **platform-server:** impl application config and settings ([87432b5](https://github.com/perfsee/perfsee/commit/87432b584f967b75d4858b4c105a5b796ebf478d))
+- **platform,platform-server:** allow project to add read permission users ([6410428](https://github.com/perfsee/perfsee/commit/64104286ca114f7f96097f8bb643439dccf58e1b))
+- **platform:** adapt frontend with application settings ([233a8f2](https://github.com/perfsee/perfsee/commit/233a8f2fb09ef50534428fdb3a66dfd9fbb5cc01))
+- **platform:** merge owners and viewer into one table ([7fe13bd](https://github.com/perfsee/perfsee/commit/7fe13bd12a7e0fa9030bcc46041080ce7f39f841))
+
 # [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
 
 **Note:** Version bump only for package @perfsee/schema

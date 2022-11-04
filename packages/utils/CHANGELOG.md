@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
+
+### Features
+
+- **platform-server:** impl application config and settings ([87432b5](https://github.com/perfsee/perfsee/commit/87432b584f967b75d4858b4c105a5b796ebf478d))
+- **platform:** adapt frontend with application settings ([233a8f2](https://github.com/perfsee/perfsee/commit/233a8f2fb09ef50534428fdb3a66dfd9fbb5cc01))
+
 # [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
 
 **Note:** Version bump only for package @perfsee/utils

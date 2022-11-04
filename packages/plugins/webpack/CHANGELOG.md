@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
+
+### Bug Fixes
+
+- **plugin-utils:** avoid plugin crashing if no git env found ([a252282](https://github.com/perfsee/perfsee/commit/a252282a4d4ecfa78b00b8396239bf9b0a7e0b4f))
+
 # [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
 
 ### Bug Fixes

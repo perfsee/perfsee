@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
+
+### Bug Fixes
+
+- **job-runner-bundle:** job update too big ([34f3f98](https://github.com/perfsee/perfsee/commit/34f3f98fc4e6abdfe86afb70efff6144153b105e))
+
+### Features
+
+- **platform-server,job-runner,bundle-analyzer:** optimize source analyzer ([7ffd788](https://github.com/perfsee/perfsee/commit/7ffd7882d96daf9b716d2e81fbd2d78a2f3c4b9d))
+- **platform:** adapt frontend with application settings ([233a8f2](https://github.com/perfsee/perfsee/commit/233a8f2fb09ef50534428fdb3a66dfd9fbb5cc01))
+- **platform:** add descriptions and titles to each route ([067fec6](https://github.com/perfsee/perfsee/commit/067fec610146e8fb5194402c01e1884084791e41))
+- **platform:** add same site attribute for cookie ([1ae7ece](https://github.com/perfsee/perfsee/commit/1ae7ecee50f8376ab5c525bf8d34de77c4163c63))
+- **platform:** user info ([c131f14](https://github.com/perfsee/perfsee/commit/c131f14153d3a21e6c203ef8719d5294a51d0e37))
+
 # [1.0.0](https://github.com/perfsee/perfsee/compare/v1.0.0-alpha.4...v1.0.0) (2022-10-18)
 
 **Note:** Version bump only for package @perfsee/shared
