@@ -23,7 +23,7 @@ import { ServerOptions } from './viewer'
 
 export interface CommonPluginOptions {
   /**
-   * Your project ID on PerfSee platform.
+   * Your project ID on Perfsee platform.
    *
    * **Required if you want ot upload the build to Perfsee platform for further analysis.**
    */

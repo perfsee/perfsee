@@ -1,6 +1,8 @@
 # `@perfsee/webpack`
 
-> Size limit webpack plugin
+Perfsee webpack plugin used to collect bundle information and analyze.
+
+[Repo](https://github.com/perfsee/perfsee) | [Docs](https://perfsee.com/docs)
 
 ## Usage
 
@@ -20,7 +22,7 @@ export default {
 ```ts
 interface Options {
   /**
-   * Your project ID on PerfSee platform.
+   * Your project ID on Perfsee platform.
    *
    * **Required if you want ot upload the build to Perfsee platform for further analysis.**
    */

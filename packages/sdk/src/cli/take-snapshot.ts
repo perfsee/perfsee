@@ -39,7 +39,7 @@ You can filter the pages by appending page names to the command.`,
   pages = Option.Rest({ required: 0 })
 
   project = Option.String(`-p,--project`, {
-    description: 'The project ID on PerfSee platform.',
+    description: 'The project ID on Perfsee platform.',
   })
 
   hash = Option.String(`--hash`, {

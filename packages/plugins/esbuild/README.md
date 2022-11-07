@@ -1,3 +1,9 @@
+# `@perfsee/esbuild`
+
+[Repo](https://github.com/perfsee/perfsee) | [Docs](https://perfsee.com/docs)
+
+Perfsee esbuild plugin used to collect bundle information and analyze.
+
 ## Usage
 
 ```ts
@@ -16,7 +22,7 @@ require('esbuild').build({
 ```ts
 interface Options {
   /**
-   * Your project ID on PerfSee platform.
+   * Your project ID on Perfsee platform.
    *
    * **Required if you want ot upload the build to Perfsee platform for further analysis.**
    */
