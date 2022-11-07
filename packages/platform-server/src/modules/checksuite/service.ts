@@ -43,7 +43,7 @@ export class CheckSuiteService {
       startedAt: new Date(),
       type: CheckType.Bundle,
       artifact,
-      detailsUrl: this.url.projectUrl(pathFactory.project.bundle.home, {
+      detailsUrl: this.url.platformUrl(pathFactory.project.bundle.home, {
         projectId: project.slug,
       }),
     })
@@ -57,7 +57,7 @@ export class CheckSuiteService {
       status: CheckStatus.inProgress,
       type: CheckType.Bundle,
       artifact,
-      detailsUrl: this.url.projectUrl(pathFactory.project.bundle.home, {
+      detailsUrl: this.url.platformUrl(pathFactory.project.bundle.home, {
         projectId: project.slug,
       }),
     })
@@ -77,7 +77,7 @@ export class CheckSuiteService {
       conclusion: artifact.succeeded() ? CheckConclusion.Success : CheckConclusion.Failure,
       completedAt: new Date(),
       type: CheckType.Bundle,
-      detailsUrl: this.url.projectUrl(pathFactory.project.bundle.detail, {
+      detailsUrl: this.url.platformUrl(pathFactory.project.bundle.detail, {
         projectId: project.slug,
         bundleId: artifact.iid,
       }),

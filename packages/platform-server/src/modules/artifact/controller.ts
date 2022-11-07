@@ -115,7 +115,7 @@ export class ArtifactController {
 
       return {
         status: 'success',
-        url: this.url.projectUrl(pathFactory.project.bundle.detail, {
+        url: this.url.platformUrl(pathFactory.project.bundle.detail, {
           projectId: project.slug,
           bundleId: artifact.iid,
         }),

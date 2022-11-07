@@ -21,21 +21,21 @@ test.before(async () => {
 
 test('should generate correct platform url', (t) => {
   t.is(
-    service.projectUrl(pathFactory.project.home, {
+    service.platformUrl(pathFactory.project.home, {
       projectId: 'test-project',
     }),
     'https://perfsee.com/projects/test-project/home',
   )
 
   t.is(
-    service.projectUrl(pathFactory.project.home, {
+    service.platformUrl(pathFactory.project.home, {
       projectId: 'test-project',
     }),
     'https://perfsee.com/projects/test-project/home',
   )
 
   t.is(
-    service.projectUrl(pathFactory.project.bundle.detail, {
+    service.platformUrl(pathFactory.project.bundle.detail, {
       projectId: 'test-project',
       bundleId: 1,
     }),
