@@ -4,10 +4,6 @@ import { StringifiableRecord, stringifyUrl } from 'query-string'
 
 import { Config } from '@perfsee/platform-server/config'
 
-interface ProjectRouteParam {
-  projectId: string
-}
-
 @Injectable()
 export class UrlService {
   redirectAllowHosts: string[]
@@ -19,20 +15,13 @@ export class UrlService {
     }
   }
 
-  projectUrl<T>(
-    pathFactory: (param: T & ProjectRouteParam) => string,
-    data: T & ProjectRouteParam,
-    query?: StringifiableRecord,
-  ) {
-    const path = pathFactory.call(null, { ...data })
-    return stringifyUrl({ url: this.config.baseUrl + path, query })
-  }
-
   platformUrl(pathFactory: (param?: undefined) => string, data?: undefined, query?: StringifiableRecord): string
+  platformUrl<T>(pathFactory: (param: T) => string, data: T, query?: StringifiableRecord): string
   platformUrl<T>(pathFactory: (param: T) => string, data: T, query?: StringifiableRecord) {
     const path = pathFactory.call(null, data)
 
-    return stringifyUrl({ url: this.config.baseUrl + path, query })
+    // the `/sub-path` segment should be added in path factory, so we only need to append `origin` here
+    return stringifyUrl({ url: this.config.origin + path, query })
   }
 
   safeRedirect(res: Response, to: string) {

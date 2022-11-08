@@ -132,7 +132,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
       if (action.type === CheckType.Bundle) {
         return renderBundleOutput(
           action,
-          this.url.projectUrl(pathFactory.project.bundle.detail, {
+          this.url.platformUrl(pathFactory.project.bundle.detail, {
             ...projectParams,
             bundleId: action.artifact.iid,
           }),
@@ -140,7 +140,7 @@ export class GithubCheckSuiteProvider implements CheckSuiteProvider {
       } else if (action.type === CheckType.Lab) {
         return renderLabOutput(
           action,
-          this.url.projectUrl(pathFactory.project.lab.report, {
+          this.url.platformUrl(pathFactory.project.lab.report, {
             ...projectParams,
             reportId: action.reports[0].iid,
           }),
