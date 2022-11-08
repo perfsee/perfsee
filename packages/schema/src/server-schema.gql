@@ -221,6 +221,9 @@ type Project {
 
   """pageId with profileIds, envIds, competitorIds"""
   pageRelations: [PageRelation!]!
+
+  """pageId with profileIds and envIds"""
+  pingResult(pageId: Int!): [PingResult!]!
   snapshotReport(reportId: Int!): SnapshotReport!
 
   """get snapshot reports with filters"""
@@ -278,6 +281,7 @@ enum JobType {
   LabAnalyze
   E2EAnalyze
   SourceAnalyze
+  LabPing
 }
 
 input TimeUsageInput {
@@ -759,7 +763,7 @@ type Runner {
   """zone info of runner"""
   zone: String!
 
-  """extra runner infomations from register"""
+  """extra runner information from register"""
   extra: JSON
 
   """created timestamp"""
@@ -948,6 +952,14 @@ type PageRelation {
 
   """related competitor page ids"""
   competitorIds: [Int!]!
+}
+
+type PingResult {
+  """pageId-profileId-envId"""
+  key: String!
+
+  """ping status"""
+  status: String
 }
 
 type ConnectionType {
@@ -1152,6 +1164,7 @@ type Mutation {
   """delete snapshot"""
   deleteSnapshot(projectId: ID!, snapshotId: Int!): Boolean!
   takeSnapshot(projectId: ID!, pageIds: [Int!], profileIds: [Int!], envIds: [Int!], title: String, commitHash: String): Snapshot!
+  pingConnection(projectId: ID!, pageId: Int!, profileId: Int, envId: Int): Boolean!
   takeTempSnapshot(projectId: ID!, url: String!, profileIds: [Int!]!, envId: Int!, title: String): Snapshot!
   dispatchSnapshotReport(projectId: ID!, snapshotReportId: Int!): Boolean!
 

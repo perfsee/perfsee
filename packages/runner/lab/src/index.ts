@@ -17,8 +17,12 @@ limitations under the License.
 import { workerMain } from '@perfsee/job-runner-shared'
 import { JobType } from '@perfsee/server-common'
 
-import { E2EJobWorker, LabJobWorker } from './lighthouse'
+import { E2EJobWorker, LabJobWorker, PingJobWorker } from './lighthouse'
 
 workerMain((data) => {
-  return data.job.jobType === JobType.E2EAnalyze ? new E2EJobWorker(data) : new LabJobWorker(data)
+  return data.job.jobType === JobType.LabPing
+    ? new PingJobWorker(data)
+    : data.job.jobType === JobType.E2EAnalyze
+    ? new E2EJobWorker(data)
+    : new LabJobWorker(data)
 })

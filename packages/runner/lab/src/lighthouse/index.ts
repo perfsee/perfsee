@@ -19,6 +19,7 @@ import { LighthouseScoreMetric } from '@perfsee/shared'
 
 import { E2eJobWorker } from './e2e-worker'
 import { LighthouseJobWorker } from './lighthouse-worker'
+import { LabPingJobWorker } from './ping-worker'
 
 export class LabJobWorker extends LighthouseJobWorker {
   protected async before() {
@@ -154,6 +155,41 @@ export class E2EJobWorker extends E2eJobWorker {
           status: SnapshotStatus.Failed,
           failedReason: e.message,
         },
+      },
+    })
+  }
+}
+
+export class PingJobWorker extends LabPingJobWorker {
+  protected async before() {
+    this.updateJob({
+      type: JobType.LabPing,
+      payload: {
+        key: this.payload.key,
+        status: 'running',
+      },
+    })
+    await super.before()
+  }
+
+  protected async work() {
+    const { status } = await this.audit()
+
+    this.updateJob({
+      type: JobType.LabPing,
+      payload: {
+        key: this.payload.key,
+        status,
+      },
+    })
+  }
+
+  protected onError(_e: Error) {
+    this.updateJob({
+      type: JobType.LabPing,
+      payload: {
+        key: this.payload.key,
+        status: 'failed',
       },
     })
   }

@@ -14,32 +14,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { List, Separator, Stack } from '@fluentui/react'
+import { IContextualMenuProps, PrimaryButton, Separator, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useMemo, useState, FC, useEffect } from 'react'
-
-import { ColorButton, TooltipWithEllipsis } from '@perfsee/components'
-import { SharedColors } from '@perfsee/dls'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
+import { SettingCards } from '../cards'
 import { emptyRelation } from '../helper'
-import { DeleteContent, SettingDialogs, RightCreateButton, DialogVisible } from '../settings-common-comp'
-import { NormalToken } from '../style'
+import { DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
 
 import { CompetitorPageEditForm } from './competitor-page-edit-form'
 import { PageEditForm } from './page-edit-form'
 import { PageListCell } from './page-list-cell'
+import { PingContent } from './ping-content'
+import { TempPageList } from './temp-list'
 
 export const SettingsPages = () => {
-  const [{ pages, hasCompetitorEnv, pageRelationMap, deleteProgress }, dispatcher] = useModule(PropertyModule, {
-    selector: (state) => ({
-      pages: state.pages,
-      pageRelationMap: state.pageRelationMap,
-      hasCompetitorEnv: !!state.environments.filter((env) => env.isCompetitor).length,
-      deleteProgress: state.deleteProgress.page,
-    }),
-    dependencies: [],
-  })
+  const [{ pages, pageRelationMap, pingResultMap, hasCompetitorEnv, deleteProgress, envMap, profileMap }, dispatcher] =
+    useModule(PropertyModule, {
+      selector: (state) => ({
+        pages: state.pages.filter((page) => !page.isE2e),
+        pageRelationMap: state.pageRelationMap,
+        hasCompetitorEnv: !!state.environments.filter((env) => env.isCompetitor).length,
+        deleteProgress: state.deleteProgress.page,
+        envMap: state.envMap,
+        profileMap: state.profileMap,
+        pingResultMap: state.pingResultMap,
+      }),
+      dependencies: [],
+    })
 
   useEffect(() => {
     dispatcher.fetchPageRelation()
@@ -47,6 +50,22 @@ export const SettingsPages = () => {
 
   const [page, setPage] = useState<Partial<PageSchema>>({})
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
+
+  const { tempList, competitorList, pageList } = useMemo(() => {
+    const tempList: PageSchema[] = []
+    const competitorList: PageSchema[] = []
+    const pageList: PageSchema[] = []
+    pages.forEach((p) => {
+      if (p.isCompetitor) {
+        competitorList.push(p)
+      } else if (p.isTemp) {
+        tempList.push(p)
+      } else {
+        pageList.push(p)
+      }
+    })
+    return { tempList, competitorList, pageList }
+  }, [pages])
 
   const onCreatePage = useCallback(() => {
     setPage({ isCompetitor: false })
@@ -58,12 +77,44 @@ export const SettingsPages = () => {
     setDialogVisible(DialogVisible.Edit)
   }, [])
 
+  const closeModal = useCallback(() => {
+    setDialogVisible(DialogVisible.Off)
+  }, [])
+
+  const closeDeleteModal = useCallback(() => {
+    closeModal()
+    dispatcher.setDeleteProgress({ type: 'page', progress: DeleteProgress.None })
+  }, [closeModal, dispatcher])
+
+  const onUpdatePage = useCallback(
+    (payload: UpdatePagePayload) => {
+      dispatcher.updateOrCreatePage(payload)
+      closeModal()
+    },
+    [closeModal, dispatcher],
+  )
+
+  const onDeletePage = useCallback(() => {
+    page.id && dispatcher.deletePage(page.id)
+  }, [dispatcher, page])
+
   const openEditModal = useCallback((p?: PageSchema) => {
     if (p) {
       setPage(p)
       setDialogVisible(DialogVisible.Edit)
     }
   }, [])
+
+  const openPingModal = useCallback(
+    (p?: PageSchema) => {
+      if (p) {
+        setPage(p)
+        setDialogVisible(DialogVisible.Ping)
+        dispatcher.fetchPingCheckStatus(p.id)
+      }
+    },
+    [dispatcher],
+  )
 
   const onClickDisable = useCallback(
     (page: PageSchema) => {
@@ -90,33 +141,13 @@ export const SettingsPages = () => {
     setDialogVisible(DialogVisible.Delete)
   }, [])
 
-  const closeModal = useCallback(() => {
-    setDialogVisible(DialogVisible.Off)
-  }, [])
-
-  const closeDeleteModal = useCallback(() => {
-    closeModal()
-    dispatcher.setDeleteProgress({ type: 'page', progress: DeleteProgress.None })
-  }, [closeModal, dispatcher])
-
-  const onUpdatePage = useCallback(
-    (payload: UpdatePagePayload) => {
-      dispatcher.updateOrCreatePage(payload)
-      closeModal()
-    },
-    [closeModal, dispatcher],
-  )
-
-  const onDeletePage = useCallback(() => {
-    page.id && dispatcher.deletePage(page.id)
-  }, [dispatcher, page])
-
   const onRenderCell = useCallback(
     (item?: PageSchema) => {
       if (!item) return null
       return (
         <PageListCell
           page={item}
+          openPingModal={openPingModal}
           openEditModal={openEditModal}
           openDeleteModal={openDeleteModal}
           onClickRestore={onClickRestore}
@@ -124,30 +155,49 @@ export const SettingsPages = () => {
         />
       )
     },
-    [onClickDisable, onClickRestore, openDeleteModal, openEditModal],
+    [onClickDisable, onClickRestore, openDeleteModal, openEditModal, openPingModal],
   )
 
-  const { tempList, competitorList, disableList, pageList } = useMemo(() => {
-    const tempList: PageSchema[] = []
-    const competitorList: PageSchema[] = []
-    const disableList: PageSchema[] = []
-    const pageList: PageSchema[] = []
-    pages.forEach((p) => {
-      if (p.isE2e) {
-        return
-      }
-      if (p.disable) {
-        disableList.push(p)
-      } else if (p.isCompetitor) {
-        competitorList.push(p)
-      } else if (p.isTemp) {
-        tempList.push(p)
-      } else {
-        pageList.push(p)
-      }
-    })
-    return { tempList, competitorList, disableList, pageList }
-  }, [pages])
+  const pingCheck = useCallback(
+    (pageId: number, profileId?: number, envId?: number) => {
+      return dispatcher.pingCheck({ pageId, profileId, envId })
+    },
+    [dispatcher],
+  )
+
+  const menuProps = useMemo<IContextualMenuProps>(
+    () => ({
+      items: [
+        {
+          key: 'page',
+          text: 'page',
+          iconProps: { iconName: 'desktop' },
+          onClick: onCreatePage,
+        },
+        {
+          key: 'competitor',
+          text: 'competitor page',
+          iconProps: { iconName: 'competitor' },
+          disabled: !hasCompetitorEnv,
+          onClick: onCreateCompetitor,
+          title: !hasCompetitorEnv ? 'Create a competitor environment first.' : undefined,
+        },
+      ],
+    }),
+    [hasCompetitorEnv, onCreateCompetitor, onCreatePage],
+  )
+
+  const pingContent = useMemo(() => {
+    return (
+      <PingContent
+        onClickCheck={pingCheck}
+        page={page}
+        pingResultMap={pingResultMap}
+        profileMap={profileMap}
+        envMap={envMap}
+      />
+    )
+  }, [envMap, page, pingCheck, pingResultMap, profileMap])
 
   const editContent = useMemo(() => {
     if (page.isCompetitor) {
@@ -171,19 +221,17 @@ export const SettingsPages = () => {
 
   return (
     <div>
-      <RightCreateButton text="Create Page" onClick={onCreatePage} />
-      {!!pageRelationMap.size && <List items={pageList} onRenderCell={onRenderCell} />}
-      <Separator />
-      <RightCreateButton
-        disabled={!hasCompetitorEnv}
-        text="Create Competitor Page"
-        tooltipContent="Create a competitor environment first."
-        onClick={onCreateCompetitor}
-      />
-      {!!pageRelationMap.size && <List items={competitorList} onRenderCell={onRenderCell} />}
-      <Separator />
-      <h3>Disabled Pages</h3>
-      {!!pageRelationMap.size && !!disableList.length && <List items={disableList} onRenderCell={onRenderCell} />}
+      <Stack horizontal horizontalAlign="end">
+        <PrimaryButton text="Create" iconProps={{ iconName: 'plus' }} menuProps={menuProps} />
+      </Stack>
+      {!!pageRelationMap.size && <SettingCards items={pageList} onRenderCell={onRenderCell} />}
+      {!!competitorList.length && (
+        <>
+          <Separator />
+          <h3>Competitor Pages</h3>
+        </>
+      )}
+      {!!pageRelationMap.size && <SettingCards items={competitorList} onRenderCell={onRenderCell} />}
       <TempPageList list={tempList} clickDeleteButton={openDeleteModal} />
       <SettingDialogs
         type={page.isCompetitor ? 'Competitor Page' : 'Page'}
@@ -192,43 +240,8 @@ export const SettingsPages = () => {
         editContent={editContent}
         deleteContent={deleteContent}
         isCreate={!page.id}
+        pingContent={pingContent}
       />
     </div>
-  )
-}
-
-type TempPageProps = {
-  list: PageSchema[]
-  clickDeleteButton: (item: PageSchema) => void
-}
-const TempPageList: FC<TempPageProps> = ({ list, clickDeleteButton }) => {
-  const onClick = useCallback(
-    (item: PageSchema) => {
-      return () => clickDeleteButton(item)
-    },
-    [clickDeleteButton],
-  )
-
-  const onRenderTempCell = useCallback(
-    (item?: PageSchema) => {
-      if (!item) return null
-
-      return (
-        <Stack tokens={NormalToken} horizontal horizontalAlign="space-between" verticalAlign="center">
-          <TooltipWithEllipsis content={item.url}>{item.url}</TooltipWithEllipsis>
-          <ColorButton color={SharedColors.red10} onClick={onClick(item)}>
-            Delete
-          </ColorButton>
-        </Stack>
-      )
-    },
-    [onClick],
-  )
-  return (
-    <>
-      <Separator />
-      <h3>Temporary Pages</h3>
-      <List items={list} onRenderCell={onRenderTempCell} />
-    </>
   )
 }

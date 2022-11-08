@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { List, PrimaryButton, Separator, Stack } from '@fluentui/react'
+import { GlobalOutlined, StopOutlined } from '@ant-design/icons'
+import { PrimaryButton, Separator, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { partition } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
@@ -22,8 +23,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { SharedColors } from '@perfsee/dls'
 
 import { DeleteProgress, EnvSchema, PropertyModule } from '../../../shared'
+import { SettingCards } from '../cards'
 import { ButtonOperators, DeleteContent, SettingDialogs, CountBlock, DialogVisible } from '../settings-common-comp'
-import { EllipsisText, NormalToken, StyledDesc } from '../style'
+import { PropertyCard, PropertyCardTop, PropertyIcon, PropertyInfos, PropertyName, StyledDesc } from '../style'
 
 import { EnvEditForm } from './env-edit-form'
 
@@ -91,14 +93,20 @@ export const SettingsEnvironments = () => {
       if (!item) return null
       const headerCount = item.headers.length
       const cookieCount = item.cookies.length
+
       return (
-        <Stack tokens={NormalToken} horizontal horizontalAlign="space-between">
-          <EllipsisText>
-            <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
-            <CountBlock title="cookie" count={cookieCount} />
-            <CountBlock title="header" count={headerCount} />
-            <StyledDesc size="12px">{item.zone}</StyledDesc>
-          </EllipsisText>
+        <PropertyCard>
+          <PropertyCardTop style={item.disable ? { color: SharedColors.gray10 } : undefined}>
+            <PropertyIcon disable={!!item.disable}>{item.disable ? <StopOutlined /> : <GlobalOutlined />}</PropertyIcon>
+            <PropertyInfos>
+              <PropertyName style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</PropertyName>
+              <div>
+                <CountBlock title="cookie" count={cookieCount} />
+                <CountBlock title="header" count={headerCount} />
+                <StyledDesc size="12px">{item.zone}</StyledDesc>
+              </div>
+            </PropertyInfos>
+          </PropertyCardTop>
           <ButtonOperators
             item={item}
             showDisableButton={!item.disable}
@@ -108,7 +116,7 @@ export const SettingsEnvironments = () => {
             clickDisableButton={onDisableEnv}
             clickRestoreButton={onRestoreEnv}
           />
-        </Stack>
+        </PropertyCard>
       )
     },
     [onDisableEnv, onRestoreEnv, openDeleteModal, openEditModal],
@@ -137,37 +145,25 @@ export const SettingsEnvironments = () => {
     )
   }, [env, onUpdateEnv, closeModal, deleteProgress, onDelete, closeDeleteModal, visible])
 
-  const [enabledItems, disabledItems] = useMemo(() => partition(environments, ['disable', false]), [environments])
-  const [envItems, competitorItems] = useMemo(() => partition(enabledItems, ['isCompetitor', false]), [enabledItems])
+  const [envItems, competitorItems] = useMemo(() => partition(environments, ['isCompetitor', false]), [environments])
 
   const competitor = useMemo(() => {
     return (
       <>
         <Separator />
         <h3>Competitor Environments</h3>
-        <List items={competitorItems} onRenderCell={onRenderCell} />
+        <SettingCards items={competitorItems} onRenderCell={onRenderCell} />
       </>
     )
   }, [competitorItems, onRenderCell])
-
-  const disabled = useMemo(() => {
-    return (
-      <>
-        <Separator />
-        <h3>Disabled Environments</h3>
-        <List items={disabledItems} onRenderCell={onRenderCell} />
-      </>
-    )
-  }, [disabledItems, onRenderCell])
 
   return (
     <div>
       <Stack horizontalAlign="end">
         <PrimaryButton onClick={onClickCreate}>Create Environment</PrimaryButton>
       </Stack>
-      <List items={envItems} onRenderCell={onRenderCell} />
+      <SettingCards items={envItems} onRenderCell={onRenderCell} />
       {competitor}
-      {disabled}
       {settingDialog}
     </div>
   )

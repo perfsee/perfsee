@@ -23,7 +23,7 @@ import { PermissionGuard, Permission } from '../permission'
 import { ProjectService } from '../project/service'
 
 import { PageService } from './service'
-import { CreatePageInput, PageRelation, UpdatePageInput } from './types'
+import { CreatePageInput, PageRelation, PingResult, UpdatePageInput } from './types'
 
 @Resolver(() => Project)
 export class ProjectPageResolver {
@@ -40,6 +40,14 @@ export class ProjectPageResolver {
   })
   pageRelations(@Parent() project: Project) {
     return this.service.getPageRelations(project.id)
+  }
+
+  @ResolveField(() => [PingResult], {
+    name: 'pingResult',
+    description: 'pageId with profileIds and envIds',
+  })
+  pingResult(@Parent() project: Project, @Args({ name: 'pageId', type: () => Int }) pageIid: number) {
+    return this.service.getPingResult(project.id, pageIid)
   }
 }
 

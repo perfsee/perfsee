@@ -21,7 +21,7 @@ export function localRunnerScriptEntry(jobType: JobType) {
     case JobType.BundleAnalyze:
       return require.resolve('@perfsee/job-runner-bundle/src/loader.js')
     case JobType.LabAnalyze:
-      return require.resolve('@perfsee/job-runner-lab/src/loader.js')
+    case JobType.LabPing:
     case JobType.E2EAnalyze:
       return require.resolve('@perfsee/job-runner-lab/src/loader.js')
     case JobType.SourceAnalyze:

@@ -82,7 +82,7 @@ export class Runner extends BaseEntity {
   zone!: string
 
   @Column({ type: 'json', nullable: true })
-  @Field(() => GraphQLJSON, { nullable: true, description: 'extra runner infomations from register' })
+  @Field(() => GraphQLJSON, { nullable: true, description: 'extra runner information from register' })
   extra!: Record<string, string | number | boolean> | null
 
   @CreateDateColumn({ type: 'timestamp' })

@@ -14,16 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { List, Stack, Separator, PrimaryButton } from '@fluentui/react'
+import { StopOutlined, DesktopOutlined } from '@ant-design/icons'
+import { Stack, PrimaryButton } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useState, useMemo } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 
 import { DeleteProgress, ProfileSchema, PropertyModule } from '../../../shared'
+import { SettingCards } from '../cards'
 import { getConnectionTitleByKey, getDeviceTitleByKey } from '../helper'
 import { ButtonOperators, DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
-import { StyledDesc, EllipsisText } from '../style'
+import {
+  StyledDesc,
+  EllipsisText,
+  PropertyCard,
+  PropertyCardTop,
+  PropertyName,
+  PropertyIcon,
+  PropertyInfos,
+} from '../style'
 
 import { ProfileForm } from './profile-edit-form'
 
@@ -97,16 +107,20 @@ export const SettingsProfiles = () => {
       const deviceTitle = getDeviceTitleByKey(devices, item.device)
 
       return (
-        <Stack
-          tokens={{ padding: '8px 0 8px 8px' }}
-          horizontal={true}
-          horizontalAlign="space-between"
-          verticalAlign="center"
-        >
+        <PropertyCard>
           <EllipsisText>
-            <h4 style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</h4>
-            {<StyledDesc>{deviceTitle}</StyledDesc>}
-            {<StyledDesc>{bandWidthTitle}</StyledDesc>}
+            <PropertyCardTop style={item.disable ? { color: SharedColors.gray10 } : undefined}>
+              <PropertyIcon disable={!!item.disable}>
+                {item.disable ? <StopOutlined /> : <DesktopOutlined />}
+              </PropertyIcon>
+              <PropertyInfos>
+                <PropertyName>{item.name}</PropertyName>
+                <div>
+                  {<StyledDesc>{deviceTitle}</StyledDesc>}
+                  {<StyledDesc>{bandWidthTitle}</StyledDesc>}
+                </div>
+              </PropertyInfos>
+            </PropertyCardTop>
           </EllipsisText>
           <ButtonOperators
             item={item}
@@ -117,7 +131,7 @@ export const SettingsProfiles = () => {
             showDisableButton={!item.disable}
             showRestoreButton={item.disable}
           />
-        </Stack>
+        </PropertyCard>
       )
     },
     [connections, devices, openDeleteModal, openEditModal, onDisableProfile, onRestoreProfile],
@@ -139,21 +153,6 @@ export const SettingsProfiles = () => {
     )
   }, [closeDeleteModal, deleteProgress, onDelete, profile?.name])
 
-  const { normalItems, disabledItems } = useMemo(() => {
-    const disabledItems: ProfileSchema[] = []
-    const normalItems: ProfileSchema[] = []
-
-    profiles.forEach((p) => {
-      if (p.disable) {
-        disabledItems.push(p)
-      } else {
-        normalItems.push(p)
-      }
-    })
-
-    return { disabledItems, normalItems }
-  }, [profiles])
-
   return (
     <div>
       <Stack horizontalAlign="end">
@@ -161,14 +160,7 @@ export const SettingsProfiles = () => {
           Create Profile
         </PrimaryButton>
       </Stack>
-      <List items={normalItems} onRenderCell={onRenderCell} />
-      {disabledItems.length > 0 && (
-        <>
-          <Separator />
-          <h3>Disabled Profiles</h3>
-          <List items={disabledItems} onRenderCell={onRenderCell} />
-        </>
-      )}
+      <SettingCards items={profiles} onRenderCell={onRenderCell} />
       <SettingDialogs
         type={'Profile'}
         onCloseDialog={closeModal}
