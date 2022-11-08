@@ -145,6 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PERFSEE_TOKEN: ${{ secrets.PERFSEE_TOKEN }}
+      PUBLIC_PATH: ${{ secrets.PERFSEE_PUBLIC_PATH }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16.x
