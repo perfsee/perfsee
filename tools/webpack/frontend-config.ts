@@ -34,6 +34,7 @@ export function getFrontendConfig() {
         favicon: pathToRoot('assets', 'favicon.ico'),
         template: pathToRoot('packages', 'platform', 'index.html'),
         templateParameters: {
+          publicPath: process.env.PUBLIC_PATH,
           browserStyleReset,
           version: pkg.version,
         },
