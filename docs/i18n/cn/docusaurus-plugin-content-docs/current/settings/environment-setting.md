@@ -40,6 +40,19 @@ sidebar_position: 4
 - 禁用广告以简化对开发人员特定的回归的故障排除；
 - A/B test；
 
+#### Cookies 的两种输入模式
+
+默认为 Table 模式，按照提示输入数据。点击按钮可切换至批量输入模式。
+
+##### Table
+
+![](/settings/cookies-table.png)
+
+##### Stringify
+
+该格式无法直接方便地使用浏览器获取，建议安装第三方插件[EditThisCookie](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)，导出页面所需 cookies 粘贴至文本框即可。
+![](/settings/cookies-stringify.png)
+
 ### Headers
 
 设置自定义的 Headers
@@ -51,3 +64,8 @@ sidebar_position: 4
 3. 可以输入**自定义的 host**，对应的 header 则会加到该 host 下的所有请求上
 
 ![environment header host](/settings/environment-header-host.png)
+
+#### Headers 的输入模式
+
+默认为 Table 模式，按照提示输入数据，如上图。点击按钮可切换至批量输入模式。
+![](/settings/headers-stringify.png)

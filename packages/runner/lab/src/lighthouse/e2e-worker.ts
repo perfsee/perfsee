@@ -41,6 +41,7 @@ import {
   Driver,
   getNetworkRecords,
   NetworkRecord,
+  formatCookies,
 } from './helpers'
 
 export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
@@ -54,6 +55,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
   protected async audit() {
     const { deviceId, throttle, url } = this.payload
+    const domain = new URL(url).host
 
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
 
@@ -71,7 +73,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     const browser = await createBrowser({ defaultViewport: device.viewport, headless: true })
 
     const page = await browser.newPage()
-    await page.setCookie(...this.cookies)
+    await page.setCookie(...formatCookies(this.cookies, domain))
 
     screenRecorder.record(page)
 

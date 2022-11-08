@@ -486,8 +486,8 @@ type LocalStorageType {
 type CookieType {
   name: String!
   value: String!
-  domain: String!
-  path: String!
+  domain: String
+  path: String
   httpOnly: Boolean!
   secure: Boolean!
   expire: String
@@ -1375,8 +1375,8 @@ input LocalStorageInputType {
 input CookieInputType {
   name: String!
   value: String!
-  domain: String!
-  path: String!
+  domain: String
+  path: String
   httpOnly: Boolean!
   secure: Boolean!
   expire: String

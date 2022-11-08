@@ -94,8 +94,8 @@ export type ArtifactSchema = Record<LifeCycle, ParamSchema>
 export type CookieType = {
   name: string
   value: string
-  domain: string
-  path: string
+  domain: string | null
+  path: string | null
   httpOnly: boolean
   secure: boolean
   expire: string | null
