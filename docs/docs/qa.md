@@ -22,7 +22,7 @@ It base on the `Bundle Baseline Branch` setting in project settings. It default 
 
 We provide a `Notice` level bundle audit called `Missing sourcemap for js assets` which will tell you whether the SourceMaps are uploaded successfully.
 
-If you see this result in the bundle audit, it means we didn't find any correspoding SourceMap for the js assets.
+If you see this result in the bundle audit, it means we didn't find any corresponding SourceMap for the js assets.
 
 ![audit sourcemap](/faq/audit-sourcemap.png)
 

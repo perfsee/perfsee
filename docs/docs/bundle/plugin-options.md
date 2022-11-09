@@ -28,7 +28,7 @@ interface Options {
    *
    * This option will be very useful when there are multiple builds in a single commit(in single CI progress)
    *
-   * Because the comparasion with historical builds is based on `Entrypoint`, and if multiple builds
+   * Because the comparison with historical builds is based on `Entrypoint`, and if multiple builds
    * emit same entrypoint names, we can't detect which entrypoint is the correct one to be compared.
    *
    * e.g. `build-1/main` and `build-2/main` are more confusing then `landing/main` and `customers/main`.
