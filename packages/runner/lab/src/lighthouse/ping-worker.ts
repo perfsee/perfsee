@@ -18,7 +18,7 @@ import { JobWorker } from '@perfsee/job-runner-shared'
 import { PingJobPayload } from '@perfsee/server-common'
 import { CookieType, HeaderHostType } from '@perfsee/shared'
 
-import { createBrowser, HostHeaders, transformHeadersToHostHeaders, DEVICE_DESCRIPTORS } from './helpers'
+import { createBrowser, HostHeaders, transformHeadersToHostHeaders, DEVICE_DESCRIPTORS, formatCookies } from './helpers'
 
 export abstract class LabPingJobWorker extends JobWorker<PingJobPayload> {
   protected headers!: HostHeaders
@@ -33,11 +33,11 @@ export abstract class LabPingJobWorker extends JobWorker<PingJobPayload> {
     const { deviceId, url } = this.payload
 
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
+    const domain = new URL(url).host
 
     const browser = await createBrowser({ defaultViewport: device.viewport })
     const page = await browser.newPage()
-    // @ts-expect-error
-    await page.setCookie(...this.cookies)
+    await page.setCookie(...formatCookies(this.cookies, domain))
 
     const host = new URL(url).host
     const headers = {
