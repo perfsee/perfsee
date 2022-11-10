@@ -36,6 +36,7 @@ export abstract class LabPingJobWorker extends JobWorker<PingJobPayload> {
 
     const browser = await createBrowser({ defaultViewport: device.viewport })
     const page = await browser.newPage()
+    // @ts-expect-error
     await page.setCookie(...this.cookies)
 
     const host = new URL(url).host
