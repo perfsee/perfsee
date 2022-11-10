@@ -28,4 +28,4 @@ You can configure the pages / profiles / environments to be scanned by schedule.
 
 If set to all, then all pages in project setting will be scanned.
 
-![schedule pages](/settings/schedule-pages.png)
+![schedule pages](/settings/schedule.png)
