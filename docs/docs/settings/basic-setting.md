@@ -20,10 +20,6 @@ As it shows above, the basic settings include the following options.
 
 Nothing.
 
-## Owners
-
-The owner of this project.
-
 ## Applications
 
 The application authorized by this project. You can modify, delete or add new authorized application here.
@@ -70,3 +66,11 @@ Options:
 
 - All: Receive all notifications including task finished, failed, warning, etc.
 - Mute All: Close all notifications
+
+### Automatically detect version in lab(Beta)
+
+Analyze which version of artifact is running from the lab data.
+
+## Permission
+
+![permission](/settings/permission.png)

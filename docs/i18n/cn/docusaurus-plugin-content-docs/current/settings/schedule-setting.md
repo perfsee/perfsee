@@ -21,4 +21,4 @@ sidebar_position: 5
 
 可以配置需要定时分析的页面/Profile/环境，如果设置为 All，则会分析项目设置中的所有 Page。
 
-![schedule pages](/settings/schedule-pages.png)
+![schedule pages](/settings/schedule.png)

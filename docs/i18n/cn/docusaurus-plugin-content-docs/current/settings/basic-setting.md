@@ -6,7 +6,7 @@ sidebar_position: 1
 
 :::info
 
-仅项目 owner 有权限修改项目设置
+仅 Admin 权限可修改项目设置
 
 :::
 
@@ -17,10 +17,6 @@ sidebar_position: 1
 如上图所示，基本设置包含如下几个设置选项：
 
 ## 项目名称
-
-无需解释
-
-## 项目管理者（Owners）
 
 无需解释
 
@@ -68,3 +64,11 @@ Bundle 分析时会将该分支作为基准分支与当前分支进行对比。
 
 - All: 接收包括任务完成，失败，警告等所有通知
 - Mute All：关闭所有通知功能
+
+### Automatically detect version in lab (Beta)
+
+自动检测匹配版本进行 source 分析
+
+## 权限设置
+
+![permission](/settings/permission.png)
