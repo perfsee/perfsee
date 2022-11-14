@@ -19,7 +19,7 @@ import envCI, { CiEnv } from 'env-ci'
 
 import { GitHost } from '@perfsee/utils'
 
-import { getCurrentCommit, getProjectInfoFromGit } from './git'
+import { getCommitMessage, getCurrentCommit, getProjectInfoFromGit } from './git'
 
 type GithubEnv = {
   isCi: true
@@ -40,6 +40,7 @@ type GitEnv = {
   namespace: string
   name: string
   commit: string
+  commitMessage?: string
   branch: string
   tag?: string
   pr?: {
@@ -106,6 +107,7 @@ async function getGitEnv(): Promise<GitEnv> {
   if (envs.isCi) {
     if (envs.service === 'github' || envs.service === 'gitlab') {
       const commit = getCiCommit() || envs.commit
+      const commitMessage = await getCommitMessage(commit)
       const branch = getCiBranch() || envs.branch
       const [namespace, name] = envs.slug.split('/')
 
@@ -115,6 +117,7 @@ async function getGitEnv(): Promise<GitEnv> {
         name,
         commit,
         branch,
+        commitMessage,
         pr: getPr(),
       }
     } else if (
@@ -124,6 +127,7 @@ async function getGitEnv(): Promise<GitEnv> {
       return {
         namespace: process.env.VERCEL_GIT_REPO_OWNER!,
         name: process.env.VERCEL_GIT_REPO_SLUG!,
+        commitMessage: process.env.VERCEL_GIT_COMMIT_MESSAGE!,
         branch: process.env.VERCEL_GIT_COMMIT_REF!,
         commit: process.env.VERCEL_GIT_COMMIT_SHA!,
         host:
@@ -145,6 +149,7 @@ async function getGitEnv(): Promise<GitEnv> {
   if (!project || !commit) {
     throw new Error('Failed to get repository info')
   }
+  const commitMessage = await getCommitMessage(commit)
 
   return {
     host: project.host,
@@ -152,6 +157,7 @@ async function getGitEnv(): Promise<GitEnv> {
     name: project.name,
     branch: project.branch,
     commit,
+    commitMessage,
   }
 }
 

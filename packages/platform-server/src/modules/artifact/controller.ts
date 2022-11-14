@@ -111,6 +111,7 @@ export class ArtifactController {
         hash: params.commitHash,
         branch: params.branch,
         version: params.tag,
+        commitMessage: params.commitMessage?.replace(/\n.*/g, '').substring(0, 255),
       })
 
       return {
