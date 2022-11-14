@@ -718,6 +718,9 @@ type AppVersion {
   """commit hash"""
   hash: String!
 
+  """commit message"""
+  commitMessage: String!
+
   """git branch"""
   branch: String
 

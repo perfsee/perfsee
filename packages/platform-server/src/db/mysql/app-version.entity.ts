@@ -51,6 +51,10 @@ export class AppVersion extends BaseEntity {
   @Index()
   hash!: string
 
+  @Field(() => String, { description: 'commit message' })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  commitMessage!: string
+
   @Field(() => String, { description: 'git branch', nullable: true })
   @Column({ type: 'varchar', nullable: true })
   branch!: string | null
