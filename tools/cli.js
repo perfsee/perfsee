@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-const { execSync } = require('child_process')
+const crypto = require('crypto')
 const fs = require('fs')
 const { builtinModules } = require('module')
 const path = require('path')
 
-const lockShasum = execSync('shasum --algorithm 256 yarn.lock | cut -c 1-10').toString().trim()
+const lockShasum = crypto.createHash('sha256').update(fs.readFileSync('yarn.lock')).digest('hex').substring(0, 10)
 const cliSrc = './cli/index.ts'
 const cliDist = `./cli.${lockShasum}.js`
 const cliAbsDist = path.resolve(__dirname, cliDist)
