@@ -51,9 +51,13 @@ export class AppVersion extends BaseEntity {
   @Index()
   hash!: string
 
-  @Field(() => String, { description: 'commit message' })
+  @Field(() => String, { description: 'commit message', nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
-  commitMessage!: string
+  commitMessage!: string | null
+
+  @Field(() => Number, { description: 'pull request number', nullable: true })
+  @Column({ type: 'int', nullable: true })
+  pr!: number | null
 
   @Field(() => String, { description: 'git branch', nullable: true })
   @Column({ type: 'varchar', nullable: true })
@@ -62,12 +66,6 @@ export class AppVersion extends BaseEntity {
   @Field(() => String, { description: 'git tag', nullable: true })
   @Column({ type: 'varchar', nullable: true })
   version!: string | null
-
-  @Column({ type: 'int', nullable: true })
-  snapshotId!: number | null
-
-  @Column({ type: 'int', nullable: true })
-  artifactId!: number | null
 
   @Field(() => Boolean, { description: 'version release exempted' })
   @Column({ type: 'boolean', default: 0 })

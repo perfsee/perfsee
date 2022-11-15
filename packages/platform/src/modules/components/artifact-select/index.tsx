@@ -24,6 +24,7 @@ import { Pagination, Table, TableColumnProps } from '@perfsee/components'
 
 import { useProject } from '../../shared'
 import { ArtifactNameSelector } from '../bundle-property'
+import { Commit } from '../commit'
 
 import { ArtifactSelectModule, Artifact } from './module'
 import {
@@ -90,9 +91,11 @@ export const ArtifactSelect: FC<Props> = (props) => {
       },
       {
         key: 'commit',
-        minWidth: 100,
+        minWidth: 200,
         name: 'commit',
-        fieldName: 'hash',
+        onRender(item) {
+          return <Commit hash={item.hash} commitMessage={item.version?.commitMessage} />
+        },
       },
       {
         key: 'branch',

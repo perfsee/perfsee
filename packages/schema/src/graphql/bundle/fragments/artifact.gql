@@ -11,4 +11,7 @@ fragment artifact on Artifact {
   contentKey
   score
   createdAt
+  version {
+    commitMessage
+  }
 }

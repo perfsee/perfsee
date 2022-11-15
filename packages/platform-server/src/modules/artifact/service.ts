@@ -17,7 +17,7 @@ limitations under the License.
 import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common'
 import { In } from 'typeorm'
 
-import { Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
+import { AppVersion, Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -115,7 +115,8 @@ export class ArtifactService implements OnApplicationBootstrap {
     }
 
     return query
-      .orderBy('id', 'DESC')
+      .leftJoinAndMapOne('artifact.version', AppVersion, 'version', 'version.hash = artifact.hash')
+      .orderBy('artifact.id', 'DESC')
       .skip(skip)
       .take(first ?? 10)
       .getManyAndCount()

@@ -57,6 +57,9 @@ export class CommonGitHost implements IGitHost {
   diffUrl(from: string, to: string) {
     return `https://${this.path}/compare/${from}...${to}`
   }
+  prUrl(number: number) {
+    return `https://${this.path}/pull/${number}`
+  }
 }
 
 export function gitHostFromDomain(domainOrHost: string): GitHost {

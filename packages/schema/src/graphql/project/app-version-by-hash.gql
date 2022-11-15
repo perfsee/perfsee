@@ -1,0 +1,11 @@
+query appVersionByHash($projectId: ID!, $hash: String!) {
+  project(id: $projectId) {
+    appVersion(hash: $hash) {
+      hash
+      commitMessage
+      pr
+      branch
+      version
+    }
+  }
+}

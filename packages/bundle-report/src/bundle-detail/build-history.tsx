@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { NodeIndexOutlined, BranchesOutlined, PlusCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
-import { useTheme } from '@emotion/react'
+import styled from '@emotion/styled'
 import { Stack } from '@fluentui/react'
 import dayjs from 'dayjs'
 import { FC, memo } from 'react'
@@ -28,6 +28,32 @@ import { pathFactory } from '@perfsee/shared/routes'
 import { BundleCard, BuildRound, EmptyBaselineWrap, EmptyBaselineIcon } from './style'
 import { ArtifactDiff } from './types'
 
+const CommitMessage = styled.span({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+})
+
+const CommitInfoContainer = styled.div(({ theme }) => ({
+  fontSize: 12,
+  color: theme.text.colorSecondary,
+  marginTop: 8,
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  '>*': {
+    marginRight: 6,
+  },
+  'span[role=img] + span': { marginRight: 12 },
+}))
+
+const BuildHistoryItem = styled.div({
+  overflow: 'hidden',
+  flexShrink: 0,
+  flexGrow: '1',
+  flexBasis: '100%',
+})
+
 interface Props {
   artifact: ArtifactDiff
   onBaselineSelectorOpen?: () => void
@@ -36,15 +62,15 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
   const { baseline, project } = artifact
   return (
     <BundleCard>
-      <Stack horizontal verticalAlign="center" wrap>
-        <Stack.Item grow={1}>
+      <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+        <BuildHistoryItem>
           <BuildRound>#{artifact.id}</BuildRound>
           <Tag type="warning">current</Tag>
           <CommitInfo artifact={artifact} />
-        </Stack.Item>
+        </BuildHistoryItem>
 
         {baseline && project ? (
-          <Stack.Item grow={1}>
+          <BuildHistoryItem>
             <Link
               to={pathFactory.project.bundle.detail({
                 projectId: project.id,
@@ -55,10 +81,10 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
             </Link>
             <Tag type="default">baseline</Tag>
             <CommitInfo artifact={baseline} />
-          </Stack.Item>
+          </BuildHistoryItem>
         ) : (
           onBaselineSelectorOpen && (
-            <Stack.Item grow={1}>
+            <BuildHistoryItem>
               <EmptyBaselineWrap onClick={onBaselineSelectorOpen}>
                 <EmptyBaselineIcon>
                   <PlusCircleOutlined />
@@ -66,7 +92,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
                 <b>{baseline ? 'No match entrypoint in baseline' : 'No baseline'}</b>
                 <p>Select another version to compare</p>
               </EmptyBaselineWrap>
-            </Stack.Item>
+            </BuildHistoryItem>
           )
         )}
       </Stack>
@@ -75,7 +101,6 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
 }
 
 export const CommitInfo = memo<{ artifact: ArtifactDiff }>(({ artifact }) => {
-  const theme = useTheme()
   const { project } = artifact
 
   if (!project) {
@@ -83,25 +108,14 @@ export const CommitInfo = memo<{ artifact: ArtifactDiff }>(({ artifact }) => {
   }
 
   return (
-    <Stack
-      horizontal={true}
-      verticalAlign="center"
-      tokens={{ childrenGap: 6 }}
-      styles={{
-        root: {
-          fontSize: 12,
-          color: theme.text.colorSecondary,
-          marginTop: 8,
-          'span[role=img] + span': { marginRight: 12 },
-        },
-      }}
-    >
+    <CommitInfoContainer>
       <ClockCircleOutlined />
       <span>{dayjs(artifact.createdAt).fromNow()}</span>
       <BranchesOutlined />
       <span>{artifact.branch}</span>
       <NodeIndexOutlined />
       <ForeignLink href={getCommitLink(project, artifact.hash)}>{artifact.hash.substring(0, 8)}</ForeignLink>
-    </Stack>
+      <CommitMessage>{artifact.version?.commitMessage}</CommitMessage>
+    </CommitInfoContainer>
   )
 })
