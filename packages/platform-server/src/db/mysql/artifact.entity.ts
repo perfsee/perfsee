@@ -31,7 +31,8 @@ import {
 import { BundleJobStatus } from '@perfsee/server-common'
 
 import type { Project } from './project.entity'
-import { ScriptFile } from './script-file.entity'
+import type { ScriptFile } from './script-file.entity'
+import type { AppVersion } from './app-version.entity'
 
 registerEnumType(BundleJobStatus, {
   name: 'BundleJobStatus',
@@ -103,6 +104,14 @@ export class Artifact extends BaseEntity {
   @Field(() => String, { description: 'version of the tool for uploading the build' })
   @Column({ nullable: true, default: 'unknown' })
   appVersion!: string
+
+  @Column({ nullable: true })
+  @Index()
+  @RelationId('version')
+  versionId!: number | null
+
+  @ManyToOne('AppVersion', 'artifacts')
+  version!: AppVersion
 
   @Field(() => String, { description: 'toolkit used to build the bundle', nullable: true })
   @Column({ type: 'varchar', default: 'unknown' })

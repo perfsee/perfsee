@@ -111,7 +111,8 @@ export class ArtifactService implements OnApplicationBootstrap {
     }
 
     return query
-      .orderBy('id', 'DESC')
+      .leftJoinAndSelect('artifact.version', 'version')
+      .orderBy('artifact.id', 'DESC')
       .skip(skip)
       .take(first ?? 10)
       .getManyAndCount()
@@ -219,7 +220,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     })
 
     if (update.status === BundleJobStatus.Passed && update.scripts?.length) {
-      const settings = await this.setting.loader.load(artifact.projectId)
+      const settings = await this.setting.byProjectLoader.load(artifact.projectId)
       if (settings.autoDetectVersion) {
         await this.scriptFile.recordScriptFile(artifact.projectId, artifact.id, artifact.name, update.scripts)
       }

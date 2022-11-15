@@ -29,6 +29,9 @@ export interface ArtifactDiff {
   createdAt: string
   score: number
   baseline?: Omit<ArtifactDiff, 'baseline' | 'project'>
+  version?: {
+    commitMessage: string
+  }
 }
 
 export { BundleDiff, EntryDiff, Diff, Size }

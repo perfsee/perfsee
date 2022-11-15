@@ -22,3 +22,10 @@ export function getCommitLink(project: { host: GitHost; namespace: string; name:
 
   return gitHost.commitUrl(commitHash)
 }
+
+export function getPrLink(project: { host: GitHost; namespace: string; name: string }, prNumber: number) {
+  const host = GitHost[project.host]
+  const gitHost = new CommonGitHost({ ...project, host })
+
+  return gitHost.prUrl(prNumber)
+}

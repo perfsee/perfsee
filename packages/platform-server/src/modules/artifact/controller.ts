@@ -91,6 +91,15 @@ export class ArtifactController {
       const buildKey = `builds/${project.id}/${uuid()}.tar`
       await this.storage.upload(buildKey, file)
 
+      const version = await this.versionService.recordVersion({
+        projectId: project.id,
+        hash: params.commitHash,
+        branch: params.branch,
+        version: params.tag,
+        pr: params.pr?.number,
+        commitMessage: params.commitMessage?.replace(/\n.*/g, '').substring(0, 255),
+      })
+
       const artifact = await this.artifactService.create(project, {
         iid: await this.internalId.generate(project.id, InternalIdUsage.Artifact),
         branch: params.branch,
@@ -100,19 +109,17 @@ export class ArtifactController {
         buildKey,
         appVersion: params.appVersion,
         toolkit: params.toolkit,
+        versionId: version.id,
         isBaseline: isBaseline(params.branch, project.artifactBaselineBranch),
       })
 
-      this.logger.log(`artifact create. id=${artifact.id}`)
-
       await this.versionService.recordVersion({
         projectId: project.id,
-        artifactId: artifact.id,
         hash: params.commitHash,
-        branch: params.branch,
-        version: params.tag,
-        commitMessage: params.commitMessage?.replace(/\n.*/g, '').substring(0, 255),
+        artifactId: artifact.id,
       })
+
+      this.logger.log(`artifact create. id=${artifact.id}`)
 
       return {
         status: 'success',

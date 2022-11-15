@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Int, Resolver, Args, GraphQLISODateTime, ResolveField, Parent } from '@nestjs/graphql'
 
-import { AppVersion, Project } from '@perfsee/platform-server/db'
+import { AppVersion, Artifact, Project } from '@perfsee/platform-server/db'
 
 import { AppVersionService } from './service'
 
@@ -43,5 +43,26 @@ export class ProjectAppVersionResolver {
       from = new Date(to.getTime() - 1000 * 604800 /* 7 days */)
     }
     return this.service.getAppVersions(project.id, from, to, length)
+  }
+
+  @ResolveField(() => AppVersion, { name: 'appVersion', description: 'get app versions by hash' })
+  appVersion(@Parent() project: Project, @Args({ name: 'hash', type: () => String }) hash: string) {
+    return AppVersion.findOneByOrFail({ projectId: project.id, hash: hash })
+  }
+}
+
+@Resolver(() => Artifact)
+export class ArtifactVersionResolver {
+  @ResolveField(() => AppVersion, { name: 'version', nullable: true })
+  version(@Parent() artifact: Artifact) {
+    if (artifact.version) {
+      return artifact.version
+    }
+
+    if (artifact.versionId) {
+      return AppVersion.findOneByOrFail({ id: artifact.versionId })
+    } else {
+      return null
+    }
   }
 }

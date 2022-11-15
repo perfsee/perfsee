@@ -18,9 +18,7 @@ import { Stack } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { FC } from 'react'
 
-import { ForeignLink } from '@perfsee/components'
-import { getCommitLink } from '@perfsee/shared'
-
+import { Commit } from '../../components/commit'
 import { ProjectModule } from '../../shared'
 
 import { SnapshotSchema } from './module'
@@ -40,13 +38,7 @@ export const SnapshotMeta: FC<Props> = ({ snapshot }) => {
     <Stack tokens={{ padding: '12px', childrenGap: '4px' }}>
       <div>
         <InfoTitle>Commit: </InfoTitle>
-        <InfoText>
-          {snapshot.hash ? (
-            <ForeignLink href={getCommitLink(project, snapshot.hash)}>{snapshot.hash.substring(0, 8)}</ForeignLink>
-          ) : (
-            'unknown'
-          )}
-        </InfoText>
+        <InfoText>{snapshot.hash ? <Commit hash={snapshot.hash} /> : 'unknown'}</InfoText>
       </div>
       <div>
         <InfoTitle>Created at: </InfoTitle>

@@ -24,7 +24,9 @@ import {
   BaseEntity,
   ManyToOne,
   RelationId,
+  OneToMany,
 } from 'typeorm'
+import { Artifact } from './artifact.entity'
 
 import type { Project } from './project.entity'
 
@@ -51,9 +53,13 @@ export class AppVersion extends BaseEntity {
   @Index()
   hash!: string
 
-  @Field(() => String, { description: 'commit message' })
+  @Field(() => String, { description: 'commit message', nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
-  commitMessage!: string
+  commitMessage!: string | null
+
+  @Field(() => Number, { description: 'pull request number', nullable: true })
+  @Column({ type: 'int', nullable: true })
+  pr!: number | null
 
   @Field(() => String, { description: 'git branch', nullable: true })
   @Column({ type: 'varchar', nullable: true })
@@ -68,6 +74,9 @@ export class AppVersion extends BaseEntity {
 
   @Column({ type: 'int', nullable: true })
   artifactId!: number | null
+
+  @OneToMany('Artifact', 'version')
+  artifacts!: Artifact[]
 
   @Field(() => Boolean, { description: 'version release exempted' })
   @Column({ type: 'boolean', default: 0 })

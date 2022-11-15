@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { NodeIndexOutlined, BranchesOutlined, PlusCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
-import { useTheme } from '@emotion/react'
+import styled from '@emotion/styled'
 import { Stack } from '@fluentui/react'
 import dayjs from 'dayjs'
 import { FC, memo } from 'react'
@@ -28,6 +28,25 @@ import { pathFactory } from '@perfsee/shared/routes'
 import { BundleCard, BuildRound, EmptyBaselineWrap, EmptyBaselineIcon } from './style'
 import { ArtifactDiff } from './types'
 
+export const CommitMessage = styled.span({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+})
+
+export const CommitInfoContainer = styled.div(({ theme }) => ({
+  fontSize: 12,
+  color: theme.text.colorSecondary,
+  marginTop: 8,
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  '>*': {
+    marginRight: 6,
+  },
+  'span[role=img] + span': { marginRight: 12 },
+}))
+
 interface Props {
   artifact: ArtifactDiff
   onBaselineSelectorOpen?: () => void
@@ -36,7 +55,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
   const { baseline, project } = artifact
   return (
     <BundleCard>
-      <Stack horizontal verticalAlign="center" wrap>
+      <Stack horizontal verticalAlign="center">
         <Stack.Item grow={1}>
           <BuildRound>#{artifact.id}</BuildRound>
           <Tag type="warning">current</Tag>
@@ -75,7 +94,6 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
 }
 
 export const CommitInfo = memo<{ artifact: ArtifactDiff }>(({ artifact }) => {
-  const theme = useTheme()
   const { project } = artifact
 
   if (!project) {
@@ -83,25 +101,14 @@ export const CommitInfo = memo<{ artifact: ArtifactDiff }>(({ artifact }) => {
   }
 
   return (
-    <Stack
-      horizontal={true}
-      verticalAlign="center"
-      tokens={{ childrenGap: 6 }}
-      styles={{
-        root: {
-          fontSize: 12,
-          color: theme.text.colorSecondary,
-          marginTop: 8,
-          'span[role=img] + span': { marginRight: 12 },
-        },
-      }}
-    >
+    <CommitInfoContainer>
       <ClockCircleOutlined />
       <span>{dayjs(artifact.createdAt).fromNow()}</span>
       <BranchesOutlined />
       <span>{artifact.branch}</span>
       <NodeIndexOutlined />
       <ForeignLink href={getCommitLink(project, artifact.hash)}>{artifact.hash.substring(0, 8)}</ForeignLink>
-    </Stack>
+      <CommitMessage>{artifact.version?.commitMessage}</CommitMessage>
+    </CommitInfoContainer>
   )
 })

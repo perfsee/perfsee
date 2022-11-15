@@ -13,6 +13,9 @@ query artifacts($projectId: ID!, $pagination: PaginationInput, $branch: String, 
           score
           createdAt
           updatedAt
+          version {
+            commitMessage
+          }
         }
       }
       pageInfo {

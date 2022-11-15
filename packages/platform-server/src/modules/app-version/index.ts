@@ -18,12 +18,12 @@ import { Module } from '@nestjs/common'
 
 import { ProjectModule } from '../project'
 
-import { ProjectAppVersionResolver } from './resolver'
+import { ArtifactVersionResolver, ProjectAppVersionResolver } from './resolver'
 import { AppVersionService } from './service'
 
 @Module({
   imports: [ProjectModule],
-  providers: [AppVersionService, ProjectAppVersionResolver],
+  providers: [AppVersionService, ProjectAppVersionResolver, ArtifactVersionResolver],
   exports: [AppVersionService],
 })
 export class AppVersionModule {}

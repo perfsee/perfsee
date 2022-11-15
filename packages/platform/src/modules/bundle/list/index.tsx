@@ -51,7 +51,8 @@ import { ProjectModule, useBreadcrumb, useGenerateProjectRoute } from '../../sha
 
 import { BundleListModule, Artifact } from './module'
 import { BundleStatusTag } from './status-tag'
-import { Score } from './style'
+import { InformationContainer, Score } from './style'
+import { Commit } from '../../components/commit'
 
 const tableItemStackTokens: IStackTokens = {
   childrenGap: 8,
@@ -198,16 +199,16 @@ export const BundleList = memo(() => {
         minWidth: 200,
         maxWidth: 300,
         onRender: (item: Artifact) => (
-          <div>
+          <InformationContainer>
             <Stack horizontal={true} verticalAlign="center" tokens={tableItemStackTokens}>
               <BranchesOutlined />
               <span>{item.branch}</span>
             </Stack>
             <Stack horizontal={true} verticalAlign="center" tokens={tableItemStackTokens}>
               <NodeIndexOutlined />
-              <ForeignLink href={getCommitLink(project, item.hash)}>{item.hash.substring(0, 8)}</ForeignLink>
+              <Commit commitMessage={item.version?.commitMessage} hash={item.hash} />
             </Stack>
-          </div>
+          </InformationContainer>
         ),
       },
       {
