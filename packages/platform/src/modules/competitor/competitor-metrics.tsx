@@ -106,7 +106,12 @@ export const CompetitorMetricsChart: FC<Props> = ({ reports }) => {
       )
 
       const content = (
-        <SnapshotChartTooltip title={Metrics[measure].title} formatter={formatter} dataList={items} project={project} />
+        <SnapshotChartTooltip
+          title={Metrics[measure].title}
+          formatter={formatter}
+          dataList={items.sort((a, b) => b.data.value - a.data.value)}
+          project={project}
+        />
       )
 
       return renderTooltip('competitor-metrics', content)

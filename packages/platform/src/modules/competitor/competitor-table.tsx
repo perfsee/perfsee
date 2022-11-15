@@ -52,11 +52,13 @@ const metricColumns = ['FCP', 'FMP', 'LCP', 'SI', 'TTI', 'TBT', 'WS'].map((key) 
     comparator: (a, b) => {
       const aPayload = a[MetricType[key]]
       const bPayload = b[MetricType[key]]
-      if (!aPayload || !bPayload || !aPayload.sample.length || !bPayload.sample.length) {
-        return 0
+      if (!aPayload?.sample.length || !bPayload?.sample.length) {
+        return undefined
       }
-      const aMean = getMean(aPayload.sample)
+
       const bMean = getMean(bPayload.sample)
+      const aMean = getMean(aPayload.sample)
+
       return aMean - bMean
     },
     onRender: (item) => {

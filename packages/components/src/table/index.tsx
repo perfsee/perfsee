@@ -156,8 +156,15 @@ export function Table<T = any>({
       let worstItemIndex = 0
 
       rawItems.forEach((v, i) => {
-        bestItemIndex = column.comparator!(rawItems[bestItemIndex], v) < 0 ? bestItemIndex : i
-        worstItemIndex = column.comparator!(rawItems[worstItemIndex], v) > 0 ? worstItemIndex : i
+        const best = column.comparator!(rawItems[bestItemIndex], v)
+        if (typeof best === 'number') {
+          bestItemIndex = best < 0 ? bestItemIndex : i
+        }
+
+        const worst = column.comparator!(rawItems[worstItemIndex], v)
+        if (typeof worst === 'number') {
+          worstItemIndex = worst > 0 ? worstItemIndex : i
+        }
       })
 
       items = rawItems.map((item, i) => {
