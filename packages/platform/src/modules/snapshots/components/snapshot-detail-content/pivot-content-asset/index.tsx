@@ -21,7 +21,9 @@ import {
   IDetailsRowStyles,
   IDetailsRowProps,
   IColumn,
+  IGroup,
 } from '@fluentui/react'
+import { groupBy } from 'lodash'
 import { useState, useCallback, useMemo } from 'react'
 
 import { Table } from '@perfsee/components'
@@ -30,7 +32,8 @@ import { RequestSchema } from '@perfsee/shared'
 
 import { SnapshotDetailType } from '../../../snapshot-type'
 
-import { ColumnKeys, DefaultColumns, getColumnConfig } from './columns'
+import { ColumnKeys, DefaultColumns, getColumnConfig } from './filter-component/columns'
+import { groupByDomain, GroupByKey } from './filter-component/group-by-filter'
 import { RequestFilter } from './requests-filter'
 import { TableExtraInfo } from './table-extra-info'
 import { getStartTime } from './utils'
@@ -79,6 +82,7 @@ const defaultKeys = Object.values(ColumnKeys).filter((key) => getColumnConfig(ke
 export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
   const [searchedList, setSearchedList] = useState<RequestSchema[] | undefined>()
   const [filterColumnKeys, setFilterColumnKeys] = useState<Set<string>>(new Set(defaultKeys))
+  const [groupByKey, setGroupBy] = useState<GroupByKey>(GroupByKey.None)
 
   const onFilter = useCallback((list: RequestSchema[]) => {
     setSearchedList(list)
@@ -117,6 +121,33 @@ export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
     return DefaultColumns.concat(waterfallColumn).filter((c) => filterColumnKeys.has(c.key))
   }, [filterColumnKeys, waterfallColumn])
 
+  const { groups, items } = useMemo(() => {
+    if (groupByKey === GroupByKey.None) {
+      return { groups: undefined, items: searchedList }
+    }
+
+    const grouped = groupBy(searchedList, groupByKey === GroupByKey.Domain ? groupByDomain : groupByKey)
+
+    const items: RequestSchema[] = []
+    const groups: IGroup[] = []
+
+    Object.entries(grouped).forEach(([key, assets], i) => {
+      groups.push({
+        key: key,
+        name: key,
+        startIndex: items.length,
+        count: assets.length,
+        isCollapsed: i !== 0,
+      })
+      items.push(...assets)
+    })
+
+    return {
+      groups,
+      items,
+    }
+  }, [groupByKey, searchedList])
+
   return (
     <div style={{ maxWidth: 'calc(100vw - 160px)' }}>
       <RequestFilter
@@ -126,9 +157,12 @@ export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
         onFilterColumns={setFilterColumnKeys}
         filteredColumnKeys={filterColumnKeys}
         columnKeys={Object.values(ColumnKeys)}
+        groupBy={groupByKey}
+        onGroupByChange={setGroupBy}
       />
       <Table
-        items={searchedList ?? []}
+        items={items ?? []}
+        groups={groups}
         enableShimmer={!searchedList}
         selectionMode={SelectionMode.none}
         columns={columns}

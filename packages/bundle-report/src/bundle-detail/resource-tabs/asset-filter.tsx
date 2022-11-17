@@ -16,7 +16,7 @@ limitations under the License.
 
 import { FilterOutlined } from '@ant-design/icons'
 import { HoverCard, HoverCardType, IPlainCardProps, PrimaryButton, Stack, TextField } from '@fluentui/react'
-import { FC, useCallback, useMemo } from 'react'
+import { FC, ReactNode, useCallback, useMemo } from 'react'
 
 import { Size, PackageInfo as RawPackage } from '@perfsee/shared'
 
@@ -29,9 +29,12 @@ export type Package = RawPackage & {
 type Props = {
   searchText: string
   onChangeSearchText: (searchText: string) => void
+
+  title?: string
+  children?: ReactNode
 }
 
-export const AssetFilter: FC<Props> = ({ searchText, onChangeSearchText }) => {
+export const AssetFilter: FC<Props> = ({ title, children, searchText, onChangeSearchText }) => {
   const onChangeSearch = useCallback(
     (_: any, newValue?: string) => {
       const text = newValue?.trim() ?? ''
@@ -47,11 +50,16 @@ export const AssetFilter: FC<Props> = ({ searchText, onChangeSearchText }) => {
   const hoverContent = useMemo(
     () => (
       <Stack tokens={{ childrenGap: 10, padding: '10px' }}>
-        <TextField label="Search" value={searchText} placeholder="Not support regex" onChange={onChangeSearch} />
+        <TextField
+          label={title ?? 'Search'}
+          value={searchText}
+          placeholder="Not support regex"
+          onChange={onChangeSearch}
+        />
         <PrimaryButton text="Reset" onClick={resetSearch} />
       </Stack>
     ),
-    [onChangeSearch, resetSearch, searchText],
+    [onChangeSearch, resetSearch, searchText, title],
   )
 
   const filterCardProps = useMemo<IPlainCardProps>(
@@ -67,10 +75,8 @@ export const AssetFilter: FC<Props> = ({ searchText, onChangeSearchText }) => {
   )
 
   return (
-    <TableHeaderFilterIcon>
-      <HoverCard type={HoverCardType.plain} cardOpenDelay={100} plainCardProps={filterCardProps}>
-        {searchText ? <FilteredIcon /> : <FilterOutlined />}
-      </HoverCard>
-    </TableHeaderFilterIcon>
+    <HoverCard type={HoverCardType.plain} cardOpenDelay={100} plainCardProps={filterCardProps}>
+      {children ?? <TableHeaderFilterIcon>{searchText ? <FilteredIcon /> : <FilterOutlined />}</TableHeaderFilterIcon>}
+    </HoverCard>
   )
 }

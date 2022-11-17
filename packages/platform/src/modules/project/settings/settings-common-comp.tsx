@@ -86,7 +86,15 @@ export const SettingDialogs = memo((props: Props) => {
         dialogContentProps={contentProps}
         modalProps={{ isBlocking: true }}
       >
-        {visible === DialogVisible.Edit ? editContent : visible === DialogVisible.Delete ? deleteContent : pingContent}
+        {visible === DialogVisible.Edit ? (
+          editContent
+        ) : visible === DialogVisible.Delete ? (
+          deleteContent
+        ) : visible === DialogVisible.Ping ? (
+          pingContent
+        ) : (
+          <Spinner />
+        )}
       </Dialog>
     </>
   )

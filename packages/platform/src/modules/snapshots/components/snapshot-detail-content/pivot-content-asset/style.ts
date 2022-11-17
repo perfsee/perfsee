@@ -18,6 +18,7 @@ import styled from '@emotion/styled'
 import { Pivot, Stack } from '@fluentui/react'
 
 import { ForeignLink } from '@perfsee/components'
+import { darken } from '@perfsee/dls'
 
 export const StyledPivot = styled(Pivot)(() => {
   return {
@@ -65,7 +66,7 @@ export const ColorDot = styled.span<{ color: string }>(({ color }) => ({
   marginRight: '8px',
 }))
 
-export const SelectionColumn = styled(Stack)<{ selected: boolean; disabled: boolean }>(
+export const SelectionColumn = styled(Stack)<{ selected: boolean; disabled?: boolean }>(
   ({ selected, disabled, theme }) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -77,3 +78,16 @@ export const SelectionColumn = styled(Stack)<{ selected: boolean; disabled: bool
     },
   }),
 )
+
+export const FilterTrigger = styled.div(({ theme }) => ({
+  color: theme.colors.primary,
+  borderRadius: '4px',
+  cursor: 'pointer',
+  padding: '2px',
+  '> span': {
+    paddingRight: '4px',
+  },
+  ':hover': {
+    color: darken(theme.colors.primary, 0.3),
+  },
+}))
