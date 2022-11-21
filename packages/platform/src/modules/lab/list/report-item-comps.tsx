@@ -14,28 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { IconButton, IIconProps, TooltipHost, ActionButton, SharedColors } from '@fluentui/react'
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons'
+import { IconButton, IIconProps, TooltipHost, ActionButton, SharedColors, Stack } from '@fluentui/react'
 import { useDispatchers, useModule } from '@sigi/react'
 import { FC, useCallback, useMemo, MouseEvent } from 'react'
 
 import { TooltipWithEllipsis } from '@perfsee/components'
-import { SnapshotStatus } from '@perfsee/schema'
+import { Permission, SnapshotStatus } from '@perfsee/schema'
+import { PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { CompareModule } from '../../shared'
+import { CompareModule, ProjectInfo } from '../../shared'
 import { PerformanceTabType } from '../../snapshots/snapshot-type'
 import { DisabledText, NoticeLabel } from '../style'
 
 import { LabListModule, SnapshotReportSchema } from './module'
-import { CompareButtonInner } from './style'
+import { CompareButtonInner, DeleteButtonInner } from './style'
 
 const rerunIconProps: IIconProps = { iconName: 'RedoOutlined', styles: { root: { transform: 'rotate(-90deg)' } } }
 
 type Props = {
   snapshotId: number
   report: SnapshotReportSchema
-  projectId: string
+  project: ProjectInfo
+  onDelete: (report: SnapshotReportSchema) => void
 }
 
 export const getDetailUrl = (report: SnapshotReportSchema, projectId: string) => {
@@ -46,13 +48,13 @@ export const getDetailUrl = (report: SnapshotReportSchema, projectId: string) =>
   })
 }
 
-export const OperationButton = ({ snapshotId, report, projectId }: Props) => {
+export const OperationButton = ({ snapshotId, report, project, onDelete }: Props) => {
   const dispatcher = useDispatchers(LabListModule)
   const [{ compareReports }, labDispatcher] = useModule(CompareModule)
 
   const inCompareList = useMemo(() => {
-    return compareReports[projectId]?.[report.id]
-  }, [compareReports, report.id, projectId])
+    return compareReports[project.id]?.[report.id]
+  }, [compareReports, report.id, project.id])
 
   const onRerun = useCallback(() => {
     dispatcher.rerunSnapshotReport({ id: report.id, snapshotId: snapshotId })
@@ -63,7 +65,7 @@ export const OperationButton = ({ snapshotId, report, projectId }: Props) => {
       e.stopPropagation()
 
       labDispatcher.addReport({
-        projectId,
+        projectId: project.id,
         reportId: report.id,
         data: {
           name: report.page.name,
@@ -71,20 +73,46 @@ export const OperationButton = ({ snapshotId, report, projectId }: Props) => {
         },
       })
     },
-    [labDispatcher, projectId, report.id, report.page.name, snapshotId],
+    [labDispatcher, project.id, report.id, report.page.name, snapshotId],
+  )
+
+  const onDeleteReport = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+
+      onDelete(report)
+    },
+    [onDelete, report],
   )
 
   const onRemoveCompare = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
       labDispatcher.removeReport({
-        projectId,
+        projectId: project.id,
         snapshotId,
         reportId: report.id,
       })
     },
-    [labDispatcher, projectId, report.id, snapshotId],
+    [labDispatcher, project.id, report.id, snapshotId],
   )
+
+  const deleteButton = useMemo(() => {
+    if (!project || !project.userPermission.includes(Permission.Admin)) {
+      return null
+    }
+
+    return (
+      <TooltipHost content={`${PrettyBytes.create(report.uploadSize)} storage will be released after delete`}>
+        <ActionButton onClick={onDeleteReport}>
+          <DeleteButtonInner>
+            <DeleteOutlined />
+            Delete
+          </DeleteButtonInner>
+        </ActionButton>
+      </TooltipHost>
+    )
+  }, [onDeleteReport, project, report.uploadSize])
 
   if (report.status === SnapshotStatus.Failed) {
     return (
@@ -95,25 +123,31 @@ export const OperationButton = ({ snapshotId, report, projectId }: Props) => {
   } else if (report.status === SnapshotStatus.Completed && !report.page.isE2e) {
     if (inCompareList) {
       return (
-        <TooltipHost key="remove-compare" content="Remove from compare reports">
-          <ActionButton onClick={onRemoveCompare}>
-            <CompareButtonInner>
-              <MinusOutlined />
-              Remove
-            </CompareButtonInner>
-          </ActionButton>
-        </TooltipHost>
+        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: '8px' }}>
+          <TooltipHost key="remove-compare" content="Remove from compare reports">
+            <ActionButton onClick={onRemoveCompare}>
+              <CompareButtonInner>
+                <MinusOutlined />
+                Remove
+              </CompareButtonInner>
+            </ActionButton>
+          </TooltipHost>
+          {deleteButton}
+        </Stack>
       )
     } else {
       return (
-        <TooltipHost key="compare" content="Add report to compare">
-          <ActionButton onClick={onAddCompare}>
-            <CompareButtonInner>
-              <PlusOutlined />
-              Compare
-            </CompareButtonInner>
-          </ActionButton>
-        </TooltipHost>
+        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: '8px' }}>
+          <TooltipHost key="compare" content="Add report to compare">
+            <ActionButton onClick={onAddCompare}>
+              <CompareButtonInner>
+                <PlusOutlined />
+                Compare
+              </CompareButtonInner>
+            </ActionButton>
+          </TooltipHost>
+          {deleteButton}
+        </Stack>
       )
     }
   }

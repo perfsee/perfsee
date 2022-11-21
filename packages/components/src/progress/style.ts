@@ -20,14 +20,20 @@ export const ProgressContainer = styled.div<{ backgroundColor?: string; width?: 
   ({ backgroundColor, width, height, theme }) => ({
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: width ?? '150px',
-    height: height ?? '10px',
-    backgroundColor: backgroundColor ?? theme.colors.white,
+    justifyContent: 'flex-start',
+    width: width ?? '100%',
+    height: height ?? '4px',
+    backgroundColor: backgroundColor ?? theme.colors.secondary,
     overflow: 'hidden',
-    borderRadius: '4px',
+    borderRadius: '2px',
   }),
 )
+
+export const ProgressInner = styled.div<{ percent: number; color: string }>(({ percent, color }) => ({
+  width: `${percent * 100}%`,
+  height: '100%',
+  backgroundColor: color,
+}))
 
 export const Level = styled.div<{ color: string }>(({ color }) => ({
   backgroundColor: color,

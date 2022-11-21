@@ -27,7 +27,7 @@ import {
 } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
 import dayJs from 'dayjs'
-import { useEffect, useMemo, useCallback, memo, MouseEvent } from 'react'
+import { useEffect, useMemo, useCallback, memo, MouseEvent, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import {
@@ -39,15 +39,18 @@ import {
   useQueryString,
   Empty,
   TooltipWithEllipsis,
+  Modal,
+  ModalType,
+  useToggleState,
 } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 import { formatMsDuration } from '@perfsee/platform/common'
-import { BundleJobStatus, JobType } from '@perfsee/schema'
-import { getCommitLink } from '@perfsee/shared'
+import { BundleJobStatus, JobType, Permission } from '@perfsee/schema'
+import { getCommitLink, PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { BranchSelector, ArtifactNameSelector, Breadcrumb } from '../../components'
-import { ProjectModule, useBreadcrumb, useGenerateProjectRoute } from '../../shared'
+import { ProjectInfo, ProjectModule, useBreadcrumb, useGenerateProjectRoute } from '../../shared'
 
 import { BundleListModule, Artifact } from './module'
 import { BundleStatusTag } from './status-tag'
@@ -56,6 +59,7 @@ import { Score } from './style'
 const tableItemStackTokens: IStackTokens = {
   childrenGap: 8,
 }
+const deleteIconProps: IIconProps = { iconName: 'delete', styles: { root: { color: SharedColors.red10 } } }
 const rerunIconProps: IIconProps = { iconName: 'RedoOutlined', styles: { root: { transform: 'rotate(-90deg)' } } }
 const detailIconProps: IIconProps = {
   iconName: 'DoubleRightOutlined',
@@ -68,11 +72,13 @@ const errorDetailTooltipProps: ITooltipProps = {
 }
 
 interface OperationColumnProps {
+  project: ProjectInfo
   item: Artifact
   onRerunClick: (artifact: Artifact) => void
+  onDelete: (artifact: Artifact) => void
 }
 
-const OperationColumn = ({ item, onRerunClick }: OperationColumnProps) => {
+const OperationColumn = ({ item, project, onRerunClick, onDelete }: OperationColumnProps) => {
   const onRerun = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       onRerunClick(item)
@@ -81,19 +87,48 @@ const OperationColumn = ({ item, onRerunClick }: OperationColumnProps) => {
     [item, onRerunClick],
   )
 
+  const onClickDelete = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      onDelete(item)
+    },
+    [item, onDelete],
+  )
+
+  const deleteButton = useMemo(() => {
+    if (!project || !project.userPermission.includes(Permission.Admin)) {
+      return null
+    }
+
+    return (
+      <TooltipHost
+        key="delete"
+        content={`${PrettyBytes.create(item.uploadSize)} storage will be released after delete`}
+      >
+        <IconButton iconProps={deleteIconProps} onClick={onClickDelete} />
+      </TooltipHost>
+    )
+  }, [item.uploadSize, onClickDelete, project])
+
   switch (item.status) {
     case BundleJobStatus.Failed:
       return (
-        <TooltipHost key="retry" content="Rerun">
-          <IconButton iconProps={rerunIconProps} onClick={onRerun} />
-        </TooltipHost>
+        <Stack horizontal tokens={{ childrenGap: 8 }}>
+          <TooltipHost key="retry" content="Rerun">
+            <IconButton iconProps={rerunIconProps} onClick={onRerun} />
+          </TooltipHost>
+          {deleteButton}
+        </Stack>
       )
 
     case BundleJobStatus.Passed:
       return (
-        <TooltipHost key="detail" content="View Detail">
-          <IconButton iconProps={detailIconProps} />
-        </TooltipHost>
+        <Stack horizontal tokens={{ childrenGap: 8 }}>
+          <TooltipHost key="detail" content="View Detail">
+            <IconButton iconProps={detailIconProps} />
+          </TooltipHost>
+          {deleteButton}
+        </Stack>
       )
     default:
       return null
@@ -104,6 +139,8 @@ export const BundleList = memo(() => {
   const [state, dispatcher] = useModule(BundleListModule)
   const { project } = useModuleState(ProjectModule)
   const history = useHistory()
+  const [deleteModalVisible, showDeleteModal, hideDeleteModal] = useToggleState(false)
+  const deletingArtifact = useRef<Artifact | null>()
 
   const generateProjectRoute = useGenerateProjectRoute()
 
@@ -144,6 +181,28 @@ export const BundleList = memo(() => {
     },
     [dispatcher],
   )
+
+  const onDeleteArtifact = useCallback(
+    (artifact: Artifact) => {
+      deletingArtifact.current = artifact
+      showDeleteModal()
+    },
+    [showDeleteModal],
+  )
+
+  const confirmDelete = useCallback(() => {
+    hideDeleteModal()
+
+    if (deletingArtifact.current) {
+      dispatcher.deleteArtifact(deletingArtifact.current.id)
+      deletingArtifact.current = null
+    }
+  }, [dispatcher, hideDeleteModal])
+
+  const cancelDelete = useCallback(() => {
+    hideDeleteModal()
+    deletingArtifact.current = null
+  }, [hideDeleteModal])
 
   const columns = useMemo<IColumn[]>(() => {
     if (!project) {
@@ -250,14 +309,14 @@ export const BundleList = memo(() => {
       {
         key: 'operations',
         name: '',
-        minWidth: 100,
-        maxWidth: 100,
+        minWidth: 150,
+        maxWidth: 150,
         onRender: (item: Artifact) => {
-          return <OperationColumn item={item} onRerunClick={rerunJob} />
+          return <OperationColumn project={project} item={item} onRerunClick={rerunJob} onDelete={onDeleteArtifact} />
         },
       },
     ]
-  }, [generateProjectRoute, project, rerunJob])
+  }, [generateProjectRoute, onDeleteArtifact, project, rerunJob])
 
   const onPageChange = useCallback(
     (pageNum: number, pageSize: number) => {
@@ -346,6 +405,24 @@ export const BundleList = memo(() => {
           </>
         )}
       </ContentCard>
+      <Modal
+        type={ModalType.Warning}
+        title="Delete artifact"
+        isOpen={deleteModalVisible}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+      >
+        <Stack tokens={{ padding: '12px', childrenGap: '4px' }}>
+          <span>
+            Are you sure to delete artifact <b>#{deletingArtifact.current?.id}</b>? All data related will be deleted
+            together and can not be restored.
+          </span>
+          <span>
+            About <b>{PrettyBytes.create(deletingArtifact.current?.uploadSize ?? 0).toString()}</b> storage size will be
+            released after delete.
+          </span>
+        </Stack>
+      </Modal>
     </>
   )
 })

@@ -15,27 +15,31 @@ limitations under the License.
 */
 
 import { Module, EffectModule, Effect, ImmerReducer } from '@sigi/core'
-import { Draft, freeze } from 'immer'
+import { Draft } from 'immer'
 import { Observable } from 'rxjs'
-import { withLatestFrom, switchMap, map } from 'rxjs/operators'
+import { switchMap, map } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { projectTimeUsagesQuery, ProjectTimeUsagesQuery, TimeUsageInput } from '@perfsee/schema'
+import { ProjectTimeUsagesQuery, ProjectUsageQuery, projectUsageQuery } from '@perfsee/schema'
 
 import { ProjectModule } from '../../../shared'
 
 export type TimeUsage = ProjectTimeUsagesQuery['project']['timeUsage']['detail']
 
 interface State {
-  total: number
-  data: TimeUsage
+  usage: ProjectUsageQuery['project']['usage']
+  usagePack: ProjectUsageQuery['project']['usagePack'] | null
 }
 
 @Module('SettingsUsageModule')
 export class SettingsUsageModule extends EffectModule<State> {
   readonly defaultState: State = {
-    total: 0,
-    data: [],
+    usage: {
+      jobCount: 0,
+      jobDuration: 0,
+      storage: 0,
+    },
+    usagePack: null,
   }
 
   constructor(private readonly client: GraphQLClient, private readonly project: ProjectModule) {
@@ -43,29 +47,28 @@ export class SettingsUsageModule extends EffectModule<State> {
   }
 
   @Effect()
-  fetchUsages(payload$: Observable<TimeUsageInput>) {
+  fetchUsage(payload$: Observable<void>) {
     return payload$.pipe(
-      withLatestFrom(this.project.state$),
-      switchMap(([input, { project }]) =>
+      this.project.withProject,
+      switchMap(([project]) =>
         this.client
           .query({
-            query: projectTimeUsagesQuery,
+            query: projectUsageQuery,
             variables: {
               projectId: project!.id,
-              input,
             },
           })
           .pipe(
-            createErrorCatcher('Failed to fetch project time usage.'),
-            map((data) => this.getActions().setUsages(data.project.timeUsage)),
+            createErrorCatcher('Failed to fetch project usage.'),
+            map((data) => this.getActions().setUsages(data.project)),
           ),
       ),
     )
   }
 
   @ImmerReducer()
-  setUsages(state: Draft<State>, usage: ProjectTimeUsagesQuery['project']['timeUsage']) {
-    state.total = usage.total
-    state.data = freeze(usage.detail)
+  setUsages(state: Draft<State>, payload: ProjectUsageQuery['project']) {
+    state.usage = payload.usage
+    state.usagePack = payload.usagePack
   }
 }

@@ -1,0 +1,15 @@
+query projectUsage($projectId: ID!) {
+  project(id: $projectId) {
+    usage {
+      jobCount
+      jobDuration
+      storage
+    }
+    usagePack {
+      name
+      jobDurationMonthly
+      jobCountMonthly
+      storage
+    }
+  }
+}
