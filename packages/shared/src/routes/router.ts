@@ -54,6 +54,7 @@ export interface RouteTypes {
     applications: void
     runners: void
     scripts: void
+    usagePacks: void
   }
 }
 
@@ -104,6 +105,7 @@ export const staticPath = {
     applications: '/admin/applications',
     runners: '/admin/runners',
     scripts: '/admin/runner-scripts',
+    usagePacks: '/admin/usage-packs',
   },
 }
 
@@ -188,6 +190,7 @@ export const pathFactory = {
     applications: makePathsFrom<FactoryParams<RouteTypes['admin']['applications']>>('/admin/applications'),
     runners: makePathsFrom<FactoryParams<RouteTypes['admin']['runners']>>('/admin/runners'),
     scripts: makePathsFrom<FactoryParams<RouteTypes['admin']['scripts']>>('/admin/runner-scripts'),
+    usagePacks: makePathsFrom<FactoryParams<RouteTypes['admin']['usagePacks']>>('/admin/usage-packs'),
   },
 }
 
@@ -247,4 +250,5 @@ export const titleFactory = {
   '/admin/applications': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/runners': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/runner-scripts': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/admin/usage-packs': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
 }

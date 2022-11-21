@@ -114,7 +114,7 @@ paths:
   admin:
     base: /admin
     paths:
-      part: 
+      part:
         path: /:part?
       settings:
         path: /settings
@@ -126,3 +126,5 @@ paths:
         path: /runners
       scripts:
         path: /runner-scripts
+      usagePacks:
+        path: /usage-packs

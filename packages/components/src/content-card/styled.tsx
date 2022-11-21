@@ -20,7 +20,6 @@ export const CardWrap = styled.div(({ theme }) => ({
   backgroundColor: theme.colors.white,
   border: `1px solid ${theme.border.color}`,
   borderRadius: '2px',
-  overflow: 'hidden',
 }))
 
 export const CardContentWrap = styled.div({

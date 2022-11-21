@@ -144,7 +144,7 @@ export const Runners = () => {
   }
 
   return (
-    <>
+    <Stack tokens={{ childrenGap: 16 }}>
       <ContentCard>
         <RunnersFilter />
       </ContentCard>
@@ -166,7 +166,7 @@ export const Runners = () => {
           />
         </Stack>
       </ContentCard>
-    </>
+    </Stack>
   )
 }
 
