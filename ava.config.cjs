@@ -23,18 +23,16 @@ module.exports = {
 function startServer() {
   const { execSync, fork } = require('child_process')
   const path = require('path')
+  const MYSQL_DB = 'perfsee_testing'
 
   console.info('initializing testing database...')
-  execSync(
-    'yarn typeorm query "CREATE DATABASE IF NOT EXISTS perfsee_testing;" && yarn typeorm migration:run && yarn typeorm query "SET GLOBAL FOREIGN_KEY_CHECKS = 0;"',
-    {
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        MYSQL_DB: 'perfsee_testing',
-      },
+  execSync(`yarn typeorm migration:run && yarn typeorm query "SET GLOBAL FOREIGN_KEY_CHECKS = 0;"`, {
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      MYSQL_DB,
     },
-  )
+  })
 
   const server = fork(`${path.resolve(__dirname, 'tools/e2e-server.entry.js')}`, {
     stdio: 'inherit',
@@ -43,7 +41,7 @@ function startServer() {
       TS_NODE_PROJECT: './tsconfigs/tsconfig.cjs.json',
       NODE_ENV: 'test',
       PERFSEE_SERVER_PORT: 3001,
-      MYSQL_DB: 'perfsee_testing',
+      MYSQL_DB,
     },
   })
 

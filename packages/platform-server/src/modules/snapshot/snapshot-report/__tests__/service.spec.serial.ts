@@ -1,6 +1,8 @@
 import { faker } from '@faker-js/faker'
 
-import { Environment, Page, Snapshot, PageWithCompetitor } from '@perfsee/platform-server/db'
+import { Environment, Page, Snapshot, PageWithCompetitor, SnapshotReport } from '@perfsee/platform-server/db'
+import { ProjectUsageService } from '@perfsee/platform-server/modules/project-usage/service'
+import { ObjectStorage } from '@perfsee/platform-server/storage'
 import test, { createMock, initTestDB, createDBTestingModule, create } from '@perfsee/platform-server/test'
 import { SnapshotStatus } from '@perfsee/server-common'
 
@@ -108,4 +110,51 @@ test.serial('filter reports by pageIid with competitor page', async (t) => {
   t.is(reports.length, 2)
   t.is(reports[0].pageId, competitor.id)
   t.is(reports[1].pageId, page.id)
+})
+
+test.serial('delete snapshot report by report id', async (t) => {
+  const service = t.context.module.get(SnapshotReportService)
+  const storageService = t.context.module.get(ObjectStorage)
+  const projectUsageService = t.context.module.get(ProjectUsageService)
+
+  const projectId = 1
+  const hash = faker.git.commitSha()
+
+  const snapshot = await create(Snapshot, { projectId, hash })
+  const size = faker.datatype.number()
+
+  const report1 = await mockCreateReport(projectId, {
+    snapshotId: snapshot.id,
+    lighthouseStorageKey: faker.datatype.string(),
+    screencastStorageKey: faker.datatype.string(),
+    jsCoverageStorageKey: faker.datatype.string(),
+    traceEventsStorageKey: faker.datatype.string(),
+    flameChartStorageKey: faker.datatype.string(),
+    sourceCoverageStorageKey: faker.datatype.string(),
+    uploadSize: size,
+  })
+
+  await service.deleteSnapshotsReportById(projectId, report1.iid)
+
+  const report = await SnapshotReport.findOneBy({ id: snapshot.id })
+
+  t.is(storageService.bulkDelete.callCount, 1)
+  t.truthy(projectUsageService.recordStorageUsage(projectId, -size))
+  t.falsy(report)
+})
+
+test.serial('on update report upload size', async (t) => {
+  const service = t.context.module.get(SnapshotReportService)
+  const projectUsageService = t.context.module.get(ProjectUsageService)
+
+  const projectId = 1
+  const { id: reportId } = await mockCreateReport(projectId, {
+    uploadSize: 0,
+  })
+
+  await service.handleReportUploadSize(reportId, 1)
+  const report = await SnapshotReport.findOneBy({ id: reportId })
+
+  t.truthy(projectUsageService.recordStorageUsage.calledWith(projectId, 1))
+  t.is(report?.uploadSize, 1)
 })

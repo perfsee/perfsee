@@ -39,4 +39,9 @@ export class SourceController {
     await this.service.updateReport(reportId, artifactIds, flameChartStorageKey, sourceCoverageStorageKey)
     await this.service.saveSourceIssues(projectId, reportId, diagnostics)
   }
+
+  @OnEvent(`${JobType.SourceAnalyze}.upload`)
+  async handleSourceUploadSize(snapshotReportId: number, uploadSize: number) {
+    await this.service.handleJobUpload(snapshotReportId, uploadSize)
+  }
 }

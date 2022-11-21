@@ -33,6 +33,9 @@ type Artifact {
   """the content file key in storage"""
   contentKey: String
 
+  """total size introduced by build, report and content files, in bytes"""
+  uploadSize: Int!
+
   """bundle audit score"""
   score: Int
 
@@ -108,6 +111,33 @@ type ArtifactEntrypoint {
   """artifact created timestamp"""
   createdAt: DateTime!
   artifactId: Int!
+}
+
+type UsagePack {
+  id: Int!
+
+  """name of the usage pack"""
+  name: String!
+  desc: String!
+
+  """whether the usage pack is public"""
+  isPublic: Boolean!
+
+  """whether the usage pack is default"""
+  isDefault: Boolean!
+
+  """job count quota within one month, -1 means no limit"""
+  jobCountMonthly: Int!
+
+  """
+  job cost duration time quota within one month, in minute, -1 means no limit
+  """
+  jobDurationMonthly: Int!
+
+  """total storage quota, in MB, -1 means no limit"""
+  storage: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type Project {
@@ -196,6 +226,12 @@ type Project {
 
   """time usage information of project"""
   timeUsage(input: TimeUsageInput!): TimeUsage!
+
+  """project usage"""
+  usage: ProjectUsage!
+
+  """project usage pack"""
+  usagePack: UsagePack!
 
   """get project settings"""
   setting: Setting!
@@ -404,6 +440,9 @@ type SnapshotReport {
 
   """only exists in dynamic host jobs"""
   host: String
+
+  """total size of files uploaded to storage in this report, in bytes"""
+  uploadSize: Int!
 
   """the environment this report used"""
   environment: Environment!
@@ -901,6 +940,17 @@ type ProjectIdVerificationResult {
   error: String
 }
 
+type ProjectUsage {
+  """storage usage in MB"""
+  storage: Float!
+
+  """job count usage"""
+  jobCount: Float!
+
+  """job time usage in minutes"""
+  jobDuration: Float!
+}
+
 type RunnerEdge {
   cursor: String!
   node: Runner!
@@ -1111,6 +1161,8 @@ type Query {
   zone: Zone!
   runnerScripts(jobType: JobType!): [RunnerScript!]!
   activatedRunnerScripts(jobType: JobType!): RunnerScript
+  allUsagePacks: [UsagePack!]!
+  publicUsagePacks: [UsagePack!]!
 }
 
 input RunnerQueryFilter {
@@ -1158,6 +1210,7 @@ type Mutation {
     """artifact id"""
     id: Int!
   ): Boolean!
+  deleteArtifact(projectId: ID!, artifactId: Int!): Boolean!
   updateRunner(id: ID!, input: UpdateRunnerInput!): Runner!
   deleteRunner(id: ID!): Boolean!
 
@@ -1182,6 +1235,7 @@ type Mutation {
   Delete page with given id. NOTE: all snapshot report having the same page id will be deleted as well.
   """
   deletePage(projectId: ID!, pageId: Int!): Boolean!
+  deleteSnapshotReport(projectId: ID!, snapshotReportId: Int!): Boolean!
 
   """update environment"""
   updateEnvironment(projectId: ID!, input: UpdateEnvironmentInput!): Environment!
@@ -1218,6 +1272,9 @@ type Mutation {
   setDefaultJobZone(zone: String!): String!
   updateApplicationSettings(settings: UpdateApplicationSettingsInput!): ApplicationSettings!
   updateRunnerScript(jobType: JobType!, version: String!, input: UpdateRunnerScriptInput!): RunnerScript!
+  createUsagePack(input: CreateUsagePackInput!): UsagePack!
+  updateUsagePack(input: UpdateUsagePackInput!): UsagePack!
+  setDefaultUsagePack(id: Int!): Boolean!
 }
 
 input CreateProjectInput {
@@ -1443,4 +1500,45 @@ input UpdateApplicationSettingsInput {
 
 input UpdateRunnerScriptInput {
   enable: Boolean
+}
+
+input CreateUsagePackInput {
+  """name of the usage pack"""
+  name: String!
+  desc: String!
+
+  """whether the usage pack is public"""
+  isPublic: Boolean!
+
+  """job count quota within one month, -1 means no limit"""
+  jobCountMonthly: Int!
+
+  """
+  job cost duration time quota within one month, in minute, -1 means no limit
+  """
+  jobDurationMonthly: Int!
+
+  """total storage quota, in MB, -1 means no limit"""
+  storage: Int!
+}
+
+input UpdateUsagePackInput {
+  """name of the usage pack"""
+  name: String
+  desc: String
+
+  """whether the usage pack is public"""
+  isPublic: Boolean
+
+  """job count quota within one month, -1 means no limit"""
+  jobCountMonthly: Int
+
+  """
+  job cost duration time quota within one month, in minute, -1 means no limit
+  """
+  jobDurationMonthly: Int
+
+  """total storage quota, in MB, -1 means no limit"""
+  storage: Int
+  id: Int!
 }

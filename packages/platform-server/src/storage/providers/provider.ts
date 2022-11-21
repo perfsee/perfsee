@@ -22,6 +22,8 @@ export interface ObjectStorage {
   getStream: (name: string) => Promise<Readable>
   upload: (name: string, buf: Buffer) => Promise<void>
   uploadFile: (name: string, file: string) => Promise<void>
+  delete: (name: string) => Promise<void>
+  bulkDelete: (names: string[]) => Promise<void>
   deleteFolder: (name: string) => Promise<void>
 }
 
@@ -29,7 +31,11 @@ export abstract class BaseObjectStorage implements ObjectStorage {
   abstract get(name: string): Promise<Buffer>
   abstract getStream(name: string): Promise<Readable>
   abstract upload(name: string, buf: Buffer): Promise<void>
+  abstract delete(name: string): Promise<void>
   abstract deleteFolder(name: string): Promise<void>
+  async bulkDelete(names: string[]): Promise<void> {
+    await Promise.allSettled(names.map((name) => this.delete(name)))
+  }
   async uploadFile(name: string, file: string) {
     const buf = await fs.readFile(file)
     await this.upload(name, buf)

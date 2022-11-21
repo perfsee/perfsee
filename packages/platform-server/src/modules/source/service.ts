@@ -34,8 +34,10 @@ import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
 import { FlameChartDiagnostic, LHStoredSchema } from '@perfsee/shared'
 
+import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
 import { SettingService } from '../setting/service'
+import { SnapshotReportService } from '../snapshot/snapshot-report/service'
 
 @Injectable()
 export class SourceService implements OnApplicationBootstrap {
@@ -46,6 +48,8 @@ export class SourceService implements OnApplicationBootstrap {
     private readonly settingService: SettingService,
     private readonly objectStorage: ObjectStorage,
     private readonly event: EventEmitter,
+    private readonly reportService: SnapshotReportService,
+    private readonly projectUsage: ProjectUsageService,
   ) {}
 
   onApplicationBootstrap() {
@@ -86,7 +90,15 @@ export class SourceService implements OnApplicationBootstrap {
   }
 
   async startSourceIssueAnalyze(snapshotReports: SnapshotReport[]) {
+    if (!snapshotReports.length) {
+      return
+    }
+
     this.logger.verbose('Emit source code analyser', { snapshotReportIds: snapshotReports.map((report) => report.id) })
+    // we always trigger source analysis with same project
+    // so it's safe
+    await this.projectUsage.recordJobCountUsage(snapshotReports[0].projectId, snapshotReports.length)
+
     await this.event.emitAsync(
       'job.create',
       snapshotReports.map((snapshotReport) => ({
@@ -118,7 +130,7 @@ export class SourceService implements OnApplicationBootstrap {
     const artifacts = []
     const snapshotArtifactIds = []
 
-    const settings = await this.settingService.loader.load(snapshotReport.projectId)
+    const settings = await this.settingService.byProjectLoader.load(snapshotReport.projectId)
 
     if (settings.autoDetectVersion) {
       const lighthouseResult = JSON.parse(
@@ -216,5 +228,9 @@ export class SourceService implements OnApplicationBootstrap {
       .where('iid = :iid', { iid: issueIid })
       .andWhere('project_id = :projectId', { projectId })
       .getOne()
+  }
+
+  async handleJobUpload(reportId: number, uploadSize: number) {
+    await this.reportService.handleReportUploadSize(reportId, uploadSize)
   }
 }

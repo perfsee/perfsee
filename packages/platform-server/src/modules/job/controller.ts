@@ -187,8 +187,11 @@ export class JobController {
 
     const finalKey = 'artifacts/' + job.projectId + '/' + key
     await this.storage.upload(finalKey, buf)
+
+    this.event.emit(`${job.jobType}.upload`, job.entityId, buf.byteLength)
     return {
       key: finalKey,
+      size: buf.byteLength,
     }
   }
 

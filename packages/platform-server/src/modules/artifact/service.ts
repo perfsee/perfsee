@@ -22,11 +22,13 @@ import { EventEmitter } from '@perfsee/platform-server/event'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
+import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { BundleJobPayload, BundleJobUpdate, BundleJobStatus, JobType } from '@perfsee/server-common'
 
 import { CheckSuiteService } from '../checksuite/service'
 import { NotificationService } from '../notification/service'
+import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
 import { SettingService } from '../setting/service'
 
@@ -42,10 +44,12 @@ export class ArtifactService implements OnApplicationBootstrap {
     private readonly checkSuiteService: CheckSuiteService,
     private readonly event: EventEmitter,
     private readonly logger: Logger,
+    private readonly storage: ObjectStorage,
     private readonly metric: Metric,
     private readonly notification: NotificationService,
     private readonly scriptFile: ScriptFileService,
     private readonly setting: SettingService,
+    private readonly projectUsage: ProjectUsageService,
   ) {}
 
   onApplicationBootstrap() {
@@ -219,7 +223,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     })
 
     if (update.status === BundleJobStatus.Passed && update.scripts?.length) {
-      const settings = await this.setting.loader.load(artifact.projectId)
+      const settings = await this.setting.byProjectLoader.load(artifact.projectId)
       if (settings.autoDetectVersion) {
         await this.scriptFile.recordScriptFile(artifact.projectId, artifact.id, artifact.name, update.scripts)
       }
@@ -244,6 +248,13 @@ export class ArtifactService implements OnApplicationBootstrap {
     })
   }
 
+  async handleJobUpload(artifactId: number, uploadSize: number) {
+    const report = await Artifact.findOneByOrFail({ id: artifactId })
+
+    await this.projectUsage.recordStorageUsage(report.projectId, uploadSize)
+    await this.updateArtifactUploadSize(report, uploadSize)
+  }
+
   async dispatchJob(artifact: Artifact) {
     if (artifact.status !== BundleJobStatus.Pending) {
       artifact.status = BundleJobStatus.Pending
@@ -266,6 +277,17 @@ export class ArtifactService implements OnApplicationBootstrap {
     }
   }
 
+  async deleteArtifactById(projectId: number, iid: number) {
+    const artifact = await Artifact.findOneByOrFail({ iid, projectId })
+    await Artifact.delete(artifact.id)
+    await this.projectUsage.recordStorageUsage(projectId, -artifact.uploadSize)
+    await this.storage.bulkDelete(
+      [artifact.buildKey, artifact.contentKey, artifact.reportKey].filter(Boolean) as string[],
+    )
+
+    return true
+  }
+
   private tapMetrics(artifact: Artifact) {
     if (artifact.status === BundleJobStatus.Failed) {
       this.metric.bundleFail(1)
@@ -285,5 +307,15 @@ export class ArtifactService implements OnApplicationBootstrap {
       const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
       await this.checkSuiteService.endBundleCheck(artifact, baseline, project, update)
     }
+  }
+
+  private async updateArtifactUploadSize(artifact: Artifact, uploadSize: number) {
+    await Artifact.createQueryBuilder()
+      .update()
+      .set({
+        uploadSize: () => `upload_size + ${uploadSize}`,
+      })
+      .where({ id: artifact.id })
+      .execute()
   }
 }

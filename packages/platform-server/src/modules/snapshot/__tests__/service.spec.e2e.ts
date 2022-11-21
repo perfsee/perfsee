@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-import { Project, Snapshot, SnapshotReport, User } from '@perfsee/platform-server/db'
+import { Project, ProjectStorageUsage, UsagePack, Snapshot, SnapshotReport, User } from '@perfsee/platform-server/db'
 import test, { GraphQLTestingClient, initTestDB, create } from '@perfsee/platform-server/test'
 import { snapshotsQuery, setSnapshotHashMutation, deleteSnapshotMutation, takeSnapshotMutation } from '@perfsee/schema'
 
@@ -63,6 +63,36 @@ test.serial('unable to take snapshot by no permission user', async (t) => {
       })
     },
     { message: '[User Error] Unauthorized user' },
+  )
+})
+
+test.serial('unable to take snapshot when exceed usage limit', async (t) => {
+  const usagePack = await create(UsagePack, {
+    name: 'test',
+    desc: 'test',
+    jobCountMonthly: 1,
+    jobDurationMonthly: 1,
+    storage: 1,
+  })
+  const project = await create(Project, {
+    usagePackId: usagePack.id,
+  })
+  await create(ProjectStorageUsage, {
+    projectId: project.id,
+    used: '2',
+  })
+
+  await t.throwsAsync(
+    async () => {
+      await gqlClient.mutate({
+        mutation: takeSnapshotMutation,
+        variables: {
+          projectId: project.slug,
+          pageIds: [1],
+        },
+      })
+    },
+    { message: 'Project storage size has exceeded.' },
   )
 })
 

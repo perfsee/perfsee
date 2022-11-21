@@ -19,10 +19,21 @@ const fs = require('fs')
 const { builtinModules } = require('module')
 const path = require('path')
 
-const lockShasum = crypto.createHash('sha256').update(fs.readFileSync('yarn.lock')).digest('hex').substring(0, 10)
-const cliSrc = './cli/index.ts'
-const cliDist = `./cli.${lockShasum}.js`
+const cliDir = path.resolve(__dirname, './cli')
+const cliSrc = path.join(cliDir, 'index.ts')
+const cliDist = `./cli.generated.${cliHash()}.js`
 const cliAbsDist = path.resolve(__dirname, cliDist)
+
+function cliHash() {
+  const lockHash = crypto.createHash('sha256').update(fs.readFileSync('yarn.lock')).digest('hex').substring(0, 5)
+  const hasher = crypto.createHash('sha256')
+  fs.readdirSync(cliDir).forEach((desc) => {
+    if (fs.statSync(path.join(cliDir, desc)).isFile()) {
+      hasher.update(fs.readFileSync(path.join(cliDir, desc)))
+    }
+  })
+  return lockHash + hasher.digest('hex').substring(0, 5)
+}
 
 /**
  *
@@ -48,7 +59,18 @@ function resolvePackage(from, requirePath) {
   }
 }
 
+function cleanup() {
+  console.info('Cleaning up old builds...')
+  const dir = path.dirname(cliAbsDist)
+  fs.readdirSync(dir)
+    .filter((desc) => /^cli\.generated\./.test(desc))
+    .forEach((desc) => {
+      fs.rmSync(path.join(dir, desc))
+    })
+}
+
 function build() {
+  cleanup()
   console.info('Building CLI...')
   const esbuild = require('esbuild')
 
@@ -134,7 +156,7 @@ function build() {
   }
 
   return esbuild.build({
-    entryPoints: [path.resolve(__dirname, cliSrc)],
+    entryPoints: [cliSrc],
     bundle: true,
     platform: 'node',
     target: 'node14',

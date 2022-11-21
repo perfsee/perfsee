@@ -18,6 +18,7 @@ import { Module } from '@nestjs/common'
 
 import { StorageModule } from '@perfsee/platform-server/storage'
 
+import { ProjectUsageModule } from '../project-usage'
 import { ScriptFileModule } from '../script-file'
 import { SettingModule } from '../setting'
 import { SnapshotReportModule } from '../snapshot/snapshot-report'
@@ -27,7 +28,7 @@ import { ProjectSourceIssueResolver, SourceIssueResolver } from './resolver'
 import { SourceService } from './service'
 
 @Module({
-  imports: [SnapshotReportModule, ScriptFileModule, SettingModule, StorageModule],
+  imports: [SnapshotReportModule, ProjectUsageModule, ScriptFileModule, SettingModule, StorageModule],
   controllers: [SourceController],
   providers: [SourceIssueResolver, ProjectSourceIssueResolver, SourceService],
   exports: [SourceService],

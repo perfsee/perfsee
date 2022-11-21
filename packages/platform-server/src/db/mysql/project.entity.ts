@@ -25,11 +25,16 @@ import {
   Index,
   OneToMany,
   OneToOne,
+  ManyToOne,
+  JoinColumn,
+  RelationId,
 } from 'typeorm'
 
 import type { AppVersion } from './app-version.entity'
 import type { Artifact } from './artifact.entity'
 import type { Job } from './job.entity'
+import { ProjectJobUsage } from './project-usage-job.entity'
+import { UsagePack } from './usage-pack.entity'
 import type { Environment, Page, Profile } from './property.entity'
 import type { ScriptFile } from './script-file.entity'
 import type { Setting } from './setting.entity'
@@ -79,6 +84,14 @@ export class Project extends BaseEntity {
   @Column({ type: 'boolean', default: false })
   isPublic!: boolean
 
+  @Column({ nullable: true })
+  @RelationId('usagePack')
+  usagePackId!: number
+
+  @ManyToOne('UsagePack', 'projects')
+  @JoinColumn()
+  usagePack!: UsagePack
+
   @Field({ description: 'project created timestamp' })
   @CreateDateColumn()
   createdAt!: Date
@@ -121,4 +134,7 @@ export class Project extends BaseEntity {
 
   @OneToOne('Setting', 'project')
   setting!: Setting
+
+  @OneToMany('ProjectJobUsage', 'project')
+  jobUsage!: ProjectJobUsage
 }

@@ -30,3 +30,12 @@ test('items have coverage report', async (t) => {
   t.true(service.updateReport.calledOnce)
   t.true(service.saveSourceIssues.calledOnce)
 })
+
+test('update source upload file size', async (t) => {
+  const service = t.context.module.get(SourceService)
+  const controller = t.context.module.get(SourceController)
+
+  await controller.handleSourceUploadSize(1, 1)
+
+  t.truthy(service.handleJobUpload.calledWith(1, 1))
+})

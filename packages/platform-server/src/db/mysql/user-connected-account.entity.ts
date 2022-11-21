@@ -31,7 +31,7 @@ export class UserConnectedAccount extends BaseEntity {
   @RelationId('user')
   userId!: number
 
-  @ManyToOne('User', 'connectedAccounts')
+  @ManyToOne('User', 'connectedAccounts', { onDelete: 'CASCADE' })
   user!: User
 
   @Column({ type: 'varchar' })

@@ -14,32 +14,46 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Field, ObjectType } from '@nestjs/graphql'
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne, RelationId, Index } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  BaseEntity,
+  RelationId,
+  Index,
+  JoinColumn,
+  UpdateDateColumn,
+  ManyToOne,
+} from 'typeorm'
 
-import type { Page } from './property.entity'
+import { Project } from './project.entity'
 
 @Entity()
-@ObjectType()
-export class PageWithCompetitor extends BaseEntity {
+export class ProjectJobUsage extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id!: number
 
-  @Field()
-  @Column()
-  @RelationId('page')
-  @Index()
-  pageId!: number
-
-  @ManyToOne('Page', 'pageWithCompetitors', { onDelete: 'CASCADE' })
-  page!: Page
-
-  @Field()
   @Column()
   @Index()
-  @RelationId('competitor')
-  competitorId!: number // competitor page id
+  @RelationId('project')
+  projectId!: number
 
-  @ManyToOne('Page', { onDelete: 'CASCADE' })
-  competitor!: Page
+  @ManyToOne(() => Project, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  project!: Project
+
+  @Column()
+  year!: number
+
+  @Column()
+  month!: number
+
+  @Column({ default: 0 })
+  jobCount!: number
+
+  @Column({ default: 0, type: 'decimal', precision: 10, scale: 2 })
+  jobDuration!: string
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt!: Date
 }
