@@ -77,6 +77,7 @@ declare module '@emotion/react' {
     }
     layout: {
       mainPadding: string
+      mainMaxWidth: string
       headerHeight: string
       sideBarWidth: string
     }

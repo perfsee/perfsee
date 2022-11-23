@@ -27,13 +27,11 @@ const BundleContentContainer = lazy(() => import(/* webpackChunkName: "bundle-co
 
 export const BundleRoutes = () => {
   return (
-    <div style={{ padding: '0 20px' }}>
-      <Switch>
-        <Route exact={true} path={staticPath.project.bundle.home} component={BundleList} />
-        <Route exact={true} path={staticPath.project.bundle.detail} component={BundleReportContainer} />
-        <Route exact={true} path={staticPath.project.bundle.jobBundleContent} component={BundleContentContainer} />
-        <Redirect to={staticPath.notFound} />
-      </Switch>
-    </div>
+    <Switch>
+      <Route exact={true} path={staticPath.project.bundle.home} component={BundleList} />
+      <Route exact={true} path={staticPath.project.bundle.detail} component={BundleReportContainer} />
+      <Route exact={true} path={staticPath.project.bundle.jobBundleContent} component={BundleContentContainer} />
+      <Redirect to={staticPath.notFound} />
+    </Switch>
   )
 }

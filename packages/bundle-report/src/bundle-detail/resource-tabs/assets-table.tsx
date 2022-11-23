@@ -96,7 +96,7 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
         key: 'name',
         name: 'Name',
         minWidth: 200,
-        maxWidth: 600,
+        maxWidth: 540,
         onRenderHeader: () => {
           return (
             <TableHeaderFilterWrap>
@@ -110,8 +110,8 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
       {
         key: 'new',
         name: 'New',
-        minWidth: 50,
-        maxWidth: 50,
+        minWidth: 60,
+        maxWidth: 100,
         onRender: (asset) => {
           if (asset.isNew) {
             return <FileAddOutlined style={{ color: SharedColors.red10 }} />
@@ -124,7 +124,7 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
       {
         key: 'type',
         name: 'Type',
-        minWidth: 100,
+        minWidth: 60,
         maxWidth: 100,
         onRender: (asset) => {
           if (asset.intermediate) {
@@ -152,7 +152,7 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
       {
         key: 'download',
         name: 'Transfer Time',
-        minWidth: 100,
+        minWidth: 60,
         maxWidth: 100,
         onRender: (asset) => {
           return <TransferTime size={asset.size.gzip} />
@@ -171,8 +171,8 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
       {
         key: 'packages',
         name: 'Included packages',
-        minWidth: 100,
-        maxWidth: 100,
+        minWidth: 130,
+        maxWidth: 130,
         onRender: (asset) => {
           if (!asset.packages?.length) {
             return null

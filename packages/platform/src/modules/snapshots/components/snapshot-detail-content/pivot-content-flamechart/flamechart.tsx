@@ -18,6 +18,7 @@ import { SharedColors } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { memo, useEffect, useMemo } from 'react'
 
+import { useWideScreen } from '@perfsee/components'
 import {
   buildProfileFromFlameChartData,
   buildProfileFromNetworkRequests,
@@ -76,6 +77,7 @@ export const FlamechartView: React.FunctionComponent<{
   userTimings?: UserTimingSchema[]
 }> = memo(
   ({ flameChartStorageKey, requests, requestsBaseTimestamp, tasks, tasksBaseTimestamp, metrics, userTimings }) => {
+    useWideScreen()
     const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
 
     useEffect(() => {

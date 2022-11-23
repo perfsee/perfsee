@@ -15,17 +15,17 @@ limitations under the License.
 */
 
 import { Spinner, SpinnerSize } from '@fluentui/react'
-import { useModule, useModuleState } from '@sigi/react'
+import { useModule } from '@sigi/react'
 import { memo, useEffect, useMemo } from 'react'
 import { useParams, Redirect } from 'react-router'
 import { Switch } from 'react-router-dom'
 
-import { NotFound, Route } from '@perfsee/components'
+import { BodyContainer, NotFound, Route } from '@perfsee/components'
 import { Permission } from '@perfsee/schema'
 import { staticPath, RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
-import { Footer, ProjectNav } from '../layout'
-import { ProjectModule, GlobalModule } from '../shared'
+import { ProjectNav } from '../layout'
+import { ProjectModule } from '../shared'
 
 import {
   BundleRoutes,
@@ -39,12 +39,10 @@ import {
   SettingsPage,
   JobTrace,
 } from './lazy-modules'
-import { BodyWrapper, ContentWrapper, RouteWrapper } from './style'
 
 export const FeaturesPage = memo(() => {
   const { projectId, feature } = useParams<RouteTypes['project']['feature']>()
 
-  const { user } = useModuleState(GlobalModule)
   const [{ project, loading }, dispatcher] = useModule(ProjectModule)
 
   const isAdminUser = useMemo(() => project?.userPermission.includes(Permission.Admin) ?? false, [project])
@@ -72,25 +70,22 @@ export const FeaturesPage = memo(() => {
   }
 
   return (
-    <BodyWrapper>
+    <>
       <ProjectNav />
-      <ContentWrapper>
-        <RouteWrapper>
-          <Switch>
-            <Route exact={true} path={staticPath.project.home} component={ProjectHome} />
-            <Route path={staticPath.project.statistics.artifacts} component={ArtifactStatistics} />
-            <Route path={staticPath.project.statistics.snapshots} component={SnapshotStatistics} />
-            <Route path={staticPath.project.bundle.home} component={BundleRoutes} />
-            <Route path={staticPath.project.lab.home} component={LabRoutes} />
-            <Route path={staticPath.project.competitor.home} component={CompetitorRoutes} />
-            <Route path={staticPath.project.source} component={SourcePage} />
-            <Route path={staticPath.project.report} component={VersionReport} />
-            <Route path={staticPath.project.jobTrace} component={JobTrace} />
-            {isAdminUser && <Route path={staticPath.project.settings} component={SettingsPage} />}
-          </Switch>
-        </RouteWrapper>
-        <Footer isAdmin={user?.isAdmin} />
-      </ContentWrapper>
-    </BodyWrapper>
+      <BodyContainer>
+        <Switch>
+          <Route exact={true} path={staticPath.project.home} component={ProjectHome} />
+          <Route path={staticPath.project.statistics.artifacts} component={ArtifactStatistics} />
+          <Route path={staticPath.project.statistics.snapshots} component={SnapshotStatistics} />
+          <Route path={staticPath.project.bundle.home} component={BundleRoutes} />
+          <Route path={staticPath.project.lab.home} component={LabRoutes} />
+          <Route path={staticPath.project.competitor.home} component={CompetitorRoutes} />
+          <Route path={staticPath.project.source} component={SourcePage} />
+          <Route path={staticPath.project.report} component={VersionReport} />
+          <Route path={staticPath.project.jobTrace} component={JobTrace} />
+          {isAdminUser && <Route path={staticPath.project.settings} component={SettingsPage} />}
+        </Switch>
+      </BodyContainer>
+    </>
   )
 })

@@ -32,7 +32,7 @@ import { formatTime } from '@perfsee/platform/common'
 import { LighthouseScoreMetric, MetricType } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { PropertyModule, useGenerateProjectRoute } from '../shared'
+import { PropertyModule, useProjectRouteGenerator } from '../shared'
 import { PerformanceTabType } from '../snapshots/snapshot-type'
 
 import { SnapshotReport } from './module'
@@ -168,7 +168,7 @@ type Props = {
 
 export const CompetitorTable = ({ reports, pageId }: Props) => {
   const { pageMap, envMap } = useModuleState(PropertyModule)
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const aggregationItems = useMemo(() => {
     if (!reports.length || !pageMap.size || !envMap.size) {

@@ -26,13 +26,13 @@ import { PaginationSnapshotList } from './list'
 
 export const LabRoutes = () => {
   return (
-    <div style={{ padding: '0 20px' }}>
+    <>
       <Switch>
         <Route exact={true} path={staticPath.project.lab.home} component={PaginationSnapshotList} />
         <Route exact={true} path={staticPath.project.lab.report} component={SnapshotDetail} />
         <Redirect to={staticPath.notFound} />
       </Switch>
       <ComparisonBox />
-    </div>
+    </>
   )
 }

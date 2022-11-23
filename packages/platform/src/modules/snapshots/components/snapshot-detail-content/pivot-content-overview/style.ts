@@ -25,7 +25,6 @@ export const ScoreContainer = styled(Stack)(({ theme }) => ({
   alignSelf: 'flex-start',
   flex: 1,
   padding: '0 20px',
-  minWidth: '200px',
   borderLeft: `1px solid ${theme.border.color}`,
   '> div': {
     width: '100%',
@@ -100,6 +99,7 @@ export const VideoButton = styled.span(({ theme }) => ({
 }))
 
 export const VideoTime = styled.div({
+  userSelect: 'none',
   position: 'absolute',
   padding: '4px',
   top: '50%',
@@ -125,8 +125,7 @@ export const TimelineRow = styled.div({
 export const OverviewScoreWrap = styled.div({
   flexGrow: 1,
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-  rowGap: '12px',
+  gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
 })
 
 export const RenderTimelineHead = styled.div({

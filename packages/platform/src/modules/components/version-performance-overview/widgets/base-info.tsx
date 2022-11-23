@@ -20,7 +20,7 @@ import { FC } from 'react'
 
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { useGenerateProjectRoute } from '../../../shared'
+import { useProjectRouteGenerator } from '../../../shared'
 
 import { LatestVersionInfo, InfoKeySpan, VersionTag, InfoDivider, InfoValueSpan, StyledLink } from './styled'
 
@@ -36,7 +36,7 @@ type Props = {
 
 export const BaseInfo: FC<Props> = (props) => {
   const { reportId, hash, snapshotCreatedAt, artifact } = props
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const versionReportLink = generateProjectRoute(pathFactory.project.report, {}, { reportId, hash })
 

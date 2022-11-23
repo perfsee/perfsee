@@ -1,7 +1,7 @@
-import styled from '@emotion/styled'
+import { Stack } from '@fluentui/react'
 import { Route, Switch } from 'react-router'
 
-import { ContentCard } from '@perfsee/components'
+import { BodyContainer, ContentCard } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { StatusPage } from '../status'
@@ -12,21 +12,6 @@ import { RunnerScriptManager } from './runner-scripts'
 import { Runners } from './runners'
 import { Settings } from './settings'
 import { UsagePacks } from './usage-packs'
-
-const Main = styled.div({
-  minHeight: '100%',
-  maxWidth: '1280px',
-  margin: '0 auto',
-  display: 'flex',
-  padding: '20px',
-  '> :not(:last-child)': {
-    marginRight: '20px',
-  },
-})
-
-const Content = styled.div({
-  flex: 1,
-})
 
 const navigators = [
   {
@@ -73,15 +58,17 @@ const navigators = [
 
 export function AdminRoutes() {
   return (
-    <Main>
-      <AdminNavigator routeMap={navigators} />
-      <Content>
-        <Switch>
-          {navigators.map(({ path, component }) => (
-            <Route key={path} path={path} component={component} />
-          ))}
-        </Switch>
-      </Content>
-    </Main>
+    <BodyContainer>
+      <Stack horizontal>
+        <AdminNavigator routeMap={navigators} />
+        <Stack.Item grow>
+          <Switch>
+            {navigators.map(({ path, component }) => (
+              <Route key={path} path={path} component={component} />
+            ))}
+          </Switch>
+        </Stack.Item>
+      </Stack>
+    </BodyContainer>
   )
 }

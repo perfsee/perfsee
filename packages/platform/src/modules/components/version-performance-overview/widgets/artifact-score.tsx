@@ -20,7 +20,7 @@ import { FC } from 'react'
 import { Size } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { useGenerateProjectRoute } from '../../../shared'
+import { useProjectRouteGenerator } from '../../../shared'
 
 import { SizeDisplay } from './size-display'
 import {
@@ -41,7 +41,7 @@ type Props = {
 }
 
 export const ArtifactScore: FC<Props> = ({ score, size, bundleId }) => {
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
   const bundleLink = generateProjectRoute(pathFactory.project.bundle.detail, { bundleId })
 
   return (

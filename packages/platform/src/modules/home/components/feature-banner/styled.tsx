@@ -1,11 +1,14 @@
 import styled from '@emotion/styled'
 
+import BannerBgRight from '../../assets/banner-bg-right.png'
+import BannerDecoration from '../../assets/banner-decoration.png'
+
 export const Container = styled.div({
   width: '100%',
   height: '300px',
   position: 'relative',
 
-  backgroundImage: 'url(/pages/banner-bg-right.png)',
+  backgroundImage: `url(${BannerBgRight})`,
   backgroundSize: 'auto',
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'top right',
@@ -21,7 +24,7 @@ export const Decoration = styled.div({
   height: '100%',
   zIndex: -1,
   position: 'absolute',
-  backgroundImage: 'url(/pages/banner-decoration.png)',
+  backgroundImage: `url(${BannerDecoration})`,
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
 })

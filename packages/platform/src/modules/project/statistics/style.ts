@@ -16,7 +16,7 @@ limitations under the License.
 
 import { CloseCircleFilled, ExclamationCircleFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { IShimmeredDetailsListProps, SharedColors, Stack } from '@fluentui/react'
+import { IShimmeredDetailsListProps, SharedColors } from '@fluentui/react'
 import { Link } from 'react-router-dom'
 
 import { getStringColor } from '@perfsee/components'
@@ -43,39 +43,6 @@ export const InfoItem = styled.div<{ minWidth?: number; grow?: number }>(({ minW
   flexGrow: grow,
   margin: '4px 6px',
 }))
-
-export const Card = styled(Stack)(({ theme }) => ({
-  padding: '16px',
-  border: '1px solid ' + theme.border.color,
-}))
-
-export const CardWrap = styled.div({
-  marginTop: '22px',
-  backgroundColor: '#fff',
-  boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
-  borderRadius: '2px',
-})
-
-export const CardHeader = styled.div(({ theme }) => ({
-  height: '56px',
-  borderBottom: `1px solid ${theme.border.color}`,
-  padding: '0 20px',
-  fontSize: '16px',
-  lineHeight: '24px',
-  fontWeight: 600,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-}))
-
-export const CardContent = styled.div({
-  padding: '24px 20px',
-})
-
-export const ProjectInfoContent = styled(CardContent)({
-  display: 'flex',
-  justifyContent: 'space-between',
-})
 
 export const ProjectAvatar = styled.div(({ theme }) => ({
   display: 'flex',

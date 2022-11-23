@@ -18,7 +18,7 @@ import { FC, memo } from 'react'
 
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { useGenerateProjectRoute } from '../../../shared'
+import { useProjectRouteGenerator } from '../../../shared'
 
 import { ScoreWarningItem, ScoreWarningLink, ScoreWarningWrap } from './styled'
 
@@ -29,7 +29,7 @@ type Props = {
 }
 
 export const ScoreWarnings: FC<Props> = memo(({ hash, sourceIssueCount }) => {
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const sourceLink = generateProjectRoute(pathFactory.project.source, {}, { hash })
   return (

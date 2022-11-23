@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { FC, memo } from 'react'
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ForeignLink } from '@perfsee/components'
@@ -43,11 +43,7 @@ const Copyright = styled.div({
   opacity: 0.8,
 })
 
-type Props = {
-  isAdmin?: boolean
-}
-
-export const Footer: FC<Props> = memo(({ isAdmin }) => {
+export const Footer = memo(({ isAdmin }: { isAdmin?: boolean }) => {
   return (
     <StyledFooter>
       <Container>

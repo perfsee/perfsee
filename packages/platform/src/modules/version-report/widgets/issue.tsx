@@ -25,7 +25,7 @@ import { Table, TableColumnProps, TooltipWithEllipsis } from '@perfsee/component
 import { formatTime } from '@perfsee/platform/common'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { ProjectModule, useGenerateProjectRoute } from '../../shared'
+import { ProjectModule, useProjectRouteGenerator } from '../../shared'
 import { SourceIssue, VersionIssue } from '../types'
 
 import { IssueWrap } from './styled'
@@ -38,7 +38,7 @@ export const IssueInfo: FC<Props> = ({ issue }) => {
   const { project } = useModuleState(ProjectModule)
   const history = useHistory()
   const { hash } = useParams<{ hash: string }>()
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const onClickSourceIssue = useCallback(
     (item: SourceIssue) => () => {

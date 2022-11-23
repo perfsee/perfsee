@@ -30,7 +30,7 @@ import {
   formatChartData,
 } from '@perfsee/components/chart'
 import { ArtifactNameSelector, BranchSelector } from '@perfsee/platform/modules/components'
-import { useProject, useGenerateProjectRoute } from '@perfsee/platform/modules/shared'
+import { useProject, useProjectRouteGenerator } from '@perfsee/platform/modules/shared'
 import { PrettyBytes, Size } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
@@ -54,7 +54,7 @@ const xAxisLabel = {
 
 export const ArtifactSizeChart = () => {
   const project = useProject()
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const [
     { startTime = dayjs().subtract(2, 'months').unix(), endTime = dayjs().unix(), branch, name },

@@ -43,21 +43,3 @@ export const TextImage = styled(Image)(({ theme, title }) => ({
   },
   backgroundColor: theme.colors.primary,
 }))
-
-export const BodyWrapper = styled.div({
-  height: '100%',
-  display: 'flex',
-})
-
-export const ContentWrapper = styled.div({
-  flex: '1 1 0',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'auto',
-})
-
-export const RouteWrapper = styled.div({
-  flex: '1 1 0',
-  padding: '0 0 32px',
-})

@@ -28,7 +28,7 @@ export const BundleCard = styled.div(({ theme }) => ({
   borderRadius: theme.border.radius,
   border: `1px solid ${theme.border.color}`,
   padding: '12px 16px',
-  minWidth: '300px',
+  minWidth: '280px',
 }))
 
 export const BundleCardTitle = styled.div({

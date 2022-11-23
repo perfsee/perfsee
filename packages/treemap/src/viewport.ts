@@ -22,6 +22,7 @@ export default class ViewportController {
   logicalSpaceRect: Rect = null!
   physicalSpaceRect: Rect = null!
   devicePixelRatio = Math.max(window.devicePixelRatio || 1, 2)
+  resizeObserver: ResizeObserver | null = null
   onViewportChange?: (viewport: Rect) => Rect
   onHover?: (position: Vec2, logicalSpacePosition: Vec2) => void
   onHoverEnd?: () => void
@@ -286,11 +287,13 @@ export default class ViewportController {
   }
 
   applyResizeListener() {
-    window.addEventListener('resize', this.handleResize)
+    this.resizeObserver = new ResizeObserver(this.handleResize)
+    this.resizeObserver.observe(this.element)
   }
 
   removeResizeListener() {
-    window.removeEventListener('resize', this.handleResize)
+    this.resizeObserver?.disconnect()
+    this.resizeObserver = null
   }
 
   dispose() {

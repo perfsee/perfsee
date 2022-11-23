@@ -24,9 +24,8 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { DateTimePicker, SingleSelector, ContentCard } from '@perfsee/components'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { Breadcrumb } from '../components'
 import { LinkButton } from '../lab/style'
-import { useBreadcrumb, PropertyModule, useGenerateProjectRoute } from '../shared'
+import { PropertyModule, useProjectRouteGenerator } from '../shared'
 
 import { CompetitorMetricsChart } from './competitor-metrics'
 import { CompetitorTable } from './competitor-table'
@@ -49,9 +48,7 @@ export const Competitor = () => {
 
   const location = useLocation()
   const history = useHistory()
-  const generateProjectRoute = useGenerateProjectRoute()
-
-  const breadcrumbItems = useBreadcrumb({ competitorPage: true })
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const [pageId, setPageId] = useState<number>()
   const [envId, setEnvId] = useState<number>()
@@ -162,37 +159,31 @@ export const Competitor = () => {
   if (!pages.length) {
     const link = generateProjectRoute(pathFactory.project.settings, { settingName: 'pages' })
     return (
-      <>
-        <Breadcrumb items={breadcrumbItems} />
-        <Stack horizontalAlign="center">
-          <LinkButton to={link}>Create a competitor page first</LinkButton>
-        </Stack>
-      </>
+      <Stack horizontalAlign="center">
+        <LinkButton to={link}>Create a competitor page first</LinkButton>
+      </Stack>
     )
   }
 
   return (
-    <Stack tokens={{ childrenGap: 6 }}>
-      <Breadcrumb items={breadcrumbItems} />
-      <ContentCard>
-        <Stack horizontal={true} verticalAlign="center" tokens={{ childrenGap: 8 }}>
-          <SingleSelector options={pages} id={pageId} onChange={onPageIdChange} />
-          <SingleSelector isFirst={true} id={profileId} options={profiles} onChange={onProfileIdChange} />
-          <SingleSelector isFirst={true} id={envId} options={validEnvironments} onChange={onEnvIdChange} />
-          <DateTimePicker value={startTime} maxDate={tomorrow.toDate()} onChange={onSelectStartTime} />
-          <b>-</b>
-          <DateTimePicker value={endTime} minDate={startTime} onChange={onSelectEndTime} />
-          <h4>{dayjs(endTime).diff(startTime, 'day')} Day(s)</h4>
-        </Stack>
-        {!reports ? (
-          <Spinner styles={{ root: { marginTop: '50px' } }} />
-        ) : (
-          <>
-            {pageId && <CompetitorTable reports={reports} pageId={pageId} />}
-            <CompetitorMetricsChart reports={reports} />
-          </>
-        )}
-      </ContentCard>
-    </Stack>
+    <ContentCard>
+      <Stack horizontal={true} verticalAlign="center" tokens={{ childrenGap: 8 }}>
+        <SingleSelector options={pages} id={pageId} onChange={onPageIdChange} />
+        <SingleSelector isFirst={true} id={profileId} options={profiles} onChange={onProfileIdChange} />
+        <SingleSelector isFirst={true} id={envId} options={validEnvironments} onChange={onEnvIdChange} />
+        <DateTimePicker value={startTime} maxDate={tomorrow.toDate()} onChange={onSelectStartTime} />
+        <b>-</b>
+        <DateTimePicker value={endTime} minDate={startTime} onChange={onSelectEndTime} />
+        <h4>{dayjs(endTime).diff(startTime, 'day')} Day(s)</h4>
+      </Stack>
+      {!reports ? (
+        <Spinner styles={{ root: { marginTop: '50px' } }} />
+      ) : (
+        <>
+          {pageId && <CompetitorTable reports={reports} pageId={pageId} />}
+          <CompetitorMetricsChart reports={reports} />
+        </>
+      )}
+    </ContentCard>
   )
 }

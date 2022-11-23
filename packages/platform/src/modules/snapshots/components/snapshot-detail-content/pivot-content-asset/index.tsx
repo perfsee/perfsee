@@ -24,7 +24,7 @@ import {
 } from '@fluentui/react'
 import { useState, useCallback, useMemo } from 'react'
 
-import { Table } from '@perfsee/components'
+import { Table, useWideScreen } from '@perfsee/components'
 import { lighten, SharedColors } from '@perfsee/dls'
 import { RequestSchema } from '@perfsee/shared'
 
@@ -77,6 +77,7 @@ type Props = {
 const defaultKeys = Object.values(ColumnKeys).filter((key) => getColumnConfig(key).defaultShown)
 
 export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
+  useWideScreen()
   const [searchedList, setSearchedList] = useState<RequestSchema[] | undefined>()
   const [filterColumnKeys, setFilterColumnKeys] = useState<Set<string>>(new Set(defaultKeys))
 

@@ -21,8 +21,6 @@ import { useCallback, useEffect, FC, useState } from 'react'
 import { Pagination, useQueryString, useToggleState, ContentCard, Empty } from '@perfsee/components'
 import { SnapshotTrigger } from '@perfsee/schema'
 
-import { Breadcrumb } from '../../components'
-import { useBreadcrumb } from '../../shared'
 import { SnapshotFilters, CreateSnapshot } from '../operator-comps/'
 import { SnapshotTitle } from '../style'
 
@@ -39,7 +37,6 @@ const tokens = {
 
 export const PaginationSnapshotList = () => {
   const [{ totalCount, loading }, dispatcher] = useModule(LabListModule)
-  const breadcrumbItems = useBreadcrumb({ snapshotsPage: true })
 
   const [{ page = 1, trigger }, updateQueryString] = useQueryString<{
     page: number
@@ -92,25 +89,22 @@ export const PaginationSnapshotList = () => {
   }, [dispatcher])
 
   return (
-    <Stack>
-      <Breadcrumb items={breadcrumbItems} />
-      <ContentCard title="Lab Report" onRenderHeader={onRenderHeader}>
-        {!loading && totalCount === 0 && noFilter ? (
-          <Empty title={'No Snapshot found'} />
-        ) : (
-          <>
-            <SnapshotList trigger={trigger} />
-            <Pagination
-              page={page}
-              total={totalCount}
-              pageSize={SNAPSHOT_PAGE_SIZE}
-              onChange={onPageChange}
-              hideOnSinglePage={true}
-            />
-          </>
-        )}
-      </ContentCard>
-    </Stack>
+    <ContentCard title="Lab Report" onRenderHeader={onRenderHeader}>
+      {!loading && totalCount === 0 && noFilter ? (
+        <Empty title={'No Snapshot found'} />
+      ) : (
+        <>
+          <SnapshotList trigger={trigger} />
+          <Pagination
+            page={page}
+            total={totalCount}
+            pageSize={SNAPSHOT_PAGE_SIZE}
+            onChange={onPageChange}
+            hideOnSinglePage={true}
+          />
+        </>
+      )}
+    </ContentCard>
   )
 }
 

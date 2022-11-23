@@ -14,27 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
-
 import { ContentCard } from '@perfsee/components'
-import { Breadcrumb } from '@perfsee/platform/modules/components'
-import { useBreadcrumb } from '@perfsee/platform/modules/shared'
 
 import { SnapshotMetricsChart } from './chart'
 import { SnapshotMetricsList } from './list'
 
 export const SnapshotMetricsChartPage = () => {
-  const breadcrumbItems = useBreadcrumb()
-
   return (
-    <>
-      <Stack tokens={{ padding: '0 28px', childrenGap: 10 }}>
-        <Breadcrumb items={breadcrumbItems} />
-        <ContentCard>
-          <SnapshotMetricsChart />
-          <SnapshotMetricsList />
-        </ContentCard>
-      </Stack>
-    </>
+    <ContentCard>
+      <SnapshotMetricsChart />
+      <SnapshotMetricsList />
+    </ContentCard>
   )
 }

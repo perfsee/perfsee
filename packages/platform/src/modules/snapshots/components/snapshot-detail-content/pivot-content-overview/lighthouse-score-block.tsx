@@ -37,7 +37,7 @@ export const LighthouseScoreBlock = (props: Props) => {
   }
 
   return (
-    <Stack styles={{ root: { minWidth: '300px', padding: '12px 16px' } }}>
+    <Stack styles={{ root: { minWidth: '190px', padding: '12px 16px' } }}>
       <ScoreDesc>{detail.title}</ScoreDesc>
       {typeof value === 'undefined' ? (
         <FailedContent>Failed to calculate</FailedContent>

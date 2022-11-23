@@ -49,8 +49,8 @@ import { BundleJobStatus, JobType, Permission } from '@perfsee/schema'
 import { getCommitLink, PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { BranchSelector, ArtifactNameSelector, Breadcrumb } from '../../components'
-import { ProjectInfo, ProjectModule, useBreadcrumb, useGenerateProjectRoute } from '../../shared'
+import { BranchSelector, ArtifactNameSelector } from '../../components'
+import { ProjectInfo, ProjectModule, useProjectRouteGenerator } from '../../shared'
 
 import { BundleListModule, Artifact } from './module'
 import { BundleStatusTag } from './status-tag'
@@ -142,7 +142,7 @@ export const BundleList = memo(() => {
   const [deleteModalVisible, showDeleteModal, hideDeleteModal] = useToggleState(false)
   const deletingArtifact = useRef<Artifact | null>()
 
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const [{ page = 1, pageSize = 20, branch, name }, updateQueryString] = useQueryString<{
     page: number
@@ -373,11 +373,8 @@ export const BundleList = memo(() => {
     [branch, name, onChangeArtifactName, onChangeBranch, state.loading],
   )
 
-  const breadcrumbItems = useBreadcrumb({ bundlesPage: true })
-
   return (
     <>
-      <Breadcrumb items={breadcrumbItems} />
       <ContentCard onRenderHeader={onRenderHeader}>
         {!state.loading && !state.totalCount ? (
           <Empty title="No bundle uploaded" />

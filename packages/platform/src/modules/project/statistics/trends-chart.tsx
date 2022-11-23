@@ -14,18 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ContentCard } from '@perfsee/components'
+
 import { ArtifactSize } from './artifact-size'
 import { SnapshotMetrics } from './snapshot-metrics'
-import { CardContent, CardHeader, CardWrap } from './style'
 
 export const TrendsChart = () => {
   return (
-    <CardWrap>
-      <CardHeader>Metrics Trends</CardHeader>
-      <CardContent>
-        <SnapshotMetrics />
-        <ArtifactSize />
-      </CardContent>
-    </CardWrap>
+    <ContentCard title="Metrics Trends">
+      <SnapshotMetrics />
+      <ArtifactSize />
+    </ContentCard>
   )
 }

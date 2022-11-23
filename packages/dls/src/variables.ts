@@ -108,7 +108,8 @@ export const BrightTheme: Theme = {
   },
 
   layout: {
-    mainPadding: '80px',
+    mainPadding: '32px',
+    mainMaxWidth: '1280px',
     headerHeight: '60px',
     sideBarWidth: '200px',
   },
