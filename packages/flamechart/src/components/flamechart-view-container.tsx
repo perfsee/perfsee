@@ -44,6 +44,7 @@ export interface FlamechartViewProps {
   disableDetailView?: boolean
   disableTimeIndicators?: boolean
   disableTimelineCursor?: boolean
+  disableTooltip?: boolean
   width: number
   height: number
   topPadding?: number
@@ -53,6 +54,7 @@ export interface FlamechartViewProps {
   minLeft?: number
   maxRight?: number
   style?: React.CSSProperties
+  renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
 }
 
 export type FlamechartViewContainerRef = FlamechartView | undefined
@@ -80,7 +82,9 @@ export const FlamechartViewContainer = memo(
         disableDetailView,
         disableTimeIndicators,
         disableTimelineCursor,
+        disableTooltip,
         style,
+        renderTooltip,
       }: FlamechartViewProps,
       ref: ForwardedRef<FlamechartViewContainerRef>,
     ) => {
@@ -93,7 +97,27 @@ export const FlamechartViewContainer = memo(
 
       useImperativeHandle(ref, () => view, [view])
 
+      const tooltipContent = useMemo(() => {
+        if (disableTooltip || !hoverFrame?.frame) {
+          return <></>
+        }
+
+        return typeof renderTooltip === 'function' ? (
+          renderTooltip(hoverFrame.frame, flamechart, theme)
+        ) : hoverFrame.frame.node.frame instanceof TimingFrame ? (
+          <TimingTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
+        ) : hoverFrame.frame.node.frame instanceof NetworkFrame ? (
+          <NetworkTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
+        ) : (
+          <CallTreeNodeTooltip node={hoverFrame.frame.node} theme={theme} formatValue={flamechart.formatValue} />
+        )
+      }, [disableTooltip, flamechart, hoverFrame?.frame, renderTooltip, theme])
+
       const tooltip = useMemo(() => {
+        if (disableTooltip) {
+          return <></>
+        }
+
         if (!hoverFrame) {
           return <Hovertip theme={theme} />
         }
@@ -102,16 +126,10 @@ export const FlamechartViewContainer = memo(
 
         return (
           <Hovertip offset={offset} theme={theme}>
-            {hoverFrame.frame.node.frame instanceof TimingFrame ? (
-              <TimingTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
-            ) : hoverFrame.frame.node.frame instanceof NetworkFrame ? (
-              <NetworkTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
-            ) : (
-              <CallTreeNodeTooltip node={hoverFrame.frame.node} theme={theme} formatValue={flamechart.formatValue} />
-            )}
+            {tooltipContent}
           </Hovertip>
         )
-      }, [hoverFrame, theme, flamechart.formatValue])
+      }, [disableTooltip, hoverFrame, theme, tooltipContent])
 
       const handleSelectFlamechart = useCallback(
         (frame: FlamechartFrame | null) => {

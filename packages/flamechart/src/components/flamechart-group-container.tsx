@@ -1,7 +1,7 @@
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Color } from '../lib/color'
-import { FlamechartFrame } from '../lib/flamechart'
+import { Flamechart, FlamechartFrame } from '../lib/flamechart'
 import { Rect } from '../lib/math'
 import { Profile } from '../lib/profile'
 import { ProfileSearchEngine } from '../lib/profile-search'
@@ -31,6 +31,13 @@ export interface FlamechartGroupContainerProps {
   maxRight?: number
   disableSearchBox?: boolean
   disableTimelineCursor?: boolean
+  disableTooltip?: boolean
+  renderTooltip?: (
+    frame: FlamechartFrame,
+    flamechart: Flamechart,
+    theme: Theme,
+    profileIndex: number,
+  ) => React.ReactNode
 }
 
 const CollapseButton = memo<{ collapsed: boolean }>(({ collapsed }) => {
@@ -99,6 +106,8 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       maxRight,
       disableSearchBox,
       disableTimelineCursor,
+      disableTooltip,
+      renderTooltip,
       timings = [],
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
@@ -195,6 +204,17 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         if (frame) setSelectedFrame(frame)
       }, [])
 
+      const profilesRenderTooltip = useMemo(() => {
+        if (typeof renderTooltip !== 'function') {
+          return
+        }
+        return new Array(profiles.length)
+          .fill(0)
+          .map((_, index) => (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => {
+            return renderTooltip(frame, flamechart, theme, index)
+          })
+      }, [profiles.length, renderTooltip])
+
       const views = profiles.map((item, index) => {
         const isFirstVisible = index === firstVisibleSplit
         const collapsed = !!splitCollapsed[index]
@@ -217,12 +237,14 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               bindingManager={bindingManager}
               disableTimeIndicators={!isFirstVisible}
               disableTimelineCursor={disableTimelineCursor}
+              disableTooltip={disableTooltip}
               width={width}
               height={isFirstVisible ? height - 24 : height}
               topPadding={isFirstVisible ? undefined : 1}
               timings={isFirstVisible ? timings : timingsWithoutName}
               style={{ top: !isFirstVisible ? '-24px' : 0 }}
               onSelectFrame={handleSelectFlamechart}
+              renderTooltip={profilesRenderTooltip?.[index]}
             />
           </Fragment>
         )
