@@ -97,6 +97,10 @@ interface FlamechartProps {
    */
   disableSearchBox?: boolean
   /**
+   * disable the timeline cursor following the mouse
+   */
+  disableTimelineCursor?: boolean
+  /**
    * only matched frames will be shown as root frames
    */
   rootFilter?: RootFilter

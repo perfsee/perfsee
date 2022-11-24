@@ -43,6 +43,7 @@ export interface FlamechartViewProps {
   initialRight?: number
   disableDetailView?: boolean
   disableTimeIndicators?: boolean
+  disableTimelineCursor?: boolean
   width: number
   height: number
   topPadding?: number
@@ -78,6 +79,7 @@ export const FlamechartViewContainer = memo(
         maxRight,
         disableDetailView,
         disableTimeIndicators,
+        disableTimelineCursor,
         style,
       }: FlamechartViewProps,
       ref: ForwardedRef<FlamechartViewContainerRef>,
@@ -163,6 +165,7 @@ export const FlamechartViewContainer = memo(
             bottomTimingLabels,
             bottomPadding,
             hiddenFrameLabels,
+            disableTimelineCursor,
             onNodeSelect: handleSelectFlamechart,
             onNodeHover: onFrameHover,
           })
@@ -175,6 +178,7 @@ export const FlamechartViewContainer = memo(
       }, [
         bindingManager,
         disableTimeIndicators,
+        disableTimelineCursor,
         flamechart,
         flamechartContainer,
         handleSelectFlamechart,
