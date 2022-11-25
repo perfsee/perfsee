@@ -1,6 +1,6 @@
 import { forwardRef, memo, useCallback, useRef, useState, useImperativeHandle, useMemo, useEffect } from 'react'
 
-import { RootFilter } from '../lib/flamechart'
+import { Flamechart, FlamechartFrame, RootFilter } from '../lib/flamechart'
 import { Frame, Profile } from '../lib/profile'
 import { ProfileFrameKeySearch, ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
@@ -81,6 +81,10 @@ export interface FlamechartProps {
    * only matched frames will be shown as root frames
    */
   rootFilter?: RootFilter
+  /**
+   * render custom tooltip
+   */
+  renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
 }
 
 const styles = {
@@ -115,6 +119,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           disableSearchBox,
           disableTimelineCursor,
           rootFilter,
+          renderTooltip,
         },
         ref,
       ) => {
@@ -201,6 +206,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 bottomTimingLabels={bottomTimingLabels}
                 bottomPadding={bottomPadding}
                 hiddenFrameLabels={hiddenFrameLabels}
+                renderTooltip={renderTooltip}
               />
             )}
           </div>

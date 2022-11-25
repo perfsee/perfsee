@@ -104,6 +104,10 @@ interface FlamechartProps {
    * only matched frames will be shown as root frames
    */
   rootFilter?: RootFilter
+  /**
+   * render custom tooltip
+   */
+  renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
 }
 ```
 
