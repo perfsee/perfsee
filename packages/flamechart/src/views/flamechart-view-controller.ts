@@ -21,6 +21,7 @@ export interface ControllerProps {
   disableTimeIndicators?: boolean
   bottomTimingLabels?: boolean
   hiddenFrameLabels?: boolean
+  disableTimelineCursor?: boolean
 }
 
 /**
@@ -34,6 +35,7 @@ export class FlamechartViewController {
   private selectedFrame: FlamechartFrame | undefined = undefined
   private hoverFrame: FlamechartFrame | undefined = undefined
   private matchedOutlineWidth = 0
+  private timelineCursor: number | undefined = undefined
   private searchResults: ProfileSearchEngine | undefined = undefined
   private readonly resizeObserver: ResizeObserver
 
@@ -125,7 +127,7 @@ export class FlamechartViewController {
     } else {
       this.viewport = rect
       this.requestRender()
-      this.notifyBindingChanged()
+      this.notifyViewportBindingChanged()
     }
   }
 
@@ -222,7 +224,7 @@ export class FlamechartViewController {
     this.lastDragPos = logicalMousePos
     this.stopAnimationViewportRect()
     this.requestRender()
-    this.notifyBindingChanged()
+    this.notifyViewportBindingChanged()
   }
 
   private readonly onWindowMouseUp = (_: MouseEvent) => {
@@ -240,42 +242,45 @@ export class FlamechartViewController {
   }
 
   private readonly onMouseMove = (ev: MouseEvent) => {
-    if (this.lastDragPos) {
-      return
-    }
     const logicalViewSpaceMouse = new Vec2(ev.offsetX, ev.offsetY)
     const physicalViewSpaceMouse = this.logicalToPhysicalViewSpace().transformPosition(logicalViewSpaceMouse)
     const configSpaceMouse = this.configSpaceToPhysicalViewSpace().inverseTransformPosition(physicalViewSpaceMouse)
 
-    if (!configSpaceMouse) return
+    if (configSpaceMouse) {
+      this.timelineCursor = configSpaceMouse?.x
+      if (!this.lastDragPos) {
+        this.hoverFrame = undefined
 
-    this.hoverFrame = undefined
+        const layers = this.flamechart.getLayers()
 
-    const layers = this.flamechart.getLayers()
+        for (let depth = 0; depth < layers.length; depth++) {
+          for (const frame of layers[depth]) {
+            const width = frame.end - frame.start
+            const y = depth
+            const configSpaceBounds = new Rect(new Vec2(frame.start, y), new Vec2(width, 1))
+            if (configSpaceMouse.x < configSpaceBounds.left()) continue
+            if (configSpaceMouse.x > configSpaceBounds.right()) continue
 
-    for (let depth = 0; depth < layers.length; depth++) {
-      for (const frame of layers[depth]) {
-        const width = frame.end - frame.start
-        const y = depth
-        const configSpaceBounds = new Rect(new Vec2(frame.start, y), new Vec2(width, 1))
-        if (configSpaceMouse.x < configSpaceBounds.left()) continue
-        if (configSpaceMouse.x > configSpaceBounds.right()) continue
-
-        if (configSpaceBounds.contains(configSpaceMouse)) {
-          this.hoverFrame = frame
+            if (configSpaceBounds.contains(configSpaceMouse)) {
+              this.hoverFrame = frame
+            }
+          }
         }
+
+        this.props.onNodeHover?.(this.hoverFrame ? { frame: this.hoverFrame, event: ev } : null)
       }
     }
 
-    this.props.onNodeHover?.(this.hoverFrame ? { frame: this.hoverFrame, event: ev } : null)
-
     this.requestRender()
+    this.notifyTimelineCursorBindingChanged()
   }
 
   private readonly onMouseLeave = (_: MouseEvent) => {
     this.hoverFrame = undefined
+    this.timelineCursor = undefined
     this.props.onNodeHover?.(null)
     this.requestRender()
+    this.notifyTimelineCursorBindingChanged()
   }
 
   private readonly onWheel = (ev: WheelEvent) => {
@@ -305,9 +310,17 @@ export class FlamechartViewController {
     this.zoom(new Vec2(ev.offsetX, ev.offsetY), multiplier)
     this.pan(new Vec2(deltaX, 0))
 
+    const logicalViewSpaceMouse = new Vec2(ev.offsetX, ev.offsetY)
+    const physicalViewSpaceMouse = this.logicalToPhysicalViewSpace().transformPosition(logicalViewSpaceMouse)
+    const configSpaceMouse = this.configSpaceToPhysicalViewSpace().inverseTransformPosition(physicalViewSpaceMouse)
+    if (configSpaceMouse) {
+      this.timelineCursor = configSpaceMouse.x
+    }
+
     this.stopAnimationViewportRect()
     this.requestRender()
-    this.notifyBindingChanged()
+    this.notifyViewportBindingChanged()
+    this.notifyTimelineCursorBindingChanged()
   }
 
   private readonly onResize = () => {
@@ -361,10 +374,16 @@ export class FlamechartViewController {
     }
   }
 
-  private readonly onBindingChanged = (x: number, size: number) => {
-    this.viewport = this.viewport.withOrigin(this.viewport.origin.withX(x)).withSize(this.viewport.size.withX(size))
-    this.stopAnimationViewportRect()
-    this.requestRender()
+  private readonly onBindingChanged = {
+    viewport: (x: number, size: number) => {
+      this.viewport = this.viewport.withOrigin(this.viewport.origin.withX(x)).withSize(this.viewport.size.withX(size))
+      this.stopAnimationViewportRect()
+      this.requestRender()
+    },
+    timelineCursor: (timelineCursor: number | undefined) => {
+      this.timelineCursor = timelineCursor
+      this.requestRender()
+    },
   }
 
   // Viewport animation
@@ -384,6 +403,7 @@ export class FlamechartViewController {
       if (current >= 1) {
         this.viewport = to.withSize(to.size.withY(this.viewport.size.y))
         this.requestRender()
+        this.notifyViewportBindingChanged()
         return
       }
 
@@ -394,7 +414,7 @@ export class FlamechartViewController {
       this.viewport = new Rect(new Vec2(left, top), new Vec2(width, this.viewport.size.y))
 
       this.requestRender()
-      this.notifyBindingChanged()
+      this.notifyViewportBindingChanged()
       this.animationViewportRectFrameHandler = requestAnimationFrame(loop)
     }
 
@@ -483,6 +503,7 @@ export class FlamechartViewController {
       hoverFrame: this.hoverFrame,
       searchResults: this.searchResults,
       selectedFrame: this.selectedFrame,
+      timelineCursor: this.props.disableTimelineCursor ? undefined : this.timelineCursor,
     }
   }
 
@@ -499,7 +520,11 @@ export class FlamechartViewController {
     this.renderer.render(this.physicalSize.x, this.physicalSize.y, this.viewport, this.renderProps())
   }
 
-  private notifyBindingChanged() {
-    this.bindingManager?.notify(this.viewport.origin.x, this.viewport.size.x)
+  private notifyViewportBindingChanged() {
+    this.bindingManager?.notifyViewport(this.viewport.origin.x, this.viewport.size.x)
+  }
+
+  private notifyTimelineCursorBindingChanged() {
+    this.bindingManager?.notifyTimelineCursor(this.timelineCursor)
   }
 }

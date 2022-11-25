@@ -74,6 +74,10 @@ export interface FlamechartProps {
    */
   disableSearchBox?: boolean
   /**
+   * disable the timeline cursor following the mouse
+   */
+  disableTimelineCursor?: boolean
+  /**
    * only matched frames will be shown as root frames
    */
   rootFilter?: RootFilter
@@ -109,6 +113,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           bottomPadding,
           hiddenFrameLabels,
           disableSearchBox,
+          disableTimelineCursor,
           rootFilter,
         },
         ref,
@@ -190,6 +195,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 minLeft={minLeft}
                 maxRight={maxRight}
                 disableDetailView={disableDetailView}
+                disableTimelineCursor={disableTimelineCursor}
                 width={containerWidth}
                 height={containerHeight}
                 bottomTimingLabels={bottomTimingLabels}

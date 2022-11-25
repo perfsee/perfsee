@@ -32,6 +32,10 @@ export interface Theme {
   WarningColor: string
   WarningBgColor: string
 
+  timelineCursorColor: string
+  timelineCursorBgColor: string
+  timelineCursorFgColor: string
+
   colorForBucket: (t: number) => Color
   colorForBucketGLSL: string
 

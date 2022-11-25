@@ -21,6 +21,7 @@ export interface RenderProps {
   frameTriangleSize: number
   matchedOutlineWidth: number
   matchedStrokeWidth: number
+  timelineCursor?: number
   searchResults?: ProfileSearchEngine
   selectedFrame?: FlamechartFrame
   hoverFrame?: FlamechartFrame
@@ -357,6 +358,51 @@ export class FlamechartViewRenderer {
           ctx.fillRect(pos, 0, 1, physicalSize.y)
         }
       }
+    }
+
+    // render timeline cursor
+    if (props.timelineCursor !== undefined) {
+      const lineWidth = 1 * props.devicePixelRatio
+      const labelPaddingPx = (physicalFrameHeight - physicalFontSize) / 2
+
+      const pos = new Vec2(props.timelineCursor, 0)
+      const physicalPos = viewportToPhysical.transformPosition(pos).x + lineWidth / 2
+
+      const labelText = this.flamechart.formatValue(props.timelineCursor)
+      const textWidth = cachedMeasureTextWidth(ctx, labelText)
+
+      ctx.save()
+
+      ctx.beginPath()
+      ctx.moveTo(physicalPos, 0)
+      ctx.lineTo(physicalPos, physicalSize.y)
+      ctx.lineWidth = lineWidth
+      ctx.strokeStyle = this.theme.timelineCursorColor
+      ctx.stroke()
+      ctx.closePath()
+
+      if (!props.disableTimeIndicators) {
+        {
+          const x = physicalPos - textWidth / 2 - labelPaddingPx
+          const w = textWidth + labelPaddingPx * 2
+          const r = 5 * props.devicePixelRatio
+          const y = 0
+          const h = physicalFrameHeight
+          ctx.fillStyle = this.theme.timelineCursorBgColor
+          ctx.beginPath()
+          ctx.moveTo(x + r, y)
+          ctx.arcTo(x + w, y, x + w, y + h, r)
+          ctx.arcTo(x + w, y + h, x, y + h, r)
+          ctx.arcTo(x, y + h, x, y, r)
+          ctx.arcTo(x, y, x + w, y, r)
+          ctx.fill()
+          ctx.closePath()
+        }
+        ctx.fillStyle = this.theme.timelineCursorFgColor
+        ctx.fillText(labelText, physicalPos - textWidth / 2, labelPaddingPx)
+      }
+
+      ctx.restore()
     }
   }
 }

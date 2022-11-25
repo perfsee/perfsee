@@ -73,6 +73,10 @@ export const lightTheme: Theme = {
   WarningColor: 'rgb(176,0,32)',
   WarningBgColor: 'rgba(176,0,32, 0.2)',
 
+  timelineCursorColor: Colors.DARK_BLUE,
+  timelineCursorFgColor: Colors.WHITE,
+  timelineCursorBgColor: Colors.DARK_BLUE,
+
   colorForBucket,
   colorForBucketGLSL,
 
