@@ -18,7 +18,7 @@ import { Stack, Spinner } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { parse } from 'query-string'
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import { DateTimePicker, SingleSelector, ContentCard } from '@perfsee/components'
@@ -34,14 +34,18 @@ import { CompetitorModule } from './module'
 
 export const Competitor = () => {
   const [{ reports }, dispatcher] = useModule(CompetitorModule)
-  const [{ profiles, pages, environments }, { fetchPageRelation, fetchProperty }] = useModule(PropertyModule, {
-    selector: (s) => ({
-      profiles: s.profiles,
-      pages: s.pages.filter((p) => s.pageRelationMap.get(p.id)?.competitorIds.length),
-      environments: s.environments.filter((e) => !e.isCompetitor),
-    }),
-    dependencies: [],
-  })
+  const [{ profiles, pages, environments, pageRelationMap }, { fetchPageRelation, fetchProperty }] = useModule(
+    PropertyModule,
+    {
+      selector: (s) => ({
+        profiles: s.profiles,
+        pages: s.pages.filter((p) => s.pageRelationMap.get(p.id)?.competitorIds.length),
+        environments: s.environments,
+        pageRelationMap: s.pageRelationMap,
+      }),
+      dependencies: [],
+    },
+  )
 
   const location = useLocation()
   const history = useHistory()
@@ -84,12 +88,22 @@ export const Competitor = () => {
     }
   }, [pages])
 
+  const validEnvironments = useMemo(() => {
+    const envIds = Object.values(Object.fromEntries(pageRelationMap)).reduce((p: number[], relation) => {
+      return relation.competitorIds.length ? [...p, ...relation.envIds] : p
+    }, [])
+
+    const envIdSet = new Set(envIds)
+
+    return environments.filter((e) => envIdSet.has(e.id))
+  }, [environments, pageRelationMap])
+
   // init env id
   useEffect(() => {
-    if (environments.length) {
-      setEnvId((id) => id ?? environments[0].id)
+    if (validEnvironments.length) {
+      setEnvId((id) => id ?? validEnvironments[0].id)
     }
-  }, [environments])
+  }, [validEnvironments])
 
   useEffect(() => {
     if (startTime && endTime && profileId && pageId && envId) {
@@ -164,7 +178,7 @@ export const Competitor = () => {
         <Stack horizontal={true} verticalAlign="center" tokens={{ childrenGap: 8 }}>
           <SingleSelector options={pages} id={pageId} onChange={onPageIdChange} />
           <SingleSelector isFirst={true} id={profileId} options={profiles} onChange={onProfileIdChange} />
-          <SingleSelector isFirst={true} id={envId} options={environments} onChange={onEnvIdChange} />
+          <SingleSelector isFirst={true} id={envId} options={validEnvironments} onChange={onEnvIdChange} />
           <DateTimePicker value={startTime} maxDate={tomorrow.toDate()} onChange={onSelectStartTime} />
           <b>-</b>
           <DateTimePicker value={endTime} minDate={startTime} onChange={onSelectEndTime} />

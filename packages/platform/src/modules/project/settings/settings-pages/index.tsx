@@ -30,19 +30,20 @@ import { PingContent } from './ping-content'
 import { TempPageList } from './temp-list'
 
 export const SettingsPages = () => {
-  const [{ pages, pageRelationMap, pingResultMap, hasCompetitorEnv, deleteProgress, envMap, profileMap }, dispatcher] =
-    useModule(PropertyModule, {
+  const [{ pages, pageRelationMap, pingResultMap, deleteProgress, envMap, profileMap }, dispatcher] = useModule(
+    PropertyModule,
+    {
       selector: (state) => ({
         pages: state.pages.filter((page) => !page.isE2e),
         pageRelationMap: state.pageRelationMap,
-        hasCompetitorEnv: !!state.environments.filter((env) => env.isCompetitor).length,
         deleteProgress: state.deleteProgress.page,
         envMap: state.envMap,
         profileMap: state.profileMap,
         pingResultMap: state.pingResultMap,
       }),
       dependencies: [],
-    })
+    },
+  )
 
   useEffect(() => {
     dispatcher.fetchPageRelation()
@@ -178,13 +179,11 @@ export const SettingsPages = () => {
           key: 'competitor',
           text: 'competitor page',
           iconProps: { iconName: 'competitor' },
-          disabled: !hasCompetitorEnv,
           onClick: onCreateCompetitor,
-          title: !hasCompetitorEnv ? 'Create a competitor environment first.' : undefined,
         },
       ],
     }),
-    [hasCompetitorEnv, onCreateCompetitor, onCreatePage],
+    [onCreateCompetitor, onCreatePage],
   )
 
   const pingContent = useMemo(() => {

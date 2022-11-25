@@ -173,7 +173,7 @@ export const SnapshotMetrics = memo(() => {
     selector: (s) => ({
       loading: s.loading,
       pages: s.pages.filter((p) => !p.isCompetitor && !p.isTemp),
-      environments: s.environments.filter((e) => !e.isCompetitor),
+      environments: s.environments,
       profileMap: s.profileMap,
       pageRelationMap: s.pageRelationMap,
     }),

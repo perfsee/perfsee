@@ -84,12 +84,11 @@ export const CompetitorPageEditForm = (props: FromProps) => {
         errorMessage="Profiles is required"
       />
       <MultiSelector
-        options={environments.filter((e) => e.isCompetitor)}
+        options={environments}
         ids={relation.envIds}
         onSelectChange={onEnvChange}
         multiSelect={false}
         label="Environment"
-        tips="Only one competitor environment can be selected on the competitor page."
         errorMessage="Environments is required"
       />
       {!defaultPage.id && (
