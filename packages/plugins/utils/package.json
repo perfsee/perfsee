@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/plugin-utils",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "pertsuite plugin utilities",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
