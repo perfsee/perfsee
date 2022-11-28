@@ -14,42 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { TooltipHost } from '@fluentui/react'
+import { SharedColors, TooltipHost } from '@fluentui/react'
 
-import { ProgressContainer, Level } from './style'
-
-type LevelSchema = {
-  color: string
-  value: number
-  name?: string
-}
+import { ProgressContainer, ProgressInner } from './style'
 
 type Props = {
-  levels: LevelSchema[]
-  max?: number
+  /**
+   * should between 0 - 1
+   */
+  percent: number
 
+  tooltip?: string
   width?: string
   height?: string
 }
 
 export const Progress = (props: Props) => {
-  const { levels, max, height, width } = props
-  const total = max ? max : levels.reduce((p, c) => p + c.value, 0)
+  const { percent, tooltip, height, width } = props
 
-  const items = levels.map((level, index) => {
-    const width = Math.min(100, (level.value * 100) / total)
-    const tooltip = level.name ? `${level.name}:${width.toFixed(2)}%` : width.toFixed(2) + '%'
+  const color = percent < 0.8 ? SharedColors.greenCyan10 : percent < 1 ? SharedColors.orange10 : SharedColors.red10
 
-    return (
-      <TooltipHost styles={{ root: { height: '100%', width: `${Math.round(width)}%` } }} key={index} content={tooltip}>
-        <Level color={level.color} />
-      </TooltipHost>
-    )
-  })
-
-  return (
+  const content = (
     <ProgressContainer width={width} height={height}>
-      {items}
+      <ProgressInner percent={percent} color={color} />
     </ProgressContainer>
+  )
+
+  return tooltip ? (
+    <TooltipHost content={tooltip} styles={{ root: { width: '100%' } }}>
+      {content}
+    </TooltipHost>
+  ) : (
+    content
   )
 }

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { promises as fs } from 'fs'
-import { join } from 'path'
+import { join } from 'path/posix'
 
 import ffmpeg from 'fluent-ffmpeg'
 import Jimp from 'jimp'
@@ -114,7 +114,7 @@ export class Screencast implements LH.PerfseeGathererInstance {
     }
 
     frames = frames.sort((a, b) => a.timestamp - b.timestamp)
-    const dir = `tmp/lighthouse-screencast-${Date.now()}`
+    const dir = join(process.cwd(), `tmp/lighthouse-screencast-${Date.now()}`)
     await fs.mkdir(dir, { recursive: true })
     const writeResults = await Promise.allSettled(
       frames.map(async (frame) => {

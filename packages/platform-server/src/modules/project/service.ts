@@ -27,6 +27,7 @@ import {
   Job,
   Profile,
   Project,
+  UsagePack,
   Setting,
   User,
   UserStarredProject,
@@ -312,45 +313,50 @@ export class ProjectService {
       input.name = githubVerification.caseSensitiveRepo
     }
 
+    const defaultUsagePack = await UsagePack.findOneByOrFail({
+      isDefault: true,
+    })
+
     const project = Project.create({
       name: name,
       namespace: namespace,
       host: host,
       slug: id,
       artifactBaselineBranch,
+      usagePack: defaultUsagePack,
     })
 
     await this.db
       .transaction(async (manager) => {
         await manager.save(project)
-        const [profileIid, envIid] = await Promise.all([
-          this.internalIdService.generate(project.id, InternalIdUsage.Profile),
-          this.internalIdService.generate(project.id, InternalIdUsage.Env),
-        ])
-        const profile = Profile.create({
-          project,
-          iid: profileIid,
-        })
-        const env = Environment.create({
-          project,
-          name: 'default',
-          iid: envIid,
-        })
         const setting = Setting.create({
           project,
         })
-        const userStart = UserStarredProject.create({
+        const userStar = UserStarredProject.create({
           project,
           user,
         })
-
-        await manager.save([profile, env, setting, userStart])
+        await manager.save([setting, userStar], { reload: false })
       })
       .catch(mapInternalError('Create project Failed'))
 
-    await this.permissionProvider.onCreateProject(project, [user], user)
     this.metricService.newProject(1)
     this.metricService.totalProject(await Project.count())
+    await this.permissionProvider.onCreateProject(project, [user], user)
+
+    const profileIid = await this.internalIdService.generate(project.id, InternalIdUsage.Profile)
+    const envIid = await this.internalIdService.generate(project.id, InternalIdUsage.Env)
+    await Promise.all([
+      Profile.create({
+        project,
+        iid: profileIid,
+      }).save(),
+      Environment.create({
+        project,
+        name: 'default',
+        iid: envIid,
+      }).save(),
+    ])
     return project
   }
 

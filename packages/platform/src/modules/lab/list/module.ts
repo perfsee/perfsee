@@ -44,6 +44,7 @@ import {
   TakeTempSnapshotMutationVariables,
   SnapshotTrigger,
   setSnapshotHashMutation,
+  deleteSnapshotReportMutation,
 } from '@perfsee/schema'
 
 import { ProjectModule } from '../../shared'
@@ -183,6 +184,24 @@ export class LabListModule extends EffectModule<State> {
   }
 
   @Effect()
+  deleteSnapshotReport(payload$: Observable<{ reportId: number; snapshotId: number }>) {
+    return payload$.pipe(
+      this.projectModule.withProject,
+      switchMap(([project, payload]) =>
+        this.client
+          .mutate({
+            mutation: deleteSnapshotReportMutation,
+            variables: { projectId: project!.id, reportId: payload.reportId },
+          })
+          .pipe(
+            createErrorCatcher('Failed to delete snapshot.'),
+            map(() => this.getActions().removeSnapshotReport(payload)),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
   getSnapshots(payload$: Observable<{ trigger?: SnapshotTrigger; pageNum: number; pageSize: number }>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
@@ -293,6 +312,14 @@ export class LabListModule extends EffectModule<State> {
   removeSnapshot(state: Draft<State>, payload: number) {
     state.snapshots = state.snapshots.filter((snapshot) => snapshot.id !== payload)
     state.totalCount = state.totalCount - 1
+  }
+
+  @ImmerReducer()
+  removeSnapshotReport(state: Draft<State>, { reportId, snapshotId }: { reportId: number; snapshotId: number }) {
+    const snapshotItem = state.reportsWithId[snapshotId]
+    if (!snapshotItem.loading) {
+      snapshotItem.reports = snapshotItem.reports.filter((report) => report.id !== reportId)
+    }
   }
 
   @ImmerReducer()

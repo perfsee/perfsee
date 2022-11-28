@@ -1,0 +1,12 @@
+fragment usagePack on UsagePack {
+  id
+  name
+  desc
+  isPublic
+  isDefault
+  jobCountMonthly
+  jobDurationMonthly
+  storage
+  createdAt
+  updatedAt
+}

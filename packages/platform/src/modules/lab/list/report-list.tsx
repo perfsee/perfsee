@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Spinner, SelectionMode, TooltipHost, DetailsRow, Text, IDetailsRowProps } from '@fluentui/react'
+import { Spinner, SelectionMode, TooltipHost, DetailsRow, Text, IDetailsRowProps, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useRef } from 'react'
 import { useHistory } from 'react-router'
 
 import {
@@ -28,9 +28,13 @@ import {
   TooltipWithEllipsis,
   ColorButton,
   getScoreColor,
+  Modal,
+  ModalType,
+  useToggleState,
 } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 import { JobType, SnapshotStatus } from '@perfsee/schema'
+import { PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { useGenerateProjectRoute, useProject } from '../../shared'
@@ -53,7 +57,33 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
     selector: (s) => s.reportsWithId[snapshotId] as ReportsPayload<false>,
     dependencies: [snapshotId],
   })
+
+  const [deleteModalVisible, showDeleteModal, hideDeleteModal] = useToggleState(false)
+  const deletingReport = useRef<SnapshotReportSchema | null>()
+
   const { loading, reports } = state
+
+  const onDeleteReport = useCallback(
+    (artifact: SnapshotReportSchema) => {
+      deletingReport.current = artifact
+      showDeleteModal()
+    },
+    [showDeleteModal],
+  )
+
+  const confirmDelete = useCallback(() => {
+    hideDeleteModal()
+
+    if (deletingReport.current) {
+      dispatcher.deleteSnapshotReport({ reportId: deletingReport.current.id, snapshotId })
+      deletingReport.current = null
+    }
+  }, [dispatcher, hideDeleteModal, snapshotId])
+
+  const cancelDelete = useCallback(() => {
+    hideDeleteModal()
+    deletingReport.current = null
+  }, [hideDeleteModal])
 
   const columns: TableColumnProps<SnapshotReportSchema>[] = useMemo(
     () => [
@@ -131,14 +161,16 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
       {
         key: 'operations',
         name: '',
-        minWidth: 100,
-        maxWidth: 100,
+        minWidth: 160,
+        maxWidth: 160,
         onRender: (report) => {
-          return <OperationButton snapshotId={snapshotId} report={report} projectId={project!.id} />
+          return (
+            <OperationButton project={project!} snapshotId={snapshotId} report={report} onDelete={onDeleteReport} />
+          )
         },
       },
     ],
-    [generateProjectRoute, snapshotId, project],
+    [generateProjectRoute, project, snapshotId, onDeleteReport],
   )
 
   const onDeleteSnapshot = useCallback(() => {
@@ -197,15 +229,35 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
   }
 
   return (
-    <TableContainer>
-      <Table
-        selectionMode={SelectionMode.none}
-        items={reports}
-        columns={columns}
-        onShouldVirtualize={disabledVirtualization}
-        onRenderRow={onRenderRow}
-        checkboxCellClassName="checkboxCell"
-      />
-    </TableContainer>
+    <>
+      <TableContainer>
+        <Table
+          selectionMode={SelectionMode.none}
+          items={reports}
+          columns={columns}
+          onShouldVirtualize={disabledVirtualization}
+          onRenderRow={onRenderRow}
+          checkboxCellClassName="checkboxCell"
+        />
+      </TableContainer>
+      <Modal
+        type={ModalType.Warning}
+        title="Delete report"
+        isOpen={deleteModalVisible}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+      >
+        <Stack tokens={{ padding: '12px', childrenGap: '4px' }}>
+          <span>
+            Are you sure to delete report <b>#{deletingReport.current?.id}</b>? All data related will be deleted
+            together and can not be restored.
+          </span>
+          <span>
+            About <b>{PrettyBytes.create(deletingReport.current?.uploadSize ?? 0).toString()}</b> storage size will be
+            released after delete.
+          </span>
+        </Stack>
+      </Modal>
+    </>
   )
 }

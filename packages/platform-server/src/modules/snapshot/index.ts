@@ -26,6 +26,7 @@ import { NotificationModule } from '../notification'
 import { PageModule } from '../page'
 import { ProfileModule } from '../profile'
 import { ProjectModule } from '../project'
+import { ProjectUsageModule } from '../project-usage'
 import { SourceModule } from '../source'
 
 import { SnapshotController } from './controller'
@@ -46,6 +47,7 @@ import { SnapshotReportModule } from './snapshot-report'
     AppVersionModule,
     EnvironmentModule,
     ProfileModule,
+    ProjectUsageModule,
   ],
   controllers: [SnapshotController],
   providers: [SnapshotResolver, ProjectSnapshotResolver, SnapshotService],

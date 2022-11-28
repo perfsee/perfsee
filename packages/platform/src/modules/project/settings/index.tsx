@@ -32,7 +32,7 @@ import { SettingsPages } from './settings-pages'
 import { SettingsPermission } from './settings-permission'
 import { SettingsProfiles } from './settings-profiles'
 import { SettingsSchedule } from './settings-schedule'
-import { TimeUsage } from './settings-usage'
+import { ProjectUsage } from './settings-usage'
 
 const stackTokens: IStackTokens = {
   childrenGap: 20,
@@ -85,7 +85,7 @@ export const Settings = () => {
       case TabEnum.Environments:
         return <SettingsEnvironments />
       case TabEnum.Usage:
-        return <TimeUsage />
+        return <ProjectUsage />
       case TabEnum.E2E:
         return <SettingsE2e />
       default:

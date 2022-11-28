@@ -154,6 +154,10 @@ export class SnapshotReport extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   host!: string
 
+  @Field(() => Int, { description: 'total size of files uploaded to storage in this report, in bytes' })
+  @Column({ default: 0 })
+  uploadSize!: number
+
   @OneToMany('SourceIssue', 'snapshotReport')
   sourceIssues!: SourceIssue[]
 

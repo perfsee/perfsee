@@ -61,6 +61,11 @@ export class ObjectStorage extends BaseObjectStorage {
     await fs.copyFile(file, filePath)
   }
 
+  async delete(name: string) {
+    debug(`deleting ${name} from local object storage...`)
+    await fs.rm(this.nameToPath(name))
+  }
+
   async deleteFolder(name: string) {
     const folderPath = this.nameToPath(name)
     debug(`deleting folder ${folderPath} from local object storage...`)

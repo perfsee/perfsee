@@ -70,6 +70,10 @@ export const CompareButtonInner = styled.span(({ theme }) => ({
   },
 }))
 
+export const DeleteButtonInner = styled(CompareButtonInner)(({ theme }) => ({
+  color: theme.colors.error,
+}))
+
 export const DrawerSetVersionButton = styled(DefaultButton)({
   float: 'right',
   marginTop: '16px',

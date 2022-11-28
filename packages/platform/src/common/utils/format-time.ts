@@ -26,5 +26,9 @@ export const formatTime = (time: number): { value: string; unit: 'ms' | 'sec' | 
       unitIndex += 1
     }
   }
-  return { value: Number.isInteger(time) ? time.toString() : time.toFixed(2), unit: unit[unitIndex] }
+
+  const result = { value: Number.isInteger(time) ? time.toString() : time.toFixed(2), unit: unit[unitIndex] }
+  result.toString = () => `${result.value}${result.unit}`
+
+  return result
 }

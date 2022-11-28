@@ -1,0 +1,7 @@
+#import '../fragments/usage-pack.gql'
+
+mutation updateUsagePack($input: UpdateUsagePackInput!) {
+  updateUsagePack(input: $input) {
+    ...usagePack
+  }
+}

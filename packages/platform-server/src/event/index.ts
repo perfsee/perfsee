@@ -20,7 +20,7 @@ import { EventEmitter2, EventEmitterModule, OnEvent as RawOnEvent } from '@nestj
 import { JobType, CreateJobEvent } from '@perfsee/server-common'
 
 type KnownEvent = 'job.create' | 'job.register_payload_getter' | 'maintenance.enter' | 'maintenance.leave'
-type DynamicEvent = JobType | `${JobType}.update` | `${JobType}.error`
+type DynamicEvent = JobType | `${JobType}.update` | `${JobType}.error` | `${JobType}.upload`
 export type Event = DynamicEvent | KnownEvent
 
 type EventPayload =

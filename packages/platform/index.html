@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta v="<%=version %>" />
-  <% if (publicPath) {
+  <% if (typeof publicPath != 'undefined') {
     const origin = new URL(publicPath).origin %>
     <link rel="dns-prefetch" href="<%=origin%>" />
     <link rel="preconnect" href="<%=origin%>" crossorigin />

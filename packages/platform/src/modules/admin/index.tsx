@@ -1,5 +1,4 @@
 import styled from '@emotion/styled'
-import { Stack } from '@fluentui/react'
 import { Route, Switch } from 'react-router'
 
 import { ContentCard } from '@perfsee/components'
@@ -12,9 +11,10 @@ import { AdminNavigator } from './nav'
 import { RunnerScriptManager } from './runner-scripts'
 import { Runners } from './runners'
 import { Settings } from './settings'
+import { UsagePacks } from './usage-packs'
 
 const Main = styled.div({
-  height: '100%',
+  minHeight: '100%',
   maxWidth: '1280px',
   margin: '0 auto',
   display: 'flex',
@@ -22,6 +22,10 @@ const Main = styled.div({
   '> :not(:last-child)': {
     marginRight: '20px',
   },
+})
+
+const Content = styled.div({
+  flex: 1,
 })
 
 const navigators = [
@@ -59,19 +63,25 @@ const navigators = [
       </ContentCard>
     ),
   },
+  {
+    key: 'usage-packs',
+    title: 'Usage Packs',
+    path: staticPath.admin.usagePacks,
+    component: UsagePacks,
+  },
 ]
 
 export function AdminRoutes() {
   return (
     <Main>
       <AdminNavigator routeMap={navigators} />
-      <Stack tokens={{ childrenGap: 20 }} grow>
+      <Content>
         <Switch>
           {navigators.map(({ path, component }) => (
             <Route key={path} path={path} component={component} />
           ))}
         </Switch>
-      </Stack>
+      </Content>
     </Main>
   )
 }

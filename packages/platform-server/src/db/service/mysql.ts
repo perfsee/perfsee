@@ -17,6 +17,7 @@ limitations under the License.
 import { Injectable } from '@nestjs/common'
 import { InjectDataSource, InjectEntityManager } from '@nestjs/typeorm'
 import { BaseEntity, DataSource, EntityManager, EntityTarget, QueryRunner } from 'typeorm'
+import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel'
 
 import * as models from '../mysql'
 
@@ -41,8 +42,13 @@ export class DBService {
     return this.manager.getRepository(entity)
   }
 
-  transaction<T>(runInTransaction: (entityManager: EntityManager) => Promise<T>): Promise<T> {
-    return this.manager.transaction(runInTransaction)
+  transaction<T>(
+    runInTransaction: (entityManager: EntityManager) => Promise<T>,
+    isolationLevel?: IsolationLevel,
+  ): Promise<T> {
+    return isolationLevel
+      ? this.manager.transaction(isolationLevel, runInTransaction)
+      : this.manager.transaction(runInTransaction)
   }
 
   async useMasterRunner<T>(runWithMaster: (runner: QueryRunner) => Promise<T>) {

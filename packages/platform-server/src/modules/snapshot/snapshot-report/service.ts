@@ -29,9 +29,13 @@ import {
   SnapshotReportWithArtifact,
   SourceIssue,
 } from '@perfsee/platform-server/db'
+import { OnEvent } from '@perfsee/platform-server/event'
 import { Logger } from '@perfsee/platform-server/logger'
+import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
-import { SnapshotStatus } from '@perfsee/server-common'
+import { JobType, SnapshotStatus } from '@perfsee/server-common'
+
+import { ProjectUsageService } from '../../project-usage/service'
 
 import { SnapshotReportFilter } from './types'
 
@@ -40,7 +44,11 @@ export class SnapshotReportService {
   loader = createDataLoader((ids: number[]) => SnapshotReport.findBy({ id: In(ids) }))
   snapshotLoader = createDataLoader((ids: number[]) => Snapshot.findBy({ id: In(ids) }))
 
-  constructor(private readonly logger: Logger) {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly projectUsage: ProjectUsageService,
+    private readonly storage: ObjectStorage,
+  ) {}
 
   getReportsByIids(projectId: number, iids: number[]) {
     return SnapshotReport.createQueryBuilder('report')
@@ -182,60 +190,53 @@ export class SnapshotReportService {
     return SourceIssue.createQueryBuilder().where('snapshot_report_id = :reportId', { reportId }).getMany()
   }
 
-  getSnapshot(id: number) {
-    return Snapshot.findOneBy({ id })
+  async deleteSnapshotsReportById(projectId: number, iid: number) {
+    const report = await SnapshotReport.findOneByOrFail({ iid, projectId })
+    await SnapshotReport.remove(report)
+    await this.projectUsage.recordStorageUsage(projectId, -report.uploadSize)
+    await this.storage.bulkDelete(
+      [
+        report.lighthouseStorageKey,
+        report.screencastStorageKey,
+        report.jsCoverageStorageKey,
+        report.traceEventsStorageKey,
+        report.flameChartStorageKey,
+        report.sourceCoverageStorageKey,
+      ].filter(Boolean) as string[],
+    )
+
+    return true
   }
 
-  getPageIds(projectId: number, iids: number[]) {
-    return Page.createQueryBuilder()
-      .where('project_id = :projectId')
-      .andWhere('iid in (:...iids)')
-      .select('id')
-      .setParameters({
-        projectId: projectId,
-        iids,
+  @OnEvent(`${JobType.LabAnalyze}.upload`)
+  async handleReportUploadSize(reportId: number, uploadSize: number) {
+    const report = await SnapshotReport.findOneByOrFail({ id: reportId })
+
+    await this.projectUsage.recordStorageUsage(report.projectId, uploadSize)
+    await this.updateLabReportUploadSize(report, uploadSize)
+  }
+
+  private async updateLabReportUploadSize(report: SnapshotReport, uploadSize: number) {
+    await SnapshotReport.createQueryBuilder()
+      .update()
+      .set({
+        uploadSize: () => `upload_size + ${uploadSize}`,
       })
-      .getRawMany<{ id: number }>()
-      .then((rows) => rows.map(({ id }) => id))
+      .where({ id: report.id })
+      .execute()
   }
 
-  getProfileIds(projectId: number, iids: number[]) {
-    return Profile.createQueryBuilder()
-      .where('project_id = :projectId')
-      .andWhere('iid in (:...iids)')
-      .select('id')
-      .setParameters({
-        projectId: projectId,
-        iids,
-      })
-      .getRawMany<{ id: number }>()
-      .then((rows) => rows.map(({ id }) => id))
-  }
-
-  getEnvIds(projectId: number, iids: number[]) {
-    return Environment.createQueryBuilder()
-      .where('project_id = :projectId')
-      .andWhere('iid in (:...iids)')
-      .select('id')
-      .setParameters({
-        projectId: projectId,
-        iids,
-      })
-      .getRawMany<{ id: number }>()
-      .then((rows) => rows.map(({ id }) => id))
-  }
-
-  async getEnvId(projectId: number, iid: number) {
+  private async getEnvId(projectId: number, iid: number) {
     const env = await Environment.findOneByOrFail({ projectId, iid })
     return env.id
   }
 
-  async getProfileId(projectId: number, iid: number) {
+  private async getProfileId(projectId: number, iid: number) {
     const profile = await Profile.findOneByOrFail({ iid, projectId })
     return profile.id
   }
 
-  async getPageId(projectId: number, iid: number) {
+  private async getPageId(projectId: number, iid: number) {
     const page = await Page.findOneByOrFail({ iid, projectId })
     return page.id
   }

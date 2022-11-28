@@ -24,6 +24,7 @@ import { CheckSuiteModule } from '../checksuite'
 import { JobModule } from '../job'
 import { NotificationModule } from '../notification'
 import { ProjectModule } from '../project'
+import { ProjectUsageModule } from '../project-usage'
 import { ScriptFileModule } from '../script-file'
 import { SettingModule } from '../setting'
 
@@ -42,6 +43,7 @@ import { ArtifactService } from './service'
     NotificationModule,
     ScriptFileModule,
     SettingModule,
+    ProjectUsageModule,
   ],
   controllers: [ArtifactController],
   providers: [ArtifactService, ArtifactResolver, ProjectArtifactResolver, ArtifactEntrypointResolver],

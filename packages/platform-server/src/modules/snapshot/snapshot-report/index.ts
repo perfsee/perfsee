@@ -16,16 +16,19 @@ limitations under the License.
 
 import { Module } from '@nestjs/common'
 
+import { StorageModule } from '@perfsee/platform-server/storage'
+
 import { EnvironmentModule } from '../../environment'
 import { PageModule } from '../../page'
 import { ProfileModule } from '../../profile'
 import { ProjectModule } from '../../project'
+import { ProjectUsageModule } from '../../project-usage'
 
 import { ProjectReportResolver, ReportResolver, SnapshotReportResolver } from './resolver'
 import { SnapshotReportService } from './service'
 
 @Module({
-  imports: [ProjectModule, EnvironmentModule, PageModule, ProfileModule],
+  imports: [StorageModule, ProjectModule, EnvironmentModule, PageModule, ProfileModule, ProjectUsageModule],
   providers: [SnapshotReportService, ReportResolver, SnapshotReportResolver, ProjectReportResolver],
   exports: [SnapshotReportService],
 })

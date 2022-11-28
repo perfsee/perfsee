@@ -20,7 +20,13 @@ import { Observable } from 'rxjs'
 import { switchMap, map, withLatestFrom, endWith, startWith, exhaustMap, filter } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { artifactsQuery, ArtifactsQuery, dispatchArtifactJobMutation, BundleJobStatus } from '@perfsee/schema'
+import {
+  artifactsQuery,
+  ArtifactsQuery,
+  dispatchArtifactJobMutation,
+  BundleJobStatus,
+  deleteArtifactMutation,
+} from '@perfsee/schema'
 
 import { ProjectModule } from '../../shared'
 
@@ -120,5 +126,28 @@ export class BundleListModule extends EffectModule<State> {
     if (artifact) {
       artifact.status = status
     }
+  }
+
+  @Effect()
+  deleteArtifact(payload$: Observable<number>) {
+    return payload$.pipe(
+      this.projectModule.withProject,
+      exhaustMap(([project, id]) =>
+        this.client
+          .mutate({
+            mutation: deleteArtifactMutation,
+            variables: { projectId: project.id, artifactId: id },
+          })
+          .pipe(
+            createErrorCatcher('Failed to dispatch job.'),
+            map(() => this.getActions().removeArtifact(id)),
+          ),
+      ),
+    )
+  }
+
+  @ImmerReducer()
+  removeArtifact(state: Draft<State>, id: number) {
+    state.artifacts = state.artifacts.filter((artifact) => artifact.id !== id)
   }
 }

@@ -13,6 +13,7 @@ query artifacts($projectId: ID!, $pagination: PaginationInput, $branch: String, 
           score
           createdAt
           updatedAt
+          uploadSize
         }
       }
       pageInfo {

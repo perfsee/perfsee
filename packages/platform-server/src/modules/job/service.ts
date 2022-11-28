@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { countBy } from 'lodash'
 import { Between, In } from 'typeorm'
 
 import {
@@ -36,6 +37,8 @@ import { JobLogStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { CreateJobEvent, JobType, UNKNOWN_RUNNER_ZONE, UpdateJobTraceParams } from '@perfsee/server-common'
 import { JobLog, JobLogLevel } from '@perfsee/shared'
+
+import { ProjectUsageService } from '../project-usage/service'
 
 import { TimeUsageInput } from './types'
 
@@ -105,6 +108,7 @@ export class JobService {
     private readonly internalId: InternalIdService,
     private readonly redis: Redis,
     private readonly logStorage: JobLogStorage,
+    private readonly projectUsage: ProjectUsageService,
   ) {}
 
   @OnEvent('job.create')
@@ -123,6 +127,7 @@ export class JobService {
     }
 
     await Job.insert(jobs)
+    await this.recordJobCount(jobs)
     this.recordJobCreating(jobs)
   }
 
@@ -198,12 +203,23 @@ export class JobService {
       .andWhere('started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
       .getMany()
 
+    const projectDurations: Record<number, number> = {}
+
     jobs.forEach((job) => {
       job.status = JobStatus.Done
+
+      const duration = job.startedAt ? new Date().getTime() - job.startedAt.getTime() : /* 1 hour */ 3600000
+      projectDurations[job.projectId] = projectDurations[job.projectId]
+        ? projectDurations[job.projectId] + duration
+        : duration
+
       this.logger.error('timeout', { job })
     })
 
     await Job.save(jobs)
+    for (const [projectId, duration] of Object.entries(projectDurations)) {
+      await this.projectUsage.recordJobDurationUsage(Number(projectId), duration)
+    }
 
     return jobs
   }
@@ -248,6 +264,8 @@ export class JobService {
       job.duration = duration
       job.endedAt = new Date()
       await job.save({ reload: false })
+
+      await this.projectUsage.recordJobDurationUsage(job.projectId, duration)
       try {
         if (pendingLogs?.length) {
           await this.writeLogs(job, pendingLogs)
@@ -365,6 +383,14 @@ export class JobService {
       zone: zone ?? (await ApplicationSetting.defaultJobZone()),
       extra: 'extra' in event.payload ? event.payload.extra : undefined,
     })
+  }
+
+  private async recordJobCount(jobs: Job[]) {
+    const counts = countBy(jobs, 'projectId')
+
+    for (const [projectId, count] of Object.entries(counts)) {
+      await this.projectUsage.recordJobCountUsage(Number(projectId), count)
+    }
   }
 
   private recordJobCreating(jobs: Job[]) {

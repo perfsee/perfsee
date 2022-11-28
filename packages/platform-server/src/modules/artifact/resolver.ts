@@ -159,6 +159,17 @@ export class ArtifactResolver {
 
     return true
   }
+
+  @PermissionGuard(Permission.Admin, 'projectId')
+  @Mutation(() => Boolean)
+  async deleteArtifact(
+    @Args({ name: 'projectId', type: () => ID }) projectId: string,
+    @Args({ name: 'artifactId', type: () => Int }) artifactId: number,
+  ) {
+    const rawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+
+    return this.service.deleteArtifactById(rawId, artifactId)
+  }
 }
 
 @Resolver(() => ArtifactEntrypoint)

@@ -19,6 +19,7 @@ import { Module } from '@nestjs/common'
 import { DBModule } from '@perfsee/platform-server/db'
 import { StorageModule } from '@perfsee/platform-server/storage'
 
+import { ProjectUsageModule } from '../project-usage'
 import { RunnerModule } from '../runner'
 
 import { JobController } from './controller'
@@ -26,7 +27,7 @@ import { JobResolver, RunnerJobResolver, ProjectJobResolver } from './resolver'
 import { JobService } from './service'
 
 @Module({
-  imports: [DBModule, StorageModule, RunnerModule],
+  imports: [DBModule, StorageModule, RunnerModule, ProjectUsageModule],
   controllers: [JobController],
   providers: [JobService, JobResolver, RunnerJobResolver, ProjectJobResolver],
   exports: [JobService],

@@ -60,7 +60,7 @@ export class SourceIssue extends BaseEntity {
   @RelationId('snapshotReport')
   snapshotReportId!: number
 
-  @ManyToOne('SnapshotReport', 'sourceIssues')
+  @ManyToOne('SnapshotReport', 'sourceIssues', { onDelete: 'CASCADE' })
   snapshotReport!: SnapshotReport
 
   @Field({ description: 'issue code' })

@@ -40,6 +40,6 @@ export class PageWithCompetitor extends BaseEntity {
   @RelationId('competitor')
   competitorId!: number // competitor page id
 
-  @ManyToOne('Page')
+  @ManyToOne('Page', { onDelete: 'CASCADE' })
   competitor!: Page
 }

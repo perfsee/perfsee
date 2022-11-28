@@ -35,12 +35,13 @@ import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { BundleJobUpdate, JobType } from '@perfsee/server-common'
-import { BuildUploadParams, gitHostFromDomain, isBaseline } from '@perfsee/shared'
+import { BuildUploadParams, GitHost, gitHostFromDomain, isBaseline } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { AppVersionService } from '../app-version/service'
 import { CurrentUser } from '../auth'
 import { PermissionProvider, Permission } from '../permission'
+import { ProjectUsageService } from '../project-usage/service'
 import { ProjectService } from '../project/service'
 
 import { ArtifactService } from './service'
@@ -57,6 +58,7 @@ export class ArtifactController {
     private readonly permission: PermissionProvider,
     private readonly storage: ObjectStorage,
     private readonly url: UrlService,
+    private readonly projectUsage: ProjectUsageService,
   ) {}
 
   @Post('/artifacts')
@@ -77,7 +79,10 @@ export class ArtifactController {
       throw new ForbiddenException('Invalid build uploading token.')
     }
 
-    if (project.host !== gitHost || project.namespace !== params.namespace || project.name !== params.name) {
+    if (
+      project.host !== GitHost.Unknown &&
+      (project.host !== gitHost || project.namespace !== params.namespace || project.name !== params.name)
+    ) {
       throw new BadRequestException(
         `Upload git repo ${gitHost}/${params.namespace}/${params.name} not match with the project ${project.host}/${project.namespace}/${project.name}`,
       )
@@ -88,8 +93,12 @@ export class ArtifactController {
     this.metrics.bundleUpload(1, metricsTags)
 
     try {
+      await this.projectUsage.verifyUsageLimit(project.id)
+
       const buildKey = `builds/${project.id}/${uuid()}.tar`
       await this.storage.upload(buildKey, file)
+
+      await this.projectUsage.recordStorageUsage(project.id, file.byteLength)
 
       const artifact = await this.artifactService.create(project, {
         iid: await this.internalId.generate(project.id, InternalIdUsage.Artifact),
@@ -101,6 +110,7 @@ export class ArtifactController {
         appVersion: params.appVersion,
         toolkit: params.toolkit,
         isBaseline: isBaseline(params.branch, project.artifactBaselineBranch),
+        uploadSize: file.byteLength,
       })
 
       this.logger.log(`artifact create. id=${artifact.id}`)
@@ -135,5 +145,10 @@ export class ArtifactController {
   @OnEvent(`${JobType.BundleAnalyze}.error`)
   async failBundleAnalyze(jobId: number, reason: string) {
     await this.artifactService.handleJobFailed(jobId, reason)
+  }
+
+  @OnEvent(`${JobType.BundleAnalyze}.upload`)
+  async handleArtifactUploadSize(artifactId: number, uploadSize: number) {
+    await this.artifactService.handleJobUpload(artifactId, uploadSize)
   }
 }

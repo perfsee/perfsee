@@ -59,6 +59,7 @@ export * from './pop-confirm'
 export * from './helmet'
 export * from './route'
 export * from './string-color'
+export * from './progress'
 
 // if any of the components imported ever by non-async modules, then all components will be loaded in sync mode
 // which would involve a lot of useless downloading traffic.

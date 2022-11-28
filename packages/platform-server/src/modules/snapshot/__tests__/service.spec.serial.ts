@@ -84,6 +84,7 @@ test.serial('take temp snapshot', async (t) => {
   const service = t.context.module.get(SnapshotService)
   const event = t.context.module.get(EventEmitter)
   const internalIdService = t.context.module.get(InternalIdService)
+
   const url = faker.internet.url()
   const user = await create(User, { isAdmin: true })
   const env = await create(Environment, { projectId })
