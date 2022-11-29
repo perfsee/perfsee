@@ -40,6 +40,6 @@
     "@types/env-ci": "^3.1.1",
     "@types/node-fetch": "^2.5.12",
     "@types/table": "^6.3.2",
-    "@types/uuid": "^8.3.4"
+    "@types/uuid": "^9.0.0"
   }
 }

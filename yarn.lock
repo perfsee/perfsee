@@ -5654,7 +5654,7 @@ __metadata:
     "@types/json-bigint": ^1.0.1
     "@types/nodemailer": ^6.4.4
     "@types/redlock": ^4.0.3
-    "@types/uuid": ^8.3.4
+    "@types/uuid": ^9.0.0
     apollo-server-express: ^3.10.2
     apollo-server-plugin-base: ^3.6.2
     ava: ^5.0.0
@@ -5752,7 +5752,7 @@ __metadata:
     "@types/env-ci": ^3.1.1
     "@types/node-fetch": ^2.5.12
     "@types/table": ^6.3.2
-    "@types/uuid": ^8.3.4
+    "@types/uuid": ^9.0.0
     chalk: ^4.1.2
     debug: 4.3.4
     env-ci: ^7.2.1
@@ -7276,10 +7276,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8.3.4":
-  version: 8.3.4
-  resolution: "@types/uuid@npm:8.3.4"
-  checksum: 6f11f3ff70f30210edaa8071422d405e9c1d4e53abbe50fdce365150d3c698fe7bbff65c1e71ae080cbfb8fded860dbb5e174da96fdbbdfcaa3fb3daa474d20f
+"@types/uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@types/uuid@npm:9.0.0"
+  checksum: 59ae56d9547c8758588659da2a2b4c97cce79c2aae1798c892bb29452ef08e87859dea2ec3a66bfa88d0d2153147520be2b1893be920f9f0bc9c53a3207ea6aa
   languageName: node
   linkType: hard
 
