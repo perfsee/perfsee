@@ -24,7 +24,7 @@ interface ProjectRouteParam {
 
 type ProjectRouteFn<T> = (param: T & ProjectRouteParam) => string
 
-export const useGenerateProjectRoute = () => {
+export const useProjectRouteGenerator = () => {
   const { projectId } = useParams<{ projectId: string }>()
 
   return useCallback(

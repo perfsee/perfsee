@@ -18,19 +18,16 @@ import styled from '@emotion/styled'
 
 import { darken, NeutralColors } from '@perfsee/dls'
 
-export const HeaderContainer = styled.div<{ narrow?: boolean }>(({ theme, narrow: narrow = false }) => ({
-  position: 'fixed',
+export const HeaderContainer = styled.div(({ theme }) => ({
+  position: 'sticky',
   top: 0,
-  left: 0,
   display: 'flex',
   width: '100%',
   height: '60px',
-  padding: `5px ${narrow ? theme.layout.mainPadding : '10px'}`,
+  padding: `5px ${theme.layout.mainPadding}`,
   alignItems: 'center',
   justifyContent: 'space-between',
   backgroundColor: theme.colors.white,
-  // minWidth: '900px',
-  boxShadow: narrow ? theme.boxShadowBase : 'none',
   zIndex: 3,
 }))
 

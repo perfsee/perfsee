@@ -21,7 +21,7 @@ import { useMemo, useCallback, FC, useState, useEffect } from 'react'
 import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import { Empty, Select } from '@perfsee/components'
+import { Empty, Select, useWideScreen } from '@perfsee/components'
 import { TreeMapChart } from '@perfsee/components/treemap'
 import { ModuleTreeNode } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
@@ -64,6 +64,7 @@ export interface BundleContentProps {
 }
 
 export const BundleContent: FC<BundleContentProps> = ({ project, content, bundleId }) => {
+  useWideScreen()
   const entryPoints = useMemo(() => {
     return union(...content.map((v) => v.entryPoints))
   }, [content])

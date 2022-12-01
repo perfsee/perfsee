@@ -25,8 +25,8 @@ import { useQueryString, ContentCard } from '@perfsee/components'
 import { SnapshotStatus } from '@perfsee/schema'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { Breadcrumb, VersionPerformanceOverview } from '../components'
-import { useBreadcrumb, useGenerateProjectRoute } from '../shared'
+import { VersionPerformanceOverview } from '../components'
+import { useProjectRouteGenerator } from '../shared'
 
 import { EntryPointSchema, VersionSnapshotReport } from './types'
 import { HashReportModule } from './version-report.module'
@@ -38,9 +38,8 @@ enum PivotKey {
 }
 
 export const VersionReport = () => {
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
   const history = useHistory()
-  const breadcrumb = useBreadcrumb({ versionReportPage: true })
 
   const [{ allCommits, artifactJob, lab, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
   const [{ hash = '', reportId, tabName = PivotKey.Overview }, updateQueryString] = useQueryString<{
@@ -156,40 +155,37 @@ export const VersionReport = () => {
   }, [dispatcher, selectedReport])
 
   return (
-    <div style={{ minWidth: '1100px', padding: '0 20px' }}>
-      <Breadcrumb items={breadcrumb} />
-      <ContentCard onRenderHeader={onRenderHeader}>
-        <BaseInfo
-          artifact={artifactJob.artifact}
-          entry={entrypoint}
-          entryPoints={entryPoints}
-          hash={hash}
-          report={selectedReport}
-          reports={reports}
-          onReportChange={onReportChange}
-          onEntryChange={setEntryPoint}
-        />
-        <Pivot
-          styles={{ root: { marginBottom: '16px', borderBottom: `1px solid ${NeutralColors.gray30}` } }}
-          selectedKey={tabName}
-          onLinkClick={onLinkClick}
-        >
-          <PivotItem itemKey={PivotKey.Overview} headerText={capitalize(PivotKey.Overview)}>
-            <VersionPerformanceOverview
-              hash={hash}
-              snapshotReport={selectedReport}
-              artifact={artifactJob.artifact}
-              lhContent={lhContent}
-              loading={allCommits.loading || lab.loading}
-              hideBasic={true}
-              sourceIssueCount={currentIssueCount}
-            />
-          </PivotItem>
-          <PivotItem itemKey={PivotKey.Solution} headerText={capitalize(PivotKey.Solution)}>
-            <Solution entrypoint={entrypoint} />
-          </PivotItem>
-        </Pivot>
-      </ContentCard>
-    </div>
+    <ContentCard onRenderHeader={onRenderHeader}>
+      <BaseInfo
+        artifact={artifactJob.artifact}
+        entry={entrypoint}
+        entryPoints={entryPoints}
+        hash={hash}
+        report={selectedReport}
+        reports={reports}
+        onReportChange={onReportChange}
+        onEntryChange={setEntryPoint}
+      />
+      <Pivot
+        styles={{ root: { marginBottom: '16px', borderBottom: `1px solid ${NeutralColors.gray30}` } }}
+        selectedKey={tabName}
+        onLinkClick={onLinkClick}
+      >
+        <PivotItem itemKey={PivotKey.Overview} headerText={capitalize(PivotKey.Overview)}>
+          <VersionPerformanceOverview
+            hash={hash}
+            snapshotReport={selectedReport}
+            artifact={artifactJob.artifact}
+            lhContent={lhContent}
+            loading={allCommits.loading || lab.loading}
+            hideBasic={true}
+            sourceIssueCount={currentIssueCount}
+          />
+        </PivotItem>
+        <PivotItem itemKey={PivotKey.Solution} headerText={capitalize(PivotKey.Solution)}>
+          <Solution entrypoint={entrypoint} />
+        </PivotItem>
+      </Pivot>
+    </ContentCard>
   )
 }

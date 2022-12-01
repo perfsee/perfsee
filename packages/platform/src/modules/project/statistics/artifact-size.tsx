@@ -28,7 +28,7 @@ import { Size } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { ArtifactNameSelector, BranchSelector } from '../../components'
-import { useGenerateProjectRoute } from '../../shared'
+import { useProjectRouteGenerator } from '../../shared'
 
 import { BarChart } from './components/barchart'
 import { LoadMore } from './components/load-more'
@@ -54,7 +54,7 @@ const ArtifactSizeHistoryBarChart = memo<{
   title: string
   propertyName: keyof Size
 }>(({ history, title, propertyName }) => {
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const onRenderArtifactId = useCallback(
     (id: number) => (
@@ -138,7 +138,7 @@ const artifactColumns: TableColumnProps<BundleAggregation>[] = [
 export const ArtifactSize = () => {
   const [loadMore, setLoadMore] = useState(false)
   const project = useProject()
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
   const [{ bundleHistory }, dispatcher] = useModule(StatisticsModule, {
     selector: (state) => ({ bundleHistory: state.bundleHistory }),
     dependencies: [],

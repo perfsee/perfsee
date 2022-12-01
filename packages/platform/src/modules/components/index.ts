@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './breadcrumb'
 export * from './starring'
 export * from './user-input'
 export * from './artifact-select'

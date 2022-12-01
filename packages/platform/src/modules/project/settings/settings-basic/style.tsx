@@ -66,7 +66,6 @@ export const DangerItem = styled.div({
 })
 
 export const DangerContent = styled.div({
-  maxWidth: '500px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -81,7 +80,7 @@ export const DangerDescription = styled.div(({ theme }) => ({
 
   p: {
     fontSize: '14px',
-    fontWeight: 500,
+    fontWeight: 600,
   },
 
   span: {

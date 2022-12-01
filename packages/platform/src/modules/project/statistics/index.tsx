@@ -18,7 +18,7 @@ import { Stack, IStackTokens } from '@fluentui/react'
 import { useDispatchers, useModule } from '@sigi/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Select } from '@perfsee/components'
+import { ContentCard, Select } from '@perfsee/components'
 import { SnapshotStatus } from '@perfsee/schema'
 
 import { VersionPerformanceOverview } from '../../components'
@@ -26,12 +26,10 @@ import { VersionSnapshotReport } from '../../version-report/types'
 import { HashReportModule } from '../../version-report/version-report.module'
 
 import { StatisticsModule } from './module'
-import { CardContent, CardHeader, CardWrap } from './style'
 import { TrendsChart } from './trends-chart'
 
 const stackTokens: IStackTokens = {
   childrenGap: 20,
-  padding: '0 20px',
 }
 
 export const Statistics = () => {
@@ -92,33 +90,35 @@ export const Statistics = () => {
   }, [dispatcher, selectedReport])
 
   return (
-    <Stack tokens={stackTokens} styles={{ root: { minWidth: '1200px' } }}>
-      <CardWrap>
-        <CardHeader>
-          <span>Latest Version Report</span>
-          <Stack horizontal tokens={{ childrenGap: '8px' }} verticalAlign="center">
-            {!!versionOptions.length && (
-              <Select<number>
-                title="Report"
-                selectedKey={selectedReport?.id}
-                options={versionOptions}
-                onKeyChange={onReportChange}
-              />
-            )}
-            {/* <MoreVersionSpan>View More Versions</MoreVersionSpan> */}
-          </Stack>
-        </CardHeader>
-        <CardContent>
-          <VersionPerformanceOverview
-            hash={allCommits.commits[0]}
-            snapshotReport={selectedReport}
-            artifact={artifactJob.artifact}
-            lhContent={lhContent}
-            loading={allCommits.loading || lab.loading}
-            sourceIssueCount={currentIssueCount}
-          />
-        </CardContent>
-      </CardWrap>
+    <Stack tokens={stackTokens}>
+      <ContentCard
+        // eslint-disable-next-line react/jsx-no-bind
+        onRenderHeader={() => (
+          <>
+            <span>Latest Version Report</span>
+            <Stack horizontal tokens={{ childrenGap: '8px' }} verticalAlign="center">
+              {!!versionOptions.length && (
+                <Select<number>
+                  title="Report"
+                  selectedKey={selectedReport?.id}
+                  options={versionOptions}
+                  onKeyChange={onReportChange}
+                />
+              )}
+              {/* <MoreVersionSpan>View More Versions</MoreVersionSpan> */}
+            </Stack>
+          </>
+        )}
+      >
+        <VersionPerformanceOverview
+          hash={allCommits.commits[0]}
+          snapshotReport={selectedReport}
+          artifact={artifactJob.artifact}
+          lhContent={lhContent}
+          loading={allCommits.loading || lab.loading}
+          sourceIssueCount={currentIssueCount}
+        />
+      </ContentCard>
       <TrendsChart />
     </Stack>
   )

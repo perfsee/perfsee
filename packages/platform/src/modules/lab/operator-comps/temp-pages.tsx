@@ -23,7 +23,7 @@ import { URLTextField, MultiSelector } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { PropertyModule, useGenerateProjectRoute } from '../../shared'
+import { PropertyModule, useProjectRouteGenerator } from '../../shared'
 import { LabListModule } from '../list/module'
 
 import { stackTokens } from './style'
@@ -54,7 +54,7 @@ const TableContent: FC<Props> = ({ onCloseModal }) => {
   })
 
   const { takeTempSnapshot } = useDispatchers(LabListModule)
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const [page, setPage] = useState<{
     url?: string

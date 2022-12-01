@@ -14,21 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import styled from '@emotion/styled'
+import { Nav, INavProps } from '@fluentui/react'
+import { merge } from 'lodash'
 
-export const BodyContainer = styled.div({
-  width: '100%',
-  minHeight: '100%',
-  padding: '0 80px',
-  display: 'flex',
-  justifyContent: 'center',
-})
-
-export const BodyPadding = styled.div(({ theme }) => ({
-  backgroundColor: theme.colors.white,
-  width: '100%',
-  margin: '20px 0 50px',
-  padding: '16px 24px',
-  borderRadius: '2px',
-  overflow: 'hidden',
-}))
+export function SecondaryNav(props: INavProps) {
+  return (
+    <Nav
+      {...props}
+      styles={merge(
+        {
+          root: { minWidth: '240px', marginRight: '16px' },
+          link: { paddingLeft: '10px', paddingRight: '20px' },
+          groupContent: { marginBottom: 0 },
+          linkText: { margin: '0 4px' },
+        },
+        props.styles,
+      )}
+    />
+  )
+}

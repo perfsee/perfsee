@@ -24,12 +24,10 @@ import { CompetitorReport } from './competitor-report'
 
 export const CompetitorRoutes = () => {
   return (
-    <div style={{ padding: '0 20px' }}>
-      <Switch>
-        <Route exact={true} path={staticPath.project.competitor.home} component={Competitor} />
-        <Route exact={true} path={staticPath.project.competitor.report} component={CompetitorReport} />
-        <Redirect to={staticPath.notFound} />
-      </Switch>
-    </div>
+    <Switch>
+      <Route exact={true} path={staticPath.project.competitor.home} component={Competitor} />
+      <Route exact={true} path={staticPath.project.competitor.report} component={CompetitorReport} />
+      <Redirect to={staticPath.notFound} />
+    </Switch>
   )
 }

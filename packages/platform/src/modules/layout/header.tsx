@@ -14,25 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { useTheme } from '@emotion/react'
-import { FC } from 'react'
-
 import { HeaderLogo } from './header-logo'
 import { HeaderContainer } from './header.style'
 import { Operations } from './operations'
 
-interface HeaderProps {
-  narrow: boolean
-}
-
-export const Header: FC<HeaderProps> = ({ narrow }) => {
-  const theme = useTheme()
+export const Header = () => {
   return (
-    <div css={{ height: theme.layout.headerHeight }}>
-      <HeaderContainer narrow={narrow}>
-        <HeaderLogo />
-        <Operations />
-      </HeaderContainer>
-    </div>
+    <HeaderContainer>
+      <HeaderLogo />
+      <Operations />
+    </HeaderContainer>
   )
 }

@@ -17,22 +17,15 @@ limitations under the License.
 import { Stack } from '@fluentui/react'
 
 import { ContentCard } from '@perfsee/components'
-import { Breadcrumb } from '@perfsee/platform/modules/components'
-import { useBreadcrumb } from '@perfsee/platform/modules/shared'
 
 import { ArtifactSizeChart } from './chart'
 
 export const ArtifactSizeChartPage = () => {
-  const breadcrumbItems = useBreadcrumb()
-
   return (
-    <>
-      <Stack tokens={{ padding: '0 28px', childrenGap: 10 }}>
-        <Breadcrumb items={breadcrumbItems} />
-        <ContentCard>
-          <ArtifactSizeChart />
-        </ContentCard>
-      </Stack>
-    </>
+    <Stack tokens={{ padding: '0 28px', childrenGap: 10 }}>
+      <ContentCard>
+        <ArtifactSizeChart />
+      </ContentCard>
+    </Stack>
   )
 }

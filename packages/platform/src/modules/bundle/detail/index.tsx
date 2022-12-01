@@ -25,8 +25,8 @@ import { useToggleState } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { ArtifactSelect, ArtifactSelectEventPayload, Breadcrumb } from '../../components'
-import { ProjectModule, useBreadcrumb, useGenerateProjectRoute } from '../../shared'
+import { ArtifactSelect, ArtifactSelectEventPayload } from '../../components'
+import { ProjectModule, useProjectRouteGenerator } from '../../shared'
 
 import { BundleModule } from './module'
 import { SuspiciousBundle } from './suspicious-job'
@@ -43,7 +43,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       selector: (s) => s.project,
       dependencies: [],
     })
-    const generateProjectRoute = useGenerateProjectRoute()
+    const generateProjectRoute = useProjectRouteGenerator()
     const contentPath = generateProjectRoute(pathFactory.project.bundle.jobBundleContent, { bundleId })
 
     const [artifactSelectVisible, showArtifactSelect, hideArtifactSelect] = useToggleState(false)
@@ -68,8 +68,6 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       },
       [history, location.pathname, queries],
     )
-
-    const breadcrumbItems = useBreadcrumb({ bundleId })
 
     const artifactDiff = useMemo(() => {
       const { current, baseline } = state
@@ -97,36 +95,30 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       return <Spinner size={SpinnerSize.large} label="Loading job result" />
     }
 
-    return (
-      <>
-        <Breadcrumb items={breadcrumbItems} />
-        {state.current?.status !== BundleJobStatus.Passed ? (
-          <SuspiciousBundle bundle={state.current} />
-        ) : (
-          state.diff &&
-          artifactDiff && (
-            <>
-              <BundleReport
-                artifact={artifactDiff}
-                diff={state.diff}
-                defaultEntryPoint={queries.entry}
-                onEntryPointChange={onSelectEntryPoint}
-                onBaselineSelectorOpen={showArtifactSelect}
-                contentLink={contentPath}
-              />
+    return state.current?.status !== BundleJobStatus.Passed ? (
+      <SuspiciousBundle bundle={state.current} />
+    ) : (
+      state.diff && artifactDiff && (
+        <>
+          <BundleReport
+            artifact={artifactDiff}
+            diff={state.diff}
+            defaultEntryPoint={queries.entry}
+            onEntryPointChange={onSelectEntryPoint}
+            onBaselineSelectorOpen={showArtifactSelect}
+            contentLink={contentPath}
+          />
 
-              {artifactSelectVisible && (
-                <ArtifactSelect
-                  defaultArtifactName={state.current.name}
-                  currentArtifactId={state.current.id}
-                  onSelect={handleSelectArtifact}
-                  onDismiss={hideArtifactSelect}
-                />
-              )}
-            </>
-          )
-        )}
-      </>
+          {artifactSelectVisible && (
+            <ArtifactSelect
+              defaultArtifactName={state.current.name}
+              currentArtifactId={state.current.id}
+              onSelect={handleSelectArtifact}
+              onDismiss={hideArtifactSelect}
+            />
+          )}
+        </>
+      )
     )
   },
 )

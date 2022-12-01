@@ -37,7 +37,6 @@ import { Link, useHistory } from 'react-router-dom'
 import {
   Pagination,
   BodyContainer,
-  BodyPadding,
   Empty,
   TeachingBubbleHost,
   useQueryString,
@@ -186,7 +185,7 @@ export const ProjectList = () => {
   const content = loading ? (
     <Spinner label="Loading Projects" styles={{ root: { maxWidth: 300, margin: 10 } }} />
   ) : projects.length ? (
-    <List items={projects} onRenderCell={renderProjectItem} />
+    <List items={projects} onRenderCell={renderProjectItem} css={css({ minHeight: 700 })} />
   ) : (
     <Empty
       withIcon={true}
@@ -197,45 +196,43 @@ export const ProjectList = () => {
 
   return (
     <BodyContainer>
-      <BodyPadding>
-        <Stack horizontal tokens={{ childrenGap: '8px' }}>
-          <Stack.Item grow>
-            <Stack horizontal verticalAlign="center">
-              <SearchBox
-                placeholder="Search projects"
-                styles={{ root: { maxWidth: 200 } }}
-                defaultValue={query}
-                onChange={onQueryChange}
-              />
-            </Stack>
-          </Stack.Item>
-          {settings.enableProjectCreate && <CreateProjectAction />}
-          {settings.enableProjectImport && (
-            <Link to={staticPath.importGithub}>
-              <PrimaryButton text="Import From Github" styles={GithubButtonStyles} />
-            </Link>
-          )}
-        </Stack>
-        <Pivot
-          styles={{ root: { marginTop: 4 } }}
-          defaultSelectedKey={ProjectsEnum.All}
-          onLinkClick={toggleStarredOnlyView}
-        >
-          <PivotItem headerText="All Projects" itemKey={ProjectsEnum.All} />
-          <PivotItem headerText="Starred Projects" itemKey={ProjectsEnum.Starred} />
-        </Pivot>
-        {content}
-        <Pagination
-          key={String(starredOnly)}
-          total={totalCount}
-          onChange={onPageChange}
-          page={page}
-          pageSize={pageSize}
-          showSizeChanger={true}
-          hideOnSinglePage={true}
-          pageSizeOptions={[10, 20]}
-        />
-      </BodyPadding>
+      <Stack horizontal tokens={{ childrenGap: '8px' }}>
+        <Stack.Item grow>
+          <Stack horizontal verticalAlign="center">
+            <SearchBox
+              placeholder="Search projects"
+              styles={{ root: { maxWidth: 240, minWidth: 240 } }}
+              defaultValue={query}
+              onChange={onQueryChange}
+            />
+          </Stack>
+        </Stack.Item>
+        {settings.enableProjectCreate && <CreateProjectAction />}
+        {settings.enableProjectImport && (
+          <Link to={staticPath.importGithub}>
+            <PrimaryButton text="Import From Github" styles={GithubButtonStyles} />
+          </Link>
+        )}
+      </Stack>
+      <Pivot
+        styles={{ root: { marginTop: 4 } }}
+        defaultSelectedKey={ProjectsEnum.All}
+        onLinkClick={toggleStarredOnlyView}
+      >
+        <PivotItem headerText="All Projects" itemKey={ProjectsEnum.All} />
+        <PivotItem headerText="Starred Projects" itemKey={ProjectsEnum.Starred} />
+      </Pivot>
+      {content}
+      <Pagination
+        key={String(starredOnly)}
+        total={totalCount}
+        onChange={onPageChange}
+        page={page}
+        pageSize={pageSize}
+        showSizeChanger={true}
+        hideOnSinglePage={true}
+        pageSizeOptions={[10, 20]}
+      />
     </BodyContainer>
   )
 }

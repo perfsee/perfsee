@@ -21,9 +21,6 @@ import { useParams } from 'react-router-dom'
 
 import { ContentCard } from '@perfsee/components'
 
-import { Breadcrumb } from '../components'
-import { useBreadcrumb } from '../shared'
-
 import { ReportContentWithRoute } from './components/snapshot-detail-content'
 import { SnapshotHeader } from './components/snapshot-header'
 import { SnapshotModule } from './snapshot.module'
@@ -38,7 +35,6 @@ export const SnapshotDetail = () => {
 
   const snapshotId = snapshotReport?.snapshot.id
   const title = snapshotReport?.snapshot.title ?? `Snapshot #${snapshotId}`
-  const breadcrumbItems = useBreadcrumb({ snapshotId })
 
   useEffect(() => {
     dispatcher.fetchSnapshotReport(reportId)
@@ -65,11 +61,8 @@ export const SnapshotDetail = () => {
   }
 
   return (
-    <>
-      <Breadcrumb items={breadcrumbItems} />
-      <ContentCard onRenderHeader={onRenderHeader}>
-        <ReportContentWithRoute snapshotReport={snapshotReport} />
-      </ContentCard>
-    </>
+    <ContentCard onRenderHeader={onRenderHeader}>
+      <ReportContentWithRoute snapshotReport={snapshotReport} />
+    </ContentCard>
   )
 }

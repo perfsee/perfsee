@@ -52,7 +52,7 @@ export const SnapshotVideo: FC<VideoProps> = memo(({ video }) => {
         onDismiss={hide}
         styles={{ main: { minWidth: 'auto' }, scrollableContent: { display: 'flex' } }}
       >
-        <video ref={videoRef} onTimeUpdate={onTimeUpdate} controls src={video} />
+        <video ref={videoRef} onTimeUpdate={onTimeUpdate} controls src={video} style={{ cursor: 'pointer' }} />
         <VideoTime>
           {formatted.value}
           {formatted.unit}

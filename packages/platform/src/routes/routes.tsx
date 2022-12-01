@@ -44,11 +44,13 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
   return (
     <Switch>
       {/* pages without login */}
+      {/* Introduction Routes */}
       <Route exact={true} path={staticPath.home} component={HomePage} />
       <Route exact={true} path={staticPath.features.bundle} component={FeaturesBundle} />
       <Route exact={true} path={staticPath.features.lab} component={FeaturesLab} />
       <Route exact={true} path={staticPath.features.source} component={FeaturesSource} />
 
+      {/* Business Routes */}
       <Route exact={true} path={staticPath.login} component={Login} />
       <Route exact={true} path={staticPath.register} component={Register} />
       <Route exact={true} path={staticPath.status} component={StatusPage} />

@@ -18,6 +18,7 @@ import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useEffect, useState } from 'react'
 
+import { useWideScreen } from '@perfsee/components'
 import { TreeMapChart } from '@perfsee/components/treemap'
 import { hierarchy, HierarchyNode } from '@perfsee/treemap'
 
@@ -34,6 +35,7 @@ type Props = {
 type SourceCoverageTreeMapData = LH.Treemap.Node & { highlight?: number }
 
 export const SourceCoveragePivotContent = (props: Props) => {
+  useWideScreen()
   const [treeMapData, setTreeMapData] = useState<HierarchyNode<SourceCoverageTreeMapData>>()
   const storageKey = (props.snapshot.report as SnapshotReportSchema)?.sourceCoverageStorageKey
   const [{ data, loading }, dispatcher] = useModule(SourceCoverageModule)

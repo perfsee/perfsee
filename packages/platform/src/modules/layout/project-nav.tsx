@@ -14,20 +14,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import { DirectionalHint, INavLink, INavLinkGroup, Nav } from '@fluentui/react'
+import styled from '@emotion/styled'
+import { DirectionalHint, Pivot, PivotItem } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useHistory, useParams } from 'react-router'
 
 import { TeachingBubbleHost } from '@perfsee/components'
 import { Permission } from '@perfsee/schema'
 import { pathFactory, RouteTypes } from '@perfsee/shared/routes'
 
-import { ProjectModule, useNavType } from '../shared'
+import { ProjectModule } from '../shared'
 
-import { NavItem } from './nav-items'
-import { NavContainer, CollapseContainer } from './nav.style'
+export enum NavItem {
+  Home = 'home',
+  Bundle = 'bundle',
+  Lab = 'lab',
+  Source = 'source',
+  Competitor = 'competitor',
+  Settings = 'settings',
+}
+
+export const NavContainer = styled.div(({ theme }) => ({
+  height: '44px',
+  position: 'sticky',
+  top: theme.layout.headerHeight,
+  zIndex: 3,
+  backgroundColor: theme.colors.white,
+  padding: `0 ${theme.layout.mainPadding}`,
+}))
 
 export const ProjectNav = () => {
   const history = useHistory()
@@ -37,75 +52,18 @@ export const ProjectNav = () => {
     selector: (state) => state.project,
     dependencies: [],
   })
-  const [navbarCollapsed, collapseNavbar, expandNavbar] = useNavType()
-
-  const [selectedKey, setSelectedKey] = useState(routeParams.feature)
-
-  const navItems = useMemo(() => {
-    const isAdminUser = project?.userPermission.includes(Permission.Admin) ?? false
-
-    const adminItems = isAdminUser
-      ? [
-          {
-            key: 'Settings',
-            val: 'settings',
-          },
-        ]
-      : []
-
-    const commonItems = Object.entries(NavItem).map(([key, val]) => ({ key, val }))
-
-    return [...commonItems, ...adminItems]
-  }, [project])
+  const isAdminUser = project?.userPermission.includes(Permission.Admin) ?? false
 
   const handleLinkClick = useCallback(
-    (_: any, item?: INavLink) => {
-      const selectedKey = item!.key
-
-      if (!selectedKey || !navItems.some(({ val }) => val === selectedKey)) {
+    (item?: PivotItem) => {
+      if (!item || routeParams.feature === item.props.itemKey) {
         return
       }
 
-      setSelectedKey(selectedKey)
-      history.push(pathFactory.project.feature({ ...routeParams, feature: selectedKey }))
+      history.push(pathFactory.project.feature({ ...routeParams, feature: item.props.itemKey }))
     },
-    [history, navItems, routeParams],
+    [history, routeParams],
   )
-
-  const toggleNavbarCollapsed = useCallback(() => {
-    if (navbarCollapsed) {
-      expandNavbar()
-    } else {
-      collapseNavbar()
-    }
-  }, [collapseNavbar, expandNavbar, navbarCollapsed])
-
-  const navLinkGroups: INavLinkGroup[] = useMemo(() => {
-    return [
-      {
-        links: navItems.map(({ key, val }) => ({
-          name: navbarCollapsed ? '' : key,
-          url: '',
-          key: val,
-          icon: val,
-        })),
-      },
-    ]
-  }, [navItems, navbarCollapsed])
-
-  const navStyles = useMemo(
-    () => ({
-      root: { width: navbarCollapsed ? 'auto' : '200px' },
-      link: { paddingLeft: 10, paddingRight: navbarCollapsed ? 10 : 20, color: 'unset' },
-      groupContent: { marginBottom: 0 },
-      linkText: { margin: navbarCollapsed ? 0 : '0 4px' },
-    }),
-    [navbarCollapsed],
-  )
-
-  if (routeParams.feature && selectedKey !== routeParams.feature) {
-    setSelectedKey(routeParams.feature)
-  }
 
   if (!project) {
     return null
@@ -119,20 +77,16 @@ export const ProjectNav = () => {
         body="Perfsee is split into multiple functional modules, click here to switch between them."
         directional={DirectionalHint.bottomCenter}
         delay={500}
-        visible={selectedKey === 'home'}
       >
-        <Nav groups={navLinkGroups} selectedKey={selectedKey} onLinkClick={handleLinkClick} styles={navStyles} />
+        <Pivot onLinkClick={handleLinkClick} selectedKey={routeParams.feature} styles={{ root: { height: '100%' } }}>
+          {Object.entries(NavItem).map(
+            ([key, val]) =>
+              (key !== NavItem.Settings || isAdminUser) && (
+                <PivotItem key={key} itemKey={val} headerText={key} itemIcon={val} />
+              ),
+          )}
+        </Pivot>
       </TeachingBubbleHost>
-      <CollapseContainer onClick={toggleNavbarCollapsed}>
-        {navbarCollapsed ? (
-          <MenuUnfoldOutlined />
-        ) : (
-          <>
-            <MenuFoldOutlined />
-            <span>Collapse sidebar</span>
-          </>
-        )}
-      </CollapseContainer>
     </NavContainer>
   )
 }

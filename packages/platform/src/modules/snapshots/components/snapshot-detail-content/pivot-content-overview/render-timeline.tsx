@@ -42,7 +42,7 @@ export const RenderTimeline: FC<Props> = ({ timelines }) => {
             </div>
             <img
               css={css({ marginTop: '10px', border: `solid 1px ${theme.border.color}` })}
-              width={120}
+              width={110}
               src={timeline.data}
               alt="Snapshot"
             />

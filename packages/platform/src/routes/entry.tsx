@@ -19,7 +19,7 @@ import { loadTheme, Spinner, SpinnerSize } from '@fluentui/react'
 import { createTheme } from '@fluentui/theme'
 import { useModule } from '@sigi/react'
 import { useEffect } from 'react'
-import { useRouteMatch } from 'react-router'
+import { useLocation } from 'react-router'
 
 import { staticPath } from '@perfsee/shared/routes'
 
@@ -38,6 +38,10 @@ export const Entry = () => {
       fontFamily: emotionTheme.text.fontFamily,
     },
   })
+  const location = useLocation()
+
+  const isInIntroductionRoutes =
+    location.pathname === staticPath.home || location.pathname.startsWith(staticPath.features.home)
 
   useEffect(() => {
     loadTheme(theme)
@@ -47,22 +51,18 @@ export const Entry = () => {
     dispatcher.init()
   }, [dispatcher])
 
-  const shouldRenderNav = !!useRouteMatch([staticPath.project.feature, staticPath.admin.part])
-  const isHomePages = !!useRouteMatch({ path: staticPath.home, exact: true })
-  const isFeaturePages = !!useRouteMatch({ path: staticPath.features.home, exact: false })
-
   if (loading) {
     return <Spinner size={SpinnerSize.large} label="Loading..." />
   }
 
   return (
     <PageContainer>
-      {!(isHomePages || isFeaturePages) && <Header narrow={!shouldRenderNav} />}
-      <MainContainer>
-        <Routes user={user} settings={settings} />
-        {!shouldRenderNav && <Footer isAdmin={user?.isAdmin} />}
-      </MainContainer>
       <Notifications />
+      <MainContainer>
+        {!isInIntroductionRoutes && <Header />}
+        <Routes user={user} settings={settings} />
+        <Footer isAdmin={user?.isAdmin} />
+      </MainContainer>
     </PageContainer>
   )
 }

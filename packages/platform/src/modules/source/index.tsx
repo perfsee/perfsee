@@ -45,9 +45,9 @@ import { formatTime, stopPropagation } from '@perfsee/platform/common'
 import { getCommitLink } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { Breadcrumb, CommitHashSelector } from '../components'
+import { CommitHashSelector } from '../components'
 import { FlamechartPlaceholder } from '../flamechart'
-import { ProjectModule, useBreadcrumb, ProjectInfo, useGenerateProjectRoute } from '../shared'
+import { ProjectModule, ProjectInfo, useProjectRouteGenerator } from '../shared'
 
 import { FlamechartView } from './flamechart'
 import { SourceIssue, SourceIssuesModule } from './source.module'
@@ -102,7 +102,7 @@ interface IIssuesListProps {
 const IssuesList: React.FunctionComponent<IIssuesListProps> = memo(
   ({ pageNum, pageSize, issues, loading, totalCount, onOpenFlamechart, onPageChange, selectedIssueIndex }) => {
     const { project } = useModuleState(ProjectModule)
-    const generateProjectRoute = useGenerateProjectRoute()
+    const generateProjectRoute = useProjectRouteGenerator()
 
     const columns: IColumn[] = useMemo(
       () => [
@@ -227,7 +227,6 @@ type SourceQueryStringType = {
 }
 
 export const Source = () => {
-  const breadcrumbItems = useBreadcrumb({ sourcePage: true })
   const [state, dispatcher] = useModule(SourceIssuesModule)
   const {
     bubbles: [TeachingStep1, TeachingStep2, TeachingStep3],
@@ -328,60 +327,54 @@ export const Source = () => {
 
   if (!state.hashes.length && !state.loadingHashes) {
     return (
-      <div style={{ padding: '0 20px' }}>
-        <Breadcrumb items={breadcrumbItems} />
-        <ContentCard>
-          <Empty title="No source issue" />
-        </ContentCard>
-      </div>
+      <ContentCard>
+        <Empty title="No source issue" />
+      </ContentCard>
     )
   }
 
   return (
-    <Stack tokens={{ childrenGap: 10, padding: '0 20px' }}>
-      <Breadcrumb items={breadcrumbItems} />
-      <ContentCard>
-        <Stack horizontal horizontalAlign="space-between">
-          <Shimmer isDataLoaded={!state.loadingHashes}>
-            <CommitHashSelector items={state.hashes} value={hash} onChange={onCommitChange} />
-          </Shimmer>
-          <ForeignLink href="https://marketplace.visualstudio.com/items?itemName=perfsee.perfsee-vscode">
-            <TeachingStep3>
-              <DefaultButton>
-                <VscodeIcon />
-                Install Vscode Extension
-              </DefaultButton>
-            </TeachingStep3>
-          </ForeignLink>
-        </Stack>
-        <Stack horizontal>
-          <PanelContainer>
-            <TeachingStep1>
-              <IssuesList
-                selectedIssueIndex={selectedIssueIndex}
-                issues={state.issues}
-                totalCount={state.totalCount}
-                loading={state.loadingIssue}
-                pageNum={page}
-                pageSize={pageSize}
-                onPageChange={onPageChange}
-                onOpenFlamechart={handleOpenFlamechart}
-              />
-            </TeachingStep1>
-          </PanelContainer>
+    <ContentCard>
+      <Stack horizontal horizontalAlign="space-between">
+        <Shimmer isDataLoaded={!state.loadingHashes}>
+          <CommitHashSelector items={state.hashes} value={hash} onChange={onCommitChange} />
+        </Shimmer>
+        <ForeignLink href="https://marketplace.visualstudio.com/items?itemName=perfsee.perfsee-vscode">
+          <TeachingStep3>
+            <DefaultButton>
+              <VscodeIcon />
+              Install Vscode Extension
+            </DefaultButton>
+          </TeachingStep3>
+        </ForeignLink>
+      </Stack>
+      <Stack horizontal>
+        <PanelContainer>
+          <TeachingStep1>
+            <IssuesList
+              selectedIssueIndex={selectedIssueIndex}
+              issues={state.issues}
+              totalCount={state.totalCount}
+              loading={state.loadingIssue}
+              pageNum={page}
+              pageSize={pageSize}
+              onPageChange={onPageChange}
+              onOpenFlamechart={handleOpenFlamechart}
+            />
+          </TeachingStep1>
+        </PanelContainer>
 
-          <PanelContainer>
-            <TeachingStep2>
-              <FlamechartHeader>Flamechart</FlamechartHeader>
-            </TeachingStep2>
-            {selectedIssueIndex > -1 ? (
-              <FlamechartView issue={state.issues[selectedIssueIndex]} />
-            ) : (
-              <FlamechartPlaceholder>Select on left</FlamechartPlaceholder>
-            )}
-          </PanelContainer>
-        </Stack>
-      </ContentCard>
-    </Stack>
+        <PanelContainer>
+          <TeachingStep2>
+            <FlamechartHeader>Flamechart</FlamechartHeader>
+          </TeachingStep2>
+          {selectedIssueIndex > -1 ? (
+            <FlamechartView issue={state.issues[selectedIssueIndex]} />
+          ) : (
+            <FlamechartPlaceholder>Select on left</FlamechartPlaceholder>
+          )}
+        </PanelContainer>
+      </Stack>
+    </ContentCard>
   )
 }

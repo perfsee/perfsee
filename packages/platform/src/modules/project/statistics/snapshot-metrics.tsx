@@ -24,7 +24,7 @@ import { Link } from 'react-router-dom'
 
 import { Select, Space, Table, TableColumnProps, getScoreColor } from '@perfsee/components'
 import { formatTime } from '@perfsee/platform/common'
-import { PageSchema, useGenerateProjectRoute } from '@perfsee/platform/modules/shared'
+import { PageSchema, useProjectRouteGenerator } from '@perfsee/platform/modules/shared'
 import { LighthouseScoreType } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
@@ -58,7 +58,7 @@ const SnapshotsMetricsBarChart = memo<{
   getColor?: (value: number) => string
   maxValue?: number
 }>(({ title, reports, propertyName, valueFormatter = (value) => value.toString(), getColor, maxValue }) => {
-  const urlFactory = useGenerateProjectRoute()
+  const urlFactory = useProjectRouteGenerator()
   const onRenderId = useCallback(
     (id: number) => {
       return (
@@ -164,7 +164,7 @@ export const SnapshotMetrics = memo(() => {
   const [{ aggregatedPages: aggregated }, dispatcher] = useModule(StatisticsModule)
   const [selectedEnvId, setEnvId] = useState<number>()
   const [selectedProfileId, setProfileId] = useState<number>()
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const [
     { loading: propertyLoading, pages, environments, profileMap, pageRelationMap },

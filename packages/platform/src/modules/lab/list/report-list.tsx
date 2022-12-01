@@ -37,7 +37,7 @@ import { JobType, SnapshotStatus } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { useGenerateProjectRoute, useProject } from '../../shared'
+import { useProjectRouteGenerator, useProject } from '../../shared'
 import { StatusText, ListCell, TableContainer } from '../style'
 
 import { LabListModule, ReportsPayload, SnapshotReportSchema } from './module'
@@ -52,7 +52,7 @@ type Props = {
 export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
   const project = useProject()
   const history = useHistory()
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
   const [state, dispatcher] = useModule(LabListModule, {
     selector: (s) => s.reportsWithId[snapshotId] as ReportsPayload<false>,
     dependencies: [snapshotId],

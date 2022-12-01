@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { PivotItem, Stack, MessageBar, MessageBarType } from '@fluentui/react'
+import { PivotItem, MessageBar, MessageBarType } from '@fluentui/react'
 import { useModule, useDispatchers } from '@sigi/react'
 import { parse } from 'query-string'
 import { useEffect, useMemo, useCallback } from 'react'
@@ -23,8 +23,7 @@ import { useHistory, useParams } from 'react-router-dom'
 import { ContentCard } from '@perfsee/components'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { Breadcrumb } from '../components'
-import { useBreadcrumb, PropertyModule, CompetitorMaxCount, useGenerateProjectRoute } from '../shared'
+import { PropertyModule, CompetitorMaxCount, useProjectRouteGenerator } from '../shared'
 import { LoadingShimmer } from '../snapshots/components/loading-shimmer'
 import { ReportContent } from '../snapshots/components/snapshot-detail-content'
 import { PerformanceTabType } from '../snapshots/snapshot-type'
@@ -33,11 +32,10 @@ import { SnapshotModule } from '../snapshots/snapshot.module'
 export const CompetitorReport = () => {
   const history = useHistory()
   const routerParams = useParams<{ tabName: string }>()
-  const generateProjectRoute = useGenerateProjectRoute()
+  const generateProjectRoute = useProjectRouteGenerator()
 
   const [{ snapshotReports }, dispatcher] = useModule(SnapshotModule)
   const { fetchProperty } = useDispatchers(PropertyModule)
-  const breadcrumbItems = useBreadcrumb({ competitorReport: true })
 
   useEffect(() => {
     fetchProperty()
@@ -80,29 +78,23 @@ export const CompetitorReport = () => {
 
   if (reportIds.length > CompetitorMaxCount) {
     return (
-      <Stack>
-        <Breadcrumb items={breadcrumbItems} />
-        <MessageBar messageBarType={MessageBarType.warning}>
-          Up to {CompetitorMaxCount} reports can only be compared.
-        </MessageBar>
-      </Stack>
+      <MessageBar messageBarType={MessageBarType.warning}>
+        Up to {CompetitorMaxCount} reports can only be compared.
+      </MessageBar>
     )
   }
 
   return (
-    <Stack>
-      <Breadcrumb items={breadcrumbItems} />
-      <ContentCard>
-        {reports.length !== reportIds.length ? (
-          <LoadingShimmer />
-        ) : (
-          <ReportContent
-            tabName={routerParams.tabName as PerformanceTabType}
-            snapshotReports={reports}
-            onLinkClick={onLinkClick}
-          />
-        )}
-      </ContentCard>
-    </Stack>
+    <ContentCard>
+      {reports.length !== reportIds.length ? (
+        <LoadingShimmer />
+      ) : (
+        <ReportContent
+          tabName={routerParams.tabName as PerformanceTabType}
+          snapshotReports={reports}
+          onLinkClick={onLinkClick}
+        />
+      )}
+    </ContentCard>
   )
 }

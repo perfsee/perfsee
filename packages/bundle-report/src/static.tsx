@@ -59,7 +59,7 @@ registerIcons({
 })
 
 const ReportContainer = styled('div')({
-  width: 1200,
+  width: 1280,
   margin: '0 auto',
 })
 
