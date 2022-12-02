@@ -110,7 +110,7 @@ type ArtifactEntrypoint {
 
   """artifact created timestamp"""
   createdAt: DateTime!
-  artifactId: Int!
+  artifactId: Int
 }
 
 type UsagePack {

@@ -154,7 +154,7 @@ export class ProjectService {
     const stars = await UserStarredProject.findBy({ userId })
     const projects = await this.loader.loadMany(stars.map((star) => star.projectId))
 
-    return projects.map((project) => ('slug' in project ? project.slug : null)).filter(Boolean)
+    return projects.map((project) => (project && 'slug' in project ? project.slug : null)).filter(Boolean)
   }
 
   async getProjectUsers(project: Project, permission: Permission) {

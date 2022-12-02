@@ -132,7 +132,7 @@ export class SourceService implements OnApplicationBootstrap {
 
     const settings = await this.settingService.byProjectLoader.load(snapshotReport.projectId)
 
-    if (settings.autoDetectVersion) {
+    if (settings?.autoDetectVersion) {
       const lighthouseResult = JSON.parse(
         (await this.objectStorage.get(snapshotReport.lighthouseStorageKey)).toString('utf-8'),
       ) as LHStoredSchema

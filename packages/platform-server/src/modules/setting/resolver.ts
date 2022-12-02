@@ -46,7 +46,12 @@ export class SettingResolver {
   ): Promise<Setting> {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
     if (!Object.keys(input).length) {
-      return this.service.byProjectLoader.load(projectRawId)
+      const setting = await this.service.byProjectLoader.load(projectRawId)
+
+      if (!setting) {
+        throw new Error(`setting with project id ${projectId} not found`)
+      }
+      return setting
     }
 
     return this.service.updateSetting(projectRawId, input)

@@ -288,6 +288,7 @@ export class JobService {
     if (!job) {
       throw new NotFoundException(`job with id ${jobId} not found`)
     }
+
     if (job.runnerId && job.runnerId !== runner.id) {
       throw new ForbiddenException(`job with id ${jobId} is not assigned to runner ${runner.id}`)
     }

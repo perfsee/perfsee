@@ -132,7 +132,17 @@ export class NotificationService {
     }
 
     const project = await this.project.loader.load(projectId)
+
+    if (!project) {
+      return false
+    }
+
     const setting = await this.setting.byProjectLoader.load(project.id)
+
+    if (!setting) {
+      return false
+    }
+
     const owners = await this.project.getProjectUsers(project, Permission.Admin)
 
     const info: CookieNotificationInfo = {

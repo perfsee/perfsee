@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
+import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common'
 import { In } from 'typeorm'
 
 import { Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
@@ -185,7 +185,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     const artifact = await this.loader.load(update.artifactId)
 
     if (!artifact) {
-      return
+      throw new NotFoundException(`artifact with id ${update.artifactId} not found`)
     }
 
     artifact.status = update.status
@@ -224,7 +224,8 @@ export class ArtifactService implements OnApplicationBootstrap {
 
     if (update.status === BundleJobStatus.Passed && update.scripts?.length) {
       const settings = await this.setting.byProjectLoader.load(artifact.projectId)
-      if (settings.autoDetectVersion) {
+
+      if (settings?.autoDetectVersion) {
         await this.scriptFile.recordScriptFile(artifact.projectId, artifact.id, artifact.name, update.scripts)
       }
     }
@@ -236,6 +237,10 @@ export class ArtifactService implements OnApplicationBootstrap {
 
   async handleJobFailed(artifactId: number, reason: string) {
     const artifact = await this.loader.load(artifactId)
+    if (!artifact) {
+      throw new NotFoundException(`artifact with id ${artifactId} not found`)
+    }
+
     artifact.status = BundleJobStatus.Failed
     artifact.failedReason = reason
 
@@ -269,6 +274,10 @@ export class ArtifactService implements OnApplicationBootstrap {
 
   async getJobPayload(artifactId: number): Promise<BundleJobPayload> {
     const artifact = await this.loader.load(artifactId)
+    if (!artifact) {
+      throw new NotFoundException(`artifact with id ${artifactId} not found`)
+    }
+
     const baseline = await this.getBaselineArtifact(artifactId)
     return {
       artifactId,

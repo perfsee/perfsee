@@ -68,15 +68,18 @@ const ArtifactSizeHistoryBarChart = memo<{
   return (
     <BarChart
       title={title}
-      items={history.slice(-15).map((artifact) => {
-        const value = artifact.size?.[propertyName]
-        return {
-          type: value ? 'success' : 'missing',
-          value,
-          id: artifact.artifactId,
-          date: artifact.createdAt,
-        }
-      })}
+      items={history
+        .slice(-15)
+        .filter((a) => !!a.artifactId)
+        .map((artifact) => {
+          const value = artifact.size?.[propertyName]
+          return {
+            type: value ? 'success' : 'missing',
+            value,
+            id: artifact.artifactId!,
+            date: artifact.createdAt,
+          }
+        })}
       minLength={BARCHART_LENGTH}
       onRenderId={onRenderArtifactId}
       valueFormatter={formatSize}
@@ -180,7 +183,7 @@ export const ArtifactSize = () => {
             ) : (
               entrypoint
             ),
-          data: data.sort((a, b) => a.artifactId - b.artifactId),
+          data: data.sort((a, b) => (a.artifactId && b.artifactId ? a.artifactId - b.artifactId : 0)),
         }))
       })
       .flat()
