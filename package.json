@@ -104,10 +104,7 @@
     "yup": "^0.32.11"
   },
   "resolutions": {
-    "jpeg-js": "0.4.4",
-    "@lerna/package-graph@5.6.1": "patch:@lerna/package-graph@npm%3A5.6.1#./.yarn/patches/@lerna-package-graph-npm-5.6.1-b7dd3789b7.patch",
-    "@lerna/package@5.6.1": "patch:@lerna/package@npm%3A5.6.1#./.yarn/patches/@lerna-package-npm-5.6.1-1ab29e06e6.patch",
-    "@lerna/publish@5.6.1": "patch:@lerna/publish@npm%3A5.6.1#./.yarn/patches/@lerna-publish-npm-5.6.1-8504ac4d1d.patch"
+    "jpeg-js": "0.4.4"
   },
   "lint-staged": {
     "*.@(js|ts|tsx)": [
