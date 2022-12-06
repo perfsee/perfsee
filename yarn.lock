@@ -5695,7 +5695,7 @@ __metadata:
     "@types/uuid": ^9.0.0
     chalk: ^4.1.2
     debug: 4.3.4
-    env-ci: ^7.2.1
+    env-ci: ^8.0.0
     file-type: ^16.5.4
     lodash: ^4.17.21
     node-fetch: ^2.6.2
@@ -12072,14 +12072,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"env-ci@npm:^7.2.1":
-  version: 7.3.0
-  resolution: "env-ci@npm:7.3.0"
+"env-ci@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "env-ci@npm:8.0.0"
   dependencies:
-    execa: ^5.0.0
-    fromentries: ^1.3.2
-    java-properties: ^1.0.0
-  checksum: 828d06154b9b61a4b090ceb03fc2e9582b2720a0c2d34cbc83f81fdf7890f2788b42e3d0e4772d1aebf24d817debce2d508471003ae6bc2ce47d4fa85f07f69b
+    execa: ^6.1.0
+    java-properties: ^1.0.2
+  checksum: bef7a36d39df616264f1b64b0b1fe6794c66bbff9fdcbcd14c230cf7790e5ab68443ec6889f957a8047c84271d3a8825bdf71b80251ca29d25101e28e57ada32
   languageName: node
   linkType: hard
 
@@ -13735,13 +13734,6 @@ __metadata:
   version: 0.5.2
   resolution: "fresh@npm:0.5.2"
   checksum: 13ea8b08f91e669a64e3ba3a20eb79d7ca5379a81f1ff7f4310d54e2320645503cc0c78daedc93dfb6191287295f6479544a649c64d8e41a1c0fb0c221552346
-  languageName: node
-  linkType: hard
-
-"fromentries@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "fromentries@npm:1.3.2"
-  checksum: 33729c529ce19f5494f846f0dd4945078f4e37f4e8955f4ae8cc7385c218f600e9d93a7d225d17636c20d1889106fd87061f911550861b7072f53bf891e6b341
   languageName: node
   linkType: hard
 
@@ -16199,7 +16191,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"java-properties@npm:^1.0.0":
+"java-properties@npm:^1.0.2":
   version: 1.0.2
   resolution: "java-properties@npm:1.0.2"
   checksum: 9a086778346e3adbe2395e370f5c779033ed60360055a15e2cead49e3d676d2c73786cf2f6563a1860277dea3dd0a859432e546ed89c03ee08c1f53e31a5d420
