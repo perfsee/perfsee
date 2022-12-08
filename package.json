@@ -82,7 +82,7 @@
     "rollup-plugin-sourcemaps": "^0.6.3",
     "shx": "^0.3.4",
     "sinon": "^15.0.0",
-    "supertest": "^6.2.4",
+    "supertest": "^6.3.3",
     "svgo": "^3.0.0",
     "svgo-loader": "^3.0.1",
     "terser-webpack-plugin": "^5.3.3",
