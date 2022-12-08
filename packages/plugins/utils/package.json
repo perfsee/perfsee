@@ -30,7 +30,7 @@
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.2",
     "query-string": "^7.1.1",
-    "simple-git": "^3.10.0",
+    "simple-git": "^3.15.0",
     "table": "^6.8.0",
     "tar": "^6.1.11",
     "tslib": "^2.4.0",

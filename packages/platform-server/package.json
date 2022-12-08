@@ -64,6 +64,6 @@
     "@types/uuid": "^9.0.0",
     "ava": "^5.0.0",
     "sinon": "^15.0.0",
-    "supertest": "^6.2.4"
+    "supertest": "^6.3.3"
   }
 }

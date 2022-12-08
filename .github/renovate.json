@@ -72,7 +72,9 @@
     "@types/node",
     "@types/node-fetch",
     "@mdx-js/react",
-    "@abraham/reflection"
+    "@abraham/reflection",
+    "env-ci",
+    "@types/env-ci"
   ],
   "ignorePaths": [
     "**/node_modules/**",
