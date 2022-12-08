@@ -64,19 +64,25 @@ The requests can be inspected in great detail to find speed bottlenecks.
 
 ![assets](/lab/report-asset.png)
 
-### 1. Filtering requests by key time points
-
-It helps us to quickly find the resource loading situation before the key time point (FCP/FMP/LCP/TTI).
-
-### 2. Filtering requests that can be optimized
+### 1. Filtering requests that can be optimized
 
 Filter out requests that can be further optimized based on rules such as whether Gzip is properly enabled, whether caching is properly enabled, resource volume size, request time, etc.
 
-### 3. Request detail
+### 2. Filtering requests by key time points
+
+It helps us to quickly find the resource loading situation before the key time point (FCP/FMP/LCP/TTI).
+
+### 3. Search url
+
+### 4. Group requests by [type, domain...]
+
+### 5. Custom table columns
+
+### 6. Request detail
 
 The header of each column of the table can be clicked to toggle the sorting. By default, the table is sorted by startTime.
 Each column in the table represents the same information as in Chrome devtool for the same name.
-The request information in each row of the table can be expanded by clicking on it, and when expanded you can see the specific Timing/Request headers/Response headers etc. for the request.
+The request information in each row of the table can be expanded by clicking on it, and when expanded you can see Request headers/Response headers for the request.
 
 ![header](/lab/report-asset-header.png)
 

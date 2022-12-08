@@ -14,28 +14,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { CheckOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import { SearchBox, Stack, Callout, DirectionalHint, SharedColors } from '@fluentui/react'
+import { FilterOutlined } from '@ant-design/icons'
+import { Stack } from '@fluentui/react'
 import Fuse from 'fuse.js'
-import { capitalize, debounce } from 'lodash'
-import { useState, useCallback, useMemo, useEffect, useRef, FC, MouseEvent } from 'react'
+import { debounce } from 'lodash'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 
-import { useToggleState } from '@perfsee/components'
+import { AssetFilter } from '@perfsee/bundle-report/bundle-detail/resource-tabs/asset-filter'
 import { MetricScoreSchema, RequestSchema } from '@perfsee/shared'
 
-import { ColumnKeys, getColumnConfig } from './columns'
 import { CriticalTimeSelector } from './critical-time-selector'
-import { SelectionColumn } from './style'
+import { ColumnsProps, CustomColumns } from './filter-component/columns-filter'
+import { GroupBy, GroupByProps } from './filter-component/group-by-filter'
+import { FilterTrigger } from './style'
 import { getStartTime, needOptimize } from './utils'
 
 type Props = {
   onChange: (list: RequestSchema[]) => void
   requests: RequestSchema[]
   metricScores: MetricScoreSchema[]
-} & ColumnsProps
+} & ColumnsProps &
+  GroupByProps
 
 export const RequestFilter = (props: Props) => {
-  const { onChange, requests, metricScores, onFilterColumns, columnKeys, filteredColumnKeys } = props
+  const {
+    groupBy,
+    onGroupByChange,
+    onChange,
+    requests,
+    metricScores,
+    onFilterColumns,
+    columnKeys,
+    filteredColumnKeys,
+  } = props
 
   const [query, setQuery] = useState<string>('')
   const [selectedTime, setTime] = useState<Record<string, number | undefined>>({})
@@ -108,7 +119,7 @@ export const RequestFilter = (props: Props) => {
   }, [])
 
   const onSearchChange = useCallback(
-    (_e?: any, value?: string) => {
+    (value?: string) => {
       delayedQuery(value ?? '')
       setQuery(value ?? '')
     },
@@ -123,12 +134,6 @@ export const RequestFilter = (props: Props) => {
   return (
     <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
       <Stack horizontal verticalAlign="center" horizontalAlign="center">
-        <SearchBox
-          value={query}
-          onChange={onSearchChange}
-          placeholder="Filter url only"
-          styles={{ root: { width: '240px' } }}
-        />
         <CriticalTimeSelector
           optimizeCount={optimizeList.length}
           onOptimizeChange={onOptimizeCheck}
@@ -137,77 +142,20 @@ export const RequestFilter = (props: Props) => {
           onChange={onCriticalTimeChange}
         />
       </Stack>
-      <CustomColumns
-        columnKeys={columnKeys}
-        filteredColumnKeys={filteredColumnKeys}
-        onFilterColumns={onFilterColumns}
-      />
+      <Stack horizontal tokens={{ childrenGap: 4 }}>
+        <AssetFilter title="Search url" searchText={query} onChangeSearchText={onSearchChange}>
+          <FilterTrigger>
+            <FilterOutlined />
+            Search
+          </FilterTrigger>
+        </AssetFilter>
+        <GroupBy groupBy={groupBy} onGroupByChange={onGroupByChange} />
+        <CustomColumns
+          columnKeys={columnKeys}
+          filteredColumnKeys={filteredColumnKeys}
+          onFilterColumns={onFilterColumns}
+        />
+      </Stack>
     </Stack>
-  )
-}
-
-type ColumnsProps = {
-  columnKeys: ColumnKeys[]
-  filteredColumnKeys?: Set<string>
-  onFilterColumns: (columns: Set<string>) => void
-}
-
-export const CustomColumns: FC<ColumnsProps> = ({ columnKeys, filteredColumnKeys, onFilterColumns }) => {
-  const [isOpen, open, close] = useToggleState(false)
-  const selectorTitleRef = useRef<HTMLDivElement | null>(null)
-
-  const toggleSelect = useCallback(
-    (e: MouseEvent<HTMLDivElement>) => {
-      if (!e.target) {
-        return
-      }
-      const key = (e.target as HTMLDivElement).dataset.type! as ColumnKeys
-      if (getColumnConfig(key).disable) {
-        return
-      }
-      const columns = new Set(filteredColumnKeys)
-      columns.has(key) ? columns.delete(key) : columns.add(key)
-      onFilterColumns(columns)
-    },
-    [filteredColumnKeys, onFilterColumns],
-  )
-
-  if (!filteredColumnKeys) {
-    return null
-  }
-
-  return (
-    <div>
-      <div style={{ color: SharedColors.cyanBlue10, cursor: 'pointer' }} ref={selectorTitleRef} onClick={open}>
-        <MenuUnfoldOutlined />
-        Custom columns
-      </div>
-      {isOpen && (
-        <Callout
-          onDismiss={close}
-          directionalHint={DirectionalHint.bottomCenter}
-          calloutMaxWidth={400}
-          calloutMaxHeight={500}
-          target={selectorTitleRef}
-        >
-          <Stack styles={{ root: { width: '160px' } }} tokens={{ childrenGap: 4, padding: '8px 12px' }}>
-            {columnKeys.map((key) => {
-              return (
-                <SelectionColumn
-                  disabled={getColumnConfig(key).disable}
-                  selected={filteredColumnKeys.has(key)}
-                  onClick={toggleSelect}
-                  data-type={key}
-                  key={key}
-                >
-                  <CheckOutlined />
-                  {capitalize(key)}
-                </SelectionColumn>
-              )
-            })}
-          </Stack>
-        </Callout>
-      )}
-    </div>
   )
 }
