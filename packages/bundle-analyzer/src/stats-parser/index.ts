@@ -56,12 +56,12 @@ import {
 const defaultLogger = getConsoleLogger()
 
 export class StatsParser {
-  static FromStatsFile(statsFilePath: string, logger: Logger = defaultLogger): StatsParser {
+  static async FromStatsFile(statsFilePath: string, logger: Logger = defaultLogger): Promise<StatsParser> {
     let stats: PerfseeReportStats
     try {
-      stats = readStatsFile(statsFilePath)
+      stats = await readStatsFile(statsFilePath)
     } catch (e) {
-      throw new Error(`Failed to read and parse webpack stats.\nInternal Error: ${(e as Error).message}`)
+      throw new Error(`Failed to read and parse webpack stats.\nInternal Error: ${(e as Error).stack}`)
     }
     return new StatsParser(stats, parse(statsFilePath).dir, logger)
   }

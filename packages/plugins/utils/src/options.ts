@@ -97,16 +97,25 @@ export interface CommonPluginOptions {
    * @environment `PERFSEE_TOKEN`
    */
   token?: string
+
+  /**
+   * Use streaming to encode data, reducing memory usage.
+   *
+   * @default false
+   * @experimental
+   */
+  useExperimentalStreamEncoder?: boolean
 }
 
 export function getDefaultOptions(): Required<
-  Pick<CommonPluginOptions, 'artifactName' | 'enableAudit' | 'token' | 'toolkit'>
+  Pick<CommonPluginOptions, 'artifactName' | 'enableAudit' | 'token' | 'toolkit' | 'useExperimentalStreamEncoder'>
 > {
   return {
     artifactName: 'main',
     enableAudit: !!process.env.PERFSEE_AUDIT || getBuildEnv().isCi,
     token: process.env.PERFSEE_TOKEN!,
     toolkit: 'webpack',
+    useExperimentalStreamEncoder: false,
   }
 }
 

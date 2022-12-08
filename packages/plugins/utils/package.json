@@ -20,7 +20,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@msgpack/msgpack": "^2.7.2",
+    "@eyhn/msgpack-stream": "^2.8.4",
     "@perfsee/bundle-analyzer": "workspace:*",
     "@perfsee/utils": "workspace:*",
     "chalk": "^4.1.2",

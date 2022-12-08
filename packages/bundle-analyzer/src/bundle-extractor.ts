@@ -29,7 +29,7 @@ import { join, parse } from 'path'
 import { pipeline } from 'stream'
 import { createBrotliDecompress, createGunzip } from 'zlib'
 
-import { decode } from '@msgpack/msgpack'
+import { decode, decodeStream } from '@eyhn/msgpack-stream'
 import { extract } from 'tar'
 
 import { PerfseeReportStats } from './stats'
@@ -134,12 +134,17 @@ async function decompressStatsFile(path: string): Promise<string> {
   return path
 }
 
-export function readStatsFile(path: string): PerfseeReportStats {
+export async function readStatsFile(path: string): Promise<PerfseeReportStats> {
   if (path.endsWith('.json')) {
     return readJSONFile(path)
   } else if (path.endsWith('.mp')) {
-    const buf = readFileSync(path)
-    return decode(buf) as PerfseeReportStats
+    const stats = statSync(path)
+    if (stats.size < 2 * 1024 * 1024 * 1024 /* 2GB */) {
+      const buf = readFileSync(path)
+      return decode(buf) as PerfseeReportStats
+    } else {
+      return (await decodeStream(createReadStream(path).pipe(createGunzip()))) as PerfseeReportStats
+    }
   } else {
     throw new Error('unsupported stats file encoding.')
   }

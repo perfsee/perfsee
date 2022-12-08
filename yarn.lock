@@ -2144,6 +2144,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@eyhn/msgpack-stream@npm:^2.8.4":
+  version: 2.8.4
+  resolution: "@eyhn/msgpack-stream@npm:2.8.4"
+  checksum: d0e6a237cec21ffd90e768dcf51a43ef9085e44a1adb7d0986c3df1e4e796da99a0b647e6e6c0eb92823e0e8be55f37a04939fb1d98f129b65907b68e1d504a7
+  languageName: node
+  linkType: hard
+
 "@faker-js/faker@npm:^7.3.0":
   version: 7.3.0
   resolution: "@faker-js/faker@npm:7.3.0"
@@ -4706,13 +4713,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@msgpack/msgpack@npm:^2.7.2":
-  version: 2.7.2
-  resolution: "@msgpack/msgpack@npm:2.7.2"
-  checksum: 85258ef7a3fb74c1e1f8be017413c1311938bb614b46cf1643fb33a9469b79a08ce61ab81cc139644b12d537178687f4d107d902337062ff728d55825c492b83
-  languageName: node
-  linkType: hard
-
 "@napi-rs/cli@npm:^2.11.4":
   version: 2.11.4
   resolution: "@napi-rs/cli@npm:2.11.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40napi-rs%2Fcli%2F-%2Fcli-2.11.4.tgz"
@@ -5406,7 +5406,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/bundle-analyzer@workspace:packages/bundle-analyzer"
   dependencies:
-    "@msgpack/msgpack": ^2.7.2
+    "@eyhn/msgpack-stream": ^2.8.4
     "@perfsee/utils": "workspace:*"
     acorn: ^8.7.1
     acorn-walk: ^8.2.0
@@ -5746,7 +5746,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/plugin-utils@workspace:packages/plugins/utils"
   dependencies:
-    "@msgpack/msgpack": ^2.7.2
+    "@eyhn/msgpack-stream": ^2.8.4
     "@perfsee/bundle-analyzer": "workspace:*"
     "@perfsee/utils": "workspace:*"
     "@types/env-ci": ^3.1.1
