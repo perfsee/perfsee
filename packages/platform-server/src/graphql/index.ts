@@ -16,4 +16,5 @@ limitations under the License.
 
 export * from './pagination'
 export * from './type-transformer'
+export * from './types'
 export * from './plugins/log'

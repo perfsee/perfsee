@@ -31,6 +31,7 @@ import { NotificationService } from '../notification/service'
 import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
 import { SettingService } from '../setting/service'
+import { WebhookService } from '../webhook'
 
 @Injectable()
 export class ArtifactService implements OnApplicationBootstrap {
@@ -42,6 +43,7 @@ export class ArtifactService implements OnApplicationBootstrap {
 
   constructor(
     private readonly checkSuiteService: CheckSuiteService,
+    private readonly webhookService: WebhookService,
     private readonly event: EventEmitter,
     private readonly logger: Logger,
     private readonly storage: ObjectStorage,
@@ -306,6 +308,10 @@ export class ArtifactService implements OnApplicationBootstrap {
     } else {
       const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
       await this.checkSuiteService.endBundleCheck(artifact, baseline, project, update)
+      await this.webhookService.deliver(project, 'bundle:finished', {
+        projectId: project.slug,
+        artifactId: artifact.iid,
+      })
     }
   }
 

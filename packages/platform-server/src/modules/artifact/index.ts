@@ -27,6 +27,7 @@ import { ProjectModule } from '../project'
 import { ProjectUsageModule } from '../project-usage'
 import { ScriptFileModule } from '../script-file'
 import { SettingModule } from '../setting'
+import { WebhookModule } from '../webhook'
 
 import { ArtifactController } from './controller'
 import { ArtifactResolver, ProjectArtifactResolver, ArtifactEntrypointResolver } from './resolver'
@@ -34,6 +35,7 @@ import { ArtifactService } from './service'
 
 @Module({
   imports: [
+    WebhookModule,
     DBModule,
     StorageModule,
     AppVersionModule,

@@ -18,7 +18,7 @@ function makeTitlesFrom(title: string, data: Record<string, any>) {
 
 export interface RouteTypes {
   home: void
-  docs: { home: void; api: void }
+  docs: { home: void; api: void; settings: { home: void; webhook: void } }
   features: { home: void; bundle: void; lab: void; source: void }
   projects: void
   notFound: void
@@ -60,7 +60,11 @@ export interface RouteTypes {
 
 export const staticPath = {
   home: '/',
-  docs: { home: '/docs', api: '/docs/api' },
+  docs: {
+    home: '/docs',
+    api: '/docs/api',
+    settings: { home: '/docs/settings', webhook: '/docs/settings/webhook-setting' },
+  },
   features: { home: '/features', bundle: '/features/bundle', lab: '/features/lab', source: '/features/source' },
   projects: '/projects',
   notFound: '/404',
@@ -114,6 +118,12 @@ export const pathFactory = {
   docs: {
     home: makePathsFrom<FactoryParams<RouteTypes['docs']['home']>>('/docs'),
     api: makePathsFrom<FactoryParams<RouteTypes['docs']['api']>>('/docs/api'),
+    settings: {
+      home: makePathsFrom<FactoryParams<RouteTypes['docs']['settings']['home']>>('/docs/settings'),
+      webhook: makePathsFrom<FactoryParams<RouteTypes['docs']['settings']['webhook']>>(
+        '/docs/settings/webhook-setting',
+      ),
+    },
   },
   features: {
     home: makePathsFrom<FactoryParams<RouteTypes['features']['home']>>('/features'),
@@ -198,6 +208,8 @@ export const titleFactory = {
   '/': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/docs': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/docs/api': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/docs/settings': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/docs/settings/webhook-setting': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/features': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/features/bundle': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/features/lab': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),

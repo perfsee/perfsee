@@ -17,8 +17,9 @@ limitations under the License.
 import { omit, isNil, isObject } from 'lodash'
 import request from 'supertest'
 
+import { RequestOptions, GraphQLQuery, RequestBody, QueryOptions, MutationOptions, QueryResponse } from '../graphql'
+
 import { TestingClient } from './client'
-import { RequestOptions, GraphQLQuery, RequestBody, QueryOptions, MutationOptions, QueryResponse } from './types'
 
 export function filterEmptyValue(obj: any) {
   const newObj = {}

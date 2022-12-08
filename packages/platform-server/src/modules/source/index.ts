@@ -22,13 +22,14 @@ import { ProjectUsageModule } from '../project-usage'
 import { ScriptFileModule } from '../script-file'
 import { SettingModule } from '../setting'
 import { SnapshotReportModule } from '../snapshot/snapshot-report'
+import { WebhookModule } from '../webhook'
 
 import { SourceController } from './controller'
 import { ProjectSourceIssueResolver, SourceIssueResolver } from './resolver'
 import { SourceService } from './service'
 
 @Module({
-  imports: [SnapshotReportModule, ProjectUsageModule, ScriptFileModule, SettingModule, StorageModule],
+  imports: [SnapshotReportModule, ProjectUsageModule, ScriptFileModule, SettingModule, StorageModule, WebhookModule],
   controllers: [SourceController],
   providers: [SourceIssueResolver, ProjectSourceIssueResolver, SourceService],
   exports: [SourceService],

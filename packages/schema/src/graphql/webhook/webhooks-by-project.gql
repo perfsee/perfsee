@@ -1,0 +1,19 @@
+query webhooksByProject($projectId: ID!) {
+  project(id: $projectId) {
+    webhooks {
+      id
+      url
+      secret
+      method
+      contentType
+      eventType
+      lastDelivery {
+        startTime
+        endTime
+        statusCode
+        isSuccess
+        deliveryId
+      }
+    }
+  }
+}

@@ -20,6 +20,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGenerat
 import type { AccessToken } from './access-token.entity'
 import type { UserConnectedAccount } from './user-connected-account.entity'
 import type { UserPermission } from './user-permission.entity'
+import type { Webhook } from './webhook.entity'
 
 @Entity()
 @ObjectType()
@@ -73,6 +74,9 @@ export class User extends BaseEntity {
 
   @OneToMany('UserPermission', 'user')
   permissions!: UserPermission[]
+
+  @OneToMany('Webhook', 'user')
+  webhooks!: Webhook[]
 }
 
 @ObjectType()
