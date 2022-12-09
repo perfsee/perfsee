@@ -17,10 +17,10 @@ limitations under the License.
 import { createReadStream, createWriteStream, statSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { pipeline, PassThrough } from 'stream'
+import { PassThrough, pipeline } from 'stream'
 import { createGzip } from 'zlib'
 
-import { encode, ExtensionCodec } from '@msgpack/msgpack'
+import { encode, encodeStream, ExtensionCodec } from '@eyhn/msgpack-stream'
 import chalk from 'chalk'
 import fetch from 'node-fetch'
 import { create } from 'tar'
@@ -32,33 +32,37 @@ import { PrettyBytes } from '@perfsee/utils'
 import { getBuildEnv } from './build-env'
 import { CommonPluginOptions } from './options'
 
-function encodeStatsJson(stats: PerfseeReportStats) {
-  const extensionCodec = new ExtensionCodec()
-  const filteredFields = [
-    'identifier',
-    'issuerPath',
-    'issuer',
-    'moduleIdentifier',
-    'parents',
-    'siblings',
-    'origins',
-    'module',
-  ]
-  extensionCodec.register({
-    type: 0,
-    encode: (object: unknown) => {
-      if (object instanceof Object && !(object instanceof Array)) {
-        for (const field of filteredFields) {
-          delete object[field]
-        }
+const msgpackExtensionCodec = new ExtensionCodec()
+const filteredFields = [
+  'identifier',
+  'issuerPath',
+  'issuer',
+  'moduleIdentifier',
+  'parents',
+  'siblings',
+  'origins',
+  'module',
+]
+msgpackExtensionCodec.register({
+  type: 0,
+  encode: (object: unknown) => {
+    if (object instanceof Object && !(object instanceof Array)) {
+      for (const field of filteredFields) {
+        delete object[field]
       }
+    }
 
-      return null
-    },
-    decode: () => null,
-  })
+    return null
+  },
+  decode: () => null,
+})
 
-  const encoded = encode(stats, { extensionCodec })
+function encodeStatsJsonStream(stats: PerfseeReportStats) {
+  return encodeStream(stats, { extensionCodec: msgpackExtensionCodec })
+}
+
+function encodeStatsJson(stats: PerfseeReportStats) {
+  const encoded = encode(stats, { extensionCodec: msgpackExtensionCodec })
   return Buffer.from(encoded, encoded.byteOffset, encoded.byteLength)
 }
 
@@ -96,7 +100,7 @@ export class BuildUploadClient {
 
     try {
       // firstly write stats json down to disk in output path.
-      const statsPath = await this.writeStats(stats)
+      const statsPath = await this.writeStats(stats, !!this.options.useExperimentalStreamEncoder)
 
       // then pack the assets in output path
       const packPath = await this.pack(statsPath, stats)
@@ -118,20 +122,30 @@ export class BuildUploadClient {
    * we choose msgpack instead of streaming json to dick so we can both save the disk size
    * and reduce the network transfer time during uploading.
    */
-  private async writeStats(stats: PerfseeReportStats) {
+  private async writeStats(stats: PerfseeReportStats, stream: boolean) {
     const statsFile = join(this.outputPath, `webpack-stats-${uuid()}.mp.gz`)
 
     return new Promise<string>((resolve, reject) => {
-      const source$ = new PassThrough()
-      pipeline(source$, createGzip(), createWriteStream(statsFile), (err) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(statsFile)
-        }
-      })
+      if (stream) {
+        pipeline(encodeStatsJsonStream(stats), createGzip(), createWriteStream(statsFile), (err) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(statsFile)
+          }
+        })
+      } else {
+        const source$ = new PassThrough()
+        pipeline(source$, createGzip(), createWriteStream(statsFile), (err) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(statsFile)
+          }
+        })
 
-      source$.end(encodeStatsJson(stats))
+        source$.end(encodeStatsJson(stats))
+      }
     })
   }
 

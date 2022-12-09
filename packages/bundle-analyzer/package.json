@@ -16,7 +16,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@msgpack/msgpack": "^2.7.2",
+    "@eyhn/msgpack-stream": "^2.8.4",
     "@perfsee/utils": "workspace:*",
     "acorn": "^8.7.1",
     "acorn-walk": "^8.2.0",

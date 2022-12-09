@@ -70,7 +70,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     const { payload: job } = this
 
     // parse bundle
-    const stats = readStatsFile(this.statsFilePath)
+    const stats = await readStatsFile(this.statsFilePath)
     const parser = StatsParser.FromStats(stats, parse(this.statsFilePath).dir, this.logger)
     const { report, moduleTree, assets } = await parser.parse()
 

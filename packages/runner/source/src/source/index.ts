@@ -149,7 +149,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
 
     for (const { artifactId, hash, statsPath } of statsList) {
       const moduleMap: Record<string, string> = {}
-      const stats = readStatsFile(statsPath)
+      const stats = await readStatsFile(statsPath)
       const baseDir = parse(statsPath).dir
 
       stats.assets?.forEach((asset) => {

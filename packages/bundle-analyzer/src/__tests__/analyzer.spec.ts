@@ -24,17 +24,17 @@ test.serial('should extract bundle tar correctly', async (t) => {
   t.snapshot(parse(target).base, 'perfsee bundle stats file')
 })
 
-test.serial('should read msgpack-ed stats file correctly', (t) => {
+test.serial('should read msgpack-ed stats file correctly', async (t) => {
   const statsFile = resolveStatsPath(extractTargetDir, statsRegex)
   if (!statsFile) {
     return t.pass()
   }
 
-  t.snapshot(readStatsFile(statsFile).assets?.length, 'duplicate-libs stats')
+  t.snapshot((await readStatsFile(statsFile)).assets?.length, 'duplicate-libs stats')
 })
 
 test.serial('analysis - duplicate libs', async (t) => {
-  const parser = StatsParser.FromStatsFile(resolveStatsPath(extractTargetDir, statsRegex)!, noLogger)
+  const parser = await StatsParser.FromStatsFile(resolveStatsPath(extractTargetDir, statsRegex)!, noLogger)
 
   const task = parser.parse()
   await t.notThrowsAsync(task)
@@ -46,7 +46,7 @@ test.serial('analysis - duplicate libs', async (t) => {
 })
 
 test.serial('analysis - perfsee archive', async (t) => {
-  const parser = StatsParser.FromStatsFile(
+  const parser = await StatsParser.FromStatsFile(
     await extractBundleFromStream(
       createReadStream(resolve(__dirname, '.', 'fixtures', 'perfsee.tar')),
       extractTargetDir,
