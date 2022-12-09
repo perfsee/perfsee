@@ -33,6 +33,7 @@ import {
   PropertyName,
   PropertyIcon,
   PropertyInfos,
+  PropertyDescription,
 } from '../style'
 
 import { ProfileForm } from './profile-edit-form'
@@ -115,10 +116,10 @@ export const SettingsProfiles = () => {
               </PropertyIcon>
               <PropertyInfos>
                 <PropertyName>{item.name}</PropertyName>
-                <div>
+                <PropertyDescription>
                   {<StyledDesc>{deviceTitle}</StyledDesc>}
                   {<StyledDesc>{bandWidthTitle}</StyledDesc>}
-                </div>
+                </PropertyDescription>
               </PropertyInfos>
             </PropertyCardTop>
           </EllipsisText>

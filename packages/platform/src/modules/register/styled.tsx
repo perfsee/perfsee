@@ -21,7 +21,7 @@ import { Card } from '@perfsee/components'
 
 export const FormContainer = styled(Card)({
   width: 550,
-  margin: '80px 0',
+  margin: '80px auto',
   padding: '64px 88px',
 })
 

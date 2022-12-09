@@ -178,11 +178,8 @@ export const ButtonOperators = <T extends any>(props: ButtonProps<T>) => {
         </OperationItemWrap>
       )}
       {!hideDeleteButton && (
-        <OperationItemWrap color={SharedColors.red10} onClick={onClickDeleteButton}>
-          <div>
-            <DeleteOutlined />
-          </div>
-          <span>Delete</span>
+        <OperationItemWrap grow={0} color={SharedColors.red10} onClick={onClickDeleteButton}>
+          <DeleteOutlined />
         </OperationItemWrap>
       )}
     </ButtonWrapper>

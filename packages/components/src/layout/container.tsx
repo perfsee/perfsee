@@ -39,7 +39,7 @@ export const BodyContainer: FC<PropsWithChildren> = ({ children }) => {
 }
 
 const BodyContainerInner = styled.div<{ wide?: boolean }>(({ theme, wide }) => ({
-  minHeight: '100%',
+  minHeight: '70%',
   display: 'flex',
   flexDirection: 'column',
   padding: `20px ${theme.layout.mainPadding} 0`,
