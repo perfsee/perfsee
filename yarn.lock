@@ -4755,7 +4755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@maizzle/framework@npm:^4.3.1":
+"@maizzle/framework@npm:^4.0.2":
   version: 4.3.1
   resolution: "@maizzle/framework@npm:4.3.1"
   dependencies:
@@ -5656,7 +5656,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/email-templates@workspace:packages/email-templates"
   dependencies:
-    "@maizzle/framework": ^4.3.1
+    "@maizzle/framework": ^4.0.2
   languageName: unknown
   linkType: soft
 
