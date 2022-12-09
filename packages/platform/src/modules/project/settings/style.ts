@@ -23,7 +23,7 @@ export const StyledDesc = styled.span<{ size?: string }>(({ theme, size }) => ({
   color: theme.text.colorSecondary,
   ':not(:last-of-type):after': {
     content: "'・'",
-    margin: '0 8px',
+    margin: '0 0px',
   },
 }))
 
@@ -40,8 +40,9 @@ export const ButtonWrapper = styled.div(({ theme }) => ({
   padding: '4px 0',
 }))
 
-export const OperationItemWrap = styled.div<{ color?: string }>(({ color, theme }) => ({
+export const OperationItemWrap = styled.div<{ color?: string; grow?: number }>(({ color, theme, grow = 1 }) => ({
   flex: 1,
+  flexGrow: grow,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -156,4 +157,9 @@ export const PropertyInfos = styled.div({
   flex: 1,
   marginLeft: '16px',
   overflow: 'hidden',
+})
+
+export const PropertyDescription = styled.div({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 })

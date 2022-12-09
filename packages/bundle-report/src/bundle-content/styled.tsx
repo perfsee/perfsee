@@ -43,7 +43,7 @@ export const Header = styled.div({
 export const ChartWrapper = styled.div({
   flexGrow: 1,
   // pageHeight - top nav - header - footer
-  height: 'calc(100vh - 60px - 50px - 58px)',
+  height: 'calc(100vh - 110px - 50px - 160px)',
 })
 
 export const ShortcutTips = styled.div({
