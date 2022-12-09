@@ -104,7 +104,8 @@
     "yup": "^0.32.11"
   },
   "resolutions": {
-    "jpeg-js": "0.4.4"
+    "jpeg-js": "0.4.4",
+    "qs@6.2.3": "6.2.4"
   },
   "lint-staged": {
     "*.@(js|ts|tsx)": [
