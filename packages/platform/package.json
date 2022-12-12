@@ -43,7 +43,7 @@
     "lodash": "^4.17.21",
     "modern-css-reset": "^1.4.0",
     "path-to-regexp": "^1.8.0",
-    "query-string": "^7.1.1",
+    "query-string": "^8.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^5.2.1",

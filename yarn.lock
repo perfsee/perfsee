@@ -5564,7 +5564,7 @@ __metadata:
     acorn-walk: ^8.2.0
     htmlparser2: ^8.0.1
     lodash: ^4.17.21
-    query-string: ^7.1.1
+    query-string: ^8.0.0
     tar: ^6.1.11
     tslib: ^2.4.0
   languageName: unknown
@@ -5590,7 +5590,7 @@ __metadata:
     "@types/mdx-js__react": ^1.5.5
     dayjs: ^1.11.3
     lodash: ^4.17.21
-    query-string: ^7.1.1
+    query-string: ^8.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
     react-router: ^5.2.1
@@ -5629,7 +5629,7 @@ __metadata:
     echarts: ^5.3.3
     immer: ^9.0.15
     lodash: ^4.17.21
-    query-string: ^7.1.1
+    query-string: ^8.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
     react-helmet: ^6.1.0
@@ -5832,7 +5832,7 @@ __metadata:
     node-fetch: ^2.6.2
     nodemailer: ^6.7.7
     prom-client: 14.1.0
-    query-string: ^7.1.1
+    query-string: ^8.0.0
     redlock: ^4.2.0
     rxjs: ^7.5.6
     sinon: ^15.0.0
@@ -5885,7 +5885,7 @@ __metadata:
     lodash: ^4.17.21
     modern-css-reset: ^1.4.0
     path-to-regexp: ^1.8.0
-    query-string: ^7.1.1
+    query-string: ^8.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
     react-router: ^5.2.1
@@ -5911,7 +5911,7 @@ __metadata:
     file-type: ^16.5.4
     lodash: ^4.17.21
     node-fetch: ^2.6.2
-    query-string: ^7.1.1
+    query-string: ^8.0.0
     simple-git: ^3.15.0
     table: ^6.8.0
     tar: ^6.1.11
@@ -11447,7 +11447,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decode-uri-component@npm:^0.2.0":
+"decode-uri-component@npm:^0.2.0, decode-uri-component@npm:^0.2.2":
   version: 0.2.2
   resolution: "decode-uri-component@npm:0.2.2"
   checksum: 95476a7d28f267292ce745eac3524a9079058bbb35767b76e3ee87d42e34cd0275d2eb19d9d08c3e167f97556e8a2872747f5e65cbebcac8b0c98d83e285f139
@@ -13689,6 +13689,13 @@ __metadata:
   version: 1.1.0
   resolution: "filter-obj@npm:1.1.0"
   checksum: cf2104a7c45ff48e7f505b78a3991c8f7f30f28bd8106ef582721f321f1c6277f7751aacd5d83026cb079d9d5091082f588d14a72e7c5d720ece79118fa61e10
+  languageName: node
+  linkType: hard
+
+"filter-obj@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "filter-obj@npm:5.1.0"
+  checksum: ba7c24d9b2c0552ee87d268e07eca74483af61fb740545ffa809f7e9e5294de38cf163ecc55af0e8a40020af9a49512c32f4022de2a858b110420fc8bffa7c9c
   languageName: node
   linkType: hard
 
@@ -22023,7 +22030,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"query-string@npm:^7.1.0, query-string@npm:^7.1.1":
+"query-string@npm:^7.1.0":
   version: 7.1.1
   resolution: "query-string@npm:7.1.1"
   dependencies:
@@ -22032,6 +22039,17 @@ __metadata:
     split-on-first: ^1.0.0
     strict-uri-encode: ^2.0.0
   checksum: b227d1f588ae93f9f0ad078c6b811295fa151dc5a160a03bb2bac5fa0e6919cb1daa570aad1d288e77c8e89fde5362ba505b1014e6e793da9b1e885b59a690a6
+  languageName: node
+  linkType: hard
+
+"query-string@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "query-string@npm:8.0.0"
+  dependencies:
+    decode-uri-component: ^0.2.2
+    filter-obj: ^5.1.0
+    split-on-first: ^1.0.0
+  checksum: d4eca41004b1859456543bdc38146555324ed99e84ad6d40669faf22a7acfb79599fcc08eeb39ed91992b0856557dffa9b456898f0d1da6631ed1c1842d2f08b
   languageName: node
   linkType: hard
 

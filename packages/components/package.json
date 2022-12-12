@@ -23,7 +23,7 @@
     "echarts": "^5.3.3",
     "immer": "^9.0.15",
     "lodash": "^4.17.21",
-    "query-string": "^7.1.1",
+    "query-string": "^8.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
