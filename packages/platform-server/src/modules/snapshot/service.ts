@@ -305,7 +305,7 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     await this.db.transaction(async (manager) => {
       await manager.getRepository(AppVersion).delete({ snapshotId: id })
-      await this.reportService.deleteSnapshotsReports(manager, { snapshotId: id })
+      await this.reportService.deleteSnapshotsReports({ snapshotId: id })
       await manager.remove(snapshot)
     })
   }

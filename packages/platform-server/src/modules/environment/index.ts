@@ -20,12 +20,13 @@ import { DBModule } from '@perfsee/platform-server/db'
 
 import { NotificationModule } from '../notification'
 import { ProjectModule } from '../project'
+import { SnapshotReportModule } from '../snapshot/snapshot-report'
 
 import { EnvironmentResolver, ProjectEnvironmentResolver } from './resolver'
 import { EnvironmentService } from './service'
 
 @Module({
-  imports: [ProjectModule, DBModule, forwardRef(() => NotificationModule)],
+  imports: [ProjectModule, DBModule, forwardRef(() => NotificationModule), SnapshotReportModule],
   providers: [EnvironmentResolver, ProjectEnvironmentResolver, EnvironmentService],
   exports: [EnvironmentService],
 })
