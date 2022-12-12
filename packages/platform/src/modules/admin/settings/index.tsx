@@ -53,7 +53,7 @@ export function Settings() {
   }, [saved, forceUpdate])
 
   if (!settings) {
-    return <Spinner size={SpinnerSize.large} label="loading..." />
+    return <Spinner size={SpinnerSize.large} label="Loading..." />
   }
 
   return (

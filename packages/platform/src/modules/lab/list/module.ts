@@ -74,7 +74,8 @@ export interface State {
   loading: boolean
 }
 
-export const SNAPSHOT_PAGE_SIZE = 20
+// make 3 * n grid layout full
+export const SNAPSHOT_PAGE_SIZE = 21
 
 @Module('LabListModule')
 export class LabListModule extends EffectModule<State> {

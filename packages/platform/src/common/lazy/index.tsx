@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Spinner, SpinnerSize } from '@fluentui/react'
 import { lazy as reactLazy, ComponentType, ComponentPropsWithRef, Suspense } from 'react'
 
 export function lazy<T extends ComponentType<any>>(factory: () => Promise<Record<any, T>>, fallback?: React.ReactNode) {
@@ -35,7 +36,7 @@ export function lazy<T extends ComponentType<any>>(factory: () => Promise<Record
 
   return (props: ComponentPropsWithRef<T>) => {
     return (
-      <Suspense fallback={fallback}>
+      <Suspense fallback={fallback ?? <Spinner size={SpinnerSize.large} label="Loading..." />}>
         <LazyComponent {...props} />
       </Suspense>
     )

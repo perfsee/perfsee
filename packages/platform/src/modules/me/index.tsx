@@ -14,20 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Icon, PersonaSize, Stack, Text } from '@fluentui/react'
+import { INavLink, INavLinkGroup, PersonaSize, Stack, Text } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
 import { useCallback, useEffect } from 'react'
-import { Link, Switch } from 'react-router-dom'
+import { Link, Switch, useHistory } from 'react-router-dom'
 
-import { BodyContainer, BodyPadding, Route } from '@perfsee/components'
+import { BodyContainer, ContentCard, Route } from '@perfsee/components'
 import { staticPath } from '@perfsee/shared/routes'
 
+import { SecondaryNav } from '../layout'
 import { ConnectedAccount, ConnectedAccountsModule, GlobalModule } from '../shared'
 
 import { AccessToken } from './access-token'
 import { Account } from './account'
 import { UserAvatar } from './avatar'
-import { NavbarContainer, NavbarItem as StyledNavbarItem, PageLayout, Title } from './styled'
+import { Title } from './styled'
 
 export const Me = () => {
   const { user } = useModuleState(GlobalModule)
@@ -81,54 +82,58 @@ export const ConnectedAccounts = () => {
   )
 }
 
-const navbarItemStyle = (isActive: boolean) => ({
-  borderLeft: '3px solid ' + (isActive ? '#000' : 'transparent'),
-  background: isActive ? '#eee' : undefined,
-  fontWeight: isActive ? 600 : undefined,
-})
-const NavbarItem: React.FunctionComponent<{ to: string; children: React.ReactNode }> = ({ to, children }) => {
-  return (
-    <StyledNavbarItem exact to={to} style={navbarItemStyle}>
-      {children}
-    </StyledNavbarItem>
-  )
-}
-
-const Navbar = () => {
-  return (
-    <NavbarContainer>
-      <NavbarItem to={staticPath.me.home}>
-        <Icon iconName="settings" /> Account
-      </NavbarItem>
-      <NavbarItem to={staticPath.me.connectedAccounts}>
-        <Icon iconName="user" /> Connected accounts
-      </NavbarItem>
-      <NavbarItem to={staticPath.me.accessToken}>
-        <Icon iconName="key" /> Personal access tokens
-      </NavbarItem>
-      <NavbarItem to={staticPath.me.billing}>
-        <Icon iconName="creditCard" /> Billing (coming soon)
-      </NavbarItem>
-    </NavbarContainer>
-  )
-}
+const navGroups: INavLinkGroup[] = [
+  {
+    links: [
+      {
+        name: 'Account',
+        key: staticPath.me.home,
+        url: '',
+        icon: 'settings',
+      },
+      {
+        name: 'Connected accounts',
+        key: staticPath.me.connectedAccounts,
+        url: '',
+        icon: 'user',
+      },
+      {
+        name: 'Personal access tokens',
+        key: staticPath.me.accessToken,
+        url: '',
+        icon: 'key',
+      },
+    ],
+  },
+]
 
 const MePage = () => {
+  const history = useHistory()
+
+  const onNavigate = useCallback(
+    (_: any, item?: INavLink) => {
+      if (item?.key && history.location.pathname !== item.key) {
+        history.push(item.key)
+      }
+    },
+    [history],
+  )
+
   return (
     <BodyContainer>
-      <BodyPadding>
-        <PageLayout tokens={{ childrenGap: 32 }}>
-          <Navbar />
-          <Stack.Item grow={1} tokens={{ padding: '0 16px' }}>
+      <Stack horizontal>
+        <SecondaryNav groups={navGroups} selectedKey={history.location.pathname} onLinkClick={onNavigate} />
+        <Stack.Item grow>
+          <ContentCard>
             <Switch>
               <Route exact={true} path={staticPath.me.home} component={Me} />
               <Route exact={true} path={staticPath.me.connectedAccounts} component={ConnectedAccounts} />
               <Route exact={true} path={staticPath.me.accessToken} component={AccessToken} />
               <Route exact={true} path={staticPath.me.billing} component={Me} />
             </Switch>
-          </Stack.Item>
-        </PageLayout>
-      </BodyPadding>
+          </ContentCard>
+        </Stack.Item>
+      </Stack>
     </BodyContainer>
   )
 }

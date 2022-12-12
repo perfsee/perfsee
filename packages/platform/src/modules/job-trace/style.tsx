@@ -22,8 +22,7 @@ import { JobLogLevel } from '@perfsee/shared'
 import { Log as LogType } from './module'
 
 export const PageWrapper = styled('div')({
-  maxWidth: '80%',
-  height: 'calc(100vh - 140px)',
+  width: '100%',
   margin: '20px auto',
   display: 'flex',
   alignItems: 'flex-end',

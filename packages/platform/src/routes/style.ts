@@ -17,20 +17,7 @@ limitations under the License.
 import styled from '@emotion/styled'
 
 export const MainContainer = styled.div({
-  flexShrink: 1,
-  overflow: 'auto',
-})
-
-export const PageContainer = styled.div({
+  minHeight: '100%',
   display: 'flex',
   flexDirection: 'column',
-  height: '100vh',
-  overflow: 'hidden',
-
-  '> *': {
-    flexShrink: 0,
-  },
-  [`${MainContainer}`]: {
-    flexGrow: 1,
-  },
 })

@@ -14,56 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { css } from '@emotion/react'
-import { Shimmer } from '@fluentui/react'
+import { Shimmer, Stack } from '@fluentui/react'
 import { range } from 'lodash'
-
-import { BodyPadding } from '@perfsee/components'
 
 export const LoadingShimmer = () => {
   return (
-    <BodyPadding css={css({ '.ms-Shimmer-container': { margin: '10px 0' } })}>
-      <Shimmer />
-      <Shimmer />
-      <Shimmer />
-      <Shimmer />
-      <Shimmer />
-      <div css={css({ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' })}>
-        <div>
-          {range(8).map((i) => (
-            <Shimmer width="calc(80vw - 380px)" height="15px" key={`shimmer-width-450-${i}`} />
+    <Stack tokens={{ childrenGap: '40px', padding: '10px' }}>
+      {range(5).map((i) => (
+        <Stack key={`row-${i}`} tokens={{ childrenGap: '12px' }}>
+          {range(6).map((j) => (
+            <Shimmer key={`col-${j}`} />
           ))}
-          <Shimmer width="100px" height="16px" />
-        </div>
-        <div css={css({ '.ms-Shimmer-container': { margin: 'unset' } })}>
-          {range(14).map((i) => (
-            <Shimmer width="380px" height="16px" key={`shimmer-width-500-${i}`} />
-          ))}
-        </div>
-      </div>
-      {range(12).map((i) => (
-        <Shimmer key={`shimmer-default-${i}`} />
+        </Stack>
       ))}
-    </BodyPadding>
-  )
-}
-
-export const ListShimmer = ({ size }: { size: number }) => {
-  return (
-    <BodyPadding css={css({ '.ms-Shimmer-container': { margin: '10px 0' } })}>
-      {range(size).map((i) => (
-        <div
-          key={`shimmer-width-450-${i}`}
-          height="50px"
-          css={css({ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' })}
-        >
-          <div>
-            <Shimmer width="200px" />
-            <Shimmer width="500px" />
-          </div>
-          <Shimmer width="100px" key={`shimmer-default-${i}`} />
-        </div>
-      ))}
-    </BodyPadding>
+    </Stack>
   )
 }
