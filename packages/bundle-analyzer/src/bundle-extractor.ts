@@ -143,7 +143,7 @@ export async function readStatsFile(path: string): Promise<PerfseeReportStats> {
       const buf = readFileSync(path)
       return decode(buf) as PerfseeReportStats
     } else {
-      return (await decodeStream(createReadStream(path).pipe(createGunzip()))) as PerfseeReportStats
+      return (await decodeStream(createReadStream(path))) as PerfseeReportStats
     }
   } else {
     throw new Error('unsupported stats file encoding.')
