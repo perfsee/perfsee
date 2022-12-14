@@ -26,7 +26,7 @@ const clientSchema = schemaPackage.relative('src/graphql/**/*.{gql,graphql}')
 
 export async function generateGraphqlSchema() {
   execSync('yarn gql-gen', {
-    stdio: 'inherit',
+    stdio: 'pipe',
   })
   logger.info('Graphql schema generated')
 }

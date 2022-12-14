@@ -15,10 +15,6 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { Stack } from '@fluentui/react'
-import { NavLink } from 'react-router-dom'
-
-import { resetLink } from '@perfsee/dls'
 
 export const Title = styled.h1(({ theme }) => ({
   fontWeight: '600',
@@ -34,26 +30,3 @@ export const Title = styled.h1(({ theme }) => ({
 export const Hr = styled.div(({ theme }) => ({
   borderTop: '1px solid ' + theme.border.color,
 }))
-
-export const NavbarContainer = styled(Stack)({
-  width: '230px',
-  margin: '32px 0 0',
-})
-
-export const NavbarItem = styled(NavLink)({
-  width: '100%',
-  padding: '8px 16px',
-  color: '#000',
-  ':hover': {
-    background: '#eee',
-    textDecoration: 'none',
-  },
-  ...resetLink('#000'),
-})
-
-export const PageLayout = styled(Stack)({
-  flexDirection: 'row',
-  '@media screen and (max-width: 992px)': {
-    flexDirection: 'column',
-  },
-})

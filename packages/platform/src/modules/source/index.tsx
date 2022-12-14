@@ -39,6 +39,7 @@ import {
   useQueryString,
   ContentCard,
   Empty,
+  useWideScreen,
 } from '@perfsee/components'
 import { ConstantColors } from '@perfsee/dls'
 import { formatTime, stopPropagation } from '@perfsee/platform/common'
@@ -227,6 +228,7 @@ type SourceQueryStringType = {
 }
 
 export const Source = () => {
+  useWideScreen()
   const [state, dispatcher] = useModule(SourceIssuesModule)
   const {
     bubbles: [TeachingStep1, TeachingStep2, TeachingStep3],

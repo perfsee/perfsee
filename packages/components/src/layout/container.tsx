@@ -16,14 +16,14 @@ limitations under the License.
 
 import styled from '@emotion/styled'
 import { useDispatchers, useModuleState } from '@sigi/react'
-import { FC, PropsWithChildren, useEffect } from 'react'
+import { FC, PropsWithChildren, useLayoutEffect } from 'react'
 
 import { LayoutModule } from './layout.module'
 
 export function useWideScreen() {
   const { setWideScreen } = useDispatchers(LayoutModule)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setWideScreen(true)
 
     return () => {
@@ -39,7 +39,7 @@ export const BodyContainer: FC<PropsWithChildren> = ({ children }) => {
 }
 
 const BodyContainerInner = styled.div<{ wide?: boolean }>(({ theme, wide }) => ({
-  minHeight: '70%',
+  flexGrow: 1,
   display: 'flex',
   flexDirection: 'column',
   padding: `20px ${theme.layout.mainPadding} 0`,
@@ -48,17 +48,12 @@ const BodyContainerInner = styled.div<{ wide?: boolean }>(({ theme, wide }) => (
         width: '100%',
       }
     : {
-        maxWidth: theme.layout.mainMaxWidth,
+        width: theme.layout.mainMaxWidth,
         marginLeft: 'auto',
         marginRight: 'auto',
       }),
-}))
 
-export const BodyPadding = styled.div(({ theme }) => ({
-  backgroundColor: theme.colors.white,
-  width: '100%',
-  margin: '20px 0 50px',
-  padding: '16px 24px',
-  borderRadius: '2px',
-  overflow: 'hidden',
+  '& &': {
+    width: 'unset',
+  },
 }))

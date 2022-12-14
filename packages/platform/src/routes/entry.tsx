@@ -28,7 +28,7 @@ import { Header, Footer } from '../modules/layout'
 import { GlobalModule } from '../modules/shared'
 
 import { Routes } from './routes'
-import { MainContainer, PageContainer } from './style'
+import { MainContainer } from './style'
 
 export const Entry = () => {
   const [{ user, settings, loading }, dispatcher] = useModule(GlobalModule)
@@ -56,13 +56,13 @@ export const Entry = () => {
   }
 
   return (
-    <PageContainer>
+    <>
       <Notifications />
       <MainContainer>
         {!isInIntroductionRoutes && <Header />}
         <Routes user={user} settings={settings} />
         <Footer isAdmin={user?.isAdmin} />
       </MainContainer>
-    </PageContainer>
+    </>
   )
 }
