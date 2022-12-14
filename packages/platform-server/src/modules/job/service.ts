@@ -60,7 +60,7 @@ const JOB_RECOMMENDED_CONCURRENCY = {
   [JobType.All]: 1,
   [JobType.BundleAnalyze]: 3,
   [JobType.LabAnalyze]: 1,
-  [JobType.SourceAnalyze]: 5,
+  [JobType.SourceAnalyze]: 3,
 }
 
 export function getJobTypeConcurrency(type: JobType): number {

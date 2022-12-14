@@ -59,6 +59,16 @@ export class RunnerService {
       ...info,
     }).save()
 
+    try {
+      const settings = await this.setting.current()
+      if (!settings.jobZones.includes(info.zone)) {
+        settings.jobZones.push(info.zone)
+        await this.setting.save(settings)
+      }
+    } catch {
+      // ignore
+    }
+
     return {
       token,
       set: {
