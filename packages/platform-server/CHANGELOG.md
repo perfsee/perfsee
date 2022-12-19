@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
+
+### Features
+
+- **platform-server:** usage packs and project usage limitation ([2277911](https://github.com/perfsee/perfsee/commit/2277911471a0d21092b19959b161787ebff393d3))
+
 # [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
 
 ### Bug Fixes

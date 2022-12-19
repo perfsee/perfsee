@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/treemap",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Web tree map chart, based on webgl.",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",

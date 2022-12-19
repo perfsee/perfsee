@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
+
+### Bug Fixes
+
+- **bundle-analyzer:** fix stream decode error ([71023a2](https://github.com/perfsee/perfsee/commit/71023a21903e8d2f78b2b25ec9a5cd7e2ae46cd7))
+
+### Features
+
+- **plugins, bundle-analyzer:** stream serialize ([3055b96](https://github.com/perfsee/perfsee/commit/3055b96efd2141ad461cb23f5ff4402162a0cfa3))
+
 # [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
 
 ### Features
