@@ -446,7 +446,7 @@ impl TryFrom<ChromeProfile> for Profile {
     let mut node_id = u32::MAX;
 
     // simplier way to take last samples into count
-    samples_with_timestamp.push((u32::MAX, samples_with_timestamp.last().unwrap().1 as i32));
+    samples_with_timestamp.push((u32::MAX, samples_with_timestamp.last().unwrap().1));
 
     samples_with_timestamp
       .into_iter()
