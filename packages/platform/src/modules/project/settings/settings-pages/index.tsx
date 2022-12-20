@@ -57,10 +57,10 @@ export const SettingsPages = () => {
     const competitorList: PageSchema[] = []
     const pageList: PageSchema[] = []
     pages.forEach((p) => {
-      if (p.isCompetitor) {
-        competitorList.push(p)
-      } else if (p.isTemp) {
+      if (p.isTemp) {
         tempList.push(p)
+      } else if (p.isCompetitor) {
+        competitorList.push(p)
       } else {
         pageList.push(p)
       }
