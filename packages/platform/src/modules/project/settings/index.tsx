@@ -116,7 +116,7 @@ export const Settings = () => {
   return (
     <Stack horizontal>
       <SecondaryNav groups={navGroups} selectedKey={settingName} onLinkClick={onLinkClick} />
-      <Stack.Item grow>
+      <Stack.Item grow styles={{ root: { overflow: 'hidden' } }}>
         <ContentCard>{content}</ContentCard>
       </Stack.Item>
     </Stack>
