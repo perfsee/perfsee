@@ -99,6 +99,11 @@ function AuditItem({ audit }: { audit: BundleAuditResult }) {
           {audit.desc} {audit.link && <ForeignLink href={audit.link}>Learn more</ForeignLink>}
         </>
       }
+      labels={
+        audit.weight && audit.numericScore
+          ? [`Score: ${(100 * audit.numericScore.value).toFixed(0)}`, `Weight: ${audit.weight}`]
+          : []
+      }
     >
       {audit.detail && audit.detail.items.length > 0 && (
         <CollapsiblePanel header="Detail">

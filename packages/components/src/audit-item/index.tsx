@@ -22,19 +22,21 @@ import { StyledAuditItem, StyledItemContent, StyledAuditAdorn, StyledAuditDesc }
 type Props = {
   title: string
   icon: ReactNode
+  score?: number | string
   labels?: string[]
   description?: ReactNode
   children?: ReactNode
 }
 
 export const AuditItem = (props: Props) => {
-  const { title, icon, labels = [], description, children } = props
+  const { title, icon, score, labels = [], description, children } = props
 
   return (
     <StyledAuditItem>
       <Stack tokens={{ childrenGap: 12 }} horizontal verticalAlign="center">
         {icon}
         <b>{title}</b>
+        {score !== undefined && <StyledAuditAdorn>{score}</StyledAuditAdorn>}
         {labels.map((key) => (
           <StyledAuditAdorn key={key}>{key}</StyledAuditAdorn>
         ))}
