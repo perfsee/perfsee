@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Injectable } from '@nestjs/common'
-import { EntityManager, FindOptionsWhere, In } from 'typeorm'
+import { FindOptionsWhere, In } from 'typeorm'
 
 import {
   Artifact,
@@ -43,6 +43,9 @@ import { SnapshotReportFilter } from './types'
 export class SnapshotReportService {
   loader = createDataLoader((ids: number[]) => SnapshotReport.findBy({ id: In(ids) }))
   snapshotLoader = createDataLoader((ids: number[]) => Snapshot.findBy({ id: In(ids) }))
+  pageLoader = createDataLoader((ids: number[]) => Page.findBy({ id: In(ids) }))
+  profileLoader = createDataLoader((ids: number[]) => Profile.findBy({ id: In(ids) }))
+  envLoader = createDataLoader((ids: number[]) => Environment.findBy({ id: In(ids) }))
 
   constructor(
     private readonly logger: Logger,
@@ -169,20 +172,28 @@ export class SnapshotReportService {
       .getMany()
   }
 
-  /**
-   * delete all stuff in a transaction
-   */
-  async deleteSnapshotsReports(manager: EntityManager, conditions: FindOptionsWhere<SnapshotReport>) {
+  async deleteSnapshotsReports(conditions: FindOptionsWhere<SnapshotReport>) {
     const reports = await SnapshotReport.findBy(conditions)
-    const reportIds = reports.map(({ id }) => id)
 
-    this.logger.log('start delete snapshot report', { conditions, count: reportIds.length })
+    this.logger.log('start delete snapshot report by', { conditions, count: reports.length })
 
     // delete reports slowly in case too many reports
-    for (let i = 0; i < Math.ceil(reportIds.length / 30); i++) {
-      const ids = reportIds.slice(i * 30, (i + 1) * 30)
-      await manager.getRepository(SnapshotReport).delete(ids)
-      await manager.getRepository(SourceIssue).delete({ snapshotReportId: In(ids) })
+    for (let i = 0; i < Math.ceil(reports.length / 30); i++) {
+      const storageKeys: (string | null)[] = []
+      const ids = reports.slice(i * 30, (i + 1) * 30).map((report) => {
+        storageKeys.push(
+          report.lighthouseStorageKey,
+          report.screencastStorageKey,
+          report.jsCoverageStorageKey,
+          report.traceEventsStorageKey,
+          report.flameChartStorageKey,
+          report.sourceCoverageStorageKey,
+        )
+
+        return report.id
+      })
+      await this.storage.bulkDelete(storageKeys.filter(Boolean) as string[])
+      await SnapshotReport.delete(ids)
     }
   }
 

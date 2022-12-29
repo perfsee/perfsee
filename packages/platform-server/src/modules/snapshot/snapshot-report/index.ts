@@ -18,9 +18,6 @@ import { Module } from '@nestjs/common'
 
 import { StorageModule } from '@perfsee/platform-server/storage'
 
-import { EnvironmentModule } from '../../environment'
-import { PageModule } from '../../page'
-import { ProfileModule } from '../../profile'
 import { ProjectModule } from '../../project'
 import { ProjectUsageModule } from '../../project-usage'
 
@@ -28,7 +25,7 @@ import { ProjectReportResolver, ReportResolver, SnapshotReportResolver } from '.
 import { SnapshotReportService } from './service'
 
 @Module({
-  imports: [StorageModule, ProjectModule, EnvironmentModule, PageModule, ProfileModule, ProjectUsageModule],
+  imports: [StorageModule, ProjectModule, ProjectUsageModule],
   providers: [SnapshotReportService, ReportResolver, SnapshotReportResolver, ProjectReportResolver],
   exports: [SnapshotReportService],
 })

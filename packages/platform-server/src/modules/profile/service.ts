@@ -15,10 +15,9 @@ limitations under the License.
 */
 
 import { Injectable } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import { In } from 'typeorm'
 
-import { DBService, InternalIdUsage, PageWithProfile, Profile } from '@perfsee/platform-server/db'
+import { InternalIdUsage, Profile } from '@perfsee/platform-server/db'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { createDataLoader } from '@perfsee/platform-server/utils'
@@ -36,9 +35,8 @@ export class ProfileService {
   )
 
   constructor(
-    private readonly db: DBService,
-    private readonly moduleRef: ModuleRef,
     private readonly internalIdService: InternalIdService,
+    private readonly reportService: SnapshotReportService,
     private readonly logger: Logger,
   ) {}
 
@@ -62,14 +60,9 @@ export class ProfileService {
 
   async deleteProfile(profile: Profile) {
     const { id, projectId, name } = profile
-
     this.logger.log('start delete profile', { id, projectId, name })
-    await this.db.transaction(async (manager) => {
-      await this.moduleRef
-        .get(SnapshotReportService, { strict: false })
-        .deleteSnapshotsReports(manager, { profileId: id })
-      await manager.getRepository(PageWithProfile).delete({ profileId: id })
-      await manager.remove(profile)
-    })
+
+    await this.reportService.deleteSnapshotsReports({ profileId: id })
+    await Profile.delete(id)
   }
 }

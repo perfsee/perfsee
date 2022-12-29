@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { Injectable } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import { difference, isNil, omit, omitBy } from 'lodash'
 import { EntityManager, In } from 'typeorm'
 
@@ -55,8 +54,8 @@ export class PageService {
 
   constructor(
     private readonly db: DBService,
-    private readonly moduleRef: ModuleRef,
     private readonly internalIdService: InternalIdService,
+    private readonly reportService: SnapshotReportService,
     private readonly logger: Logger,
     private readonly redis: Redis,
   ) {}
@@ -257,18 +256,9 @@ export class PageService {
     const { id, projectId, name } = page
 
     this.logger.log('start delete page', { id, projectId, name })
-    await this.db.transaction(async (manager) => {
-      await this.moduleRef.get(SnapshotReportService, { strict: false }).deleteSnapshotsReports(manager, { pageId: id })
+    await this.reportService.deleteSnapshotsReports({ pageId: id })
 
-      await manager.getRepository(PageWithEnv).delete({ pageId: id })
-      await manager.getRepository(PageWithProfile).delete({ pageId: id })
-      if (page.isCompetitor) {
-        await manager.getRepository(PageWithCompetitor).delete({ competitorId: id })
-      } else {
-        await manager.getRepository(PageWithCompetitor).delete({ pageId: id })
-      }
-      await manager.remove(page)
-    })
+    await Page.delete(id)
   }
 
   async createPage(projectId: number, input: CreatePageInput) {

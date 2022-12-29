@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker'
 
-import { Environment, PageWithEnv, SnapshotReport } from '@perfsee/platform-server/db'
+import { Environment } from '@perfsee/platform-server/db'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import test, { createMock, initTestDB, createDBTestingModule, create } from '@perfsee/platform-server/test'
 
-import { mockCreateReport } from '../../snapshot/snapshot-report/__tests__/utils'
 import { SnapshotReportService } from '../../snapshot/snapshot-report/service'
 import { EnvironmentService } from '../service'
 
@@ -92,23 +91,4 @@ test.serial('update environment', async (t) => {
 
   t.is(payload.name, updated.name)
   t.deepEqual(payload.headers, updated.headers)
-})
-
-test.serial('delete environment', async (t) => {
-  const projectId = 1
-  const report = await mockCreateReport(projectId)
-  await create(PageWithEnv, { pageId: report.pageId, envId: report.envId })
-
-  const service = t.context.module.get(EnvironmentService)
-  const environment = await Environment.findOneByOrFail({ id: report.envId })
-
-  await service.deleteEnvironment(environment)
-
-  const noEnvironment = await Environment.findOneBy({ id: environment.id })
-  const noReport = await SnapshotReport.findOneBy({ id: report.id })
-  const pageWithEnv = await PageWithEnv.findBy({ envId: environment.id })
-
-  t.falsy(noEnvironment)
-  t.falsy(noReport)
-  t.is(pageWithEnv.length, 0)
 })

@@ -7,13 +7,11 @@ import {
   PageWithEnv,
   Profile,
   Environment,
-  SnapshotReport,
 } from '@perfsee/platform-server/db'
 import { seedProjectProperty } from '@perfsee/platform-server/db/fixtures'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import test, { createMock, initTestDB, createDBTestingModule, create } from '@perfsee/platform-server/test'
 
-import { mockCreateReport } from '../../snapshot/snapshot-report/__tests__/utils'
 import { SnapshotReportService } from '../../snapshot/snapshot-report/service'
 import { PageService } from '../service'
 import { CreatePageInput } from '../types'
@@ -176,28 +174,4 @@ test.serial('update page', async (t) => {
   t.is(pageWithCompetitor.length, 0)
   t.is(pageWithEnv.length, 1)
   t.is(pageWithEnv[0].envId, env.id)
-})
-
-test.serial('delete page', async (t) => {
-  const projectId = 1
-  const report = await mockCreateReport(projectId)
-  const page = await Page.findOneByOrFail({ id: report.pageId })
-  await create(PageWithEnv, { pageId: page.id, envId: 1 })
-  await create(PageWithProfile, { pageId: page.id, profileId: 1 })
-  await create(PageWithCompetitor, { pageId: page.id, competitorId: 1 })
-  const service = t.context.module.get(PageService)
-
-  await service.deletePage(page)
-
-  const noPage = await Page.findOneBy({ id: page.id })
-  const noReport = await SnapshotReport.findOneBy({ id: report.id })
-  const pageWithProfile = await PageWithProfile.findBy({ pageId: page.id })
-  const pageWithEnv = await PageWithEnv.findBy({ pageId: page.id })
-  const pageWithCompetitor = await PageWithCompetitor.findBy({ pageId: page.id })
-
-  t.falsy(noPage)
-  t.falsy(noReport)
-  t.is(pageWithCompetitor.length, 0)
-  t.is(pageWithEnv.length, 0)
-  t.is(pageWithProfile.length, 0)
 })

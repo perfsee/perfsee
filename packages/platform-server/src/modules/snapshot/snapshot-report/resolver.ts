@@ -30,10 +30,7 @@ import {
 } from '@perfsee/platform-server/db'
 import { transformInputType } from '@perfsee/platform-server/graphql'
 
-import { EnvironmentService } from '../../environment/service'
-import { PageService } from '../../page/service'
 import { Permission, PermissionGuard } from '../../permission'
-import { ProfileService } from '../../profile/service'
 import { ProjectService } from '../../project/service'
 
 import { SnapshotReportService } from './service'
@@ -56,13 +53,7 @@ export class SnapshotReportResolver {
 
 @Resolver(() => SnapshotReport)
 export class ReportResolver {
-  constructor(
-    private readonly service: SnapshotReportService,
-    private readonly envService: EnvironmentService,
-    private readonly pageService: PageService,
-    private readonly profileService: ProfileService,
-    private readonly projectService: ProjectService,
-  ) {}
+  constructor(private readonly service: SnapshotReportService, private readonly projectService: ProjectService) {}
 
   @PermissionGuard(Permission.Admin, 'projectId')
   @Mutation(() => Boolean)
@@ -77,17 +68,17 @@ export class ReportResolver {
 
   @ResolveField(() => Environment, { name: 'environment', description: 'the environment this report used' })
   environment(@Parent() report: SnapshotReport) {
-    return this.envService.loader.load(report.envId)
+    return this.service.envLoader.load(report.envId)
   }
 
   @ResolveField(() => Profile, { name: 'profile', description: 'the profile this report used' })
   profile(@Parent() report: SnapshotReport) {
-    return this.profileService.loader.load(report.profileId)
+    return this.service.profileLoader.load(report.profileId)
   }
 
   @ResolveField(() => Page, { name: 'page', description: 'the page this report used' })
   page(@Parent() report: SnapshotReport) {
-    return this.pageService.loader.load(report.pageId)
+    return this.service.pageLoader.load(report.pageId)
   }
 
   @ResolveField(() => Snapshot, { name: 'snapshot', description: 'the snapshot of this report' })

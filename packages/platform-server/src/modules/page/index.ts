@@ -19,12 +19,13 @@ import { Module } from '@nestjs/common'
 import { DBModule } from '@perfsee/platform-server/db'
 
 import { ProjectModule } from '../project'
+import { SnapshotReportModule } from '../snapshot/snapshot-report'
 
 import { PageResolver, ProjectPageResolver } from './resolver'
 import { PageService } from './service'
 
 @Module({
-  imports: [ProjectModule, DBModule],
+  imports: [ProjectModule, DBModule, SnapshotReportModule],
   providers: [PageResolver, ProjectPageResolver, PageService],
   exports: [PageService],
 })

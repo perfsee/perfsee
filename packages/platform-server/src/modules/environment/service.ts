@@ -15,11 +15,10 @@ limitations under the License.
 */
 
 import { Injectable } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import { In } from 'typeorm'
 
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
-import { DBService, Environment, InternalIdUsage, PageWithEnv } from '@perfsee/platform-server/db'
+import { Environment, InternalIdUsage } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -35,11 +34,10 @@ export class EnvironmentService {
   loader = createDataLoader((ids: number[]) => Environment.findBy({ id: In(ids) }))
 
   constructor(
-    private readonly db: DBService,
-    private readonly moduleRef: ModuleRef,
     private readonly notification: NotificationService,
     private readonly logger: Logger,
     private readonly internalIdService: InternalIdService,
+    private readonly reportService: SnapshotReportService,
   ) {}
 
   getEnvironments(projectId: number) {
@@ -91,11 +89,8 @@ export class EnvironmentService {
     const { id, projectId, name } = env
 
     this.logger.log('start delete environment', { id, projectId, name })
-    await this.db.transaction(async (manager) => {
-      await this.moduleRef.get(SnapshotReportService, { strict: false }).deleteSnapshotsReports(manager, { envId: id })
-      await manager.getRepository(PageWithEnv).delete({ envId: id })
-      await manager.remove(env)
-    })
+    await this.reportService.deleteSnapshotsReports({ envId: id })
+    await Environment.delete(id)
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_11AM, { timeZone: 'Asia/Shanghai', exclusive: true, name: 'cookie-check' })

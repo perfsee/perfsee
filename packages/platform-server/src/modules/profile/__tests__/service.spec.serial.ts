@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker'
 
-import { PageWithProfile, Profile, SnapshotReport } from '@perfsee/platform-server/db'
+import { Profile } from '@perfsee/platform-server/db'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import test, { createMock, initTestDB, createDBTestingModule, create } from '@perfsee/platform-server/test'
 
-import { mockCreateReport } from '../../snapshot/snapshot-report/__tests__/utils'
 import { SnapshotReportService } from '../../snapshot/snapshot-report/service'
 import { ProfileService } from '../service'
 
@@ -71,23 +70,4 @@ test.serial('update profile', async (t) => {
   const updatedProfile = await service.updateProfile(projectId, payload)
 
   t.is(payload.name, updatedProfile.name)
-})
-
-test.serial('delete profile', async (t) => {
-  const projectId = 1
-  const report = await mockCreateReport(projectId)
-  await create(PageWithProfile, { pageId: report.pageId, profileId: report.profileId })
-
-  const service = t.context.module.get(ProfileService)
-  const profile = await Profile.findOneByOrFail({ id: report.profileId })
-
-  await service.deleteProfile(profile)
-
-  const noProfile = await Profile.findOneBy({ id: profile.id })
-  const noReport = await SnapshotReport.findOneBy({ id: report.id })
-  const pageWithProfile = await PageWithProfile.findBy({ profileId: profile.id })
-
-  t.falsy(noProfile)
-  t.falsy(noReport)
-  t.is(pageWithProfile.length, 0)
 })

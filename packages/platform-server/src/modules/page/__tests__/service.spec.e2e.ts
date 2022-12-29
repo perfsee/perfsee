@@ -3,7 +3,6 @@ import { faker } from '@faker-js/faker'
 import {
   Project,
   Page,
-  SnapshotReport,
   PageWithEnv,
   PageWithProfile,
   Environment,
@@ -19,8 +18,6 @@ import {
   createPageMutation,
   updatePageMutation,
 } from '@perfsee/schema'
-
-import { mockCreateReport } from '../../snapshot/snapshot-report/__tests__/utils'
 
 let gqlClient: GraphQLTestingClient
 let slug: string
@@ -135,32 +132,6 @@ test.serial('update page', async (t) => {
   t.not(response.updatePage.name, page.name)
   t.is(pageWithEnv.length, 0)
   t.is(pageWithProfile.length, 1)
-})
-
-test.serial('delete page', async (t) => {
-  const report = await mockCreateReport(1)
-  const page = await Page.findOneByOrFail({ id: report.pageId })
-  await create(PageWithEnv, { pageId: page.id, envId: 1 })
-  await create(PageWithProfile, { pageId: page.id, profileId: 1 })
-
-  const response = await gqlClient.query({
-    query: deletePageMutation,
-    variables: {
-      projectId: slug,
-      id: page.iid,
-    },
-  })
-
-  const noPage = await Page.findOneBy({ id: page.id })
-  const noReport = await SnapshotReport.findOneBy({ id: report.id })
-  const pageWithEnv = await PageWithEnv.findBy({ pageId: page.id })
-  const pageWithProfile = await PageWithProfile.findBy({ pageId: page.id })
-
-  t.true(response.deletePage)
-  t.falsy(noPage)
-  t.falsy(noReport)
-  t.is(pageWithEnv.length, 0)
-  t.is(pageWithProfile.length, 0)
 })
 
 test.serial('create page with no permission', async (t) => {

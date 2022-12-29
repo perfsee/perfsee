@@ -265,12 +265,6 @@ type Project {
   """get snapshot reports with filters"""
   snapshotReports(filter: SnapshotReportFilter!): [SnapshotReport!]!
 
-  """all environments in the project"""
-  environments: [Environment!]!
-
-  """all profiles in the project"""
-  profiles: [Profile!]!
-
   """paginated source issues"""
   sourceIssues(
     pagination: PaginationInput = {first: 10}
@@ -282,6 +276,12 @@ type Project {
   """all versions that have source issues in recent 3 months"""
   issueCommits: [String!]!
   sourceIssueById(issueId: Int!): SourceIssue
+
+  """all environments in the project"""
+  environments: [Environment!]!
+
+  """all profiles in the project"""
+  profiles: [Profile!]!
 
   """get project schedule task setting"""
   timer: Timer
