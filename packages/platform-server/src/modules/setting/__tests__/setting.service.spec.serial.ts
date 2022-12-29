@@ -38,8 +38,8 @@ test.serial('get setting by loader', async (t) => {
   const data = await service.byProjectLoader.load(project.id)
 
   t.truthy(data)
-  t.is(data.projectId, project.id)
-  t.is(data.bundleMessageSource, setting.bundleMessageSource)
+  t.is(data!.projectId, project.id)
+  t.is(data!.bundleMessageSource, setting.bundleMessageSource)
 })
 
 test.serial('update setting', async (t) => {

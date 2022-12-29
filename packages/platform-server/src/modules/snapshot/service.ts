@@ -14,7 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BadRequestException, HttpException, HttpStatus, Injectable, OnApplicationBootstrap } from '@nestjs/common'
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  OnApplicationBootstrap,
+} from '@nestjs/common'
 import { In } from 'typeorm'
 
 import {
@@ -312,6 +319,10 @@ export class SnapshotService implements OnApplicationBootstrap {
 
   async getReportJobPayload(reportId: number): Promise<LabJobPayload> {
     const report = await this.reportService.loader.load(reportId)
+
+    if (!report) {
+      throw new NotFoundException(`snapshot report with id ${reportId} not found`)
+    }
 
     const { pages, profiles, envs } = await this.getAllProperties([report.projectId])
 

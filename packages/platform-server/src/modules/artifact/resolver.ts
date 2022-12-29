@@ -176,9 +176,9 @@ export class ArtifactResolver {
 export class ArtifactEntrypointResolver {
   constructor(private readonly artifact: ArtifactService) {}
 
-  @ResolveField(() => Int)
+  @ResolveField(() => Int, { nullable: true })
   async artifactId(@Parent() entrypoint: ArtifactEntrypoint) {
     const artifact = await this.artifact.loader.load(entrypoint.artifactId)
-    return artifact.iid
+    return artifact?.iid ?? null
   }
 }

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { In } from 'typeorm'
 
 import { Setting } from '@perfsee/platform-server/db'
@@ -40,6 +40,9 @@ export class SettingService {
 
   async updateSetting(projectId: number, updates: Partial<Setting>) {
     let setting = await this.byProjectLoader.load(projectId)
+    if (!setting) {
+      throw new NotFoundException(`setting with project id ${projectId} not found`)
+    }
     setting = Setting.merge<Setting>(setting, updates, {
       bundleMessageBranches: updates.bundleMessageBranches?.filter(Boolean) ?? setting.bundleMessageBranches,
       messageTarget: {

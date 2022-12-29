@@ -52,6 +52,9 @@ export class RunnerResolver {
     @Args({ name: 'input', type: () => UpdateRunnerInput }, transformInputType) input: UpdateRunnerInput,
   ) {
     const runner = await this.service.getRunner(uuid)
+    if (!runner) {
+      return null
+    }
     return this.service.updateRunner(runner, input)
   }
 

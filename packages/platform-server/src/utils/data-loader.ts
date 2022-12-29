@@ -27,7 +27,7 @@ export function createDataLoader<K, V>(
   batchFn: (keys: K[]) => Promise<V[]>,
   indexField: keyof V | ((v: V) => string) = 'id' as any,
 ) {
-  return new DataLoader<K, V>(
+  return new DataLoader<K, V | undefined>(
     (keys) => {
       return batchFn(uniq(keys)).then(normalizeBatchResults(keys, indexField))
     },
@@ -45,6 +45,6 @@ function normalizeBatchResults<K, V>(keys: readonly K[], cacheKey: keyof V | ((v
       indexedResults.set(key, res)
     })
 
-    return keys.map((key) => indexedResults.get(key)!)
+    return keys.map((key) => indexedResults.get(key))
   }
 }
