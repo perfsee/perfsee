@@ -95,6 +95,10 @@ export const AdviceList = (props: { list: LighthouseAudit[]; type: LighthouseGro
       ? [...item.relevant, item.displayValue, item.explanation]
       : [item.displayValue, item.explanation]
 
+    if (item.scoreDisplayMode === 'numeric' && item.score) {
+      labels.unshift(`Score: ${(item.score * 100).toFixed(0)}`)
+    }
+
     return (
       <AuditItem key={item.id} title={item.title} icon={icon} labels={labels.filter(Boolean) as string[]}>
         {formatMDLink(item.description)}
