@@ -10,25 +10,16 @@ Competitor 功能是基于 Lab 功能的基础能力进行开发的，如果需�
 
 ## 使用步骤：
 
-### 1. 新建竞品环境
-
-进入 Settings -> Environments 进行竞品环境的新建。
-
-点击右上角 Create environment 按钮，勾选 checkbox 表示创建的是一个竞品环境。竞品环境用于给竞品页面和临时页面提供需要的 cookies 和 headers。
-
-![img](/settings/environment-competitor.png)
-
-### 2. 新建竞品页面
+### 1. 新建竞品页面
 
 进入 Settings -> Pages 进行竞品页面的新建。
 
 1. 点击 Create a competitor Page 新建竞品页面。
-2. 竞品页面只能关联竞品环境。
-3. 将该竞品页面与需要比较的站点页面进行关联。【只会在新建时出现，后续如果需要修改关联页面或者取消关联，需要到对应站点页面进行编辑。】
+2. 将该竞品页面与需要比较的站点页面进行关联。
 
 ![img](/settings/create-competitor-page.png)
 
-### 3. 手动触发扫描
+### 2. 手动触发扫描
 
 在顶部导航栏选择 Lab 模块，进入 Lab 模块后点击列表右上方的 `Take a snapshot` 按钮可以手动触发一次扫描。
 
@@ -40,7 +31,7 @@ Competitor 功能是基于 Lab 功能的基础能力进行开发的，如果需�
 
 ![img](/lab/take-snapshot-detail.png)
 
-### 4. 查看竞品分析结果
+### 3. 查看竞品分析结果
 
 在顶部导航栏选择 Competitor 模块，可以清晰的看到页面性能分数的对比和趋势变化。竞品分析的数据来源于 Lab 模块的手动触发或者定时任务触发。
 
@@ -52,7 +43,7 @@ Competitor 功能是基于 Lab 功能的基础能力进行开发的，如果需�
 4. 该表格里的所有分数为该时间跨度内所有的有效数据的平均分，± 后面的百分数指的是相对误差范围，计算方法是使用所有样本的误差范围除以平均数，表达了统计结果中的随机波动的大小。
 5. 选择需要分析的数据指标可以看到对应指标的变化趋势，默认为 Lighthouse Performance Score。
 
-### 5. 详细的竞品分析报告
+### 4. 详细的竞品分析报告
 
 #### Overview
 

@@ -20,10 +20,6 @@ As it shows above, the basic settings include the following options.
 
 Nothing.
 
-## Applications
-
-The application authorized by this project. You can modify, delete or add new authorized application here.
-
 ## Bundle baseline Branch
 
 In bundle analyze, this branch will be set to base branch and current branch will be compared.
