@@ -20,10 +20,6 @@ sidebar_position: 1
 
 无需解释
 
-## 授权应用
-
-项目当前授权的应用列表，可以在此添加、修改或新增授权应用。
-
 ## Bundle 对比基准分支设置
 
 Bundle 分析时会将该分支作为基准分支与当前分支进行对比。
@@ -65,7 +61,7 @@ Bundle 分析时会将该分支作为基准分支与当前分支进行对比。
 - All: 接收包括任务完成，失败，警告等所有通知
 - Mute All：关闭所有通知功能
 
-### Automatically detect version in lab (Beta)
+### Automatically detect version in Lab (experimental)
 
 自动检测匹配版本进行 source 分析
 

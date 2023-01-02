@@ -1,6 +1,6 @@
 ---
 id: bundle-audits
-title: Bundle 审计
+title: 打包产物审计
 sidebar_position: 3
 ---
 
@@ -10,19 +10,19 @@ sidebar_position: 3
 
 所有规则的得分最高值为 **1 分**，最低值为 **0 分**，所有警告生成条件为 **得分 < 阈值**。
 
-### Bundle 评分标准
+### 打包产物评分标准
 
 `SUM(规则得分 * 规则权重) / 规则总权重` 。产物中存在多个 Entrypoints 的情况，最终得分为所有 Entrypoints 得分的平均值。
 
 ## 审计规则
 
-### Large synchronous composable assets (大体积同步加载 js/css 文件)
+### Large synchronous composable assets (大体积同步加载 JS/CSS 文件)
 
-`介绍`：大体积的同步 js/css 会**显著增加**页面的加载时间，通过拆分不必要的首屏加载资源，可以达成很高的优化收益。可以通过 webpack 的 [split chunks](https://web.dev/reduce-javascript-payloads-with-code-splitting/) 配置及 lazy load 达成。
+`介绍`：大体积的同步 JS/CSS 会**显著增加**页面的加载时间，通过拆分不必要的首屏加载资源，可以达成很高的优化收益。可以通过 webpack 的 [split chunks](https://web.dev/reduce-javascript-payloads-with-code-splitting/) 配置及 lazy load 达成。
 
 `判断规则`：文件体积 > 200 KB
 
-`计分方式`：1 - 大体积同步 js/css 文件总体积 / 所有 js/css 资源总体积
+`计分方式`：1 - 大体积同步 JS/CSS 文件总体积 / 所有 JS/CSS 资源总体积
 
 `绝对警告阈值（无基准）`：得分 < 0.75
 
@@ -30,7 +30,7 @@ sidebar_position: 3
 
 `权重`：20
 
-### Duplicate third party libraries (重复的第三方依赖)
+### Duplicated third-party libraries (重复的第三方依赖)
 
 `介绍`：打包结果中出现的同一依赖不同版本或不同依赖但功能相同的依赖。例如打包产物中出现了两个版本的 lodash(@1.1.0, @2.0.0)，或同时出现了 momentjs、dayjs 或 date-fns
 
@@ -58,7 +58,7 @@ sidebar_position: 3
 
 `权重`：20
 
-### Large third party libraries (大体积同步加载第三方依赖)
+### Large third-party libraries (大体积同步加载第三方依赖)
 
 `介绍`：大体积第三方依赖会增加加载时间以及执行时间。可以选择体积更小的同功能替代者来降低体积，或者按需（lazy load）仅在使用时加载。
 
@@ -100,7 +100,7 @@ sidebar_position: 3
 
 `权重`：5
 
-### Unhealthy third party libraries (不健康第三方依赖)
+### Unhealthy third-party libraries (不健康第三方依赖)
 
 `介绍`：第三方依赖中，存在不健康状态会被此规则命中。不健康包括：体积过大并且有已知功能完备的替代品、不该出现的依赖(process/fs/path 等)、需要额外配置才能达到最佳使用效果。
 

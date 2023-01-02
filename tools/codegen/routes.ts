@@ -170,7 +170,7 @@ function loadYaml(filePath: string) {
   return load(fs.readFileSync(filePath, 'utf8')) as YamlSchema
 }
 
-function serializeSchema(schema: YamlSchema, parent = ''): TokenSchema {
+function serializeSchema(schema: YamlSchema, parent = process.env.SUB_PATH ?? ''): TokenSchema {
   const basePath = routeJoin(parent, schema.base)
   return {
     home: {

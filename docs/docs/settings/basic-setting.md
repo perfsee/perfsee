@@ -5,41 +5,31 @@ sidebar_position: 1
 # Basic Setting
 
 :::info
-
 Only project owner has permission to modify settings
-
 :::
 
-Go to your project, click `Settings` tab in sidebar and enter settings page.
+Go to your project, click the `Settings` tab in the sidebar and enter the settings page.
 
 ![Basic setting route](/settings/basic-setting-route.png)
 
-As it shows above, the basic settings include the following options.
-
-## Project name
-
-Nothing.
-
-## Applications
-
-The application authorized by this project. You can modify, delete or add new authorized application here.
+As it is shown above, the basic settings include the following options.
 
 ## Bundle baseline Branch
 
-In bundle analyze, this branch will be set to base branch and current branch will be compared.
+In bundle analysis, this branch will be set to the base branch and the current branch will be compared.
 
-Regex patten is supported, and the branch name will be matched with the pattern, for example: `/rc-*/`
+Regex pattern is supported, and the branch name will be matched with the pattern, for example, `/release-*/`.
 
 ## Notification Settings
 
 We will notify users when the task is finished. You can set the notification settings here.
 
-Project owners could choose most suitable notification method for project, even you can close all notifications so that you can receive the notification you need.
+Project owners could choose the most suitable notification method for the project, even you can close all notifications so that you can receive the notification you need.
 
 ### Notification Target Type
 
-- Issuer: This option will send notification to the person who triggers the task.
-- Specified: Fill in the email address to set one or more receivers.
+- Issuer: Send notifications to the person who triggers all the analysis tasks.
+- Specified: No matter who triggers the tasks, all notifications should be sent to given receivers.
 
 ![specified notification target](/settings/specified-notification-target.png)
 
@@ -47,16 +37,16 @@ Project owners could choose most suitable notification method for project, even 
 
 Options:
 
-- All: Receive all notifications including task finished, failed, warning, etc.
-- Only Warnings：Only receive warning and failed notifications
-- Mute All：Close all notifications
+- All: Receive all notifications including tasks finished, failed, and warnings
+- Only Warnings: Only receive warnings and failed notifications
+- Mute All: No notification should be sent to users
 
 ### Bundle Notification Source
 
-Some project need to monitor some important branches, or you don't care about all branched. We provide this setting for you.
+There are requirements that only some branches need to be monitored, or you don't care about all branches. We provide a convenient setting for you.
 
 - All: Monitor all branches and send notification
-- Specific Branched: Only monitor specific branched and send notification, if checked, new input for branches will be shown.
+- Specific Branched: Only monitor specific branches and notifications from such branches will be sent, if checked, new input for branches will be shown.
 
 ![specific branch notification](/settings/specific-branch-notification.png)
 
@@ -64,12 +54,12 @@ Some project need to monitor some important branches, or you don't care about al
 
 Options:
 
-- All: Receive all notifications including task finished, failed, warning, etc.
+- All: Receive all notifications including tasks finished, failed, and warnings.
 - Mute All: Close all notifications
 
-### Automatically detect version in lab(Beta)
+### Automatically detect version in Lab (Experimental)
 
-Analyze which version of artifact is running from the lab data.
+Analyze which version of the artifact is running from the lab data.
 
 ## Permission
 
