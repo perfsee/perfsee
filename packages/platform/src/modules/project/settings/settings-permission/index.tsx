@@ -39,29 +39,37 @@ export function SettingsPermission() {
     dependencies: [],
   })
 
-  const [modalVisible, showModal, hideModal] = useToggleState(false)
-  const [newUserEmail, setNewUserEmail] = useState('')
-  const [newUserPermission, setNewUserPermission] = useState(Permission.Read)
+  const onAddUser = useCallback(
+    (newUserEmail: string, newPermission: Permission) => {
+      dispatcher.saveProjectOwners({ email: newUserEmail, permission: newPermission, isAdd: true })
+    },
+    [dispatcher],
+  )
 
-  const onCloseModal = useCallback(() => {
-    hideModal()
-
-    setNewUserEmail('')
-    setNewUserPermission(Permission.Read)
-  }, [hideModal])
-
-  const onAddUser = useCallback(() => {
-    dispatcher.saveProjectOwners({ email: newUserEmail, permission: newUserPermission, isAdd: true })
-
-    onCloseModal()
-  }, [dispatcher, newUserEmail, newUserPermission, onCloseModal])
-
-  const onDelete = useCallback(
+  const onDeleteUser = useCallback(
     (user: User) => () => {
       dispatcher.saveProjectOwners({ email: user.email, permission: user.permission, isAdd: false })
     },
     [dispatcher],
   )
+
+  useEffect(() => {
+    dispatcher.getProjectAuthorizedUsers()
+  }, [dispatcher])
+
+  return <DumbSettingPermission users={users} onAddUser={onAddUser} onDeleteUser={onDeleteUser} />
+}
+
+export type SettingPermissionProps = {
+  users: User[]
+  onAddUser: (email: string, newPermission: Permission) => void
+  onDeleteUser: (user: User) => void
+}
+
+export function DumbSettingPermission({ onAddUser, onDeleteUser, users }: SettingPermissionProps) {
+  const [modalVisible, showModal, hideModal] = useToggleState(false)
+  const [newUserEmail, setNewUserEmail] = useState('')
+  const [newUserPermission, setNewUserPermission] = useState(Permission.Read)
 
   const onChangeNewEmail = useCallback((_: any, value?: string) => {
     setNewUserEmail(value ?? '')
@@ -71,6 +79,20 @@ export function SettingsPermission() {
     const permission = (option?.key as Permission) ?? Permission.Read
     setNewUserPermission(permission)
   }, [])
+
+  const onCloseModal = useCallback(() => {
+    hideModal()
+
+    setNewUserEmail('')
+    setNewUserPermission(Permission.Read)
+  }, [hideModal])
+
+  const onAdd = useCallback(() => {
+    onAddUser(newUserEmail, newUserPermission)
+    onCloseModal()
+  }, [newUserEmail, newUserPermission, onCloseModal, onAddUser])
+
+  const onDelete = useCallback((user: User) => () => onDeleteUser(user), [onDeleteUser])
 
   const columns = useMemo<TableColumnProps<User>[]>(
     () => [
@@ -131,10 +153,6 @@ export function SettingsPermission() {
     [],
   )
 
-  useEffect(() => {
-    dispatcher.getProjectAuthorizedUsers()
-  }, [dispatcher])
-
   return (
     <div>
       <PrimaryButton iconProps={{ iconName: 'plus' }} onClick={showModal}>
@@ -142,7 +160,7 @@ export function SettingsPermission() {
       </PrimaryButton>
       <Table columns={columns} items={users} selectionMode={SelectionMode.none} />
 
-      <Modal title="Add user" isOpen={modalVisible} onClose={onCloseModal} onConfirm={onAddUser}>
+      <Modal title="Add user" isOpen={modalVisible} onClose={onCloseModal} onConfirm={onAdd}>
         <ModalContent>
           <TextField label="User email" type="text" onChange={onChangeNewEmail} required />
           <ChoiceGroup

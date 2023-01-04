@@ -57,6 +57,12 @@ export interface RouteTypes {
     scripts: void
     usagePacks: void
   }
+  group: {
+    home: Params<'groupId'>
+    part: Params<'groupId'> & Partial<Params<'part'>>
+    analysis: Params<'groupId'>
+    settings: Params<'groupId'>
+  }
 }
 
 export const staticPath = {
@@ -112,6 +118,12 @@ export const staticPath = {
     runners: '/admin/runners',
     scripts: '/admin/runner-scripts',
     usagePacks: '/admin/usage-packs',
+  },
+  group: {
+    home: '/groups/:groupId/home',
+    part: '/groups/:groupId/:part?',
+    analysis: '/groups/:groupId/analysis',
+    settings: '/groups/:groupId/settings',
   },
 }
 
@@ -208,6 +220,12 @@ export const pathFactory = {
     scripts: makePathsFrom<FactoryParams<RouteTypes['admin']['scripts']>>('/admin/runner-scripts'),
     usagePacks: makePathsFrom<FactoryParams<RouteTypes['admin']['usagePacks']>>('/admin/usage-packs'),
   },
+  group: {
+    home: makePathsFrom<FactoryParams<RouteTypes['group']['home']>>('/groups/:groupId/home'),
+    part: makePathsFrom<FactoryParams<RouteTypes['group']['part']>>('/groups/:groupId/:part?'),
+    analysis: makePathsFrom<FactoryParams<RouteTypes['group']['analysis']>>('/groups/:groupId/analysis'),
+    settings: makePathsFrom<FactoryParams<RouteTypes['group']['settings']>>('/groups/:groupId/settings'),
+  },
 }
 
 export const titleFactory = {
@@ -271,4 +289,9 @@ export const titleFactory = {
   '/admin/runners': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/runner-scripts': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/usage-packs': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/groups/:groupId': (data: Record<string, any>) => makeTitlesFrom('{groupId} | Perfsee', data),
+  '/groups/:groupId/:part?': (data: Record<string, any>) => makeTitlesFrom('{groupId} | Perfsee', data),
+  '/groups/:groupId/home': (data: Record<string, any>) => makeTitlesFrom('{groupId} | Perfsee', data),
+  '/groups/:groupId/analysis': (data: Record<string, any>) => makeTitlesFrom('{groupId} | Perfsee', data),
+  '/groups/:groupId/settings': (data: Record<string, any>) => makeTitlesFrom('{groupId} | Perfsee', data),
 }

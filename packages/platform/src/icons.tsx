@@ -62,6 +62,7 @@ import {
   GlobalOutlined,
   FileSearchOutlined,
   FileProtectOutlined,
+  LineChartOutlined,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
 import {
@@ -118,6 +119,7 @@ registerIcons({
     source: <FireOutlined />,
     competitor: <BlockOutlined />,
     settings: <SettingOutlined />,
+    analysis: <LineChartOutlined />,
     subscribe: <BellOutlined />,
     unsubscribe: <BellFilled />,
     PlugConnected: <PlugConnectedIcon />,

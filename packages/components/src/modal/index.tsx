@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { CloseOutlined, ExclamationCircleOutlined, InfoCircleOutlined } from '@ant-design/icons'
-import { DefaultButton, Modal as FluentModal, SharedColors, IModalStyles } from '@fluentui/react'
+import { DefaultButton, Modal as FluentModal, SharedColors, IModalStyles, IModalProps } from '@fluentui/react'
 import { memo, useMemo, useCallback } from 'react'
 import type { FC, ReactNode } from 'react'
 
@@ -28,7 +28,7 @@ export enum ModalType {
   Warning,
 }
 
-export type ModalProps = {
+export type ModalProps = IModalProps & {
   isOpen: boolean
   type?: ModalType
   title?: string
@@ -59,6 +59,8 @@ export const Modal: FC<ModalProps> = memo((props) => {
     confirmDisabled = false,
     onClose,
     onConfirm,
+    styles,
+    ...restProps
   } = props
 
   const primaryColor = ModalColors[type]
@@ -68,8 +70,9 @@ export const Modal: FC<ModalProps> = memo((props) => {
       main: {
         minWidth: '400px',
       },
+      ...styles,
     }),
-    [],
+    [styles],
   )
 
   const onClickConfirm = useCallback(() => {
@@ -79,7 +82,7 @@ export const Modal: FC<ModalProps> = memo((props) => {
   }, [confirmDisabled, onConfirm])
 
   return (
-    <FluentModal isOpen={isOpen} styles={modalStyles}>
+    <FluentModal {...restProps} isOpen={isOpen} styles={modalStyles}>
       <Container>
         <Header>
           <Title>

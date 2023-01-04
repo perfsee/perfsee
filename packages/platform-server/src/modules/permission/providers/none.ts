@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import { Project, User } from '@perfsee/platform-server/db'
+import { Group, Project, User } from '@perfsee/platform-server/db'
 
 import { Permission } from '../def'
 
@@ -26,26 +26,30 @@ export class PermissionProvider {
     throw new Error('unimplemented')
   }
 
-  get(_user: User, _id: number | string): Promise<Permission[]> {
+  onCreateGroup(_group: Group, _owners: User[], _creator: User): Promise<void> {
     throw new Error('unimplemented')
   }
 
-  check(_user: User, _id: number | string, _permission: Permission): Promise<boolean> {
+  get(_user: User, _id: number | string, _isGroup?: boolean): Promise<Permission[]> {
     throw new Error('unimplemented')
   }
 
-  grant(_user: User, _projectId: number, _permission: Permission): Promise<void> {
+  check(_user: User, _id: number | string, _permission: Permission, _isGroup?: boolean): Promise<boolean> {
     throw new Error('unimplemented')
   }
 
-  revoke(_user: User, _projectId: number, _permission: Permission): Promise<void> {
+  grant(_user: User, _projectId: number, _permission: Permission, _isGroup?: boolean): Promise<void> {
+    throw new Error('unimplemented')
+  }
+
+  revoke(_user: User, _projectId: number, _permission: Permission, _isGroup?: boolean): Promise<void> {
     throw new Error('unimplemented')
   }
 
   /**
-   * Get all accessible projects of given user
+   * Get all accessible projects or group of given user
    */
-  userAllowList(_user: User, _permission: Permission): Promise</* projectId[] */ number[]> {
+  userAllowList(_user: User, _permission: Permission, _isGroup?: boolean): Promise</* projectId[] */ number[]> {
     throw new Error('unimplemented')
   }
 
@@ -56,6 +60,13 @@ export class PermissionProvider {
     _project: Project,
     _permission: Permission,
   ): Promise</* (userId | username)[] */ (number | string)[]> {
+    throw new Error('unimplemented')
+  }
+
+  /**
+   * Get all users that have accessibility of given group
+   */
+  groupAllowList(_group: Group, _permission: Permission): Promise</* (userId | username)[] */ (number | string)[]> {
     throw new Error('unimplemented')
   }
 }

@@ -1,0 +1,6 @@
+query verifyGroupId($id: ID!) {
+  verifyGroupId(id: $id) {
+    error,
+    ok
+  }
+}

@@ -1,0 +1,4 @@
+fragment groupFields on Group {
+  id
+  userPermission
+}

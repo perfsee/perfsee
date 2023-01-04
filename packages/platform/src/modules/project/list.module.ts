@@ -20,14 +20,17 @@ import { Observable } from 'rxjs'
 import { switchMap, map, startWith, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { Permission, ProjectsQuery, projectsQuery } from '@perfsee/schema'
+import { Permission, ProjectsQuery, projectsQuery, groupsQuery, GroupsQuery } from '@perfsee/schema'
 
 export type ProjectNode = ProjectsQuery['projects']['edges'][0]['node']
+export type OrgNode = GroupsQuery['groups']['edges'][0]['node']
 
 interface State {
   projects: ProjectNode[]
+  groups: OrgNode[]
   loading: boolean
   totalCount: number
+  orgTotalCount: number
   page: number
   pageSize: number
   query: string
@@ -38,7 +41,9 @@ export class ProjectsModule extends EffectModule<State> {
   defaultState = {
     loading: true,
     projects: [],
+    groups: [],
     totalCount: 0,
+    orgTotalCount: 0,
     page: 1,
     pageSize: 10,
     query: '',
@@ -79,10 +84,35 @@ export class ProjectsModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  getGroups(payload$: Observable<{ page: number; pageSize: number; query: string }>) {
+    return payload$.pipe(
+      switchMap(({ page, pageSize, query }) =>
+        this.client
+          .query({
+            query: groupsQuery,
+            variables: { input: { skip: (page - 1) * pageSize, first: pageSize }, query },
+          })
+          .pipe(
+            createErrorCatcher('Failed to get groups list.'),
+            map((data) => this.getActions().setGroups(data.groups)),
+            startWith(this.getActions().setLoading(true)),
+            endWith(this.getActions().setLoading(false)),
+          ),
+      ),
+    )
+  }
+
   @ImmerReducer()
   setProjects(state: Draft<State>, { pageInfo, edges }: ProjectsQuery['projects']) {
     state.totalCount = pageInfo.totalCount
     state.projects = edges.map((edge) => edge.node)
+  }
+
+  @ImmerReducer()
+  setGroups(state: Draft<State>, { pageInfo, edges }: GroupsQuery['groups']) {
+    state.orgTotalCount = pageInfo.totalCount
+    state.groups = edges.map((edge) => edge.node)
   }
 
   @ImmerReducer()

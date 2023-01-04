@@ -1,0 +1,27 @@
+query groupArtifacts($id: ID!, $from: DateTime!, $to: DateTime!) {
+  group(id: $id) {
+    projects {
+      name
+      id
+      artifactHistory(from: $from, to: $to, isBaseline: true) {
+        artifactId
+        hash
+        branch
+        artifactName
+        entrypoint
+        size {
+          raw
+          gzip
+          brotli
+        }
+        baselineSize {
+          raw
+          gzip
+          brotli
+        }
+        createdAt
+        score
+      }
+    }
+  }
+}

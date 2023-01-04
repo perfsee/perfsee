@@ -1,0 +1,7 @@
+#import './fragments/group-fields.gql'
+
+mutation createGroup($input: CreateGroupInput!) {
+  createGroup(input: $input) {
+    ...groupFields
+  }
+}

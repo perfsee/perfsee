@@ -55,6 +55,7 @@ export const DateRangeSelector: FC<DateRangeSelectorProps> = ({
   return (
     <Space>
       <DatePicker
+        styles={{ root: { width: '150px' } }}
         value={startDate}
         showGoToToday={false}
         placeholder="Select a start date"
@@ -62,6 +63,7 @@ export const DateRangeSelector: FC<DateRangeSelectorProps> = ({
       />
       <b>-</b>
       <DatePicker
+        styles={{ root: { width: '150px' } }}
         value={endDate}
         showGoToToday={false}
         placeholder="Select a end date"

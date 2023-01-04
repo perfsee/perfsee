@@ -39,6 +39,7 @@ import {
   FeaturesSource,
   Admin,
   AppInstaller,
+  Group,
 } from './lazy-modules'
 
 export const Routes = ({ user, settings }: { user: User | null; settings: ApplicationSettings | null }) => {
@@ -67,6 +68,7 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
             <Route exact={true} path={staticPath.importGithub} component={ImportGithub} />
           )}
           <Route path={staticPath.me.home} component={Me} />
+          <Route exact={true} path={staticPath.group.part} component={Group} />
           <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
           <Route path={staticPath.app.install} component={AppInstaller} />
           {user.isAdmin && <Route path={staticPath.admin.part} component={Admin} />}

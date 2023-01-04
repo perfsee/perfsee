@@ -140,3 +140,15 @@ paths:
         path: /runner-scripts
       usagePacks:
         path: /usage-packs
+  group:
+    base: /groups/:groupId
+    title: '{groupId}'
+    paths:
+      part:
+        path: /:part?
+      home:
+        path: /home
+      analysis:
+        path: /analysis
+      settings:
+        path: /settings

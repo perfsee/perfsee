@@ -1,0 +1,12 @@
+#import './fragments/group-fields.gql'
+
+query group($groupId: ID!) {
+  group(id: $groupId) {
+    ...groupFields
+    projects {
+      id
+      name
+      namespace
+    }
+  }
+}
