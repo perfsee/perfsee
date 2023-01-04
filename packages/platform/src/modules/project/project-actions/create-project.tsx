@@ -16,21 +16,41 @@ limitations under the License.
 
 import { Dialog, PrimaryButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { FC, memo, useEffect } from 'react'
+import { FC, memo, useCallback, useEffect, useState } from 'react'
 import { Redirect } from 'react-router'
 
-import { useToggleState } from '@perfsee/components'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { CreateProjectModule } from '../../shared'
+import { CreateOrganizationModule, CreateProjectModule } from '../../shared'
 
+import { CreateOrganizationForm } from './create-org-form'
 import { CreateProjectForm } from './create-project-form'
+
+enum Visible {
+  None,
+  Project,
+  Org,
+}
 
 export const CreateProjectAction: FC = memo(() => {
   const [{ createdProject }, dispatcher] = useModule(CreateProjectModule)
-  const [dialogVisible, openDialog, closeDialog] = useToggleState()
+  const [{ createdOrganization }, orgDispatcher] = useModule(CreateOrganizationModule)
+  const [dialogVisible, setVisible] = useState<Visible>(Visible.None)
 
   useEffect(() => dispatcher.reset, [dispatcher])
+  useEffect(() => orgDispatcher.reset, [orgDispatcher])
+
+  const openProjectDialog = useCallback(() => {
+    setVisible(Visible.Project)
+  }, [])
+
+  const openOrgDialog = useCallback(() => {
+    setVisible(Visible.Org)
+  }, [])
+
+  const closeDialog = useCallback(() => {
+    setVisible(Visible.None)
+  }, [])
 
   if (createdProject) {
     return (
@@ -42,17 +62,35 @@ export const CreateProjectAction: FC = memo(() => {
     )
   }
 
+  if (createdOrganization) {
+    return (
+      <Redirect
+        to={pathFactory.organization.home({
+          organizationId: createdOrganization.id,
+        })}
+      />
+    )
+  }
+
   return (
     <Stack>
-      <PrimaryButton text="Create Project" onClick={openDialog} />
+      <Stack horizontal tokens={{ childrenGap: 4 }}>
+        <PrimaryButton text="Create Project" onClick={openProjectDialog} />
+        <PrimaryButton text="Create Organization" onClick={openOrgDialog} />
+      </Stack>
+
       <Dialog
         minWidth="600px"
-        hidden={!dialogVisible}
+        hidden={dialogVisible === Visible.None}
         onDismiss={closeDialog}
-        dialogContentProps={{ title: 'Create Project' }}
+        dialogContentProps={{ title: `Create ${dialogVisible === Visible.Project ? 'Project' : 'Organization'}` }}
         modalProps={{ isBlocking: true }}
       >
-        <CreateProjectForm onClose={closeDialog} />
+        {dialogVisible === Visible.Project ? (
+          <CreateProjectForm onClose={closeDialog} />
+        ) : (
+          <CreateOrganizationForm onClose={closeDialog} />
+        )}
       </Dialog>
     </Stack>
   )

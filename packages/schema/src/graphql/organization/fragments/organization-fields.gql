@@ -1,0 +1,4 @@
+fragment organizationFields on Organization {
+  id
+  projectSlugs
+}

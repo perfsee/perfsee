@@ -1,0 +1,13 @@
+query organizations($input: PaginationInput!, $query: String) {
+  organizations(pagination: $input, query: $query) {
+    edges {
+      node {
+        id
+        isPublic
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

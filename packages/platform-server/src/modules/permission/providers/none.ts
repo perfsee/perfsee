@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import { Project, User } from '@perfsee/platform-server/db'
+import { Organization, Project, User } from '@perfsee/platform-server/db'
 
 import { Permission } from '../def'
 
@@ -26,26 +26,30 @@ export class PermissionProvider {
     throw new Error('unimplemented')
   }
 
-  get(_user: User, _id: number | string): Promise<Permission[]> {
+  onCreateOrganization(_org: Organization, _owners: User[], _creator: User): Promise<void> {
     throw new Error('unimplemented')
   }
 
-  check(_user: User, _id: number | string, _permission: Permission): Promise<boolean> {
+  get(_user: User, _id: number | string, _isOrg?: boolean): Promise<Permission[]> {
     throw new Error('unimplemented')
   }
 
-  grant(_user: User, _projectId: number, _permission: Permission): Promise<void> {
+  check(_user: User, _id: number | string, _permission: Permission, _isOrg?: boolean): Promise<boolean> {
     throw new Error('unimplemented')
   }
 
-  revoke(_user: User, _projectId: number, _permission: Permission): Promise<void> {
+  grant(_user: User, _projectId: number, _permission: Permission, _isOrg?: boolean): Promise<void> {
+    throw new Error('unimplemented')
+  }
+
+  revoke(_user: User, _projectId: number, _permission: Permission, _isOrg?: boolean): Promise<void> {
     throw new Error('unimplemented')
   }
 
   /**
-   * Get all accessible projects of given user
+   * Get all accessible projects or organization of given user
    */
-  userAllowList(_user: User, _permission: Permission): Promise</* projectId[] */ number[]> {
+  userAllowList(_user: User, _permission: Permission, _isOrg?: boolean): Promise</* projectId[] */ number[]> {
     throw new Error('unimplemented')
   }
 
@@ -54,6 +58,16 @@ export class PermissionProvider {
    */
   projectAllowList(
     _project: Project,
+    _permission: Permission,
+  ): Promise</* (userId | username)[] */ (number | string)[]> {
+    throw new Error('unimplemented')
+  }
+
+  /**
+   * Get all users that have accessibility of given organization
+   */
+  organizationAllowList(
+    _org: Organization,
     _permission: Permission,
   ): Promise</* (userId | username)[] */ (number | string)[]> {
     throw new Error('unimplemented')

@@ -20,14 +20,17 @@ import { Observable } from 'rxjs'
 import { switchMap, map, startWith, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { ProjectsQuery, projectsQuery } from '@perfsee/schema'
+import { ProjectsQuery, projectsQuery, organizationsQuery, OrganizationsQuery } from '@perfsee/schema'
 
 export type ProjectNode = ProjectsQuery['projects']['edges'][0]['node']
+export type OrgNode = OrganizationsQuery['organizations']['edges'][0]['node']
 
 interface State {
   projects: ProjectNode[]
+  organizations: OrgNode[]
   loading: boolean
   totalCount: number
+  orgTotalCount: number
   page: number
   pageSize: number
   query: string
@@ -38,7 +41,9 @@ export class ProjectsModule extends EffectModule<State> {
   defaultState = {
     loading: true,
     projects: [],
+    organizations: [],
     totalCount: 0,
+    orgTotalCount: 0,
     page: 1,
     pageSize: 10,
     query: '',
@@ -77,10 +82,35 @@ export class ProjectsModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  getOrganizations(payload$: Observable<{ page: number; pageSize: number; query: string }>) {
+    return payload$.pipe(
+      switchMap(({ page, pageSize, query }) =>
+        this.client
+          .query({
+            query: organizationsQuery,
+            variables: { input: { skip: (page - 1) * pageSize, first: pageSize }, query },
+          })
+          .pipe(
+            createErrorCatcher('Failed to get organizations list.'),
+            map((data) => this.getActions().setOrganizations(data.organizations)),
+            startWith(this.getActions().setLoading(true)),
+            endWith(this.getActions().setLoading(false)),
+          ),
+      ),
+    )
+  }
+
   @ImmerReducer()
   setProjects(state: Draft<State>, { pageInfo, edges }: ProjectsQuery['projects']) {
     state.totalCount = pageInfo.totalCount
     state.projects = edges.map((edge) => edge.node)
+  }
+
+  @ImmerReducer()
+  setOrganizations(state: Draft<State>, { pageInfo, edges }: OrganizationsQuery['organizations']) {
+    state.orgTotalCount = pageInfo.totalCount
+    state.organizations = edges.map((edge) => edge.node)
   }
 
   @ImmerReducer()

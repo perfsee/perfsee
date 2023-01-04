@@ -835,6 +835,25 @@ type RunnerScript {
   enable: Boolean!
 }
 
+type Organization {
+  """
+  organization unique id, contains only lowercase letters "a-z", numbers "0-9", hyphen "-", underscore "_"
+  """
+  id: ID!
+
+  """is the organization public to everyone"""
+  isPublic: Boolean!
+
+  """organization created timestamp"""
+  createdAt: DateTime!
+
+  """related project slugs"""
+  projectSlugs: [String!]!
+
+  """current user permission to this organization"""
+  userPermission: [Permission!]!
+}
+
 type PageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -1088,6 +1107,47 @@ type PaginatedApplications {
   pageInfo: PageInfo!
 }
 
+type OrganizationUsage {
+  """storage usage in MB"""
+  storage: Float!
+
+  """job count usage"""
+  jobCount: Float!
+
+  """job time usage in minutes"""
+  jobDuration: Float!
+
+  """project slug"""
+  projectId: ID!
+
+  """snapshot report count"""
+  snapshotReportCount: Int!
+
+  """artifact count"""
+  artifactCount: Int!
+
+  """the average bundle score within the selected date range"""
+  bundleScore: Float!
+
+  """the average lab score within the selected date range"""
+  labScore: Float!
+}
+
+type OrganizationEdge {
+  cursor: String!
+  node: Organization!
+}
+
+type PaginatedOrganizations {
+  edges: [OrganizationEdge!]!
+  pageInfo: PageInfo!
+}
+
+type OrganizationIdVerificationResult {
+  ok: Boolean!
+  error: String
+}
+
 """message target setting"""
 input MessageTargetInput {
   userEmails: [String!]!
@@ -1163,6 +1223,23 @@ type Query {
   activatedRunnerScripts(jobType: JobType!): RunnerScript
   allUsagePacks: [UsagePack!]!
   publicUsagePacks: [UsagePack!]!
+
+  """get organization by id"""
+  organization(id: ID!): Organization!
+
+  """Verify that the organization id is available"""
+  verifyOrganizationId(id: ID!): OrganizationIdVerificationResult!
+
+  """paginated organizations"""
+  organizations(
+    pagination: PaginationInput = {first: 10}
+
+    """search organization"""
+    query: String
+  ): PaginatedOrganizations!
+
+  """get organization usage"""
+  organizationUsage(id: ID!, from: DateTime, to: DateTime): [OrganizationUsage!]!
 }
 
 input RunnerQueryFilter {
@@ -1275,6 +1352,15 @@ type Mutation {
   createUsagePack(input: CreateUsagePackInput!): UsagePack!
   updateUsagePack(input: UpdateUsagePackInput!): UsagePack!
   setDefaultUsagePack(id: Int!): Boolean!
+  createOrganization(input: CreateOrganizationInput!): Organization!
+  updateOrganization(organizationId: ID!, input: UpdateOrganizationInput!): Organization!
+  addOrganizationOwner(organizationId: ID!, email: String!): Boolean!
+  updateOrganizationUserPermission(organizationId: ID!, email: String!, permission: Permission!, isAdd: Boolean!): Boolean!
+
+  """
+  Delete organization with given id. NOTE: all data in this organization will be deleted.
+  """
+  deleteOrganization(organizationId: ID!): Boolean!
 }
 
 input CreateProjectInput {
@@ -1541,4 +1627,16 @@ input UpdateUsagePackInput {
   """total storage quota, in MB, -1 means no limit"""
   storage: Int
   id: Int!
+}
+
+input CreateOrganizationInput {
+  id: String!
+  projectSlugs: [String!]!
+}
+
+input UpdateOrganizationInput {
+  projectSlugs: [String!]
+
+  """organization visibility"""
+  isPublic: Boolean
 }

@@ -1,0 +1,12 @@
+query organizationUsage($id: ID!, $from: DateTime!, $to: DateTime!) {
+  organizationUsage(id: $id, from: $from, to: $to) {
+    jobCount
+    jobDuration
+    storage
+    snapshotReportCount
+    artifactCount
+    projectId
+    bundleScore
+    labScore
+  }
+}

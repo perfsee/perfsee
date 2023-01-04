@@ -57,6 +57,9 @@ export class Metric {
   readonly activeProject = this.metricsProvider.store('projects.active', ['period'])
   readonly newProject = this.metricsProvider.counter('projects.new')
 
+  readonly totalOrganization = this.metricsProvider.store('organizations.total')
+  readonly newOrganization = this.metricsProvider.counter('organizations.new')
+
   readonly notificationSend = this.metricsProvider.meter('features.notification.send', ['type'])
 
   readonly serviceStatus = this.metricsProvider.store('status.services.status', ['service'])
