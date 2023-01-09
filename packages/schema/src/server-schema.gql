@@ -59,6 +59,7 @@ type Artifact {
 
   """all entry points of given artifact"""
   entrypoints: [ArtifactEntrypoint!]
+  version: AppVersion
 }
 
 enum BundleJobStatus {
@@ -222,6 +223,9 @@ type Project {
     """max length of records returned"""
     length: Int
   ): [AppVersion!]!
+
+  """get app versions by hash"""
+  appVersion(hash: String!): AppVersion!
   job(jobType: JobType!, entityId: Int!): Job!
 
   """time usage information of project"""
@@ -758,7 +762,10 @@ type AppVersion {
   hash: String!
 
   """commit message"""
-  commitMessage: String!
+  commitMessage: String
+
+  """pull request number"""
+  pr: Int
 
   """git branch"""
   branch: String

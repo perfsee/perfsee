@@ -59,6 +59,7 @@ import {
   CreditCardOutlined,
   DesktopOutlined,
   ApiOutlined,
+  GlobalOutlined,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
 import { PlugConnectedIcon, PlugDisconnectedIcon, HideIcon, RedEyeIcon } from '@fluentui/react-icons-mdl2'
@@ -123,6 +124,7 @@ registerIcons({
     creditCard: <CreditCardOutlined />,
     desktop: <DesktopOutlined />,
     ping: <ApiOutlined />,
+    global: <GlobalOutlined />,
 
     // for password text field
     Hide: <HideIcon />,

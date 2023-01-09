@@ -113,16 +113,16 @@ export class ArtifactController {
         uploadSize: file.byteLength,
       })
 
-      this.logger.log(`artifact create. id=${artifact.id}`)
-
       await this.versionService.recordVersion({
         projectId: project.id,
-        artifactId: artifact.id,
         hash: params.commitHash,
         branch: params.branch,
         version: params.tag,
+        pr: params.pr?.number,
         commitMessage: params.commitMessage?.replace(/\n.*/g, '').substring(0, 255),
       })
+
+      this.logger.log(`artifact create. id=${artifact.id}`)
 
       return {
         status: 'success',

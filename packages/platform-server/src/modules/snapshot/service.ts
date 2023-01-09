@@ -34,7 +34,6 @@ import {
   Project,
   Profile,
   SnapshotTrigger,
-  AppVersion,
   PageWithProfile,
   PageWithEnv,
 } from '@perfsee/platform-server/db'
@@ -256,7 +255,6 @@ export class SnapshotService implements OnApplicationBootstrap {
     if (hash) {
       await this.appVersion.recordVersion({
         projectId,
-        snapshotId: snapshot.id,
         hash,
       })
 
@@ -311,7 +309,6 @@ export class SnapshotService implements OnApplicationBootstrap {
     const { id } = snapshot
 
     await this.db.transaction(async (manager) => {
-      await manager.getRepository(AppVersion).delete({ snapshotId: id })
       await this.reportService.deleteSnapshotsReports({ snapshotId: id })
       await manager.remove(snapshot)
     })
@@ -521,7 +518,6 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     await this.appVersion.recordVersion({
       projectId,
-      snapshotId: snapshot.id,
       hash,
     })
 

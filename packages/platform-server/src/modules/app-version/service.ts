@@ -26,23 +26,15 @@ export class AppVersionService {
   constructor(private readonly metrics: Metric, private readonly internalId: InternalIdService) {}
 
   async recordVersion(input: Partial<AppVersion> & Pick<AppVersion, 'projectId' | 'hash'>) {
-    const existedVersion = await AppVersion.findOneBy(
-      input.version
-        ? {
-            projectId: input.projectId,
-            hash: input.hash,
-            version: input.version,
-          }
-        : { projectId: input.projectId, hash: input.hash },
-    )
+    const existedVersion = await AppVersion.findOneBy({ projectId: input.projectId, hash: input.hash })
 
     if (existedVersion) {
-      return AppVersion.merge(existedVersion, input).save()
+      return AppVersion.merge(existedVersion, input).save() as Promise<AppVersion>
     } else {
       return AppVersion.create({
         ...input,
         iid: await this.internalId.generate(input.projectId, InternalIdUsage.AppVersion),
-      }).save()
+      }).save() as Promise<AppVersion>
     }
   }
 

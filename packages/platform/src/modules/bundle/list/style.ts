@@ -30,3 +30,7 @@ export const Score = styled.span<{ score: number }>(({ theme, score }) => {
 })
 
 export const DropDownIcon = { iconName: 'ChevronDown', styles: { root: { fontSize: '10px' } } }
+
+export const InformationContainer = styled.div({
+  overflow: 'hidden',
+})

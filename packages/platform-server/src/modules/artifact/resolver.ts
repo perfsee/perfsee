@@ -26,7 +26,7 @@ import {
   ID,
 } from '@nestjs/graphql'
 
-import { Artifact, Project, ArtifactEntrypoint } from '@perfsee/platform-server/db'
+import { Artifact, Project, ArtifactEntrypoint, AppVersion } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
 
@@ -169,6 +169,13 @@ export class ArtifactResolver {
     const rawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
 
     return this.service.deleteArtifactById(rawId, artifactId)
+  }
+
+  @ResolveField(() => AppVersion, {
+    nullable: true,
+  })
+  async version(@Parent() artifact: Artifact) {
+    return artifact.version ?? (await AppVersion.findOneBy({ projectId: artifact.projectId, hash: artifact.hash }))
   }
 }
 

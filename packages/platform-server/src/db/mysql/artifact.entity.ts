@@ -31,7 +31,8 @@ import {
 import { BundleJobStatus } from '@perfsee/server-common'
 
 import type { Project } from './project.entity'
-import { ScriptFile } from './script-file.entity'
+import type { ScriptFile } from './script-file.entity'
+import type { AppVersion } from './app-version.entity'
 
 registerEnumType(BundleJobStatus, {
   name: 'BundleJobStatus',
@@ -144,6 +145,11 @@ export class Artifact extends BaseEntity {
   succeeded() {
     return this.status === BundleJobStatus.Passed
   }
+
+  /**
+   * This property can be used to query the artifact list, leftJoin AppVersion table, and store appVersion on this property.
+   */
+  version?: AppVersion | null
 }
 
 @Entity()

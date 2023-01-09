@@ -119,11 +119,11 @@ test.serial('get artifacts', async (t) => {
 
   const [results2, count2] = await service.getArtifacts(projectId, { first: 10, skip: 0, after: null }, branch)
   t.is(count2, 1)
-  t.deepEqual(results2[0], artifact)
+  t.is(results2[0].id, artifact.id)
 
   const [results3, count3] = await service.getArtifacts(projectId, { first: 10, skip: 0, after: null }, undefined, name)
   t.is(count3, 1)
-  t.deepEqual(results3[0], artifact)
+  t.is(results3[0].id, artifact.id)
 
   const [results4, count4] = await service.getArtifacts(
     projectId,
@@ -133,7 +133,7 @@ test.serial('get artifacts', async (t) => {
     hash,
   )
   t.is(count4, 1)
-  t.deepEqual(results4[0], artifact)
+  t.is(results4[0].id, artifact.id)
 })
 
 test.serial('get artifact by iid', async (t) => {
