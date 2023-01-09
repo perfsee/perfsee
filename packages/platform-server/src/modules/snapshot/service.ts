@@ -395,12 +395,12 @@ export class SnapshotService implements OnApplicationBootstrap {
     await this.event.emitAsync('job.create', payloads)
   }
 
-  // Update report -> try completed -> start source analyze -> send notification
+  // Update report -> try completed snapshot -> if completed then send notification
   async updateLabReport(data: LabJobResult) {
     const { snapshotReport } = data
     const report = await this.updateSnapshotReport(snapshotReport)
 
-    if (report && (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed)) {
+    if (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed) {
       const completed = await this.tryCompleteSnapshot(report.snapshotId)
       if (completed) {
         const snapshot = await Snapshot.findOneByOrFail({ id: report.snapshotId })
@@ -429,58 +429,61 @@ export class SnapshotService implements OnApplicationBootstrap {
       })
   }
 
-  async updateSnapshotReport(report: Partial<SnapshotReport> & { id: number }) {
-    this.logger.verbose('Receive snapshot report update message', report)
-    await SnapshotReport.update(report.id, report)
-    const reportItem = await SnapshotReport.findOneByOrFail({ id: report.id })
+  async updateSnapshotReport(payload: Partial<SnapshotReport> & { id: number }) {
+    this.logger.verbose('Receive snapshot report update message', payload)
+    await SnapshotReport.update(payload.id, payload)
 
-    if (reportItem.status === SnapshotStatus.Completed) {
+    const report = await SnapshotReport.findOneByOrFail({ id: payload.id })
+
+    if (report.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
-      this.source.startSourceIssueAnalyze([reportItem]).catch((e) => {
+      this.source.startSourceIssueAnalyze([report]).catch((e) => {
         this.logger.error(e, { phase: 'source analyze' })
       })
     } else if (report.status === SnapshotStatus.Failed) {
       this.metrics.snapshotReportFail(1)
     }
 
-    this.logger.verbose('Snapshot report synced to DB', { reportId: report.id })
+    this.logger.verbose('Snapshot report synced to DB', { reportId: payload.id })
 
-    try {
-      await this.updateSnapshotStatus(reportItem.snapshotId)
-    } catch (e) {
-      this.logger.error(e as Error, { phase: 'update snapshot status' })
+    if (report.status === SnapshotStatus.Running) {
+      try {
+        const snapshot = await Snapshot.findOneByOrFail({ id: report.snapshotId })
+        if (snapshot.status === SnapshotStatus.Scheduled || snapshot.status === SnapshotStatus.Pending) {
+          await Snapshot.update(snapshot.id, {
+            status: SnapshotStatus.Running,
+            startedAt: new Date(),
+          })
+
+          const project = await Project.findOneByOrFail({ id: snapshot.projectId })
+          await this.checkSuite.runLabCheck(project, snapshot)
+        }
+      } catch (e) {
+        this.logger.error(e as Error, { phase: 'update snapshot status to running' })
+      }
     }
 
-    return reportItem
+    return report
   }
 
   async tryCompleteSnapshot(snapshotId: number) {
     try {
-      return await this.db.transaction(async (manager) => {
-        const snapshot = await manager.getRepository(Snapshot).findOneBy({ id: snapshotId })
+      return await this.db.useMasterRunner(async (runner) => {
+        const snapshot = await runner.manager.getRepository(Snapshot).findOneBy({ id: snapshotId })
 
         if (!snapshot || snapshot.status === SnapshotStatus.Completed) {
           return false
         }
 
-        const reports = await manager.getRepository(SnapshotReport).findBy({ snapshotId })
+        const reports = await runner.manager.getRepository(SnapshotReport).findBy({ snapshotId })
 
         if (!reports.length) {
           return false
         }
 
-        const completedReports: SnapshotReport[] = []
-        const failedReports: SnapshotReport[] = []
-
-        reports.forEach((report) => {
-          if (report.status === SnapshotStatus.Completed) {
-            completedReports.push(report)
-          } else if (report.status === SnapshotStatus.Failed) {
-            failedReports.push(report)
-          }
-        })
-
-        const finishedCount = completedReports.length + failedReports.length
+        const finishedCount = reports.reduce((p, report) => {
+          return p + (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed ? 1 : 0)
+        }, 0)
 
         // all reports finished
         if (finishedCount === reports.length) {
@@ -490,6 +493,7 @@ export class SnapshotService implements OnApplicationBootstrap {
           this.metrics.snapshotComplete(1)
           return true
         }
+
         return false
       })
     } catch (e) {
@@ -568,24 +572,6 @@ export class SnapshotService implements OnApplicationBootstrap {
   @OnEvent(`${JobType.LabPing}.error`)
   handlePingFailure(pageId: number, reason: string) {
     this.logger.error(pageId, { phase: 'ping check failed', reason })
-  }
-
-  // Update to running
-  private async updateSnapshotStatus(snapshotId: number) {
-    const snapshot = await Snapshot.findOneBy({ id: snapshotId })
-    if (!snapshot) {
-      return
-    }
-
-    if (snapshot.status === SnapshotStatus.Scheduled || snapshot.status === SnapshotStatus.Pending) {
-      await Snapshot.update(snapshot.id, {
-        status: SnapshotStatus.Running,
-        startedAt: new Date(),
-      })
-
-      const project = await Project.findOneByOrFail({ id: snapshot.projectId })
-      await this.checkSuite.runLabCheck(project, snapshot)
-    }
   }
 
   private async createReports(
