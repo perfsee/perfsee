@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Lab 报告详情
+# 运行时分析报告详情
 
 ![img](/lab/report-detail.png)
 

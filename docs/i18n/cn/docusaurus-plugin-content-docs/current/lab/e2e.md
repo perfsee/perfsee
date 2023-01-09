@@ -1,11 +1,11 @@
 ---
-sidebar_position: 6
+sidebar_position: 5
 ---
 
 # 如何进行 E2E 测试
 
 :::caution
-该功能还在实验中！
+该功能属于实验功能，使用方式及稳定性并不能保证与正式版一致！
 :::
 
 ## 背景
@@ -54,7 +54,6 @@ E2E 页面配置与普通 Pages 保持一致，参考 [Pages 配置](https://)�
 await page.goto('https://a.b.c/')
 
 // 点击 class 为 ms-List-cell 并且包含appmonitor/main 的 div
-
 const [project] = await page.$x("//div[contains(@class, 'ms-List-cell') and contains(., 'appmonitor/main')]")
 
 await project.click()
