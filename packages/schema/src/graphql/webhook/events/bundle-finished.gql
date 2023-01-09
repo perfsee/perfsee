@@ -1,0 +1,11 @@
+#import './fragments/project.gql'
+#import './fragments/artifact.gql'
+
+query bundleFinishedEvent($projectId: ID!, $artifactId: Int!) {
+  project(id: $projectId) {
+    ...webhookProject
+    artifact(id: $artifactId) {
+      ...webhookArtifact
+    }
+  }
+}

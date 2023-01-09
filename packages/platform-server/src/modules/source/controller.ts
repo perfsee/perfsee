@@ -27,17 +27,9 @@ export class SourceController {
   constructor(private readonly logger: Logger, private readonly service: SourceService) {}
 
   @OnEvent(`${JobType.SourceAnalyze}.update`)
-  async onReceiveAnalyzeResult({
-    projectId,
-    reportId,
-    artifactIds,
-    diagnostics,
-    flameChartStorageKey,
-    sourceCoverageStorageKey,
-  }: SourceAnalyzeJobResult) {
+  async onReceiveAnalyzeResult(jobResult: SourceAnalyzeJobResult) {
     this.logger.log('receive deployment analyze result')
-    await this.service.updateReport(reportId, artifactIds, flameChartStorageKey, sourceCoverageStorageKey)
-    await this.service.saveSourceIssues(projectId, reportId, diagnostics)
+    await this.service.completeSource(jobResult)
   }
 
   @OnEvent(`${JobType.SourceAnalyze}.upload`)

@@ -22,6 +22,8 @@ import { Link } from 'react-router-dom'
 import { ContentCard, Pagination } from '@perfsee/components'
 import { pathFactory } from '@perfsee/shared/routes'
 
+import { WebhookSettings } from '../../webhook'
+
 import { CreateAppModal } from './create-app-modal'
 import { Application, ApplicationsModule, AuthProject } from './module'
 import {
@@ -86,6 +88,8 @@ export function Applications() {
                 <ProjectItem key={i} project={project} />
               ))}
             </ProjectsContainer>
+            <hr />
+            <WebhookSettings applicationId={selectedApp.id} />
           </AppDetailWrap>
         )}
       </Wrap>

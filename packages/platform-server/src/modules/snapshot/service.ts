@@ -63,6 +63,7 @@ import { NotificationService } from '../notification/service'
 import { PageService } from '../page/service'
 import { ProjectUsageService } from '../project-usage/service'
 import { SourceService } from '../source/service'
+import { WebhookService } from '../webhook'
 
 import { SnapshotReportService } from './snapshot-report/service'
 
@@ -87,6 +88,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     private readonly appVersion: AppVersionService,
     private readonly redis: Redis,
     private readonly projectUsage: ProjectUsageService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   onApplicationBootstrap() {
@@ -415,6 +417,10 @@ export class SnapshotService implements OnApplicationBootstrap {
         const project = await Project.findOneByOrFail({ id: snapshot.projectId })
         await this.sendLabNotification(snapshot, reports)
         await this.checkSuite.endLabCheck(project, snapshot, reports)
+        await this.webhookService.deliver(project, 'lab:snapshot-completed', {
+          projectId: project.slug,
+          snapshotId: snapshot.iid,
+        })
       }
     }
   }
@@ -439,6 +445,11 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     if (reportItem.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
+      const project = await Project.findOneByOrFail({ id: report.projectId })
+      await this.webhookService.deliver(project, 'lab:snapshot-report-completed', {
+        projectId: project.slug,
+        snapshotReportId: reportItem.iid,
+      })
       this.source.startSourceIssueAnalyze([reportItem]).catch((e) => {
         this.logger.error(e, { phase: 'source analyze' })
       })

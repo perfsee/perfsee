@@ -61,7 +61,13 @@ import {
   ApiOutlined,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
-import { PlugConnectedIcon, PlugDisconnectedIcon, HideIcon, RedEyeIcon } from '@fluentui/react-icons-mdl2'
+import {
+  PlugConnectedIcon,
+  PlugDisconnectedIcon,
+  HideIcon,
+  RedEyeIcon,
+  LocationDotIcon,
+} from '@fluentui/react-icons-mdl2'
 
 import { FlameIcon } from '@perfsee/components'
 
@@ -123,6 +129,7 @@ registerIcons({
     creditCard: <CreditCardOutlined />,
     desktop: <DesktopOutlined />,
     ping: <ApiOutlined />,
+    dot: <LocationDotIcon />,
 
     // for password text field
     Hide: <HideIcon />,

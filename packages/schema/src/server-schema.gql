@@ -212,6 +212,9 @@ type Project {
     name: String
   ): [ArtifactEntrypoint!]!
   artifactCount: Int!
+
+  """All webhooks in project"""
+  webhooks: [Webhook!]!
   recentBranches: [String!]!
 
   """get app versions by project"""
@@ -492,6 +495,7 @@ type Application {
   """issue created timestamp"""
   createdAt: DateTime!
   id: Int!
+  webhooks: [Webhook!]!
 
   """projects that application can access"""
   authorizedProjects: [ApplicationAuthorizedProjectsNode!]!
@@ -835,6 +839,18 @@ type RunnerScript {
   enable: Boolean!
 }
 
+type Webhook {
+  id: ID!
+
+  """the url will receive the webhook requests"""
+  url: String!
+  secret: String
+  method: String!
+  contentType: String!
+  eventType: String!
+  lastDelivery: DeliveryRecord
+}
+
 type PageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -981,6 +997,14 @@ type JobTrace {
   hasMore: Boolean!
   logs: JSON!
   endCursor: Int!
+}
+
+type DeliveryRecord {
+  startTime: DateTime!
+  endTime: DateTime!
+  statusCode: Int
+  isSuccess: Boolean!
+  deliveryId: ID!
 }
 
 type ArtifactEdge {
@@ -1211,6 +1235,10 @@ type Mutation {
     id: Int!
   ): Boolean!
   deleteArtifact(projectId: ID!, artifactId: Int!): Boolean!
+  createWebhookForProject(projectId: ID!, input: WebhookInput!): Webhook!
+  createWebhookForApplication(applicationId: Int!, input: WebhookInput!): Webhook!
+  updateWebhook(id: ID!, input: WebhookInput!): Webhook!
+  deleteWebhook(id: ID!): Boolean!
   updateRunner(id: ID!, input: UpdateRunnerInput!): Runner!
   deleteRunner(id: ID!): Boolean!
 
@@ -1290,6 +1318,14 @@ input UpdateProjectInput {
 
   """project visibility"""
   isPublic: Boolean
+}
+
+input WebhookInput {
+  url: String!
+  secret: String
+  method: String!
+  contentType: String!
+  eventType: String!
 }
 
 input UpdateRunnerInput {

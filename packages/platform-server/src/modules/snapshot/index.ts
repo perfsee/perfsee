@@ -28,6 +28,7 @@ import { ProfileModule } from '../profile'
 import { ProjectModule } from '../project'
 import { ProjectUsageModule } from '../project-usage'
 import { SourceModule } from '../source'
+import { WebhookModule } from '../webhook'
 
 import { SnapshotController } from './controller'
 import { ProjectSnapshotResolver, SnapshotResolver } from './resolver'
@@ -48,6 +49,7 @@ import { SnapshotReportModule } from './snapshot-report'
     EnvironmentModule,
     ProfileModule,
     ProjectUsageModule,
+    WebhookModule,
   ],
   controllers: [SnapshotController],
   providers: [SnapshotResolver, ProjectSnapshotResolver, SnapshotService],
