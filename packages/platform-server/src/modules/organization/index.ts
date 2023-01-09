@@ -14,17 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './project.module'
-export * from './init.module'
-export * from './user-search.module'
-export * from './compare.module'
-export * from './property.module'
-export * from './connected-accounts.module'
-export * from './property-type'
-export * from './use-project'
-export * from './get-report-color'
-export * from './use-generate-project-route'
-export * from './create-project.module'
-export * from './bundle-property.module'
-export * from './use-settings'
-export * from './create-organization.module'
+import { Module } from '@nestjs/common'
+
+import { DBModule } from '@perfsee/platform-server/db'
+import { StorageModule } from '@perfsee/platform-server/storage'
+
+import { GithubModule } from '../github'
+import { UserModule } from '../user'
+
+import { OrganizationResolver } from './resolver'
+import { OrganizationService } from './service'
+
+@Module({
+  imports: [DBModule, UserModule, GithubModule, StorageModule],
+  providers: [OrganizationService, OrganizationResolver],
+  exports: [OrganizationService],
+})
+export class OrganizationModule {}

@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import { Project, User, UserPermission } from '@perfsee/platform-server/db'
+import { Organization, Project, User, UserPermission, UserPermissionWithOrg } from '@perfsee/platform-server/db'
 
 import { Permission } from '../../def'
 import { PermissionProvider } from '../provider'
@@ -42,9 +42,26 @@ export class SelfHostPermissionProvider extends PermissionProvider {
     )
   }
 
-  async get(user: User, id: number | string) {
+  async onCreateOrganization(org: Organization, owners: User[], _creator: User) {
+    await UserPermissionWithOrg.insert(
+      owners.map((owner) => ({
+        userId: owner.id,
+        organizationId: org.id,
+        permission: Permission.Admin,
+      })),
+    )
+  }
+
+  async get(user: User, id: number | string, isOrg?: boolean) {
     if (user.isAdmin) {
       return [Permission.Admin]
+    }
+
+    if (isOrg) {
+      const org = await Organization.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+      const permissions = await UserPermissionWithOrg.findBy({ userId: user.id, organizationId: org.id })
+
+      return permissions.map((permission) => permission.permission)
     }
 
     const project = await Project.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
@@ -53,9 +70,21 @@ export class SelfHostPermissionProvider extends PermissionProvider {
     return permissions.map((permission) => permission.permission)
   }
 
-  async check(user: User, id: number | string, permission: Permission) {
+  async check(user: User, id: number | string, permission: Permission, isOrg?: boolean) {
     if (user.isAdmin) {
       return true
+    }
+
+    if (isOrg) {
+      const org = await Organization.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+
+      // pass read permission check if organization is public
+      if (org.isPublic && permission === Permission.Read) {
+        return true
+      }
+      const grantedPermissions = await UserPermissionWithOrg.findBy({ userId: user.id, organizationId: org.id })
+
+      return grantedPermissions.some((item) => validate(item.permission, permission))
     }
 
     const project = await Project.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
@@ -70,8 +99,21 @@ export class SelfHostPermissionProvider extends PermissionProvider {
     return grantedPermissions.some((item) => validate(item.permission, permission))
   }
 
-  async grant(user: User, projectId: number, permission: Permission) {
-    const exist = await UserPermission.findOneBy({ userId: user.id, projectId, permission })
+  async grant(user: User, id: number, permission: Permission, isOrg?: boolean) {
+    if (isOrg) {
+      const exist = await UserPermissionWithOrg.findOneBy({ userId: user.id, organizationId: id, permission })
+      if (exist) {
+        return
+      }
+      await UserPermissionWithOrg.insert({
+        userId: user.id,
+        organizationId: id,
+        permission,
+      })
+      return
+    }
+
+    const exist = await UserPermission.findOneBy({ userId: user.id, projectId: id, permission })
 
     if (exist) {
       return
@@ -79,20 +121,35 @@ export class SelfHostPermissionProvider extends PermissionProvider {
 
     await UserPermission.insert({
       userId: user.id,
-      projectId,
+      projectId: id,
       permission,
     })
   }
 
-  async revoke(user: User, projectId: number, permission: Permission) {
-    await UserPermission.delete({
-      userId: user.id,
-      projectId,
-      permission,
-    })
+  async revoke(user: User, id: number, permission: Permission, isOrg?: boolean) {
+    if (isOrg) {
+      await UserPermissionWithOrg.delete({
+        userId: user.id,
+        organizationId: id,
+        permission,
+      })
+    } else {
+      await UserPermission.delete({
+        userId: user.id,
+        projectId: id,
+        permission,
+      })
+    }
   }
 
-  async userAllowList(user: User, permission: Permission) {
+  async userAllowList(user: User, permission: Permission, isOrg?: boolean) {
+    if (isOrg) {
+      const list = await UserPermissionWithOrg.findBy({
+        userId: user.id,
+      })
+      return list.filter((item) => validate(item.permission, permission)).map((item) => item.organizationId)
+    }
+
     const list = await UserPermission.findBy({
       userId: user.id,
     })
@@ -102,6 +159,12 @@ export class SelfHostPermissionProvider extends PermissionProvider {
 
   async projectAllowList(project: Project, permission: Permission) {
     const list = await UserPermission.findBy({ projectId: project.id })
+
+    return list.filter((item) => validate(item.permission, permission)).map((item) => item.userId)
+  }
+
+  async organizationAllowList(org: Organization, permission: Permission) {
+    const list = await UserPermissionWithOrg.findBy({ organizationId: org.id })
 
     return list.filter((item) => validate(item.permission, permission)).map((item) => item.userId)
   }

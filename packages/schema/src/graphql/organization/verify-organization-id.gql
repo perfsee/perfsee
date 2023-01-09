@@ -1,0 +1,6 @@
+query verifyOrganizationId($id: ID!) {
+  verifyOrganizationId(id: $id) {
+    error,
+    ok
+  }
+}

@@ -128,3 +128,10 @@ paths:
         path: /runner-scripts
       usagePacks:
         path: /usage-packs
+  organization:
+    base: /organizations/:organizationId
+    title: '{organizationId}'
+    paths:
+      home:
+        path: /home
+        title: Home

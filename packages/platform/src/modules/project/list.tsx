@@ -50,7 +50,7 @@ import { pathFactory, staticPath } from '@perfsee/shared/routes'
 import { Starring } from '../components'
 import { useSettings } from '../shared'
 
-import { ProjectsModule, ProjectNode } from './list.module'
+import { ProjectsModule, ProjectNode, OrgNode } from './list.module'
 import { CreateProjectAction } from './project-actions'
 import { TextImage, Cell } from './style'
 
@@ -98,9 +98,31 @@ const ProjectItem = ({ project }: { project: ProjectNode }) => {
   )
 }
 
+const OrganizationItem = ({ org }: { org: OrgNode }) => {
+  const history = useHistory()
+
+  const gotoOrganization = useCallback(() => {
+    history.push(pathFactory.organization.home({ organizationId: org.id }))
+  }, [history, org])
+
+  return (
+    <Cell verticalAlign="center" horizontal={true} tokens={stackTokens} onClick={gotoOrganization}>
+      <TextImage src="" imageFit={ImageFit.cover} width={40} height={40} title={org.id} />
+      <Stack verticalAlign="space-between">
+        <Stack verticalAlign="center" horizontal={true} tokens={stackTokens}>
+          <Text styles={{ root: { fontWeight: '600' } }} variant="large">
+            {org.id}
+          </Text>
+        </Stack>
+      </Stack>
+    </Cell>
+  )
+}
+
 enum ProjectsEnum {
   All = 'all',
   Starred = 'starred',
+  Org = 'org',
 }
 
 const renderProjectItem = (project?: ProjectNode, index?: number) => {
@@ -132,6 +154,13 @@ const renderProjectItem = (project?: ProjectNode, index?: number) => {
   }
 }
 
+const renderOrgItem = (org?: OrgNode) => {
+  if (!org) {
+    return null
+  }
+  return <OrganizationItem org={org} />
+}
+
 const GithubButtonStyles = {
   root: {
     backgroundColor: '#000 !important',
@@ -140,8 +169,8 @@ const GithubButtonStyles = {
 }
 
 export const ProjectList = () => {
-  const [{ projects, loading, totalCount }, dispatcher] = useModule(ProjectsModule)
-  const [starredOnly, setStarredOnly] = useState(false)
+  const [{ projects, loading, totalCount, orgTotalCount, organizations }, dispatcher] = useModule(ProjectsModule)
+  const [pivotKey, setPivotKey] = useState<ProjectsEnum>(ProjectsEnum.All)
   const history = useHistory()
   const settings = useSettings()
 
@@ -152,8 +181,21 @@ export const ProjectList = () => {
   }>()
 
   useEffect(() => {
-    dispatcher.getProjects({ page: Number(page), pageSize: Number(pageSize), query, starred: starredOnly })
-  }, [dispatcher, starredOnly, page, pageSize, query, history.length])
+    if (pivotKey === ProjectsEnum.Org) {
+      dispatcher.getOrganizations({
+        page: Number(page),
+        pageSize: Number(pageSize),
+        query,
+      })
+    } else {
+      dispatcher.getProjects({
+        page: Number(page),
+        pageSize: Number(pageSize),
+        query,
+        starred: pivotKey === ProjectsEnum.Starred,
+      })
+    }
+  }, [dispatcher, page, pageSize, query, history.length, pivotKey])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onQueryChange = useCallback(
@@ -170,27 +212,35 @@ export const ProjectList = () => {
     [updateQueryString],
   )
 
-  const toggleStarredOnlyView = useCallback(
+  const onPivotChange = useCallback(
     (item?: PivotItem) => {
       if (!item) {
         return
       }
 
-      setStarredOnly(item.props.itemKey === ProjectsEnum.Starred)
+      setPivotKey(item.props.itemKey as ProjectsEnum)
       dispatcher.setPage({ page: 1 })
     },
-    [setStarredOnly, dispatcher],
+    [dispatcher],
   )
 
   const content = loading ? (
     <Spinner label="Loading Projects" styles={{ root: { maxWidth: 300, margin: 10 } }} />
+  ) : pivotKey === ProjectsEnum.Org ? (
+    <List items={organizations} onRenderCell={renderOrgItem} css={css({ minHeight: 700 })} />
   ) : projects.length ? (
     <List items={projects} onRenderCell={renderProjectItem} css={css({ minHeight: 700 })} />
   ) : (
     <Empty
       withIcon={true}
       styles={{ root: { maxWidth: 250, margin: 10 } }}
-      title={starredOnly ? 'No Starred Projects' : 'No Projects'}
+      title={
+        pivotKey === ProjectsEnum.Starred
+          ? 'No Starred Projects'
+          : pivotKey === ProjectsEnum.All
+          ? 'No Projects'
+          : 'No Organizations'
+      }
     />
   )
 
@@ -214,18 +264,15 @@ export const ProjectList = () => {
           </Link>
         )}
       </Stack>
-      <Pivot
-        styles={{ root: { marginTop: 4 } }}
-        defaultSelectedKey={ProjectsEnum.All}
-        onLinkClick={toggleStarredOnlyView}
-      >
+      <Pivot styles={{ root: { marginTop: 4 } }} defaultSelectedKey={ProjectsEnum.All} onLinkClick={onPivotChange}>
         <PivotItem headerText="All Projects" itemKey={ProjectsEnum.All} />
         <PivotItem headerText="Starred Projects" itemKey={ProjectsEnum.Starred} />
+        <PivotItem headerText="Organizations" itemKey={ProjectsEnum.Org} />
       </Pivot>
       {content}
       <Pagination
-        key={String(starredOnly)}
-        total={totalCount}
+        key={pivotKey}
+        total={pivotKey === ProjectsEnum.Org ? orgTotalCount : totalCount}
         onChange={onPageChange}
         page={page}
         pageSize={pageSize}

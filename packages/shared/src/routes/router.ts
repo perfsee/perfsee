@@ -56,6 +56,7 @@ export interface RouteTypes {
     scripts: void
     usagePacks: void
   }
+  organization: { home: Params<'organizationId'> }
 }
 
 export const staticPath = {
@@ -107,6 +108,7 @@ export const staticPath = {
     scripts: '/admin/runner-scripts',
     usagePacks: '/admin/usage-packs',
   },
+  organization: { home: '/organizations/:organizationId/home' },
 }
 
 export const pathFactory = {
@@ -192,6 +194,9 @@ export const pathFactory = {
     scripts: makePathsFrom<FactoryParams<RouteTypes['admin']['scripts']>>('/admin/runner-scripts'),
     usagePacks: makePathsFrom<FactoryParams<RouteTypes['admin']['usagePacks']>>('/admin/usage-packs'),
   },
+  organization: {
+    home: makePathsFrom<FactoryParams<RouteTypes['organization']['home']>>('/organizations/:organizationId/home'),
+  },
 }
 
 export const titleFactory = {
@@ -251,4 +256,7 @@ export const titleFactory = {
   '/admin/runners': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/runner-scripts': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/usage-packs': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/organizations/:organizationId': (data: Record<string, any>) => makeTitlesFrom('{organizationId} | Perfsee', data),
+  '/organizations/:organizationId/home': (data: Record<string, any>) =>
+    makeTitlesFrom('Home | {organizationId} | Perfsee', data),
 }

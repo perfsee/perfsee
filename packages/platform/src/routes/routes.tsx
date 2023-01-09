@@ -38,6 +38,7 @@ import {
   FeaturesLab,
   FeaturesSource,
   Admin,
+  OrganizationHome,
 } from './lazy-modules'
 
 export const Routes = ({ user, settings }: { user: User | null; settings: ApplicationSettings | null }) => {
@@ -65,6 +66,7 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
             <Route exact={true} path={staticPath.importGithub} component={ImportGithub} />
           )}
           <Route path={staticPath.me.home} component={Me} />
+          <Route exact={true} path={staticPath.organization.home} component={OrganizationHome} />
           <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
           <Route path={staticPath.project.feature} component={ProjectFeaturePage} />
           {user.isAdmin && <Route path={staticPath.admin.part} component={Admin} />}
