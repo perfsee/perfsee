@@ -8,7 +8,7 @@
   "private": true,
   "dependencies": {
     "@abraham/reflection": "^0.10.0",
-    "@ant-design/icons": "^4.7.0",
+    "@ant-design/icons": "^5.0.0",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@fluentui/react": "^8.81.1",

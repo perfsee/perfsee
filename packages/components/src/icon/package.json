@@ -3,7 +3,7 @@
   "main": "./mock.js",
   "browser": "./index.ts",
   "devDependencies": {
-    "@ant-design/icons": "^4.7.0",
+    "@ant-design/icons": "^5.0.0",
     "lodash": "^4.17.21"
   }
 }
