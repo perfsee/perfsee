@@ -37,16 +37,24 @@ export const getCurrentCommit = async () => {
 export const getCommitMessage = async (commitHash: string) => {
   try {
     return await simpleGit()
-      .log({ from: commitHash, n: 1 })
-      .then((stats) => {
-        if (!stats.latest) {
-          throw new Error('No commit found')
-        }
-
-        return stats.latest.message.replace(/\n.*/g, '').substring(0, 255)
+      .show([commitHash, '--format=%s'])
+      .then((commitMessage: string) => {
+        return commitMessage.replace(/\n.*/g, '').substring(0, 255)
       })
   } catch {
-    return undefined
+    try {
+      // in github action, the commit maybe not in local
+      console.info(`Fetching commit '${commitHash}' information from origin.`)
+      await simpleGit().fetch(['origin', commitHash, '--depth', '1'])
+
+      return await simpleGit()
+        .show([commitHash, '--format=%s'])
+        .then((commitMessage: string) => {
+          return commitMessage.replace(/\n.*/g, '').substring(0, 255)
+        })
+    } catch {
+      return undefined
+    }
   }
 }
 
