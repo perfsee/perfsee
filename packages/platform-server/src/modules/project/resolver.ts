@@ -85,8 +85,21 @@ export class ProjectResolver {
       description: 'search project with git namespace/name',
     })
     query: string | undefined,
+    @Args({
+      name: 'permission',
+      nullable: true,
+      type: () => Permission,
+      description: 'filter project with permission',
+    })
+    permission: Permission | undefined,
   ): Promise<PaginatedType<Project>> {
-    const [projects, totalCount] = await this.projectService.getProjects(user, paginationInput, query, starred)
+    const [projects, totalCount] = await this.projectService.getProjects(
+      user,
+      paginationInput,
+      query,
+      starred,
+      permission,
+    )
     return paginate(projects, 'id', paginationInput, totalCount)
   }
 

@@ -63,6 +63,8 @@ export const AuthApps: FC<Props> = memo(({ projectId }) => {
     dispatcher.getAuthorizedApps(projectId)
   }, [dispatcher, projectId])
 
+  useEffect(() => dispatcher.reset, [dispatcher])
+
   return (
     <Stack>
       <Label>Authorized Applications</Label>

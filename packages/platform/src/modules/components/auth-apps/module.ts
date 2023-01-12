@@ -17,7 +17,7 @@ limitations under the License.
 import { Module, EffectModule, Effect, ImmerReducer } from '@sigi/core'
 import { Draft } from 'immer'
 import { Observable } from 'rxjs'
-import { switchMap, map } from 'rxjs/operators'
+import { switchMap, map, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
 import {
@@ -40,6 +40,7 @@ interface State {
     totalCount: number
     items: Application[]
   }
+  isAuthorizationSuccessful: boolean
 }
 
 @Module('AuthAppsModule')
@@ -50,6 +51,7 @@ export class AuthAppsModule extends EffectModule<State> {
       totalCount: 0,
       items: [],
     },
+    isAuthorizationSuccessful: false,
   }
 
   constructor(private readonly client: GraphQLClient) {
@@ -59,6 +61,11 @@ export class AuthAppsModule extends EffectModule<State> {
   @ImmerReducer()
   setAuthorizedApps(state: Draft<State>, apps: AuthApplication[]) {
     state.authApps = apps
+  }
+
+  @ImmerReducer()
+  setAuthorizationSuccessful(state: Draft<State>, isAuthorizationSuccessful: boolean) {
+    state.isAuthorizationSuccessful = isAuthorizationSuccessful
   }
 
   @ImmerReducer()
@@ -147,6 +154,7 @@ export class AuthAppsModule extends EffectModule<State> {
           .pipe(
             createErrorCatcher('Failed to auth new applications.'),
             map(() => this.getActions().getAuthorizedApps(projectId)),
+            endWith(this.getActions().setAuthorizationSuccessful(true)),
           ),
       ),
     )

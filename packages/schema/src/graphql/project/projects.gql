@@ -1,5 +1,5 @@
-query projects($input: PaginationInput!, $starred: Boolean!, $query: String) {
-  projects(pagination: $input, starred: $starred, query: $query) {
+query projects($input: PaginationInput!, $starred: Boolean!, $query: String, $permission: Permission) {
+  projects(pagination: $input, starred: $starred, query: $query, permission: $permission) {
     edges {
       node {
         id

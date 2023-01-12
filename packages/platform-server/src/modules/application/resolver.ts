@@ -16,7 +16,8 @@ limitations under the License.
 
 import { Args, ID, Int, Mutation, ObjectType, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql'
 
-import { Project, Application } from '@perfsee/platform-server/db'
+import { Project, Application, User } from '@perfsee/platform-server/db'
+import { UserError } from '@perfsee/platform-server/error'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
 
 import { Auth } from '../auth'
@@ -74,8 +75,17 @@ export class ApplicationResolver {
   constructor(private readonly service: ApplicationService) {}
 
   @Query(() => Application)
-  async application(@Args({ name: 'id', type: () => Int }) id: number) {
-    return this.service.loader.load(id)
+  async application(
+    @Args({ name: 'id', type: () => Int, nullable: true }) id?: number,
+    @Args({ name: 'name', type: () => String, nullable: true }) name?: string,
+  ) {
+    if (id) {
+      return this.service.loader.load(id)
+    } else if (name) {
+      return User.findOneByOrFail({ username: name, isApp: true })
+    } else {
+      throw new UserError('missing query condition')
+    }
   }
 
   @Query(() => PaginatedApplications)

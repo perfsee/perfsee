@@ -76,7 +76,7 @@ export class User extends BaseEntity {
 }
 
 @ObjectType()
-export class Application extends PickType(User, ['username', 'createdAt']) {
+export class Application extends PickType(User, ['username', 'avatarUrl', 'createdAt']) {
   @Field(() => Int)
   id!: number
 }
