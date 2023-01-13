@@ -12,12 +12,14 @@ import {
   TooltipHost,
 } from '@fluentui/react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { ForeignLink } from '@perfsee/components'
 import { GitHost } from '@perfsee/schema'
 import { getCommitLink, hostDomains } from '@perfsee/shared'
+import { pathFactory } from '@perfsee/shared/routes'
 
-import { useProject } from '../../shared'
+import { useProject, useProjectRouteGenerator } from '../../shared'
 
 import { useAppVersion } from './use-app-version'
 
@@ -75,6 +77,8 @@ const TooltipContent = ({ hash }: CommitTooltipProps) => {
 
   const { error, appVersion } = useAppVersion(hash)
 
+  const generateProjectRoute = useProjectRouteGenerator()
+
   return error ? (
     <Stack tokens={{ childrenGap: 8 }}>
       <Title>{error}</Title>
@@ -82,12 +86,20 @@ const TooltipContent = ({ hash }: CommitTooltipProps) => {
   ) : appVersion ? (
     <Stack tokens={{ childrenGap: 8 }}>
       <Stack horizontal verticalAlign="start" tokens={{ childrenGap: 8 }}>
-        <Stack.Item shrink={0} grow={1}>
-          <Title>{appVersion.commitMessage}</Title>
-        </Stack.Item>
-        <Stack.Item shrink={0} grow={0}>
-          <Label>{hash.substring(0, 8)}</Label>
-        </Stack.Item>
+        {appVersion.commitMessage ? (
+          <>
+            <Stack.Item shrink={0} grow={1}>
+              <Title>{appVersion.commitMessage}</Title>
+            </Stack.Item>
+            <Stack.Item shrink={0} grow={0}>
+              <Label>{hash.substring(0, 8)}</Label>
+            </Stack.Item>
+          </>
+        ) : (
+          <Stack.Item shrink={0} grow={1}>
+            <Title>{hash}</Title>
+          </Stack.Item>
+        )}
       </Stack>
       <Information>
         {appVersion.branch && (
@@ -118,14 +130,14 @@ const TooltipContent = ({ hash }: CommitTooltipProps) => {
             </>
           )}
         </ForeignLink>
-        <ForeignLink href={getCommitLink(project, hash)}>
+        <Link to={generateProjectRoute(pathFactory.project.source, { projectId: project.id }, { hash })}>
           {project.host !== GitHost.Unknown && (
             <>
               <Icon iconName="source" />
               &thinsp; Search Source Issues
             </>
           )}
-        </ForeignLink>
+        </Link>
       </Actions>
     </Stack>
   ) : (

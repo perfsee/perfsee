@@ -57,7 +57,6 @@ export class AppVersionService {
   async getAppVersions(projectId: number, from?: Date, to?: Date, first?: number) {
     const query = AppVersion.createQueryBuilder('app')
       .where('app.project_id = :projectId', { projectId })
-      .andWhere('snapshot_id IS NOT NULL')
       .orderBy('created_at', 'DESC')
     if (from && to) {
       query.andWhere('app.created_at between :from and :to', { from, to })
