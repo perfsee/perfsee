@@ -18,7 +18,7 @@
     "@nestjs/serve-static": "^3.0.0",
     "@nestjs/terminus": "^9.0.0",
     "@nestjs/testing": "^9.0.4",
-    "@nestjs/throttler": "^3.0.0",
+    "@nestjs/throttler": "^4.0.0",
     "@nestjs/typeorm": "^9.0.0",
     "apollo-server-express": "^3.10.2",
     "apollo-server-plugin-base": "^3.6.2",
