@@ -51,7 +51,7 @@ export interface State {
 export class RunnersModule extends EffectModule<State> {
   defaultState: State = {
     loading: true,
-    filter: { first: 50 },
+    filter: { first: 50, online: true },
     runnerCount: 0,
     runners: [],
     registrationToken: '',
@@ -224,6 +224,6 @@ export class RunnersModule extends EffectModule<State> {
 
   @ImmerReducer()
   clearFilter(state: Draft<State>) {
-    state.filter = {}
+    state.filter = this.defaultState.filter
   }
 }
