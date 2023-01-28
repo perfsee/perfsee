@@ -152,7 +152,12 @@ export const ProjectList = () => {
   }>()
 
   useEffect(() => {
-    dispatcher.getProjects({ page: Number(page), pageSize: Number(pageSize), query, starred: starredOnly })
+    dispatcher.getProjects({
+      page: Number(page),
+      pageSize: Number(pageSize),
+      query: String(query),
+      starred: starredOnly,
+    })
   }, [dispatcher, starredOnly, page, pageSize, query, history.length])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
