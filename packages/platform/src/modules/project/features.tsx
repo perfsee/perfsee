@@ -77,9 +77,9 @@ export const FeaturesPage = memo(() => {
           <Route exact={true} path={staticPath.project.home} component={ProjectHome} />
           <Route path={staticPath.project.statistics.artifacts} component={ArtifactStatistics} />
           <Route path={staticPath.project.statistics.snapshots} component={SnapshotStatistics} />
-          <Route path={staticPath.project.bundle.home} component={BundleRoutes} />
-          <Route path={staticPath.project.lab.home} component={LabRoutes} />
-          <Route path={staticPath.project.competitor.home} component={CompetitorRoutes} />
+          <Route path={staticPath.project.bundle.home} component={BundleRoutes} incomplete />
+          <Route path={staticPath.project.lab.home} component={LabRoutes} incomplete />
+          <Route path={staticPath.project.competitor.home} component={CompetitorRoutes} incomplete />
           <Route path={staticPath.project.source} component={SourcePage} />
           <Route path={staticPath.project.report} component={VersionReport} />
           <Route path={staticPath.project.jobTrace} component={JobTrace} />

@@ -58,6 +58,7 @@ paths:
   project:
     base: /projects/:projectId
     title: '{projectId}'
+    breadcrumb: '{projectId}'
     paths:
       feature:
         path: /:feature?
@@ -78,23 +79,29 @@ paths:
       bundle:
         base: /bundle
         title: Bundle
+        breadcrumb: Bundle
         paths:
           detail:
             path: /:bundleId
             title: 'Bundle #{bundleId}'
+            breadcrumb: '#{bundleId}'
           jobBundleContent:
             path: /:bundleId/bundle-content
             title: 'Bundle content #{bundleId}'
+            breadcrumb: '#{bundleId}'
       lab:
         base: /lab
         title: Lab
+        breadcrumb: Lab
         paths:
           report:
             path: /reports/:reportId/:tabName?
             title: 'Report #{reportId}'
+            breadcrumb: '#{reportId}'
       competitor:
         base: /competitor
         title: Competitor
+        breadcrumb: Competitor
         paths:
           report:
             path: /reports/:tabName
@@ -102,15 +109,19 @@ paths:
       source:
         path: /source
         title: Source
+        breadcrumb: Source
       report:
         path: /report
         title: Report
+        breadcrumb: Report
       settings:
         path: /settings/:settingName?
         title: 'Setting {settingName}'
+        breadcrumb: Setting
       jobTrace:
         path: /jobs/:type/:entityId
         title: '{type} job #{entityId}'
+        breadcrumb: Job
   admin:
     base: /admin
     paths:

@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ForkOutlined } from '@ant-design/icons'
 import { css } from '@emotion/react'
 import {
   Stack,
@@ -34,17 +33,9 @@ import { debounce } from 'lodash'
 import { useEffect, useCallback, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
-import {
-  Pagination,
-  BodyContainer,
-  Empty,
-  TeachingBubbleHost,
-  useQueryString,
-  GitlabIcon,
-  GithubIcon,
-} from '@perfsee/components'
+import { Pagination, BodyContainer, Empty, TeachingBubbleHost, useQueryString } from '@perfsee/components'
 import { NeutralColors, SharedColors } from '@perfsee/dls'
-import { GitHost } from '@perfsee/schema'
+import { GitHostIconMap } from '@perfsee/platform/icons'
 import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
 import { Starring } from '../components'
@@ -58,14 +49,8 @@ const stackTokens: IStackTokens = {
   childrenGap: 8,
 }
 
-const IconMap: { [key in GitHost]: React.ComponentType } = {
-  [GitHost.Gitlab]: GitlabIcon,
-  [GitHost.Github]: GithubIcon,
-  [GitHost.Unknown]: ForkOutlined,
-}
-
 const ProjectItem = ({ project }: { project: ProjectNode }) => {
-  const Icon = IconMap[project.host]
+  const Icon = GitHostIconMap[project.host]
   const history = useHistory()
 
   const gotoProject = useCallback(() => {

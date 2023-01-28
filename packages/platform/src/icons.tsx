@@ -60,11 +60,13 @@ import {
   DesktopOutlined,
   ApiOutlined,
   GlobalOutlined,
+  ForkOutlined,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
 import { PlugConnectedIcon, PlugDisconnectedIcon, HideIcon, RedEyeIcon } from '@fluentui/react-icons-mdl2'
 
-import { FlameIcon } from '@perfsee/components'
+import { FlameIcon, GithubIcon, GitlabIcon } from '@perfsee/components'
+import { GitHost } from '@perfsee/shared'
 
 registerIcons({
   icons: {
@@ -131,3 +133,9 @@ registerIcons({
     RedEye: <RedEyeIcon />,
   },
 })
+
+export const GitHostIconMap: { [key in GitHost]: React.ComponentType } = {
+  [GitHost.Gitlab]: GitlabIcon,
+  [GitHost.Github]: GithubIcon,
+  [GitHost.Unknown]: ForkOutlined,
+}

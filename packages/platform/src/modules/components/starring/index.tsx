@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IButtonStyles, IconButton, IIconProps } from '@fluentui/react'
+import { DefaultButton, IButtonStyles, IconButton, IIconProps } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, MouseEvent, FC } from 'react'
 
@@ -36,9 +36,10 @@ const starIconButtonStyle: IButtonStyles = {
 
 interface StarringProps {
   projectId: string
+  button?: boolean
 }
 
-export const Starring: FC<StarringProps> = ({ projectId }) => {
+export const Starring: FC<StarringProps> = ({ projectId, button }) => {
   const [starred, dispatcher] = useModule(GlobalModule, {
     selector: (state) => state.user?.starredProjects?.includes(projectId) ?? false,
     dependencies: [projectId],
@@ -52,5 +53,11 @@ export const Starring: FC<StarringProps> = ({ projectId }) => {
     [projectId, dispatcher, starred],
   )
 
-  return <IconButton iconProps={getIconProps(starred)} styles={starIconButtonStyle} onClick={toggleStarred} />
+  return !button ? (
+    <IconButton iconProps={getIconProps(starred)} styles={starIconButtonStyle} onClick={toggleStarred} />
+  ) : (
+    <DefaultButton iconProps={getIconProps(starred)} onClick={toggleStarred}>
+      Star Project
+    </DefaultButton>
+  )
 }

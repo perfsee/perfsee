@@ -48,11 +48,13 @@ function makeTitlesFrom(title: string, data: Record<string, any>) {
 interface YamlSchema {
   base: string
   title?: string
+  breadcrumb?: string
   paths: {
     [key: string]:
       | {
           path: string
           title?: string
+          breadcrumb?: string
         }
       | YamlSchema
   }
@@ -241,6 +243,30 @@ function serializeTitles(schema: YamlSchema, parent = '', parentPath = '') {
   }
 }
 
+function serializeBreadcrumbItems(schema: YamlSchema, parent: { text: string; href: string }[] = [], parentPath = '') {
+  const basePath = routeJoin(parentPath, schema.base)
+  const baseBreadcrumb = schema.breadcrumb ? [...parent, { text: schema.breadcrumb, href: basePath }] : parent
+
+  return {
+    [basePath]: JSON.stringify(baseBreadcrumb),
+    ...Object.entries(schema.paths).reduce((acc, [_, value]) => {
+      if (value['path']) {
+        const path = routeJoin(basePath, value['path'])
+        const breadcrumb = value.breadcrumb
+          ? [...baseBreadcrumb, { text: value.breadcrumb, href: path }]
+          : baseBreadcrumb
+        acc[path] = JSON.stringify(breadcrumb)
+      } else {
+        for (const [k, v] of Object.entries(serializeBreadcrumbItems(value as YamlSchema, baseBreadcrumb, basePath))) {
+          acc[k] = v
+        }
+      }
+
+      return acc
+    }, {}),
+  }
+}
+
 export async function generateRoutes() {
   return new Promise<void>((resolve, reject) => {
     const schema = loadYaml(routesDef)
@@ -248,6 +274,8 @@ export async function generateRoutes() {
     const { routeTypes, staticPaths, pathFactory } = stringifyRoutes(tokenSchema)
 
     const titles = serializeTitles(schema)
+
+    const breadcrumbItems = serializeBreadcrumbItems(schema)
 
     const result = `${template}
 
@@ -258,6 +286,8 @@ export async function generateRoutes() {
   export const pathFactory = ${codeStringify(pathFactory)}
 
   export const titleFactory = ${codeStringify(titles)}
+
+  export const breadcrumbItems = ${codeStringify(breadcrumbItems)} as const
   `
     fs.writeFile(output, prettier(result), (err) => {
       if (err) {

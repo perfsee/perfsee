@@ -28,7 +28,17 @@ export const HeaderContainer = styled.div(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   backgroundColor: theme.colors.white,
-  zIndex: 3,
+  zIndex: 4,
+  boxShadow: `0px 4px 4px rgba(0, 0, 0, 0.1)`,
+  ':after': {
+    background: theme.colors.primary,
+    content: '""',
+    width: '100%',
+    top: '60px',
+    position: 'absolute',
+    height: '3px',
+    left: '0',
+  },
 }))
 
 export const HeaderMenusContainer = styled.div({
@@ -37,6 +47,8 @@ export const HeaderMenusContainer = styled.div({
 })
 
 export const Title = styled.h1(({ theme }) => ({
+  fontSize: '16px',
+  fontWeight: '600',
   color: theme.text.color,
   marginLeft: '15px',
   cursor: 'pointer',

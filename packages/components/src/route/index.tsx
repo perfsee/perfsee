@@ -18,18 +18,21 @@ import { useMemo } from 'react'
 import { Route as ReactRoute } from 'react-router'
 import type { RouteProps as ReactRouteProps } from 'react-router'
 
-import { titleFactory as titleFactories } from '@perfsee/shared/routes'
+import { titleFactory as titleFactories, breadcrumbItems as breadcrumbFactories } from '@perfsee/shared/routes'
 
+import { BreadcrumbItem, useUpdateBreadcrumb } from '../breadcrumb'
 import { Helmet } from '../helmet'
 
 interface RouteProps extends ReactRouteProps {
   title?: (data: any) => string
+  // Incomplete routes do not display title and breadcrumbs
+  incomplete?: boolean
   // transferred by Switch component
   computedMatch?: any
 }
 
 export const Route = (props: RouteProps) => {
-  const { title, path, computedMatch, ...routeProps } = props
+  const { title, path, computedMatch, incomplete, ...routeProps } = props
 
   const titleFactory = useMemo(() => {
     if (!title) {
@@ -50,14 +53,32 @@ export const Route = (props: RouteProps) => {
     return titleFactory(computedMatch?.params ?? {})
   }, [computedMatch?.params, titleFactory])
 
-  if (titleString) {
-    return (
-      <>
-        <Helmet title={titleString} />
-        <ReactRoute path={path} {...routeProps} />
-      </>
-    )
-  }
+  const breadcrumbFactory = useMemo(() => {
+    if (typeof path === 'string') {
+      return breadcrumbFactories[path] as BreadcrumbItem[]
+    }
+    return undefined
+  }, [path])
 
-  return <ReactRoute path={path} {...routeProps} />
+  const breadcrumbItems = useMemo(() => {
+    if (!breadcrumbFactory) {
+      return null
+    }
+
+    const data = computedMatch?.params ?? {}
+
+    return breadcrumbFactory.map((breadcrumbItem) => ({
+      text: breadcrumbItem.text.replace(/\{(.*?)\}/g, (match, key) => data[key] ?? match),
+      href: breadcrumbItem.href.replace(/:([^/]*)/g, (match, key) => data[key.replace('?', '')] ?? match),
+    }))
+  }, [computedMatch?.params, breadcrumbFactory])
+
+  useUpdateBreadcrumb(!incomplete && breadcrumbItems ? breadcrumbItems : false)
+
+  return (
+    <>
+      {!incomplete && titleString && <Helmet title={titleString} />}
+      <ReactRoute path={path} {...routeProps} />
+    </>
+  )
 }

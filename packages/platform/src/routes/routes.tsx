@@ -66,7 +66,7 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
           )}
           <Route path={staticPath.me.home} component={Me} />
           <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
-          <Route path={staticPath.project.feature} component={ProjectFeaturePage} />
+          <Route path={staticPath.project.feature} incomplete component={ProjectFeaturePage} />
           {user.isAdmin && <Route path={staticPath.admin.part} component={Admin} />}
           <Route path="*" render={NotFound} />
         </Switch>
