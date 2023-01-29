@@ -47,12 +47,12 @@ impl Frame {
       self.name,
       self.file,
       if let Some(line) = self.line {
-        format!("{}", line)
+        line.to_string()
       } else {
         String::from("0")
       },
       if let Some(col) = self.col {
-        format!("{}", col)
+        col.to_string()
       } else {
         String::from("0")
       },

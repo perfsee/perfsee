@@ -87,7 +87,7 @@ mod tests {
 
         let target = paths.pop().unwrap();
 
-        assert_eq!(join!(paths).as_os_str(), target, "\njoin args: {}", row);
+        assert_eq!(join!(paths).as_os_str(), target, "\njoin args: {row}");
       }
     }
 

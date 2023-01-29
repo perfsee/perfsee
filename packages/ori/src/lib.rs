@@ -74,7 +74,7 @@ impl Task for AnalyzeTask {
 
   fn compute(&mut self) -> Result<Self::Output> {
     let profile = parser::parse(&self.profile_path, &self.bundle_meta_path)
-      .map_err(|err| Error::new(Status::Unknown, format!("{:?}", err)))?;
+      .map_err(|err| Error::new(Status::Unknown, format!("{err:?}")))?;
     let mut analyzer = Analyzer::new(&profile, get_all_rules());
     let diagnostics = analyzer.analyse();
 
