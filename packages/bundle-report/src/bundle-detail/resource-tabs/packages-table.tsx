@@ -39,6 +39,7 @@ import {
   PackageLoadTypeSpan,
   PackageLoadTypeWrap,
   TraceIconWrap,
+  PackageLoadTypeTrigger,
 } from '../style'
 
 import { ImportTraceModal } from './import-trace-modal'
@@ -238,9 +239,13 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         name: 'Type',
         minWidth: 100,
         maxWidth: 200,
+        sorter: (pkg1, pkg2) => {
+          const loadType1 = Object.keys(packagesLoadTypeMap.get(pkg1.ref) ?? {}).join('/')
+          const loadType2 = Object.keys(packagesLoadTypeMap.get(pkg2.ref) ?? {}).join('/')
+          return loadType1.localeCompare(loadType2)
+        },
         onRender: (pkg) => {
           const loadType = packagesLoadTypeMap.get(pkg.ref) ?? {}
-
           return <PackageLoadType loadType={loadType} />
         },
       },
@@ -370,7 +375,7 @@ const PackageLoadType: FC<PackageLoadTypeProps> = memo(({ loadType }) => {
 
   return (
     <HoverCard type={HoverCardType.plain} plainCardProps={plainCardProps}>
-      <PackageLoadTypeSpan>{Object.keys(loadType).join('/')}</PackageLoadTypeSpan>
+      <PackageLoadTypeTrigger>{Object.keys(loadType).join('/')}</PackageLoadTypeTrigger>
     </HoverCard>
   )
 })

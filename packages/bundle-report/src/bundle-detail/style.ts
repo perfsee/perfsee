@@ -211,3 +211,7 @@ export const PackageLoadTypeHead = styled.div({
 export const PackageLoadTypeSpan = styled.span({
   marginRight: '4px',
 })
+
+export const PackageLoadTypeTrigger = styled.span({
+  textDecoration: 'underline',
+})
