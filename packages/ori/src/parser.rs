@@ -91,18 +91,12 @@ impl BundleMeta {
               SourceMap(source_map),
             )),
             Err(e) => {
-              println!(
-                "Failed to parse source map: {:?}, file: {}",
-                e, source_map_file
-              );
+              println!("Failed to parse source map: {e:?}, file: {source_map_file}");
               None
             }
           },
           Err(e) => {
-            println!(
-              "Failed to create file reader: {:?}, file: {}",
-              e, source_map_file
-            );
+            println!("Failed to create file reader: {e:?}, file: {source_map_file}",);
             None
           }
         }
