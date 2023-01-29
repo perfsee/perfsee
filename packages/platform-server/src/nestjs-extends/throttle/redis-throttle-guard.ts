@@ -36,7 +36,7 @@ export class RedisThrottleGuard extends ThrottlerGuard {
   }
 
   getTracker(req: Request) {
-    return req.headers.authorization ?? req.ip
+    return `throttle:${req.headers.authorization ?? req.ip}`
   }
 
   getRequestResponse(context: ExecutionContext): { req: Request; res: Response } {
@@ -61,17 +61,15 @@ export class RedisThrottleGuard extends ThrottlerGuard {
     }
 
     const key = this.generateKey(context, tracker)
-    const ttls = await this.storageService.getRecord(key)
-    const nearestExpiryTime = ttls.length > 0 ? Math.ceil((ttls[0] - Date.now()) / 1000) : 0
-    if (ttls.length >= limit) {
-      res.header('Retry-After', nearestExpiryTime.toString())
+    const { timeToExpire, totalHits } = await this.storageService.increment(key, ttl)
+    if (totalHits >= limit) {
+      res.header('Retry-After', timeToExpire.toString())
       this.metrics.openApiCallThrottled(1)
       throw new ThrottlerException(this.errorMessage)
     }
     res.header(`${this.headerPrefix}-Limit`, limit.toString())
-    res.header(`${this.headerPrefix}-Remaining`, Math.max(0, limit - (ttls.length + 1)).toString())
-    res.header(`${this.headerPrefix}-Reset`, nearestExpiryTime.toString())
-    await this.storageService.addRecord(key, ttl)
+    res.header(`${this.headerPrefix}-Remaining`, (limit - totalHits).toString())
+    res.header(`${this.headerPrefix}-Reset`, timeToExpire.toString())
     return true
   }
 
