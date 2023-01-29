@@ -5295,16 +5295,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/throttler@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@nestjs/throttler@npm:3.0.0"
+"@nestjs/throttler@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@nestjs/throttler@npm:4.0.0"
   dependencies:
     md5: ^2.2.1
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
     "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0
     reflect-metadata: ^0.1.13
-  checksum: e0ef80d358bd097dbb3d414bedf44728939bdc625bb8b1f761c48db685ae3920b8784fe243ec23bcbd045a4effbc5007507228cc33c42ae536199dc763b0e7b0
+  checksum: 133f1422fb1fe7c24d2652d62fd947234976b9d054ed44089b7f7171e31f7d805628940b8985b1164c8f7be109c21e3841dc1a88d0455d830c8f16876b073f5e
   languageName: node
   linkType: hard
 
@@ -5998,7 +5998,7 @@ __metadata:
     "@nestjs/serve-static": ^3.0.0
     "@nestjs/terminus": ^9.0.0
     "@nestjs/testing": ^9.0.4
-    "@nestjs/throttler": ^3.0.0
+    "@nestjs/throttler": ^4.0.0
     "@nestjs/typeorm": ^9.0.0
     "@perfsee/server-common": "workspace:*"
     "@perfsee/shared": "workspace:*"
