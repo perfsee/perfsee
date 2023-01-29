@@ -19,18 +19,31 @@ const fs = require('fs')
 const { builtinModules } = require('module')
 const path = require('path')
 
-const cliDir = path.resolve(__dirname, './cli')
-const cliSrc = path.join(cliDir, 'index.ts')
+const { fdir } = require('fdir')
+
+const cliDeps = [
+  path.resolve(__dirname, './cli'),
+  path.resolve(__dirname, './webpack'),
+  path.resolve(__dirname, './codegen'),
+  path.resolve(__dirname, './utils'),
+  path.resolve(__dirname, '../node_modules/@perfsee/webpack/src'),
+]
+const cliSrc = path.resolve(__dirname, './cli/index.ts')
 const cliDist = `./cli.generated.${cliHash()}.js`
 const cliAbsDist = path.resolve(__dirname, cliDist)
 
 function cliHash() {
   const lockHash = crypto.createHash('sha256').update(fs.readFileSync('yarn.lock')).digest('hex').substring(0, 5)
   const hasher = crypto.createHash('sha256')
-  fs.readdirSync(cliDir).forEach((desc) => {
-    if (fs.statSync(path.join(cliDir, desc)).isFile()) {
-      hasher.update(fs.readFileSync(path.join(cliDir, desc)))
-    }
+
+  cliDeps.forEach((cliDep) => {
+    new fdir()
+      .withFullPaths()
+      .crawl(cliDep)
+      .sync()
+      .forEach((filename) => {
+        hasher.update(fs.readFileSync(filename))
+      })
   })
   return lockHash + hasher.digest('hex').substring(0, 5)
 }
