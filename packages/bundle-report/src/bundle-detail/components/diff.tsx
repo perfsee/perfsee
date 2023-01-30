@@ -122,6 +122,7 @@ export type ByteSizeWithDiffProps = Diff<Size> & {
   className?: string
   showDiffBellow?: boolean
   hideIfNonComparable?: boolean
+  underline?: boolean
 }
 
 export function ByteSizeWithDiff({
@@ -129,6 +130,7 @@ export function ByteSizeWithDiff({
   baseline,
   className,
   showDiffBellow = true,
+  underline = false,
   hideIfNonComparable = false,
 }: ByteSizeWithDiffProps) {
   const plainCardProps = useMemo<IPlainCardProps>(
@@ -151,7 +153,7 @@ export function ByteSizeWithDiff({
     return (
       <HoverCard plainCardProps={plainCardProps} type={HoverCardType.plain}>
         <Stack>
-          <ByteSize size={current.raw} className={className} />
+          <ByteSize underline={underline} size={current.raw} className={className} />
           <NumberDiff
             current={current.raw}
             baseline={baseline?.raw}
@@ -165,7 +167,7 @@ export function ByteSizeWithDiff({
 
   return (
     <HoverCard plainCardProps={plainCardProps} type={HoverCardType.plain}>
-      <ByteSize size={current.raw} className={className} />
+      <ByteSize underline={underline} size={current.raw} className={className} />
     </HoverCard>
   )
 }
@@ -176,6 +178,7 @@ export interface ByteSizeProps {
   hightlight?: boolean
   signed?: boolean
   className?: string
+  underline?: boolean
 }
 
 const ByteSizeLabel = styled('label')({})
@@ -184,27 +187,30 @@ const ByteSizeNumber = styled('span')({})
 
 const ByteSizeUnit = styled('span')({})
 
-const ByteSizeWrapper = styled.div<{ hightlight?: boolean }>(({ hightlight, theme }) => ({
-  display: 'inline-block',
-  cursor: 'pointer',
-  ...(hightlight
-    ? {
-        [`${ByteSizeLabel}, ${ByteSizeUnit}`]: {
-          color: theme!.text.colorSecondary,
-          fontSize: '12px',
-        },
-        [`${ByteSizeNumber}`]: {
-          fontSize: '16px',
-        },
-      }
-    : {}),
-}))
+const ByteSizeWrapper = styled.div<{ hightlight?: boolean; underline?: boolean }>(
+  ({ hightlight, underline, theme }) => ({
+    display: 'inline-block',
+    cursor: 'pointer',
+    ...(hightlight
+      ? {
+          [`${ByteSizeLabel}, ${ByteSizeUnit}`]: {
+            color: theme!.text.colorSecondary,
+            fontSize: '12px',
+          },
+          [`${ByteSizeNumber}`]: {
+            fontSize: '16px',
+          },
+        }
+      : {}),
+    textDecoration: underline ? 'underline' : 'none',
+  }),
+)
 
-export function ByteSize({ label, size, hightlight, signed, className }: ByteSizeProps) {
+export function ByteSize({ label, size, hightlight, signed, className, underline }: ByteSizeProps) {
   const bytes = PrettyBytes.create(size, { signed })
 
   return (
-    <ByteSizeWrapper hightlight={hightlight}>
+    <ByteSizeWrapper hightlight={hightlight} underline={underline}>
       {label && <ByteSizeLabel>{label}: </ByteSizeLabel>}
       <ByteSizeNumber className={className}>
         {bytes.prefix}

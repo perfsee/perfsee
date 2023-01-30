@@ -37,9 +37,10 @@ interface Props {
   hoverable?: boolean
 }
 
-const Wrapper = styled('div')<{ color: string }>(({ color }) => ({
+const Wrapper = styled('div')<{ color: string; underline?: boolean }>(({ color, underline }) => ({
   display: 'inline-block',
   color,
+  textDecoration: underline ? 'underline' : 'none',
 }))
 
 const SizeLabel = styled('label')(({ theme }) => ({
@@ -80,8 +81,12 @@ export const ColoredSize = ({ size, hoverable = true }: Props) => {
   }, [size, theme])
 
   const content = useMemo(
-    () => <Wrapper color={sizeColor}>{PrettyBytes.create(size.raw).toString()}</Wrapper>,
-    [size.raw, sizeColor],
+    () => (
+      <Wrapper underline={hoverable} color={sizeColor}>
+        {PrettyBytes.create(size.raw).toString()}
+      </Wrapper>
+    ),
+    [size.raw, sizeColor, hoverable],
   )
 
   return hoverable ? (

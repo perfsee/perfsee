@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { Stack, SelectionMode, IGroup, HoverCard, HoverCardType, DirectionalHint, TooltipHost } from '@fluentui/react'
+import { Stack, SelectionMode, IGroup, TooltipHost } from '@fluentui/react'
 import { groupBy } from 'lodash'
 import { FC, useMemo, useState } from 'react'
 
@@ -27,26 +27,10 @@ import { ColoredSize, TransferTime } from '../components'
 import { TableHeaderFilterWrap } from '../style'
 
 import { AssetFilter } from './asset-filter'
+import { onAssetTableRenderRow } from './assets-table-row'
 
 type AssetRow = AssetInfo & {
   isNew: boolean
-}
-
-function renderPackagesCard(packages: NonNullable<AssetInfo['packages']>) {
-  return (
-    <ul style={{ paddingRight: '20px' }}>
-      {packages.map((pkg) =>
-        typeof pkg === 'string' ? (
-          <li key={pkg}>{pkg}</li>
-        ) : (
-          <li key={pkg.path}>
-            {pkg.name}
-            {pkg.version && `@${pkg.version}`}: <ColoredSize size={pkg.size} hoverable={false} />
-          </li>
-        ),
-      )}
-    </ul>
-  )
 }
 
 interface Props {
@@ -178,20 +162,7 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
             return null
           }
 
-          return (
-            <HoverCard
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: renderPackagesCard,
-                renderData: asset.packages,
-                directionalHint: DirectionalHint.bottomRightEdge,
-                gapSpace: 10,
-              }}
-              instantOpenOnClick={true}
-            >
-              <a>(count: {asset.packages.length})</a>
-            </HoverCard>
-          )
+          return <span>count: {asset.packages.length}</span>
         },
         sorter: (a, b) => (a.packages?.length ?? 0) - (b.packages?.length ?? 0),
       },
@@ -207,6 +178,7 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
         selectionMode={SelectionMode.none}
         columns={columns}
         disableVirtualization={items.length < 100}
+        onRenderRow={onAssetTableRenderRow}
       />
     </Stack>
   )
