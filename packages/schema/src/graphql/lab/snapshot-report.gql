@@ -1,34 +1,9 @@
+#import './fragments/report.gql'
+
 query snapshotReport($projectId: ID!, $reportId: Int!) {
   project(id: $projectId) {
     snapshotReport(reportId: $reportId) {
-      id
-      status
-      lighthouseStorageKey
-      screencastStorageKey
-      flameChartStorageKey
-      sourceCoverageStorageKey
-      traceEventsStorageKey
-      createdAt
-      host
-      page {
-        id
-        name
-        isE2e
-        url
-      }
-      environment {
-        id
-        name
-      }
-      profile {
-        id
-        name
-      }
-      failedReason
-      snapshot {
-        title
-        id
-      }
+      ...report
       artifacts {
         id
         name

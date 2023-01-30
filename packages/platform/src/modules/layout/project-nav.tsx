@@ -81,7 +81,7 @@ export const ProjectNav = () => {
         <Pivot onLinkClick={handleLinkClick} selectedKey={routeParams.feature} styles={{ root: { height: '100%' } }}>
           {Object.entries(NavItem).map(
             ([key, val]) =>
-              (key !== NavItem.Settings || isAdminUser) && (
+              (val !== NavItem.Settings || isAdminUser) && (
                 <PivotItem key={key} itemKey={val} headerText={key} itemIcon={val} />
               ),
           )}

@@ -137,4 +137,10 @@ export class Project extends BaseEntity {
 
   @OneToMany('ProjectJobUsage', 'project')
   jobUsage!: ProjectJobUsage
+
+  static findOneByIdSlug(idOrSlug: string | number) {
+    return this.findOne({
+      where: typeof idOrSlug === 'number' || idOrSlug.match(/^\d+$/) ? { id: Number(idOrSlug) } : { slug: idOrSlug },
+    })
+  }
 }

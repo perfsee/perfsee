@@ -19,7 +19,7 @@ type Artifact {
   issuer: String!
 
   """the build file key in storage"""
-  buildKey: String!
+  buildKey: String! @deprecated(reason: "use `buildLink` instead")
 
   """status of bundle analyzing progress"""
   status: BundleJobStatus!
@@ -28,10 +28,10 @@ type Artifact {
   failedReason: String
 
   """the report file key in storage"""
-  reportKey: String
+  reportKey: String @deprecated(reason: "use `reportLink` instead")
 
   """the content file key in storage"""
-  contentKey: String
+  contentKey: String @deprecated(reason: "use `contentLink` instead")
 
   """total size introduced by build, report and content files, in bytes"""
   uploadSize: Int!
@@ -60,6 +60,15 @@ type Artifact {
   """all entry points of given artifact"""
   entrypoints: [ArtifactEntrypoint!]
   version: AppVersion
+
+  """the link to uploaded build tar file"""
+  buildLink: String!
+
+  """the link to build analysis report file"""
+  reportLink: String
+
+  """the link to module reference detail of a build"""
+  contentLink: String
 }
 
 enum BundleJobStatus {
@@ -406,32 +415,22 @@ type SnapshotReport {
   """
   lighthouse result key in storage, you may fetch the result with this key from storage service
   """
-  lighthouseStorageKey: String
+  lighthouseStorageKey: String @deprecated(reason: "use `reportLink` instead")
 
   """
   screen cast key in storage, you may fetch screen cast with this key from storage service
   """
-  screencastStorageKey: String
-
-  """
-  js coverage data key in storage, you can fetch result with this key at storage service
-  """
-  jsCoverageStorageKey: String
-
-  """
-  chrome track events key in storage, you may fetch track events with this key from storage service
-  """
-  traceEventsStorageKey: String
+  screencastStorageKey: String @deprecated(reason: "use `screencastLink` instead")
 
   """
   flame chart raw data key in storage, you may fetch flame chart detail with this key from storage service
   """
-  flameChartStorageKey: String
+  flameChartStorageKey: String @deprecated(reason: "use `flameChartLink` instead")
 
   """
   source coverage data key in storage, you may fetch flame chart detail with this key from storage service
   """
-  sourceCoverageStorageKey: String
+  sourceCoverageStorageKey: String @deprecated(reason: "use `sourceCoverageLink` instead")
 
   """key metrics data"""
   metrics: JSON!
@@ -465,6 +464,18 @@ type SnapshotReport {
 
   """artifacts used in this report"""
   artifacts: [Artifact!]
+
+  """the link to snapshot report detail file"""
+  reportLink: String
+
+  """the link to snapshot report screencast file"""
+  screencastLink: String
+
+  """the link to snapshot report flame Chart data file"""
+  flameChartLink: String
+
+  """the link to snapshot report source coverage data file"""
+  sourceCoverageLink: String
 }
 
 """

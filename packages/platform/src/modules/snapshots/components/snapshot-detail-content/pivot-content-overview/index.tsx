@@ -18,7 +18,6 @@ import { Stack } from '@fluentui/react'
 import { PropsWithChildren, ReactNode, useMemo } from 'react'
 
 import { ChartHeader } from '@perfsee/components/chart'
-import { getStorageLink } from '@perfsee/platform/common'
 
 import { SnapshotDetailType, SnapshotUserFlowDetailType } from '../../../snapshot-type'
 import { isLHCalculator } from '../../../utils/is-lh-calculator'
@@ -106,7 +105,7 @@ export const OverviewPivotContent = (props: Props) => {
           title={
             <RenderTimelineHead>
               <b>Render Timeline</b>
-              {report?.screencastStorageKey && <SnapshotVideo video={getStorageLink(report.screencastStorageKey)} />}
+              {report?.screencastLink && <SnapshotVideo video={report.screencastLink} />}
             </RenderTimelineHead>
           }
         >

@@ -204,7 +204,7 @@ export default class Profile {
     const environment = report.environment
     const page = report.page
     const snapshotId = report.snapshot.id
-    const rawData = await memoizeDownloadProfile(apiClient, report.flameChartStorageKey!)
+    const rawData = await memoizeDownloadProfile(apiClient, report.flameChartLink!)
     const data = memoizeLoadFlamechartData(rawData!)
     const filtered = settings.filteredProfile.includes(report.id)
     return new Profile(

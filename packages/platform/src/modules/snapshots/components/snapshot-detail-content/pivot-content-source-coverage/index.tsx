@@ -37,14 +37,14 @@ type SourceCoverageTreeMapData = LH.Treemap.Node & { highlight?: number }
 export const SourceCoveragePivotContent = (props: Props) => {
   useWideScreen()
   const [treeMapData, setTreeMapData] = useState<HierarchyNode<SourceCoverageTreeMapData>>()
-  const storageKey = (props.snapshot.report as SnapshotReportSchema)?.sourceCoverageStorageKey
+  const storageLink = (props.snapshot.report as SnapshotReportSchema)?.sourceCoverageLink
   const [{ data, loading }, dispatcher] = useModule(SourceCoverageModule)
 
   useEffect(() => {
-    if (storageKey) {
-      dispatcher.fetchSourceCoverageResult(storageKey)
+    if (storageLink) {
+      dispatcher.fetchSourceCoverageResult(storageLink)
     }
-  }, [dispatcher, storageKey])
+  }, [dispatcher, storageLink])
 
   useEffect(() => {
     return dispatcher.reset

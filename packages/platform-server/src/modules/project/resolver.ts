@@ -20,7 +20,7 @@ import { Project, User } from '@perfsee/platform-server/db'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
 import { GitHost } from '@perfsee/shared'
 
-import { CurrentUser, Auth } from '../auth'
+import { CurrentUser, Auth, SkipAuth } from '../auth'
 import { PermissionGuard, Permission } from '../permission'
 
 import { ProjectService } from './service'
@@ -44,6 +44,7 @@ export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
   @PermissionGuard(Permission.Read, 'id')
+  @SkipAuth('skip it for public project, permission guard will cover it')
   @Query(() => Project, { name: 'project', description: 'get project by id' })
   async getProjectById(@Args({ name: 'id', type: () => ID }) slug: string) {
     return this.projectService.getProject(slug)
@@ -171,6 +172,10 @@ export class ProjectResolver {
 
   @ResolveField(() => [Permission], { description: 'current user permission to this project' })
   async userPermission(@CurrentUser() user: User, @Parent() project: Project) {
+    if (!user) {
+      return []
+    }
+
     return this.projectService.getUserPermission(user, project)
   }
 }

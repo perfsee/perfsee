@@ -110,12 +110,12 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
 
   useEffect(() => {
     dispatcher.fetchReportsDetail(
-      snapshotReports.map((snapshotReports) => snapshotReports.lighthouseStorageKey).filter(Boolean) as string[],
+      snapshotReports.map((snapshotReport) => snapshotReport.reportLink).filter(Boolean) as string[],
     )
   }, [dispatcher, snapshotReports])
 
   const completedReports = useMemo(() => {
-    return snapshotReports.filter((v) => v.status === SnapshotStatus.Completed && v.lighthouseStorageKey)
+    return snapshotReports.filter((v) => v.status === SnapshotStatus.Completed && v.reportLink)
   }, [snapshotReports])
 
   if (state.detailLoading) {
@@ -126,11 +126,11 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
     return <MessageBar>No Data</MessageBar>
   } else if (completedReports.length === 1) {
     const report = completedReports[0]
-    if (!state.snapshotReportsDetail[report.lighthouseStorageKey!]) {
+    if (!state.snapshotReportsDetail[report.reportLink!]) {
       return <LoadingShimmer />
     }
 
-    const detail = { ...state.snapshotReportsDetail[report.lighthouseStorageKey!], report }
+    const detail = { ...state.snapshotReportsDetail[report.reportLink!], report }
 
     const page = report.page as SnapshotReportSchema['page'] | undefined
 
@@ -140,8 +140,8 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
           {overviewPivot}
           {page?.isE2e ? userFlowPivot : undefined}
           {assetPivot}
-          {report.flameChartStorageKey ? flamechartPivot : undefined}
-          {report.sourceCoverageStorageKey ? sourceCoveragePivot : undefined}
+          {report.flameChartLink ? flamechartPivot : undefined}
+          {report.sourceCoverageLink ? sourceCoveragePivot : undefined}
           {page?.isE2e ? undefined : analysisPivot}
         </Pivot>
         <PivotContent snapshot={detail} type={tabName} />
@@ -156,7 +156,7 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
     )
   } else {
     const details = completedReports.map((report) => ({
-      ...state.snapshotReportsDetail[report.lighthouseStorageKey!],
+      ...state.snapshotReportsDetail[report.reportLink!],
       report,
     }))
 

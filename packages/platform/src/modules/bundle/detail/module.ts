@@ -28,7 +28,7 @@ import {
   distinctUntilChanged,
 } from 'rxjs/operators'
 
-import { GraphQLClient, createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
+import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import { ArtifactQuery, artifactQuery, ArtifactWithBaselineQuery, artifactWithBaselineQuery } from '@perfsee/schema'
 import { BundleDiff, BundleResult, diffBundleResult } from '@perfsee/shared'
 
@@ -105,11 +105,11 @@ export class BundleModule extends EffectModule<State> {
   @Effect()
   getReport() {
     return combineLatest([this.state$]).pipe(
-      map(([{ current: bundle }]) => bundle?.reportKey),
+      map(([{ current: bundle }]) => bundle?.reportLink),
       distinctUntilChanged(),
       filter(Boolean),
       switchMap((key) =>
-        this.fetch.get<BundleResult>(getStorageLink(key)).pipe(
+        this.fetch.get<BundleResult>(key).pipe(
           map((report) => this.getActions().setReport(report)),
           createErrorCatcher('Failed to fetch bundle report.', false),
           catchError(() => EMPTY),
@@ -121,11 +121,11 @@ export class BundleModule extends EffectModule<State> {
   @Effect()
   getBaselineReport() {
     return combineLatest([this.state$]).pipe(
-      map(([{ baseline }]) => baseline?.reportKey),
+      map(([{ baseline }]) => baseline?.reportLink),
       distinctUntilChanged(),
       filter(Boolean),
       switchMap((key) =>
-        this.fetch.get<BundleResult>(getStorageLink(key)).pipe(
+        this.fetch.get<BundleResult>(key).pipe(
           map((report) => this.getActions().setBaselineReport(report)),
           createErrorCatcher('Failed to fetch bundle report.', false),
           catchError(() => EMPTY),

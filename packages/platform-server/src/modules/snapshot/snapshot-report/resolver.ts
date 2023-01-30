@@ -29,6 +29,7 @@ import {
   SourceIssue,
 } from '@perfsee/platform-server/db'
 import { transformInputType } from '@perfsee/platform-server/graphql'
+import { artifactLink } from '@perfsee/platform-server/utils'
 
 import { Permission, PermissionGuard } from '../../permission'
 import { ProjectService } from '../../project/service'
@@ -94,6 +95,26 @@ export class ReportResolver {
   @ResolveField(() => [Artifact], { name: 'artifacts', description: 'artifacts used in this report', nullable: true })
   async artifacts(@Parent() report: SnapshotReport) {
     return this.service.getSnapshotReportArtifacts(report.id)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to snapshot report detail file' })
+  reportLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.lighthouseStorageKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to snapshot report screencast file' })
+  screencastLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.screencastStorageKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to snapshot report flame Chart data file' })
+  flameChartLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.flameChartStorageKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to snapshot report source coverage data file' })
+  sourceCoverageLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.sourceCoverageStorageKey)
   }
 }
 

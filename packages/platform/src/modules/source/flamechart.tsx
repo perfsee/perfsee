@@ -62,7 +62,7 @@ function getTimingsFromMetric(name: MetricType, value: number): Timing | null {
 export const FlamechartView: React.FunctionComponent<{ issue: SourceIssue }> = memo(({ issue }) => {
   const {
     frameKey,
-    snapshotReport: { id: reportId, flameChartStorageKey },
+    snapshotReport: { id: reportId, flameChartLink },
   } = issue
   const [{ flamechart, metrics, loadingFlamechart, loadingMetrics }, dispatcher] = useModule(FlamechartModule)
   const project = useModuleState(ProjectModule, {
@@ -72,11 +72,11 @@ export const FlamechartView: React.FunctionComponent<{ issue: SourceIssue }> = m
 
   const onReload = useCallback(() => {
     if (project) {
-      dispatcher.fetchFlamechartData(flameChartStorageKey!)
+      dispatcher.fetchFlamechartData(flameChartLink!)
       dispatcher.fetchMetrics({ reportId, projectId: project.id })
     }
     return dispatcher.reset
-  }, [dispatcher, flameChartStorageKey, reportId, project])
+  }, [dispatcher, flameChartLink, reportId, project])
 
   useEffect(() => {
     return onReload()

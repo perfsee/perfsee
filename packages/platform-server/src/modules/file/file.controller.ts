@@ -14,21 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Controller, Get, Query, Res, HttpException, HttpStatus } from '@nestjs/common'
+import { Controller, Get, Query, Res, HttpException, HttpStatus, Param } from '@nestjs/common'
 import { Response } from 'express'
 import FileType from 'file-type'
 
 import { Logger } from '@perfsee/platform-server/logger'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { artifactKey } from '@perfsee/platform-server/utils'
 
 import { Auth } from '../auth'
+import { Permission, PermissionGuard } from '../permission'
 
-@Auth()
-@Controller('/v1/file')
+@Controller('/v1')
 export class FileController {
   constructor(private readonly storage: ObjectStorage, private readonly logger: Logger) {}
 
-  @Get()
+  /**
+   * @deprecated use /v1/artifacts/:key instead
+   */
+  @Auth()
+  @Get('/file')
   async resource(@Res() res: Response, @Query('key') name: string) {
     if (!name) {
       throw new HttpException('Resource is required', HttpStatus.BAD_REQUEST)
@@ -51,6 +56,36 @@ export class FileController {
     } catch (error) {
       this.logger.error('failed to get file', { name, error })
       throw new HttpException(`${name} not found`, HttpStatus.NOT_FOUND)
+    }
+  }
+}
+
+@Controller('/artifacts')
+export class JobArtifactController {
+  constructor(private readonly storage: ObjectStorage, private readonly logger: Logger) {}
+
+  @PermissionGuard(Permission.Read, 'projectId')
+  @Get('/:projectId/*')
+  async getProjectArtifacts(@Res() res: Response, @Param() params: Record<string, string>) {
+    const key = artifactKey(params.projectId, params[0])
+
+    try {
+      const stream = await this.storage.getStream(key)
+      res.set('cache-control', 'public, max-age=6048000, immutable')
+      // fast pass and in the most case
+      if (key.endsWith('.json')) {
+        res.set('content-type', 'application/json')
+        stream.pipe(res)
+      } else {
+        const contentWithType = await FileType.stream(stream)
+        if (contentWithType.fileType) {
+          res.set('content-type', contentWithType.fileType.mime)
+        }
+        contentWithType.pipe(res)
+      }
+    } catch (error) {
+      this.logger.error('failed to get project artifact ', { key, error })
+      throw new HttpException(`${key} not found`, HttpStatus.NOT_FOUND)
     }
   }
 }

@@ -19,7 +19,7 @@ import { Draft, freeze } from 'immer'
 import { Observable } from 'rxjs'
 import { switchMap, map, filter, startWith, endWith, withLatestFrom } from 'rxjs/operators'
 
-import { createErrorCatcher, RxFetch, getStorageLink, GraphQLClient } from '@perfsee/platform/common'
+import { createErrorCatcher, RxFetch, GraphQLClient } from '@perfsee/platform/common'
 import { artifactQuery } from '@perfsee/schema'
 import { ModuleTreeNode } from '@perfsee/shared'
 
@@ -80,7 +80,7 @@ export class BundleContentModule extends EffectModule<State> {
           })
           .pipe(
             createErrorCatcher('Failed to get bundle content storage key'),
-            map((data) => this.getActions().fetchContentFromStorage(data.project.artifact.contentKey)),
+            map((data) => this.getActions().fetchContentFromStorage(data.project.artifact.contentLink)),
             startWith(this.getActions().setLoading(true)),
           ),
       ),
@@ -92,7 +92,7 @@ export class BundleContentModule extends EffectModule<State> {
     return payload$.pipe(
       filter((key) => !!key),
       switchMap((key) =>
-        this.fetch.get<ModuleTreeNode[]>(getStorageLink(key!)).pipe(
+        this.fetch.get<ModuleTreeNode[]>(key!).pipe(
           createErrorCatcher('Failed to fetch bundle content.'),
           map((res) => this.getActions().setContent(res)),
           endWith(this.getActions().setLoading(false)),

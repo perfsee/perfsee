@@ -28,7 +28,7 @@ type Props = {
 export const FlameChartPivotContent = (props: Props) => {
   const { snapshot } = props
 
-  if ('flameChartStorageKey' in snapshot.report && snapshot.report.flameChartStorageKey) {
+  if ('flameChartLink' in snapshot.report && snapshot.report.flameChartLink) {
     const tasksBaseTimestamp =
       snapshot.traceData && snapshot.traceData.length > 0
         ? snapshot.traceData[0].event.ts - snapshot.traceData[0].startTime * 1000
@@ -36,7 +36,7 @@ export const FlameChartPivotContent = (props: Props) => {
     return (
       <FlamechartContainer>
         <FlamechartView
-          flameChartStorageKey={snapshot.report.flameChartStorageKey}
+          flameChartLink={snapshot.report.flameChartLink}
           requests={snapshot.requests}
           requestsBaseTimestamp={snapshot.requestsBaseTimestamp}
           tasks={snapshot.traceData}

@@ -19,7 +19,7 @@ import { Draft, freeze } from 'immer'
 import { from, forkJoin, Observable } from 'rxjs'
 import { switchMap, map, withLatestFrom, filter, startWith, mergeMap, endWith } from 'rxjs/operators'
 
-import { GraphQLClient, createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
+import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import { snapshotReportsByIdsQuery, snapshotReportQuery } from '@perfsee/schema'
 import { LHStoredSchema } from '@perfsee/shared'
 
@@ -133,9 +133,7 @@ export class SnapshotModule extends EffectModule<State> {
       withLatestFrom(this.state$),
       mergeMap(([keys, { snapshotReportsDetail }]) => {
         return forkJoin(
-          keys
-            .filter((key) => !snapshotReportsDetail[key])
-            .map((key) => this.fetch.get<LHStoredSchema>(getStorageLink(key))),
+          keys.filter((key) => !snapshotReportsDetail[key]).map((key) => this.fetch.get<LHStoredSchema>(key)),
         ).pipe(
           mergeMap((reports) => {
             return from(reports.map((report, i) => this.getActions().setReportDetail({ key: keys[i], detail: report })))

@@ -29,6 +29,7 @@ import {
 import { Artifact, Project, ArtifactEntrypoint, AppVersion } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
+import { artifactLink } from '@perfsee/platform-server/utils'
 
 import { PermissionGuard, Permission } from '../permission'
 import { ProjectService } from '../project/service'
@@ -176,6 +177,21 @@ export class ArtifactResolver {
   })
   async version(@Parent() artifact: Artifact) {
     return artifact.version ?? (await AppVersion.findOneBy({ projectId: artifact.projectId, hash: artifact.hash }))
+  }
+
+  @ResolveField(() => String, { description: 'the link to uploaded build tar file' })
+  buildLink(@Parent() artifact: Artifact) {
+    return artifactLink(artifact.buildKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to build analysis report file' })
+  reportLink(@Parent() artifact: Artifact) {
+    return artifactLink(artifact.reportKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to module reference detail of a build' })
+  contentLink(@Parent() artifact: Artifact) {
+    return artifactLink(artifact.contentKey)
   }
 }
 

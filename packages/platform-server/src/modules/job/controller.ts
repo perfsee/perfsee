@@ -37,6 +37,7 @@ import { EventEmitter } from '@perfsee/platform-server/event'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { artifactKey } from '@perfsee/platform-server/utils/artifact-link'
 import {
   JobRequestParams,
   JobRequestResponse,
@@ -185,7 +186,7 @@ export class JobController {
       throw new ForbiddenException('JobId not match the runner')
     }
 
-    const finalKey = 'artifacts/' + job.projectId + '/' + key
+    const finalKey = artifactKey(job.projectId, key)
     await this.storage.upload(finalKey, buf)
 
     this.event.emit(`${job.jobType}.upload`, job.entityId, buf.byteLength)

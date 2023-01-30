@@ -6,9 +6,9 @@ fragment artifact on Artifact {
   status
   duration
   failedReason
-  buildKey
-  reportKey
-  contentKey
+  buildLink
+  reportLink
+  contentLink
   score
   createdAt
   version {

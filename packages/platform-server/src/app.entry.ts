@@ -41,6 +41,12 @@ export async function createApp() {
   const config = app.get(Config)
   const metrics = app.get(Metric)
 
+  if (config.publicPath !== config.origin) {
+    app.enableCors({
+      origin: config.publicPath,
+    })
+  }
+
   app.set('trust proxy', 1)
   app.use(
     session({

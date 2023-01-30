@@ -37,6 +37,12 @@ export const getDefaultPerfseeConfig: () => PerfseeConfig = () => ({
   host: 'localhost',
   port: 3000,
   path: '',
+  get publicPath() {
+    return this._publicPath ?? this.origin
+  },
+  set publicPath(value: string) {
+    this._publicPath = value
+  },
   get origin() {
     return `${this.https ? 'https' : 'http'}://${this.host}${this.host === 'localhost' ? `:${this.port}` : ''}`
   },

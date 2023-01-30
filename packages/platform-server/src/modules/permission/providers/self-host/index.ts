@@ -47,7 +47,10 @@ export class SelfHostPermissionProvider extends PermissionProvider {
       return [Permission.Admin]
     }
 
-    const project = await Project.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+    const project = await Project.findOneByIdSlug(id)
+    if (!project) {
+      throw new Error('Project not found')
+    }
 
     const permissions = await UserPermission.findBy({ userId: user.id, projectId: project.id })
     return permissions.map((permission) => permission.permission)
@@ -58,7 +61,10 @@ export class SelfHostPermissionProvider extends PermissionProvider {
       return true
     }
 
-    const project = await Project.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+    const project = await Project.findOneByIdSlug(id)
+    if (!project) {
+      throw new Error('Project not found')
+    }
 
     // pass read permission check if project is public
     if (project.isPublic && permission === Permission.Read) {

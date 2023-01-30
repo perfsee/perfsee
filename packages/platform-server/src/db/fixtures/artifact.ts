@@ -31,7 +31,7 @@ registerEntityFactory(Artifact, () =>
     issuer: faker.internet.email(),
     tag: faker.system.semver(),
     name: 'main',
-    buildKey: faker.system.commonFileName('tar'),
+    buildKey: 'artifacts/' + faker.system.commonFileName('tar'),
     status: BundleJobStatus.Pending,
   }),
 )
