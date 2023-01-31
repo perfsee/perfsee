@@ -1,0 +1,16 @@
+mutation createWebhookForProject($projectId: ID!, $input: WebhookInput!) {
+  createWebhookForProject(projectId: $projectId, input: $input) {
+    id
+    url
+    secret
+    method
+    eventType
+    lastDelivery {
+      startTime
+      endTime
+      statusCode
+      isSuccess
+      deliveryId
+    }
+  }
+}

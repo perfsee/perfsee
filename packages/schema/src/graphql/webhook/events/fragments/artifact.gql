@@ -1,0 +1,14 @@
+fragment webhookArtifact on Artifact {
+  id
+  branch
+  name
+  hash
+  status
+  duration
+  failedReason
+  buildLink
+  reportLink
+  contentLink
+  score
+  createdAt
+}

@@ -21,6 +21,7 @@ import {
   Artifact,
   InternalIdUsage,
   Page,
+  Project,
   Snapshot,
   SnapshotReport,
   SnapshotReportWithArtifact,
@@ -31,7 +32,7 @@ import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
-import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
+import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult } from '@perfsee/server-common'
 import { FlameChartDiagnostic, LHStoredSchema } from '@perfsee/shared'
 
 import { ProjectUsageService } from '../project-usage/service'
@@ -54,6 +55,25 @@ export class SourceService implements OnApplicationBootstrap {
 
   onApplicationBootstrap() {
     this.event.emit('job.register_payload_getter', JobType.SourceAnalyze, this.getSourceJobPayload.bind(this))
+  }
+
+  async completeSource({
+    projectId,
+    reportId,
+    artifactIds,
+    diagnostics,
+    flameChartStorageKey,
+    sourceCoverageStorageKey,
+  }: SourceAnalyzeJobResult) {
+    await this.updateReport(reportId, artifactIds, flameChartStorageKey, sourceCoverageStorageKey)
+    await this.saveSourceIssues(projectId, reportId, diagnostics)
+    const project = await Project.findOneByOrFail({ id: projectId })
+    const snapshotReport = await SnapshotReport.findOneByOrFail({ id: reportId })
+    this.event.emit('webhook.deliver', project, {
+      eventType: 'source:finished',
+      projectSlug: project.slug,
+      snapshotReportIid: snapshotReport.iid,
+    })
   }
 
   async updateReport(

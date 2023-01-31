@@ -26,9 +26,7 @@ test('items have coverage report', async (t) => {
   })
   await controller.onReceiveAnalyzeResult(analyzeResult)
 
-  t.is(service.updateReport.getCall(0).args[0], 1)
-  t.true(service.updateReport.calledOnce)
-  t.true(service.saveSourceIssues.calledOnce)
+  t.true(service.completeSource.calledOnce)
 })
 
 test('update source upload file size', async (t) => {

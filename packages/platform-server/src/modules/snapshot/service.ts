@@ -412,6 +412,11 @@ export class SnapshotService implements OnApplicationBootstrap {
         const project = await Project.findOneByOrFail({ id: snapshot.projectId })
         await this.sendLabNotification(snapshot, reports)
         await this.checkSuite.endLabCheck(project, snapshot, reports)
+        this.event.emit('webhook.deliver', project, {
+          eventType: 'lab:snapshot-completed',
+          projectSlug: project.slug,
+          snapshotIid: snapshot.iid,
+        })
       }
     }
   }
@@ -437,6 +442,12 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     if (report.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
+      const project = await Project.findOneByOrFail({ id: report.projectId })
+      this.event.emit('webhook.deliver', project, {
+        eventType: 'lab:snapshot-report-completed',
+        projectSlug: project.slug,
+        snapshotReportIid: report.iid,
+      })
       this.source.startSourceIssueAnalyze([report]).catch((e) => {
         this.logger.error(e, { phase: 'source analyze' })
       })

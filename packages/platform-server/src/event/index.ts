@@ -19,7 +19,16 @@ import { EventEmitter2, EventEmitterModule, OnEvent as RawOnEvent } from '@nestj
 
 import { JobType, CreateJobEvent } from '@perfsee/server-common'
 
-type KnownEvent = 'job.create' | 'job.register_payload_getter' | 'maintenance.enter' | 'maintenance.leave'
+import { Project } from '../db'
+
+import { WebhookEventParameters } from './webhook-events'
+
+type KnownEvent =
+  | 'job.create'
+  | 'job.register_payload_getter'
+  | 'maintenance.enter'
+  | 'maintenance.leave'
+  | 'webhook.deliver'
 type DynamicEvent = JobType | `${JobType}.update` | `${JobType}.error` | `${JobType}.upload`
 export type Event = DynamicEvent | KnownEvent
 
@@ -35,6 +44,10 @@ type EventPayload =
   | {
       type: `${JobType}.error`
       payload: [number, string]
+    }
+  | {
+      type: 'webhook.deliver'
+      payload: [Project, WebhookEventParameters]
     }
 
 type ExtractPayload<T extends Event> = Extract<EventPayload, { type: T }>['payload'] extends never

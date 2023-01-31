@@ -43,6 +43,7 @@ import type { Snapshot } from './snapshot.entity'
 import type { SourceIssue } from './source-issue.entity'
 import type { Timer } from './timer.entity'
 import type { UserPermission } from './user-permission.entity'
+import type { Webhook } from './webhook.entity'
 
 registerEnumType(GitHost, { name: 'GitHost' })
 
@@ -137,6 +138,9 @@ export class Project extends BaseEntity {
 
   @OneToMany('ProjectJobUsage', 'project')
   jobUsage!: ProjectJobUsage
+
+  @OneToMany('Webhook', 'project')
+  webhooks!: Webhook[]
 
   static findOneByIdSlug(idOrSlug: string | number) {
     return this.findOne({

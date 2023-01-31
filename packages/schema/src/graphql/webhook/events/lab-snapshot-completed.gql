@@ -1,0 +1,12 @@
+#import './fragments/project.gql'
+#import './fragments/snapshot.gql'
+#import './fragments/snapshot-report.gql'
+
+query labSnapshotCompletedEvent($projectSlug: ID!, $snapshotIid: Int!) {
+  project(id: $projectSlug) {
+    ...webhookProject
+    snapshot(snapshotId: $snapshotIid) {
+      ...webhookSnapshot
+    }
+  }
+}

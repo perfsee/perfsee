@@ -1,0 +1,15 @@
+#import './fragments/snapshot-report.gql'
+
+fragment webhookSnapshot on Snapshot {
+  id
+  trigger
+  status
+  startedAt
+  createdAt
+  failedReason
+  title
+  hash
+  snapshotReports {
+    ...webhookSnapshotReport
+  }
+}
