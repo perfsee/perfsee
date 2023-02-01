@@ -1,6 +1,0 @@
-query application($id: Int!) {
-  application(id: $id) {
-    id
-    username
-  }
-}

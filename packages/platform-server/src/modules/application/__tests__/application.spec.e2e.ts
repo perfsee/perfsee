@@ -51,7 +51,7 @@ test.serial('create application', async (t) => {
   const response = await gqlClient.query({
     query: applicationQuery,
     variables: {
-      id: createResponse.createApplication.application.id,
+      name: createResponse.createApplication.application.username,
     },
   })
 

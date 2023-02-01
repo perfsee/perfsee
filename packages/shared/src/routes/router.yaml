@@ -111,6 +111,13 @@ paths:
       jobTrace:
         path: /jobs/:type/:entityId
         title: '{type} job #{entityId}'
+  app:
+    base: /apps/:appName
+    title: 'Apps'
+    paths:
+      install:
+        path: /install
+        title: Install {appName}
   admin:
     base: /admin
     paths:

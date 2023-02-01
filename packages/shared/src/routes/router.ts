@@ -46,6 +46,7 @@ export interface RouteTypes {
     settings: Params<'projectId'> & Partial<Params<'settingName'>>
     jobTrace: Params<'projectId' | 'type' | 'entityId'>
   }
+  app: { home: Params<'appName'>; install: Params<'appName'> }
   admin: {
     home: void
     part: Partial<Params<'part'>>
@@ -97,6 +98,7 @@ export const staticPath = {
     settings: '/projects/:projectId/settings/:settingName?',
     jobTrace: '/projects/:projectId/jobs/:type/:entityId',
   },
+  app: { home: '/apps/:appName', install: '/apps/:appName/install' },
   admin: {
     home: '/admin',
     part: '/admin/:part?',
@@ -182,6 +184,10 @@ export const pathFactory = {
       '/projects/:projectId/jobs/:type/:entityId',
     ),
   },
+  app: {
+    home: makePathsFrom<FactoryParams<RouteTypes['app']['home']>>('/apps/:appName'),
+    install: makePathsFrom<FactoryParams<RouteTypes['app']['install']>>('/apps/:appName/install'),
+  },
   admin: {
     home: makePathsFrom<FactoryParams<RouteTypes['admin']['home']>>('/admin'),
     part: makePathsFrom<FactoryParams<RouteTypes['admin']['part']>>('/admin/:part?'),
@@ -243,6 +249,8 @@ export const titleFactory = {
     makeTitlesFrom('Setting {settingName} | {projectId} | Perfsee', data),
   '/projects/:projectId/jobs/:type/:entityId': (data: Record<string, any>) =>
     makeTitlesFrom('{type} job #{entityId} | {projectId} | Perfsee', data),
+  '/apps/:appName': (data: Record<string, any>) => makeTitlesFrom('Apps | Perfsee', data),
+  '/apps/:appName/install': (data: Record<string, any>) => makeTitlesFrom('Install {appName} | Apps | Perfsee', data),
   '/admin': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/:part?': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/admin/settings': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),

@@ -492,6 +492,7 @@ type User {
 
 type Application {
   username: String!
+  avatarUrl: String
 
   """issue created timestamp"""
   createdAt: DateTime!
@@ -1130,6 +1131,9 @@ type Query {
 
     """search project with git namespace/name"""
     query: String
+
+    """filter project with permission"""
+    permission: Permission
   ): PaginatedProjects!
   user: User
   searchUsers(query: String!): [SearchUserResult!]!
@@ -1162,7 +1166,7 @@ type Query {
   connections: [ConnectionType!]!
   devices: [DeviceType!]!
   availableOAuthProviders: [ExternalAccount!]!
-  application(id: Int!): Application!
+  application(id: Int, name: String): Application!
   applications(pagination: PaginationInput = {first: 10}): PaginatedApplications!
   applicationSettings: ApplicationSettings!
   zone: Zone!

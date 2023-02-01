@@ -92,7 +92,13 @@ export class ProjectService {
       .getMany()
   }
 
-  async getProjects(user: User, { first, skip, after }: PaginationInput, query?: string, starOnly = false) {
+  async getProjects(
+    user: User,
+    { first, skip, after }: PaginationInput,
+    query?: string,
+    starOnly = false,
+    permission = Permission.Read,
+  ) {
     const queryBuilder = Project.createQueryBuilder('project')
 
     // only allow to query projects that the user starred
@@ -103,15 +109,23 @@ export class ProjectService {
     }
 
     // only allow to query projects that the user can see
-    const allowProjectIds = await this.permissionProvider.userAllowList(user, Permission.Read)
+    const allowProjectIds = await this.permissionProvider.userAllowList(user, permission)
     if (allowProjectIds.length) {
       queryBuilder.andWhere(
         new Brackets((builder) => {
-          builder.andWhereInIds(allowProjectIds).orWhere('is_public is true')
+          if (permission === Permission.Read) {
+            // read permission include public
+            builder.andWhereInIds(allowProjectIds).orWhere('is_public is true')
+          } else {
+            builder.andWhereInIds(allowProjectIds)
+          }
         }),
       )
     } else {
-      queryBuilder.andWhere('is_public is true')
+      if (permission === Permission.Read) {
+        // read permission include public
+        queryBuilder.andWhere('is_public is true')
+      }
     }
 
     // fuzzy matching

@@ -20,7 +20,7 @@ import { Observable } from 'rxjs'
 import { switchMap, map, startWith, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { ProjectsQuery, projectsQuery } from '@perfsee/schema'
+import { Permission, ProjectsQuery, projectsQuery } from '@perfsee/schema'
 
 export type ProjectNode = ProjectsQuery['projects']['edges'][0]['node']
 
@@ -59,13 +59,15 @@ export class ProjectsModule extends EffectModule<State> {
   }
 
   @Effect()
-  getProjects(payload$: Observable<{ page: number; pageSize: number; query: string; starred: boolean }>) {
+  getProjects(
+    payload$: Observable<{ page: number; pageSize: number; query: string; starred: boolean; permission?: Permission }>,
+  ) {
     return payload$.pipe(
-      switchMap(({ page, pageSize, starred, query }) =>
+      switchMap(({ page, pageSize, starred, query, permission }) =>
         this.client
           .query({
             query: projectsQuery,
-            variables: { input: { skip: (page - 1) * pageSize, first: pageSize }, starred, query },
+            variables: { input: { skip: (page - 1) * pageSize, first: pageSize }, starred, query, permission },
           })
           .pipe(
             createErrorCatcher('Failed to get projects list.'),

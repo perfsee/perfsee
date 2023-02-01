@@ -31,3 +31,4 @@ export const FeaturesBundle = lazy(() => import(/* webpackChunkName: "home" */ '
 export const FeaturesLab = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/lab'))
 export const FeaturesSource = lazy(() => import(/* webpackChunkName: "home" */ '../modules/home/features/source'))
 export const Admin = lazy(() => import(/* webpackChunkName: "admin" */ '../modules/admin'))
+export const AppInstaller = lazy(() => import(/* webpackChunkName: "appInstaller" */ '../modules/apps'))
