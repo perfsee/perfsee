@@ -299,6 +299,9 @@ type Project {
   """get project schedule task setting"""
   timer: Timer
   authorizedApplications: [ProjectAuthorizedApplicationsNode!]!
+
+  """All webhooks in project"""
+  webhooks: [Webhook!]!
 }
 
 enum GitHost {
@@ -511,6 +514,7 @@ type Application {
 
   """projects that application can access"""
   authorizedProjects: [ApplicationAuthorizedProjectsNode!]!
+  webhooks: [Webhook!]!
 }
 
 type ApplicationSettings {
@@ -854,6 +858,17 @@ type RunnerScript {
   enable: Boolean!
 }
 
+type Webhook {
+  id: ID!
+
+  """the url will receive the webhook requests"""
+  url: String!
+  secret: String
+  method: String!
+  eventType: String!
+  lastDelivery: DeliveryRecord
+}
+
 type PageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -1107,6 +1122,14 @@ type PaginatedApplications {
   pageInfo: PageInfo!
 }
 
+type DeliveryRecord {
+  startTime: DateTime!
+  endTime: DateTime!
+  statusCode: Int
+  isSuccess: Boolean!
+  deliveryId: ID!
+}
+
 """message target setting"""
 input MessageTargetInput {
   userEmails: [String!]!
@@ -1297,6 +1320,10 @@ type Mutation {
   createUsagePack(input: CreateUsagePackInput!): UsagePack!
   updateUsagePack(input: UpdateUsagePackInput!): UsagePack!
   setDefaultUsagePack(id: Int!): Boolean!
+  createWebhookForProject(projectId: ID!, input: WebhookInput!): Webhook!
+  createWebhookForApplication(applicationId: Int!, input: WebhookInput!): Webhook!
+  updateWebhook(id: ID!, input: WebhookInput!): Webhook!
+  deleteWebhook(id: ID!): Boolean!
 }
 
 input CreateProjectInput {
@@ -1563,4 +1590,11 @@ input UpdateUsagePackInput {
   """total storage quota, in MB, -1 means no limit"""
   storage: Int
   id: Int!
+}
+
+input WebhookInput {
+  url: String!
+  secret: String
+  method: String!
+  eventType: String!
 }

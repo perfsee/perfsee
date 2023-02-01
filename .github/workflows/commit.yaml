@@ -63,7 +63,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Test
-        run: yarn test:concurrent
+        run: |
+          yarn codegen
+          yarn test:concurrent
       - name: Upload coverage
         if: ${{ matrix.host == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v3.1.1

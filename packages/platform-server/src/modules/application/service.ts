@@ -158,4 +158,14 @@ export class ApplicationService {
 
     return app
   }
+
+  async getApplicationByName(appName: string) {
+    const app = await User.findOneBy({ username: appName, isApp: true })
+
+    if (!app) {
+      throw new UserError('Application not found')
+    }
+
+    return app
+  }
 }

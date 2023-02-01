@@ -316,6 +316,11 @@ export class ArtifactService implements OnApplicationBootstrap {
     } else {
       const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
       await this.checkSuiteService.endBundleCheck(artifact, baseline, project, update)
+      this.event.emit('webhook.deliver', project, {
+        eventType: 'bundle:finished',
+        projectSlug: project.slug,
+        artifactIid: artifact.iid,
+      })
     }
   }
 

@@ -33,6 +33,7 @@ import { SettingsPermission } from './settings-permission'
 import { SettingsProfiles } from './settings-profiles'
 import { SettingsSchedule } from './settings-schedule'
 import { ProjectUsage } from './settings-usage'
+import { SettingsWebhook } from './settings-webhook'
 
 enum TabEnum {
   General = 'basic',
@@ -43,6 +44,7 @@ enum TabEnum {
   Environments = 'environments',
   Usage = 'usage',
   E2E = 'e2e',
+  Webhook = 'webhook',
 }
 
 export const Settings = () => {
@@ -102,6 +104,8 @@ export const Settings = () => {
         return <ProjectUsage />
       case TabEnum.E2E:
         return <SettingsE2e />
+      case TabEnum.Webhook:
+        return <SettingsWebhook />
       default:
         return <SettingsBasic />
     }

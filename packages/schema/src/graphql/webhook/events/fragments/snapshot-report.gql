@@ -1,0 +1,35 @@
+fragment webhookSnapshotReport on SnapshotReport {
+  id
+  status
+  reportLink
+  screencastLink
+  flameChartLink
+  sourceCoverageLink
+  createdAt
+  host
+  page {
+    id
+    name
+    isE2e
+    url
+  }
+  environment {
+    id
+    name
+  }
+  profile {
+    id
+    name
+  }
+  failedReason
+  snapshot {
+    title
+    id
+  }
+  artifacts {
+    id
+    name
+    hash
+    branch
+  }
+}

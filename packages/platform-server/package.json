@@ -54,6 +54,7 @@
   "devDependencies": {
     "@faker-js/faker": "^7.3.0",
     "@nestjs/serve-static": "^3.0.0",
+    "@perfsee/schema": "workspace:*",
     "@perfsee/server-common": "workspace:*",
     "@perfsee/shared": "workspace:*",
     "@types/debug": "^4.1.7",

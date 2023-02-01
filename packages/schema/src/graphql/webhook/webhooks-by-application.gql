@@ -1,0 +1,18 @@
+query webhooksByApplication($applicationId: Int!) {
+  application(id: $applicationId) {
+    webhooks {
+      id
+      url
+      secret
+      method
+      eventType
+      lastDelivery {
+        startTime
+        endTime
+        statusCode
+        isSuccess
+        deliveryId
+      }
+    }
+  }
+}

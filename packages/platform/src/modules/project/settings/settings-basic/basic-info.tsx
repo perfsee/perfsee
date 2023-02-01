@@ -21,6 +21,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 
 import { ForeignLink } from '@perfsee/components'
 import { notify } from '@perfsee/platform/common'
+import { AuthApps } from '@perfsee/platform/modules/components'
 import { ProjectModule } from '@perfsee/platform/modules/shared'
 import { CommonGitHost } from '@perfsee/shared'
 import { isBaselineRegex } from '@perfsee/shared/utils'
@@ -115,6 +116,9 @@ export const BasicInfo = () => {
           <ForeignLink href={gitHostRepoUrl}>{gitHostRepoUrl}</ForeignLink>
         </Stack.Item>
       )}
+      <Stack.Item>
+        <AuthApps projectId={project.id} />
+      </Stack.Item>
       <Stack.Item styles={{ root: { maxWidth: SelectWidth } }} tokens={{ padding: '8px 0 0 0' }}>
         <BaselineInput
           defaultValue={updatedArtifactBaselineBranch ?? artifactBaselineBranch}

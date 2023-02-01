@@ -6,6 +6,11 @@ paths:
     paths:
       api:
         path: /api
+      settings:
+        base: /settings
+        paths:
+          webhook:
+            path: /webhook-setting
   features:
     base: /features
     paths:

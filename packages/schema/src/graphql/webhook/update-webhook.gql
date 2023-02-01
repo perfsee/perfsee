@@ -1,0 +1,16 @@
+mutation updateWebhook($webhookId: ID!, $input: WebhookInput!) {
+  updateWebhook(id: $webhookId, input: $input) {
+    id
+    url
+    secret
+    method
+    eventType
+    lastDelivery {
+      startTime
+      endTime
+      statusCode
+      isSuccess
+      deliveryId
+    }
+  }
+}

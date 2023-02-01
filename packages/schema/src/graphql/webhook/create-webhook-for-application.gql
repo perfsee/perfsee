@@ -1,0 +1,16 @@
+mutation createWebhookForApplication($applicationId: Int!, $input: WebhookInput!) {
+  createWebhookForApplication(applicationId: $applicationId, input: $input) {
+    id
+    url
+    secret
+    method
+    eventType
+    lastDelivery {
+      startTime
+      endTime
+      statusCode
+      isSuccess
+      deliveryId
+    }
+  }
+}

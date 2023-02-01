@@ -17,15 +17,50 @@ limitations under the License.
 import { join } from 'path'
 
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
-import { Module } from '@nestjs/common'
-import { GraphQLModule } from '@nestjs/graphql'
+import { Global, Injectable, Module } from '@nestjs/common'
+import { ModuleRef } from '@nestjs/core'
+import { AbstractGraphQLDriver, GraphQLModule } from '@nestjs/graphql'
 import GraphQLJSON from 'graphql-type-json'
 
 import { Config } from './config'
-import { LogPlugin } from './graphql'
+import type { User } from './db'
+import { GraphQLQuery, LogPlugin, QueryResponse, RequestOptions } from './graphql'
 import { Logger } from './logger'
 import { Metric } from './metrics'
 
+@Injectable()
+export class GqlService {
+  private graphqlAdapter: ApolloDriver | undefined
+  constructor(private readonly moduleRef: ModuleRef) {}
+
+  /**
+   * Run a graphql query without http. Used in the webhook module.
+   */
+  async query<Q extends GraphQLQuery>({ query, variables }: RequestOptions<Q>): Promise<QueryResponse<Q>> {
+    if (!this.graphqlAdapter) {
+      this.graphqlAdapter = this.moduleRef.get(AbstractGraphQLDriver, { strict: false }) as ApolloDriver
+    }
+    const response = await this.graphqlAdapter.instance.executeOperation(
+      {
+        query: query.query,
+        variables,
+        operationName: query.operationName,
+      },
+      { req: { session: { user: { isAdmin: true, isApp: true } as User } } },
+    )
+
+    const { data, errors } = response
+    if (data) {
+      return data as QueryResponse<Q>
+    }
+    if (errors) {
+      throw new Error(errors?.[0]?.message ?? JSON.stringify(errors))
+    }
+    throw new Error('Never')
+  }
+}
+
+@Global()
 @Module({
   imports: [
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
@@ -42,5 +77,7 @@ import { Metric } from './metrics'
       inject: [Config, Metric, Logger],
     }),
   ],
+  providers: [GqlService],
+  exports: [GqlService],
 })
 export class GqlModule {}
