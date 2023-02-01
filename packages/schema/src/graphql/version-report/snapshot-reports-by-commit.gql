@@ -5,7 +5,7 @@ query snapshotReportsByCommit($projectId: ID!, $hash: String!) {
       failedReason
       status
       host
-      lighthouseStorageKey
+      reportLink
       performanceScore
       createdAt
       metrics

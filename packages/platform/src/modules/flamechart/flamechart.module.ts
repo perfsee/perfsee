@@ -3,7 +3,7 @@ import { Draft, freeze } from 'immer'
 import { Observable } from 'rxjs'
 import { endWith, map, mergeMap, startWith, switchMap } from 'rxjs/operators'
 
-import { createErrorCatcher, getStorageLink, GraphQLClient, RxFetch } from '@perfsee/platform/common'
+import { createErrorCatcher, GraphQLClient, RxFetch } from '@perfsee/platform/common'
 import { reportMetricsQuery, ReportMetricsQueryVariables } from '@perfsee/schema'
 import { FlameChartData, MetricType } from '@perfsee/shared'
 
@@ -31,7 +31,7 @@ export class FlamechartModule extends EffectModule<State> {
   fetchFlamechartData(payload$: Observable<string>) {
     return payload$.pipe(
       mergeMap((key) =>
-        this.fetch.get<FlameChartData>(getStorageLink(key)).pipe(
+        this.fetch.get<FlameChartData>(key).pipe(
           createErrorCatcher('Failed to download profile'),
           map((profile) => this.getActions().setFlamechart(profile)),
         ),

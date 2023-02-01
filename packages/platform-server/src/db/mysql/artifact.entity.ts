@@ -73,7 +73,7 @@ export class Artifact extends BaseEntity {
   @Column({ type: 'varchar', length: '100' })
   issuer!: string
 
-  @Field(() => String, { description: 'the build file key in storage' })
+  @Field(() => String, { description: 'the build file key in storage', deprecationReason: 'use `buildLink` instead' })
   @Column({ type: 'varchar' })
   buildKey!: string
 
@@ -85,11 +85,19 @@ export class Artifact extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   failedReason!: string
 
-  @Field(() => String, { description: 'the report file key in storage', nullable: true })
+  @Field(() => String, {
+    description: 'the report file key in storage',
+    nullable: true,
+    deprecationReason: 'use `reportLink` instead',
+  })
   @Column({ type: 'varchar', nullable: true })
   reportKey!: string | null
 
-  @Field(() => String, { description: 'the content file key in storage', nullable: true })
+  @Field(() => String, {
+    description: 'the content file key in storage',
+    nullable: true,
+    deprecationReason: 'use `contentLink` instead',
+  })
   @Column({ type: 'varchar', nullable: true })
   contentKey!: string | null
 

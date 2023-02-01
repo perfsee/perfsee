@@ -149,8 +149,8 @@ export const VersionReport = () => {
   )
 
   useEffect(() => {
-    if (selectedReport?.lighthouseStorageKey) {
-      dispatcher.fetchLHContentFromTos(selectedReport.lighthouseStorageKey)
+    if (selectedReport?.reportLink) {
+      dispatcher.fetchReportDetail(selectedReport.reportLink)
     }
   }, [dispatcher, selectedReport])
 

@@ -102,6 +102,33 @@ export interface PerfseeConfig {
   path: string
 
   /**
+   *
+   * where the frontend get deployed.
+   * if not set, it will be the same as `https?://[host]/[path]`
+   *
+   * @env PERFSEE_PUBLIC_PATH
+   */
+  _publicPath?: string
+
+  /**
+   *
+   * where the frontend get deployed.
+   * if not set, it will be the same as `https?://[host]/[path]`
+   *
+   * @env PERFSEE_PUBLIC_PATH
+   */
+  get publicPath(): string
+
+  /**
+   *
+   * where the frontend get deployed.
+   * if not set, it will be the same as `https?://[host]/[path]`
+   *
+   * @env PERFSEE_PUBLIC_PATH
+   */
+  set publicPath(value: string)
+
+  /**
    * Readonly property `baseUrl` is the full url of the server consists of `https://HOST:PORT/PATH`.
    *
    * if `host` is not `localhost` then the port will be ignored

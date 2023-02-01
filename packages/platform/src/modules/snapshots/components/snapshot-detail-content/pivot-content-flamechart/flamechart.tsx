@@ -68,97 +68,95 @@ function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing 
 }
 
 export const FlamechartView: React.FunctionComponent<{
-  flameChartStorageKey: string
+  flameChartLink: string
   requests: RequestSchema[]
   requestsBaseTimestamp?: number
   tasks?: Task[]
   tasksBaseTimestamp?: number
   metrics?: MetricScoreSchema[]
   userTimings?: UserTimingSchema[]
-}> = memo(
-  ({ flameChartStorageKey, requests, requestsBaseTimestamp, tasks, tasksBaseTimestamp, metrics, userTimings }) => {
-    useWideScreen()
-    const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
+}> = memo(({ flameChartLink, requests, requestsBaseTimestamp, tasks, tasksBaseTimestamp, metrics, userTimings }) => {
+  useWideScreen()
+  const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
 
-    useEffect(() => {
-      dispatcher.fetchFlamechartData(flameChartStorageKey)
-      return dispatcher.reset
-    }, [dispatcher, flameChartStorageKey])
+  useEffect(() => {
+    dispatcher.fetchFlamechartData(flameChartLink)
+    return dispatcher.reset
+  }, [dispatcher, flameChartLink])
 
-    const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
-    const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
+  const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
+  const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
 
-    const profile = useMemo(() => {
-      return flamechart && buildProfileFromFlameChartData(flamechart, -flamechartTimeOffset)
-    }, [flamechart, flamechartTimeOffset])
+  const profile = useMemo(() => {
+    return flamechart && buildProfileFromFlameChartData(flamechart, -flamechartTimeOffset)
+  }, [flamechart, flamechartTimeOffset])
 
-    const tasksProfile = useMemo(() => {
-      return (
-        tasks &&
-        buildProfileFromTracehouse(
-          tasks,
-          -tasksTimeOffset,
-          (task) => task.kind !== 'other' && task.kind !== 'scriptEvaluation' && task.kind !== 'garbageCollection',
-        )
-      )
-    }, [tasks, tasksTimeOffset])
-
-    const networkProfile = useMemo(() => {
-      return requests && buildProfileFromNetworkRequests(requests as RequestSchema[])
-    }, [requests])
-
-    const timings = useMemo<Timing[] | undefined>(() => {
-      if (!metrics) return
-      return metrics
-        .map((metric) => metric.value && getTimingsFromMetric(metric.id, metric.value))
-        .filter(Boolean) as Timing[]
-    }, [metrics])
-
-    const userTimingsProfile = useMemo(() => {
-      if (!userTimings?.length) return
-      return buildProfileFromUserTimings(userTimings)
-    }, [userTimings])
-
-    const tti = useMemo(() => metrics?.find((score) => score.id === LighthouseScoreType.TTI)?.value, [metrics])
-    const initialRight = tti ? (tti + 500) * 1000 : undefined
-
-    const profiles = useMemo(() => {
-      return (
-        // wait for async loading profile
-        profile &&
-        ([
-          userTimingsProfile && {
-            name: 'Timings',
-            profile: userTimingsProfile,
-            flamechartFactory: 'network' as const,
-            grow: 0.1,
-            theme: lightTheme,
-          },
-          networkProfile && {
-            name: 'Network',
-            profile: networkProfile,
-            flamechartFactory: 'network' as const,
-            grow: 0.1,
-            theme: lightGrayTheme,
-          },
-          tasksProfile && { name: 'Tasks', profile: tasksProfile, grow: 0.1 },
-          { name: 'Main', profile: profile, grow: 1 },
-        ].filter(Boolean) as FlamechartGroupContainerProps['profiles'])
-      )
-    }, [networkProfile, profile, tasksProfile, userTimingsProfile])
-
-    if (!profiles) {
-      return <FlamechartPlaceholder>Loading</FlamechartPlaceholder>
-    }
-
-    if (profiles.length === 1) {
-      return <FlamechartContainer {...profiles[0]} timings={timings} initialRight={initialRight} />
-    }
-
+  const tasksProfile = useMemo(() => {
     return (
-      <>
-        <FlamechartGroupContainer profiles={profiles} timings={timings} initialRight={initialRight} />
-      </>
+      tasks &&
+      buildProfileFromTracehouse(
+        tasks,
+        -tasksTimeOffset,
+        (task) => task.kind !== 'other' && task.kind !== 'scriptEvaluation' && task.kind !== 'garbageCollection',
+      )
     )
-  },
-)
+  }, [tasks, tasksTimeOffset])
+
+  const networkProfile = useMemo(() => {
+    return requests && buildProfileFromNetworkRequests(requests as RequestSchema[])
+  }, [requests])
+
+  const timings = useMemo<Timing[] | undefined>(() => {
+    if (!metrics) return
+    return metrics
+      .map((metric) => metric.value && getTimingsFromMetric(metric.id, metric.value))
+      .filter(Boolean) as Timing[]
+  }, [metrics])
+
+  const userTimingsProfile = useMemo(() => {
+    if (!userTimings?.length) return
+    return buildProfileFromUserTimings(userTimings)
+  }, [userTimings])
+
+  const tti = useMemo(() => metrics?.find((score) => score.id === LighthouseScoreType.TTI)?.value, [metrics])
+  const initialRight = tti ? (tti + 500) * 1000 : undefined
+
+  const profiles = useMemo(() => {
+    return (
+      // wait for async loading profile
+      profile &&
+      ([
+        userTimingsProfile && {
+          name: 'Timings',
+          profile: userTimingsProfile,
+          flamechartFactory: 'network' as const,
+          grow: 0.1,
+          theme: lightTheme,
+        },
+        networkProfile && {
+          name: 'Network',
+          profile: networkProfile,
+          flamechartFactory: 'network' as const,
+          grow: 0.1,
+          theme: lightGrayTheme,
+        },
+        tasksProfile && { name: 'Tasks', profile: tasksProfile, grow: 0.1 },
+        { name: 'Main', profile: profile, grow: 1 },
+      ].filter(Boolean) as FlamechartGroupContainerProps['profiles'])
+    )
+  }, [networkProfile, profile, tasksProfile, userTimingsProfile])
+
+  if (!profiles) {
+    return <FlamechartPlaceholder>Loading</FlamechartPlaceholder>
+  }
+
+  if (profiles.length === 1) {
+    return <FlamechartContainer {...profiles[0]} timings={timings} initialRight={initialRight} />
+  }
+
+  return (
+    <>
+      <FlamechartGroupContainer profiles={profiles} timings={timings} initialRight={initialRight} />
+    </>
+  )
+})

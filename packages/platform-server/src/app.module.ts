@@ -51,6 +51,7 @@ import {
   ScriptFileModule,
   UsagePackModule,
   ProjectUsageModule,
+  JobArtifactModule,
 } from './modules'
 import { RedisModule } from './redis'
 import { RestfulModule } from './restful.module'
@@ -83,6 +84,7 @@ const functionalityModules: ModuleMetadata['imports'] = [
 
 const businessModules: ModuleMetadata['imports'] = [
   FileModule,
+  JobArtifactModule,
   ProjectModule,
   ArtifactModule,
   SnapshotModule,

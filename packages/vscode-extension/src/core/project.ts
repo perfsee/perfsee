@@ -232,7 +232,7 @@ export default class Project {
         for (const snapshot of snapshots) {
           const reports = await memoizeGetReportsBySnapshotId(apiClient, searchProject.id, snapshot.id)
           for (const report of reports) {
-            if (report.flameChartStorageKey) {
+            if (report.flameChartLink) {
               flameChartReports.push(report)
             }
           }

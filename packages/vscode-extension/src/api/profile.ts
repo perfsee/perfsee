@@ -17,17 +17,12 @@ limitations under the License.
 import { FlameChartData } from '@perfsee/shared'
 
 import { memoizePromise } from '../utils/cache'
-import { getStorageLink } from '../utils/storage-link'
 
 import { ApiClient } from './api-client'
 
-export async function downloadProfile(client: ApiClient, flameChartStorageKey: string) {
-  const res = await client.fetch(getStorageLink(flameChartStorageKey))
+export async function downloadProfile(client: ApiClient, flameChartLink: string) {
+  const res = await client.fetch(flameChartLink)
   return res.json() as Promise<FlameChartData>
 }
 
-export const memoizeDownloadProfile = memoizePromise(
-  downloadProfile,
-  (_, flameChartStorageKey) => flameChartStorageKey,
-  false,
-)
+export const memoizeDownloadProfile = memoizePromise(downloadProfile, (_, flameChartLink) => flameChartLink, false)

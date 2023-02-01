@@ -1,0 +1,29 @@
+fragment report on SnapshotReport {
+  id
+  host
+  status
+  reportLink
+  screencastLink
+  flameChartLink
+  sourceCoverageLink
+  failedReason
+  createdAt
+  page {
+    id
+    name
+    isE2e
+    url
+  }
+  environment {
+    id
+    name
+  }
+  profile {
+    id
+    name
+  }
+  snapshot {
+    title
+    id
+  } 
+}

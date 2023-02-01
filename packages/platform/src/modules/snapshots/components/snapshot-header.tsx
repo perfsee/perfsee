@@ -44,7 +44,7 @@ export const SnapshotHeader = memo(function SnapshotHeader(props: Props) {
   })
 
   const detail = useModuleState(SnapshotModule, {
-    selector: (s) => s.snapshotReportsDetail[report.lighthouseStorageKey!],
+    selector: (s) => s.snapshotReportsDetail[report.reportLink!],
     dependencies: [],
   })
 

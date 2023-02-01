@@ -24,6 +24,10 @@ const env = process.env
 // # where the server get deployed.
 // perfsee.host = 'perfsee.com'
 
+// # where the frontend get deployed.
+// # if not set, it will be the same as `https?://[host]/[path]`
+// perfsee.publicPath = 'https://perfsee.com'
+
 // # which port the server will listen on
 // perfsee.port = 3000
 

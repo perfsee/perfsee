@@ -60,7 +60,7 @@ export interface VersionIssue extends WithLoading {
 
 export type VersionIssues = Record<number, VersionIssue>
 
-export type LighthouseTosContent = Pick<LHStoredSchema, 'lhrAudit' | 'lhrCategories' | 'metricScores'>
+export type LighthouseContent = Pick<LHStoredSchema, 'lhrAudit' | 'lhrCategories' | 'metricScores'>
 
 export type EntryPointSchema = NonNullable<Artifact['entrypoints']>[0]
 

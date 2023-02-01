@@ -15,7 +15,7 @@ query vscodeSourceIssues($projectId: ID!, $pagination: PaginationInput, $hash: S
               name
               url
             }
-            flameChartStorageKey
+            flameChartLink
           }
         }
       }

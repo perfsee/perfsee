@@ -20,7 +20,6 @@ query snapshotReports($projectId: ID!, $snapshotId: Int!) {
           id
           name
         }
-        flameChartStorageKey
         uploadSize
       }
     }

@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { ThrottlerStorage } from '@nestjs/throttler'
-import { ThrottlerStorageRecord } from '@nestjs/throttler/dist/throttler-storage-record.interface'
 
 import { Redis } from '../../redis'
 
@@ -25,7 +24,7 @@ export class RedisStorage implements ThrottlerStorage {
 
   constructor(private readonly redis: Redis) {}
 
-  async increment(key: string, ttl: number): Promise<ThrottlerStorageRecord> {
+  async increment(key: string, ttl: number) {
     const totalHits = await this.redis.incr(key).catch(() => 1)
 
     let timeToExpire = await this.redis.pttl(key)

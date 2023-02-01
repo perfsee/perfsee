@@ -84,8 +84,8 @@ export const Statistics = () => {
   }, [reports, selectedReport])
 
   useEffect(() => {
-    if (selectedReport?.lighthouseStorageKey) {
-      dispatcher.fetchLHContentFromTos(selectedReport.lighthouseStorageKey)
+    if (selectedReport?.reportLink) {
+      dispatcher.fetchReportDetail(selectedReport.reportLink)
     }
   }, [dispatcher, selectedReport])
 

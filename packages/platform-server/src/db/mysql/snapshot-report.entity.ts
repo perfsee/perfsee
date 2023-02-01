@@ -97,6 +97,7 @@ export class SnapshotReport extends BaseEntity {
   @Field(() => String, {
     nullable: true,
     description: 'lighthouse result key in storage, you may fetch the result with this key from storage service',
+    deprecationReason: 'use `reportLink` instead',
   })
   @Column({ type: 'varchar', nullable: true })
   lighthouseStorageKey!: string | null
@@ -104,21 +105,14 @@ export class SnapshotReport extends BaseEntity {
   @Field(() => String, {
     nullable: true,
     description: 'screen cast key in storage, you may fetch screen cast with this key from storage service',
+    deprecationReason: 'use `screencastLink` instead',
   })
   @Column({ type: 'varchar', nullable: true })
   screencastStorageKey!: string | null
 
-  @Field(() => String, {
-    nullable: true,
-    description: 'js coverage data key in storage, you can fetch result with this key at storage service',
-  })
   @Column({ type: 'varchar', nullable: true })
   jsCoverageStorageKey!: string | null
 
-  @Field(() => String, {
-    nullable: true,
-    description: 'chrome track events key in storage, you may fetch track events with this key from storage service',
-  })
   @Column({ type: 'varchar', nullable: true })
   traceEventsStorageKey!: string | null
 
@@ -126,6 +120,7 @@ export class SnapshotReport extends BaseEntity {
     nullable: true,
     description:
       'flame chart raw data key in storage, you may fetch flame chart detail with this key from storage service',
+    deprecationReason: 'use `flameChartLink` instead',
   })
   @Column({ type: 'varchar', nullable: true })
   flameChartStorageKey!: string | null
@@ -134,6 +129,7 @@ export class SnapshotReport extends BaseEntity {
     nullable: true,
     description:
       'source coverage data key in storage, you may fetch flame chart detail with this key from storage service',
+    deprecationReason: 'use `sourceCoverageLink` instead',
   })
   @Column({ type: 'varchar', nullable: true })
   sourceCoverageStorageKey!: string | null

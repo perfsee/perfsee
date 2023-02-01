@@ -58,6 +58,7 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
       <Route exact={true} path={staticPath.license} component={LicensePage} />
       <Route exact={true} path={staticPath.editPassword} component={EditPassword} />
       <Route exact={true} path={staticPath.resetPassword} component={ResetPassword} />
+      <Route path={staticPath.project.feature} component={ProjectFeaturePage} />
 
       {/* pages with login */}
       {user && settings ? (
@@ -67,7 +68,6 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
           )}
           <Route path={staticPath.me.home} component={Me} />
           <Route exact={true} path={staticPath.projects} component={ProjectListPage} />
-          <Route path={staticPath.project.feature} component={ProjectFeaturePage} />
           <Route path={staticPath.app.install} component={AppInstaller} />
           {user.isAdmin && <Route path={staticPath.admin.part} component={Admin} />}
           <Route path="*" render={NotFound} />

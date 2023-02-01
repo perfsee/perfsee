@@ -19,7 +19,7 @@ import { Draft, freeze } from 'immer'
 import { Observable } from 'rxjs'
 import { switchMap, map, startWith, endWith } from 'rxjs/operators'
 
-import { createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
+import { createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import { SourceCoverageResult } from '@perfsee/shared'
 
 interface State {
@@ -55,7 +55,7 @@ export class SourceCoverageModule extends EffectModule<State> {
   fetchSourceCoverageResult(payload$: Observable<string>) {
     return payload$.pipe(
       switchMap((key) =>
-        this.fetch.get<SourceCoverageResult>(getStorageLink(key)).pipe(
+        this.fetch.get<SourceCoverageResult>(key).pipe(
           createErrorCatcher('Failed to source coverage result.'),
           map((res) => this.getActions().setData(res)),
           startWith(this.getActions().setLoading(true)),

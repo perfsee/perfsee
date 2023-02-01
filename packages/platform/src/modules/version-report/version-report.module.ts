@@ -19,7 +19,7 @@ import { Draft } from 'immer'
 import { Observable } from 'rxjs'
 import { map, startWith, endWith, switchMap, withLatestFrom, filter, delay } from 'rxjs/operators'
 
-import { GraphQLClient, createErrorCatcher, RxFetch, getStorageLink } from '@perfsee/platform/common'
+import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import {
   ArtifactByCommitQuery,
   artifactByCommitQuery,
@@ -33,7 +33,7 @@ import {
 import { ProjectModule } from '../shared'
 
 import {
-  LighthouseTosContent,
+  LighthouseContent,
   SourceIssue,
   VersionArtifactJob,
   VersionCommits,
@@ -90,7 +90,7 @@ export class HashReportModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setLHContent(state: Draft<State>, payload: LighthouseTosContent) {
+  setLHContent(state: Draft<State>, payload: LighthouseContent) {
     state.lhContent = {
       audits: payload.lhrAudit,
       categories: payload.lhrCategories,
@@ -251,11 +251,11 @@ export class HashReportModule extends EffectModule<State> {
   }
 
   @Effect()
-  fetchLHContentFromTos(payload$: Observable<string | null>) {
+  fetchReportDetail(payload$: Observable<string | null>) {
     return payload$.pipe(
-      filter((StorageKey) => !!StorageKey),
-      switchMap((StorageKey) =>
-        this.fetch.get<LighthouseTosContent>(getStorageLink(StorageKey!)).pipe(
+      filter((storageKey) => !!storageKey),
+      switchMap((storageKey) =>
+        this.fetch.get<LighthouseContent>(storageKey!).pipe(
           createErrorCatcher('Failed to fetch report lighthouse content.'),
           map((res) => this.getActions().setLHContent(res)),
           startWith(this.getActions().setLoading({ key: 'lhContent', value: true })),

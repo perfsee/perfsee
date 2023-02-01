@@ -15,7 +15,7 @@ query sourceIssues($projectId: ID!, $pagination: PaginationInput, $hash: String)
               name
               url
             }
-            flameChartStorageKey
+            flameChartLink
           }
         }
       }

@@ -11,6 +11,7 @@ perfsee.ENV_MAP = {
   PERFSEE_SERVER_HOST: 'host',
   PERFSEE_SERVER_PORT: ['port', 'int'],
   PERFSEE_SERVER_SUB_PATH: 'path',
+  PERFSEE_PUBLIC_PATH: 'publicPath',
   MYSQL_URL: 'mysql.url',
   MYSQL_PORT: ['mysql.port', 'int'],
   MYSQL_HOST: 'mysql.host',
