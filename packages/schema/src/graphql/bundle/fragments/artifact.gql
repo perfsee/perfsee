@@ -6,7 +6,6 @@ fragment artifact on Artifact {
   status
   duration
   failedReason
-  buildLink
   reportLink
   contentLink
   score

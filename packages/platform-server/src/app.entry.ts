@@ -41,9 +41,10 @@ export async function createApp() {
   const config = app.get(Config)
   const metrics = app.get(Metric)
 
-  if (config.publicPath !== config.origin) {
+  if (config.dev) {
     app.enableCors({
-      origin: config.publicPath,
+      origin: /localhost/,
+      credentials: true,
     })
   }
 
@@ -57,7 +58,7 @@ export async function createApp() {
       name: 'perfsee_sid',
       cookie: {
         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
-        secure: process.env.NODE_ENV !== 'development',
+        secure: config.prod,
         httpOnly: true,
         sameSite: 'lax',
       },

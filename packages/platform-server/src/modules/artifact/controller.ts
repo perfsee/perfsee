@@ -34,6 +34,7 @@ import { InternalIdService, UrlService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { artifactKey } from '@perfsee/platform-server/utils'
 import { BundleJobUpdate, JobType } from '@perfsee/server-common'
 import { BuildUploadParams, GitHost, gitHostFromDomain, isBaseline } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
@@ -95,7 +96,7 @@ export class ArtifactController {
     try {
       await this.projectUsage.verifyUsageLimit(project.id)
 
-      const buildKey = `builds/${project.id}/${uuid()}.tar`
+      const buildKey = artifactKey(project.id, `builds/${uuid()}.tar`)
       await this.storage.upload(buildKey, file)
 
       await this.projectUsage.recordStorageUsage(project.id, file.byteLength)
