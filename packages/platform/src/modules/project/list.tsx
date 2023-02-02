@@ -103,6 +103,8 @@ enum ProjectsEnum {
   Starred = 'starred',
 }
 
+const PROJECTS_LOCAL_STORAGE_KEY = 'perfsee_home_page'
+
 const renderProjectItem = (project?: ProjectNode, index?: number) => {
   if (!project) {
     return null
@@ -141,7 +143,9 @@ const GithubButtonStyles = {
 
 export const ProjectList = () => {
   const [{ projects, loading, totalCount }, dispatcher] = useModule(ProjectsModule)
-  const [starredOnly, setStarredOnly] = useState(false)
+  const [starredOnly, setStarredOnly] = useState(
+    () => localStorage[PROJECTS_LOCAL_STORAGE_KEY] === ProjectsEnum.Starred,
+  )
   const history = useHistory()
   const settings = useSettings()
 
@@ -182,6 +186,7 @@ export const ProjectList = () => {
       }
 
       setStarredOnly(item.props.itemKey === ProjectsEnum.Starred)
+      localStorage.setItem(PROJECTS_LOCAL_STORAGE_KEY, item.props.itemKey ?? ProjectsEnum.All)
       dispatcher.setPage({ page: 1 })
     },
     [setStarredOnly, dispatcher],
@@ -221,7 +226,7 @@ export const ProjectList = () => {
       </Stack>
       <Pivot
         styles={{ root: { marginTop: 4 } }}
-        defaultSelectedKey={ProjectsEnum.All}
+        defaultSelectedKey={starredOnly ? ProjectsEnum.Starred : ProjectsEnum.All}
         onLinkClick={toggleStarredOnlyView}
       >
         <PivotItem headerText="All Projects" itemKey={ProjectsEnum.All} />
