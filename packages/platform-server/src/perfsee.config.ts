@@ -24,10 +24,6 @@ const env = process.env
 // # where the server get deployed.
 // perfsee.host = 'perfsee.com'
 
-// # where the frontend get deployed.
-// # if not set, it will be the same as `https?://[host]/[path]`
-// perfsee.publicPath = 'https://perfsee.com'
-
 // # which port the server will listen on
 // perfsee.port = 3000
 
@@ -97,7 +93,7 @@ perfsee.email.enable = true
 // }
 // # object storage that used to put all job logs
 // # will fallback to `perfsee.objectStorage.artifact` if not set
-// perfsee.objectStorage.logLog = {
+// perfsee.objectStorage.jobLog = {
 //   provider: 'aws',
 //   region: 'eu-west-1',
 //   aws_access_key_id: '',

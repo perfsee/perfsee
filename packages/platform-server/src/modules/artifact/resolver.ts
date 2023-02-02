@@ -181,6 +181,11 @@ export class ArtifactResolver {
 
   @ResolveField(() => String, { description: 'the link to uploaded build tar file' })
   buildLink(@Parent() artifact: Artifact) {
+    // we drop the support for old build artifact keys
+    if (!artifact.buildKey.startsWith('artifacts')) {
+      return ''
+    }
+
     return artifactLink(artifact.buildKey)
   }
 
