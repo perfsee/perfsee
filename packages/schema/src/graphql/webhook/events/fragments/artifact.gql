@@ -6,7 +6,6 @@ fragment webhookArtifact on Artifact {
   status
   duration
   failedReason
-  buildLink
   reportLink
   contentLink
   score

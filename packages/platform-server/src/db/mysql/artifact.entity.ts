@@ -73,7 +73,10 @@ export class Artifact extends BaseEntity {
   @Column({ type: 'varchar', length: '100' })
   issuer!: string
 
-  @Field(() => String, { description: 'the build file key in storage', deprecationReason: 'use `buildLink` instead' })
+  @Field(() => String, {
+    description: 'the build file key in storage',
+    deprecationReason: 'will be removed in the future',
+  })
   @Column({ type: 'varchar' })
   buildKey!: string
 

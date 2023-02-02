@@ -19,7 +19,7 @@ type Artifact {
   issuer: String!
 
   """the build file key in storage"""
-  buildKey: String! @deprecated(reason: "use `buildLink` instead")
+  buildKey: String! @deprecated(reason: "will be removed in the future")
 
   """status of bundle analyzing progress"""
   status: BundleJobStatus!
@@ -60,9 +60,6 @@ type Artifact {
   """all entry points of given artifact"""
   entrypoints: [ArtifactEntrypoint!]
   version: AppVersion
-
-  """the link to uploaded build tar file"""
-  buildLink: String!
 
   """the link to build analysis report file"""
   reportLink: String

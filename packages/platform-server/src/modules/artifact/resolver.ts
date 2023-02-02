@@ -179,11 +179,6 @@ export class ArtifactResolver {
     return artifact.version ?? (await AppVersion.findOneBy({ projectId: artifact.projectId, hash: artifact.hash }))
   }
 
-  @ResolveField(() => String, { description: 'the link to uploaded build tar file' })
-  buildLink(@Parent() artifact: Artifact) {
-    return artifactLink(artifact.buildKey)
-  }
-
   @ResolveField(() => String, { nullable: true, description: 'the link to build analysis report file' })
   reportLink(@Parent() artifact: Artifact) {
     return artifactLink(artifact.reportKey)
