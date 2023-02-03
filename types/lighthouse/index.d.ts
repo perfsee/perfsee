@@ -43,11 +43,14 @@ module LH {
     lastFrameTime: number
   }
 
+  export interface ReactProfilingResult {}
+
   export interface PerfseeGathererArtifacts extends LH.GathererArtifacts {
     RequestInterception: null
     Screencast: ScreencastGathererResult | null
     CpuProfiler: Crdp.Profiler.Profile
     ConsoleLogger: null
+    ReactProfiler: ReactProfilingResult | null
   }
 
   export interface PerfseeGathererInstance extends Gatherer.GathererInstance {

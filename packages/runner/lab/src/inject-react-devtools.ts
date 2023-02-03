@@ -14,10 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './utils'
-export * from './request-interceptor'
-export * from './devices'
-export * from './driver'
-export * from './network'
-export * from './browser'
-export * from './react'
+import * as ReactDevtoolsBackend from 'react-devtools-inline/backend'
+
+window.ReactDevtoolsBackend = ReactDevtoolsBackend
