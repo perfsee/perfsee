@@ -19,7 +19,7 @@ import run from 'lighthouse'
 import defaultConfig from 'lighthouse/lighthouse-core/config/default-config'
 
 import { NetworkRequests, WhiteScreen } from './audits'
-import { ConsoleLogger, RequestInterception, Screencast } from './gatherers'
+import { ConsoleLogger, ReactProfiler, RequestInterception, Screencast } from './gatherers'
 
 type KeyAuditName = 'first-contentful-paint' | 'interactive'
 
@@ -103,6 +103,10 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
 
         if (pass.passName === 'defaultPass') {
           pass.gatherers?.push(Screencast)
+        }
+
+        if (url) {
+          pass.gatherers?.push(new ReactProfiler(url))
         }
 
         return pass

@@ -50,6 +50,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected headers!: HostHeaders
   protected cookies!: CookieType[]
   protected localStorageContent!: LocalStorageType[]
+  protected enableReactProfiling = true
 
   protected async before() {
     this.warmupPageLoad()
@@ -237,7 +238,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     for (let i = 0; i < runs; i++) {
       this.logger.info(`Running lighthouse auditing. Round #${i + 1}`)
-      const browser = await createBrowser()
+      const browser = await createBrowser({ headless: false, devtools: true })
 
       browser.on('targetcreated', (e: puppeteer.Target) => {
         const setup = async () => {
