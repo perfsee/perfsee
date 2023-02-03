@@ -25,6 +25,7 @@ limitations under the License.
 /// <reference path="../../node_modules/lighthouse/types/i18n.d.ts" />
 /// <reference path="../../node_modules/lighthouse/types/treemap.d.ts" />
 /// <reference path="../../node_modules/lighthouse/types/global-lh.d.ts" />
+/// <reference path="../../node_modules/@types/react-devtools-inline/common.d.ts" />
 
 interface ClassOf<T> {
   new (): T
@@ -34,6 +35,7 @@ module LH {
   export interface Flags extends SharedFlagsSettings {
     customFlags?: {
       headers?: Record<string, Record<string, string>>
+      reactProfiling?: boolean
     }
   }
 
@@ -48,6 +50,7 @@ module LH {
     Screencast: ScreencastGathererResult | null
     CpuProfiler: Crdp.Profiler.Profile
     ConsoleLogger: null
+    ReactProfiler: ProfilingDataExport | null
   }
 
   export interface PerfseeGathererInstance extends Gatherer.GathererInstance {

@@ -48,7 +48,7 @@ export type TimelineSchema = {
 export type UserTimingSchema = {
   name: string
   timestamp: number
-  duration?: number
+  duration: number
 }
 
 export enum TimingType {

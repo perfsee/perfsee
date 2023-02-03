@@ -155,6 +155,12 @@ export class Profile extends BaseEntity {
   @Column({ default: 'no' })
   bandWidth!: string
 
+  @Field(() => Boolean, {
+    description: 'Enable react prfiling',
+  })
+  @Column({ type: 'boolean', default: false })
+  reactProfiling!: boolean
+
   @ManyToOne('Project', 'profiles', { onDelete: 'CASCADE' })
   project!: Project
 

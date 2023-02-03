@@ -188,6 +188,7 @@ export class SnapshotReportService {
           report.traceEventsStorageKey,
           report.flameChartStorageKey,
           report.sourceCoverageStorageKey,
+          report.reactProfileStorageKey,
         )
 
         return report.id
@@ -213,6 +214,7 @@ export class SnapshotReportService {
         report.traceEventsStorageKey,
         report.flameChartStorageKey,
         report.sourceCoverageStorageKey,
+        report.reactProfileStorageKey,
       ].filter(Boolean) as string[],
     )
 

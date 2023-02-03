@@ -53,6 +53,7 @@ export enum PerformanceTabType {
   Flamechart = 'flamechart',
   SourceCoverage = 'source-coverage',
   Breakdown = 'breakdown', // for multi reports
+  React = 'react', // for react profile
 }
 
 export enum AnalysisReportTabType {

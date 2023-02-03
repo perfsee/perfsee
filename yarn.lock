@@ -5624,11 +5624,16 @@ __metadata:
     "@perfsee/shared": "workspace:*"
     "@perfsee/tracehouse": "workspace:*"
     "@types/fluent-ffmpeg": ^2.1.20
+    "@types/node-fetch": ^2.5.12
+    "@types/react-devtools-inline": ^4.24.3
+    acorn: ^8.7.1
+    acorn-walk: ^8.2.0
     fluent-ffmpeg: ^2.1.2
     jimp: ^0.22.0
     lighthouse: ^9.6.3
     lighthouse-logger: ^1.3.0
     lodash: ^4.17.21
+    node-fetch: ^2.6.2
     puppeteer-core: ^13.7.0
     ts-node: ^10.9.1
     uuid: ^9.0.0
@@ -5791,6 +5796,8 @@ __metadata:
     "@types/react-dom": ^18.0.6
     "@types/react-router": ^5.1.17
     "@types/react-router-dom": ^5.3.2
+    "@types/react-virtualized-auto-sizer": 1.0.1
+    "@types/react-window": ^1.8.5
     color: ^4.2.3
     color-converters: ^0.1.1
     dayjs: ^1.11.3
@@ -5806,6 +5813,8 @@ __metadata:
     react-dom: ^18.2.0
     react-router: ^5.2.1
     react-router-dom: ^5.3.0
+    react-virtualized-auto-sizer: ^1.0.7
+    react-window: ^1.8.8
     rxjs: ^7.5.6
   languageName: unknown
   linkType: soft
@@ -5893,6 +5902,7 @@ __metadata:
     "@perfsee/plugin-utils": "workspace:*"
     "@perfsee/tracehouse": "workspace:*"
     "@perfsee/utils": "workspace:*"
+    "@types/react-devtools-inline": ^4.24.3
     lodash: ^4.17.21
   languageName: unknown
   linkType: soft
@@ -7151,6 +7161,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-devtools-inline@npm:^4.24.3":
+  version: 4.24.3
+  resolution: "@types/react-devtools-inline@npm:4.24.3"
+  dependencies:
+    "@types/react": "*"
+    "@types/react-reconciler": "*"
+  checksum: 31fd091dfa723bdd83c654a013988714744cd5a635681b199987268dd534eddf79762f784b5a3f6471b175b8ff5a7af5bb918b2b5649552521ebeeb2ff9a847a
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^18.0.6":
   version: 18.0.6
   resolution: "@types/react-dom@npm:18.0.6"
@@ -7166,6 +7186,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: d059cc084d3b3071cce3421bb1170dd42819cf39b81afe60d4fbd66c5ef9ffeaadf1802df80efd9553258f621678f69ceb5a21d73df0d8539d40ae9a0f995485
+  languageName: node
+  linkType: hard
+
+"@types/react-reconciler@npm:*":
+  version: 0.28.2
+  resolution: "@types/react-reconciler@npm:0.28.2"
+  dependencies:
+    "@types/react": "*"
+  checksum: 9720f76a334ce4f25205d5bb72303a04f458bb2981cb9bd7f9ed0c16513f6c6ab809099bb5f46dc13e443d4c54e3a77a6038316a127a4dc844db2273f287a669
   languageName: node
   linkType: hard
 
@@ -7187,6 +7216,24 @@ __metadata:
     "@types/history": ^4.7.11
     "@types/react": "*"
   checksum: f08b37ee822f9f9ff904ffd0778fe2bb7c717ed3ee311610382ee024d02a35169bd3301ecde863cac21aae8fdee919501e8ea22bad0260c02c10cfbdba5c71be
+  languageName: node
+  linkType: hard
+
+"@types/react-virtualized-auto-sizer@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@types/react-virtualized-auto-sizer@npm:1.0.1"
+  dependencies:
+    "@types/react": "*"
+  checksum: 67eff0670a1991c2b16992274ada5f0b3f9d5c2d6209ef38e8f8ae2c0218211a3292882f5b7dd6f09519000dc20847629f049c9acc267e000626b7141e5927a6
+  languageName: node
+  linkType: hard
+
+"@types/react-window@npm:^1.8.5":
+  version: 1.8.5
+  resolution: "@types/react-window@npm:1.8.5"
+  dependencies:
+    "@types/react": "*"
+  checksum: 5f519e1402300d11b6e6595223feb6499f3227e38da166cbc565773cd7f71862abcf855b7835d391b5119fcfacdfba79d73a965b45f60a293fc1ff25986319ed
   languageName: node
   linkType: hard
 
@@ -17741,6 +17788,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memoize-one@npm:>=3.1.1 <6":
+  version: 5.2.1
+  resolution: "memoize-one@npm:5.2.1"
+  checksum: a3cba7b824ebcf24cdfcd234aa7f86f3ad6394b8d9be4c96ff756dafb8b51c7f71320785fbc2304f1af48a0467cbbd2a409efc9333025700ed523f254cb52e3d
+  languageName: node
+  linkType: hard
+
 "memoize-one@npm:^6.0.0":
   version: 6.0.0
   resolution: "memoize-one@npm:6.0.0"
@@ -20384,6 +20438,7 @@ __metadata:
     postcss-loader: ^7.0.1
     prettier: ^2.7.1
     raw-loader: ^4.0.2
+    react-devtools-inline: ^4.27.2
     remark-emoji: ^3.0.2
     remark-images: ^3.1.0
     rollup: ^2.77.0
@@ -22395,6 +22450,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-devtools-inline@npm:^4.27.2":
+  version: 4.27.2
+  resolution: "react-devtools-inline@npm:4.27.2"
+  dependencies:
+    source-map-js: ^0.6.2
+    sourcemap-codec: ^1.4.8
+  checksum: b8422e68fd83652c3b819a3754a68dda030f803f07351be73269051b62689349d6a6163d699a3beb34372333f51bf5fa3bb2bb5f94f5c0c94ff6a7f5263263a8
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
@@ -22478,6 +22543,29 @@ __metadata:
   peerDependencies:
     react: ^16.3.0 || ^17.0.0 || ^18.0.0
   checksum: c5eb1f42b464fb093bca59aaae0f1b2060373a2aaff95275b8781493628cdbbb6acdd6014e7883782c65c361f35a30f28cc515d68a1263ddb39cbbc47110be53
+  languageName: node
+  linkType: hard
+
+"react-virtualized-auto-sizer@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "react-virtualized-auto-sizer@npm:1.0.7"
+  peerDependencies:
+    react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+    react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+  checksum: 7f2f013c422771828c6613c7890f792aa90a033ea2b41c489c67ca2c6793eefa94d25232c1050fdf69cdd626fad9e3821c5003d45fa6fc831184cd09232023c2
+  languageName: node
+  linkType: hard
+
+"react-window@npm:^1.8.8":
+  version: 1.8.8
+  resolution: "react-window@npm:1.8.8"
+  dependencies:
+    "@babel/runtime": ^7.0.0
+    memoize-one: ">=3.1.1 <6"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: a19f43b9015fb84e16db983617dac618a8b298881d2ca96ffc2fb00534afd958ee57a00fd0017733b56f8c34dd84e5be59337877aed3c66329ed3b84e8d018ba
   languageName: node
   linkType: hard
 
@@ -24040,6 +24128,13 @@ __metadata:
   dependencies:
     is-plain-obj: ^2.0.0
   checksum: 1535ffd5a789259fc55107d5c3cec09b3e47803a9407fcaae37e1b9e0b813762c47dfee35b6e71e20ca7a69798d0a4791b2058a07f6cab5ef17b2dae83cedbda
+  languageName: node
+  linkType: hard
+
+"source-map-js@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "source-map-js@npm:0.6.2"
+  checksum: 9c8151a29e00fd8d3ba87709fdf9a9ce48313d653f4a29a39b4ae53d346ac79e005de624796ff42eff55cbaf26d2e87f4466001ca87831d400d818c5cf146a0e
   languageName: node
   linkType: hard
 

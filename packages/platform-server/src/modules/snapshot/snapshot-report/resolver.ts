@@ -116,6 +116,11 @@ export class ReportResolver {
   sourceCoverageLink(@Parent() report: SnapshotReport) {
     return artifactLink(report.sourceCoverageStorageKey)
   }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to snapshot report react profile data file' })
+  reactProfileLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.reactProfileStorageKey)
+  }
 }
 
 @Resolver(() => Project)

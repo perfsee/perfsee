@@ -17,12 +17,14 @@ limitations under the License.
 import { DialogFooter, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, Stack } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { pick } from 'lodash'
-import { useCallback, useState, FormEvent } from 'react'
+import { useCallback, useState, FormEvent, useRef } from 'react'
 
 import { RequiredTextField } from '@perfsee/components'
 
 import { ProfileSchema, PropertyModule } from '../../../shared'
 import { getDevicesOptions, getConnectionsOptions, DefaultConnection, DefaultDevice } from '../helper'
+
+import { FormReact } from './form-react'
 
 type FromProps = {
   profile: Partial<ProfileSchema>
@@ -32,6 +34,7 @@ type FromProps = {
 
 export const ProfileForm = (props: FromProps) => {
   const { profile: defaultProfile, closeModal, onSubmit } = props
+  const reactProfilingRef = useRef<{ getReactProfilingEnable: () => boolean }>()
   const { connections, devices } = useModuleState(PropertyModule, {
     selector: (state) => pick(state, 'connections', 'devices'),
     dependencies: [],
@@ -45,8 +48,10 @@ export const ProfileForm = (props: FromProps) => {
 
   const onSave = useCallback(
     (_e: any) => {
+      const reactProfiling = reactProfilingRef.current!.getReactProfilingEnable()
+
       if (profile.name) {
-        onSubmit(profile)
+        onSubmit({ ...profile, reactProfiling })
       }
     },
     [onSubmit, profile],
@@ -83,6 +88,7 @@ export const ProfileForm = (props: FromProps) => {
         onChange={onDropdownChange}
         options={getConnectionsOptions(connections)}
       />
+      <FormReact defaultEnable={defaultProfile?.reactProfiling ?? false} ref={reactProfilingRef} />
       <DialogFooter>
         <PrimaryButton onClick={onSave} text="Save" />
         <DefaultButton onClick={closeModal} text="Cancel" />
