@@ -16,7 +16,7 @@ limitations under the License.
 
 import { merge } from 'lodash'
 
-import { BundleResult } from '@perfsee/bundle-analyzer'
+import { BundleResult, PerfseeReportStats } from '@perfsee/bundle-analyzer'
 
 import { getBuildEnv } from './build-env'
 import { ServerOptions } from './viewer'
@@ -41,7 +41,7 @@ export interface CommonPluginOptions {
    *
    * @default 'main'
    */
-  artifactName?: string
+  artifactName?: string | ((stats: PerfseeReportStats) => string)
 
   /**
    * Which toolkit used. e.g. webpack/rollup/esbuild
