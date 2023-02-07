@@ -49,7 +49,7 @@
     "css-loader": "^6.7.1",
     "cssnano": "^5.1.12",
     "emotion-ts-plugin": "^2.0.1",
-    "esbuild": "^0.16.0",
+    "esbuild": "~0.16.0",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
@@ -163,5 +163,5 @@
     "release": "lerna version --sign-git-tag --exact --allow-branch main",
     "docs": "cd docs && yarn"
   },
-  "packageManager": "yarn@3.3.1"
+  "packageManager": "yarn@3.4.1"
 }

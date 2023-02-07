@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "dependencies": {
-    "@abraham/reflection": "^0.10.0",
+    "@abraham/reflection": "^0.12.0",
     "@nestjs/apollo": "^10.0.17",
     "@nestjs/common": "^9.0.4",
     "@nestjs/core": "^9.0.4",
@@ -43,7 +43,7 @@
     "node-abort-controller": "^3.0.1",
     "node-fetch": "^2.6.2",
     "nodemailer": "^6.7.7",
-    "prom-client": "14.1.0",
+    "prom-client": "14.1.1",
     "query-string": "^7.1.1",
     "redlock": "^4.2.0",
     "rxjs": "^7.5.6",
