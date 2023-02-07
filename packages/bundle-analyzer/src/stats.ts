@@ -186,7 +186,7 @@ export interface ESBuildMetafile {
       }
       imports: {
         path: string
-        kind: EsbuildImportKind
+        kind: EsbuildImportKind | 'file-loader'
       }[]
       exports: string[]
       entryPoint?: string

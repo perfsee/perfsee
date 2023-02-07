@@ -60,6 +60,10 @@
         "^@typescript-eslint"
       ],
       "groupName": "linter"
+    },
+    {
+      "matchCurrentVersion": "/^0\\./",
+      "major": true
     }
   ],
   "commitMessagePrefix": "chore: ",
@@ -72,7 +76,6 @@
     "@types/node",
     "@types/node-fetch",
     "@mdx-js/react",
-    "@abraham/reflection",
     "env-ci",
     "@types/env-ci"
   ],
