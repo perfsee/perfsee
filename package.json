@@ -59,7 +59,7 @@
     "eslint-plugin-sonarjs": "^0.18.0",
     "eslint-plugin-unicorn": "^45.0.0",
     "extract-comments": "^1.1.0",
-    "fdir": "^5.2.0",
+    "fdir": "^6.0.0",
     "graphql": "^16.0.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.1",

@@ -13762,10 +13762,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fdir@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "fdir@npm:5.2.0"
-  checksum: bbea83530389d8ff79cfc59ea047b32b3c4b4338f293df855f62a25d9f476c3b9e112136595355785b7c5922e072556757bb44142e69c542269f9bd15da52e6b
+"fdir@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "fdir@npm:6.0.0"
+  peerDependencies:
+    picomatch: 2.x
+  peerDependenciesMeta:
+    picomatch:
+      optional: true
+  checksum: bca5e3f6680e16d3a2936e7c4fed97a87a818ba6171c7c4a3c60afbd60cb78391823e4c56f118b4dc6b1b608e2893ca2f982d25b6a740cc59384f25b0e4de64c
   languageName: node
   linkType: hard
 
@@ -20853,7 +20858,7 @@ __metadata:
     eslint-plugin-sonarjs: ^0.18.0
     eslint-plugin-unicorn: ^45.0.0
     extract-comments: ^1.1.0
-    fdir: ^5.2.0
+    fdir: ^6.0.0
     graphql: ^16.0.0
     html-webpack-plugin: ^5.5.0
     husky: ^8.0.1
