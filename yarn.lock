@@ -5754,7 +5754,7 @@ __metadata:
     rxjs: ^7.5.6
     sinon: ^15.0.0
     supertest: ^6.3.3
-    ts-morph: ^15.1.0
+    ts-morph: ^17.0.0
     typeorm: ^0.3.7
     uuid: ^9.0.0
   languageName: unknown
@@ -6562,15 +6562,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.16.0":
-  version: 0.16.0
-  resolution: "@ts-morph/common@npm:0.16.0"
+"@ts-morph/common@npm:~0.18.0":
+  version: 0.18.1
+  resolution: "@ts-morph/common@npm:0.18.1"
   dependencies:
-    fast-glob: ^3.2.11
+    fast-glob: ^3.2.12
     minimatch: ^5.1.0
     mkdirp: ^1.0.4
     path-browserify: ^1.0.1
-  checksum: 0ef97330a164a42b81b0499b042e91db8e39d705bb983ef83cbc80cc32ab36123e26baefb78203953d1a0c6e3b92cad9bc7a5e0ea409623a5e7db90cb3742112
+  checksum: 848fff5f7a6428d7c2f055de20cf8df864a967aac0cc03adc558d853442085a8fd9dec70429da24d67d263794b315edb0791c46d23ad9ae513251a7702df8031
   languageName: node
   linkType: hard
 
@@ -10081,10 +10081,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"code-block-writer@npm:^11.0.0":
-  version: 11.0.2
-  resolution: "code-block-writer@npm:11.0.2"
-  checksum: 18aa6caaf5eb06960bf4f1546beaef260c1ccc4fe0a41d2b0f1001811ea30816ee841e2f23f77c140fe2e16e5489a7314529343a2009d622faf94fa0cef97ebb
+"code-block-writer@npm:^11.0.3":
+  version: 11.0.3
+  resolution: "code-block-writer@npm:11.0.3"
+  checksum: f0a2605f19963d7087267c9b0fd0b05a6638a50e7b29b70f97aa01a514f59475b0626f8aa092188df853ee6d96745426dfa132d6a677795df462c6ce32c21639
   languageName: node
   linkType: hard
 
@@ -25418,13 +25418,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^15.1.0":
-  version: 15.1.0
-  resolution: "ts-morph@npm:15.1.0"
+"ts-morph@npm:^17.0.0":
+  version: 17.0.1
+  resolution: "ts-morph@npm:17.0.1"
   dependencies:
-    "@ts-morph/common": ~0.16.0
-    code-block-writer: ^11.0.0
-  checksum: 95e026214282850f08d1d4de673e969cdc166cb6d9366e455e1ea0251a204f80cffcb958c8ed7b1f351e56b972c4244e0dc7be0b13df3c4a6f22abdd4d4608e4
+    "@ts-morph/common": ~0.18.0
+    code-block-writer: ^11.0.3
+  checksum: 4748ab45d0fb0be235f69399ea217cf1c5984ad2ef3ff9eba5a417571f73098c6f1f765fc011eaadc48179471b977f1e44f72eb993932e5c74c5031ab6c60f3a
   languageName: node
   linkType: hard
 
