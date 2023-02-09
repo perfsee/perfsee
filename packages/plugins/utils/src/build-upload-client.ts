@@ -111,7 +111,7 @@ export class BuildUploadClient {
       const packPath = await this.pack(statsPath, stats)
 
       // then upload the pack to platform
-      await this.uploadPack(packPath)
+      await this.uploadPack(packPath, stats)
 
       if (!process.env.KEEP_STATS) {
         unlinkSync(statsPath)
@@ -194,12 +194,17 @@ export class BuildUploadClient {
     })
   }
 
-  private async uploadPack(packPath: string) {
+  private async uploadPack(packPath: string, stats: PerfseeReportStats) {
     const git = await getBuildEnv().git
     if (!git?.host) {
       console.error(chalk.red('[perfsee] Did not find relative codebase host for current project.'))
       return
     }
+
+    const artifactName =
+      typeof this.options.artifactName === 'function'
+        ? this.options.artifactName(stats)
+        : this.options.artifactName ?? 'test'
 
     const params: BuildUploadParams = {
       ...git,
@@ -207,7 +212,7 @@ export class BuildUploadClient {
       commitHash: git.commit,
       commitMessage: git.commitMessage,
       pr: git.pr,
-      artifactName: this.options.artifactName ?? 'test',
+      artifactName,
       nodeVersion: process.version,
       appVersion: this.appVersion,
       toolkit: this.options.toolkit ?? 'webpack',
