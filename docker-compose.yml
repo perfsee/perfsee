@@ -10,6 +10,12 @@ services:
       - ./.volumes/mysql:/var/lib/mysql
     ports:
       - 3306:3306
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
   redis:
     image: redis
     container_name: perfsee_redis
@@ -18,16 +24,17 @@ services:
 
   prepare:
     image: perfsee_develop
+    build:
+      context: .
+      target: compose_develop
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       - MYSQL_HOST=mysql
     command: yarn typeorm migration:run
   server:
     image: perfsee_develop
-    build:
-      context: .
-      target: compose_develop
     depends_on:
       redis:
         condition: service_started
