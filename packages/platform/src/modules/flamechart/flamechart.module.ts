@@ -5,10 +5,11 @@ import { endWith, map, mergeMap, startWith, switchMap } from 'rxjs/operators'
 
 import { createErrorCatcher, GraphQLClient, RxFetch } from '@perfsee/platform/common'
 import { reportMetricsQuery, ReportMetricsQueryVariables } from '@perfsee/schema'
-import { FlameChartData, MetricType } from '@perfsee/shared'
+import { FlameChartData, MetricType, ReactProfileData } from '@perfsee/shared'
 
 interface State {
   flamechart: FlameChartData | null
+  reactProfile: ReactProfileData | null
   metrics: Record<MetricType, number> | null
   loadingFlamechart: boolean
   loadingMetrics: boolean
@@ -18,6 +19,7 @@ interface State {
 export class FlamechartModule extends EffectModule<State> {
   readonly defaultState = {
     flamechart: null,
+    reactProfile: null,
     metrics: null,
     loadingFlamechart: true,
     loadingMetrics: true,
@@ -34,6 +36,18 @@ export class FlamechartModule extends EffectModule<State> {
         this.fetch.get<FlameChartData>(key).pipe(
           createErrorCatcher('Failed to download profile'),
           map((profile) => this.getActions().setFlamechart(profile)),
+        ),
+      ),
+    )
+  }
+
+  @Effect()
+  fetchReactProfileData(payload$: Observable<string>) {
+    return payload$.pipe(
+      mergeMap((key) =>
+        this.fetch.get<ReactProfileData>(key).pipe(
+          createErrorCatcher('Failed to download react profile'),
+          map((profile) => this.getActions().setReactProfile(profile)),
         ),
       ),
     )
@@ -66,6 +80,11 @@ export class FlamechartModule extends EffectModule<State> {
   @ImmerReducer()
   setFlamechart(state: Draft<State>, payload: FlameChartData) {
     state.flamechart = freeze(payload)
+  }
+
+  @ImmerReducer()
+  setReactProfile(state: Draft<State>, payload: ReactProfileData) {
+    state.reactProfile = freeze(payload)
   }
 
   @ImmerReducer()

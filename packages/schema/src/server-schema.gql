@@ -494,6 +494,9 @@ type SnapshotReport {
 
   """the link to snapshot report source coverage data file"""
   sourceCoverageLink: String
+
+  """the link to snapshot report react profile data file"""
+  reactProfileLink: String
 }
 
 """

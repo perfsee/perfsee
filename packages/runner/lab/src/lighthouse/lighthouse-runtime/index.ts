@@ -103,10 +103,9 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
 
         if (pass.passName === 'defaultPass') {
           pass.gatherers?.push(Screencast)
-        }
-
-        if (url) {
-          pass.gatherers?.push(new ReactProfiler(url))
+          if (url) {
+            pass.gatherers?.push(new ReactProfiler(url))
+          }
         }
 
         return pass

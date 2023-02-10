@@ -25,6 +25,7 @@ limitations under the License.
 /// <reference path="../../node_modules/lighthouse/types/i18n.d.ts" />
 /// <reference path="../../node_modules/lighthouse/types/treemap.d.ts" />
 /// <reference path="../../node_modules/lighthouse/types/global-lh.d.ts" />
+/// <reference path="../../node_modules/@types/react-devtools-inline/common.d.ts" />
 
 interface ClassOf<T> {
   new (): T
@@ -43,14 +44,12 @@ module LH {
     lastFrameTime: number
   }
 
-  export interface ReactProfilingResult {}
-
   export interface PerfseeGathererArtifacts extends LH.GathererArtifacts {
     RequestInterception: null
     Screencast: ScreencastGathererResult | null
     CpuProfiler: Crdp.Profiler.Profile
     ConsoleLogger: null
-    ReactProfiler: ReactProfilingResult | null
+    ReactProfiler: ProfilingDataFrontend | null
   }
 
   export interface PerfseeGathererInstance extends Gatherer.GathererInstance {

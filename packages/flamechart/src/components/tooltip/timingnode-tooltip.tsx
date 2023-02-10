@@ -7,12 +7,21 @@ const millisecondTimeFormatter = new TimeFormatter('microseconds')
 const formatTiming = (v?: number) => {
   return typeof v === 'number' && isFinite(v) ? millisecondTimeFormatter.format(v) : ''
 }
+
+function omit(obj: any, ...keys: string[]) {
+  const keysToRemove = new Set(keys.flat())
+
+  return Object.fromEntries(Object.entries(obj).filter(([k]) => !keysToRemove.has(k)))
+}
+
 export const TimingTreeNodeTooltip: React.FC<{
   frame: TimingFrame
 }> = ({ frame }) => {
   const tipData = {
     Name: frame.info?.name,
     'Total time': formatTiming(frame.info?.duration ?? 0),
+    Timestamp: formatTiming(frame.info?.timestamp ?? 0),
+    ...omit(frame.info || {}, 'name', 'timestamp', 'duration', 'laneNum'),
   }
 
   return (

@@ -103,7 +103,7 @@ export * from './components/flamechart-group-container'
 export * from './components/flamechart-factory'
 export { Profile, Frame, CallTreeNode } from './lib/profile'
 export { NetworkProfile } from './lib/network-profile'
-export { TimingProfile }
+export { TimingProfile, TimeFormatter }
 export { Flamechart, FlamechartFrame, buildFlamechart } from './lib/flamechart'
 export {
   importFromChromeTimeline,

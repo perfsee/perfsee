@@ -5893,6 +5893,7 @@ __metadata:
     "@perfsee/plugin-utils": "workspace:*"
     "@perfsee/tracehouse": "workspace:*"
     "@perfsee/utils": "workspace:*"
+    "@types/react-devtools-inline": ^4.24.3
     lodash: ^4.17.21
   languageName: unknown
   linkType: soft

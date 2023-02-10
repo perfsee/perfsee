@@ -13,7 +13,8 @@ export type RequestTiming = 'Blocked' | 'DNS' | 'Connect' | 'Send' | 'Wait' | 'S
 export type TimingSchema = {
   name: string
   timestamp: number
-  duration?: number
+  duration: number
+  [key: string]: string | number
 }
 
 export type NetworkRequest = {

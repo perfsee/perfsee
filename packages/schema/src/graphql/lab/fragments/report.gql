@@ -6,6 +6,7 @@ fragment report on SnapshotReport {
   screencastLink
   flameChartLink
   sourceCoverageLink
+  reactProfileLink
   failedReason
   createdAt
   page {
