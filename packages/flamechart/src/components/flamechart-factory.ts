@@ -2,11 +2,13 @@ import {
   buildFlamechart,
   buildFlamechartWithProcessor,
   buildNonStackFlamechart,
+  buildReactFlamechart,
   Flamechart,
   RootFilter,
 } from '../lib/flamechart'
 import { NonStackTreeNode } from '../lib/non-stack-profile'
 import { Frame, Profile } from '../lib/profile'
+import { TimingFrame, TimingProfile } from '../lib/timing-profile'
 import { TracehouseGroupedFrame } from '../lib/tracehouse-profile'
 import { memoizeByReference, memoizeByShallowEquality } from '../lib/utils'
 
@@ -79,6 +81,34 @@ export const getNetworkFlamechart = memoizeByShallowEquality(
   },
 )
 
+export const getReactFlamechart = memoizeByShallowEquality(
+  (profile: TimingProfile, rootFilter?: RootFilter): Flamechart => {
+    return buildReactFlamechart(
+      {
+        minValue: profile.getMinValue(),
+        maxValue: profile.getMaxValue(),
+        forEachCall: profile.forEachCall.bind(profile),
+        formatValue: profile.formatValue.bind(profile),
+        getColorBucketForFrame: (frame: TimingFrame) => {
+          switch (frame.info?.type) {
+            case 'component render':
+              return 160
+            case 'react measure':
+              return 200
+            case 'native event':
+              return 50
+            case 'suspense event':
+              return 90
+            default:
+              return 0
+          }
+        },
+      },
+      rootFilter,
+    )
+  },
+)
+
 export const getGroupedTracehouseFlamechart = memoizeByShallowEquality(
   (profile: Profile, rootFilter?: RootFilter): Flamechart => {
     return buildFlamechartWithProcessor(
@@ -123,6 +153,10 @@ export const FlamechartFactoryMap = {
    */
   network: getNetworkFlamechart,
   'tracehouse-grouped': getGroupedTracehouseFlamechart,
+  /**
+   * used for react flame chart
+   */
+  react: getReactFlamechart,
 }
 
 export type FlamechartFactory = (t: Profile, rootFilter?: RootFilter) => Flamechart

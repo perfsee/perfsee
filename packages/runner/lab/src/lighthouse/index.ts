@@ -42,6 +42,7 @@ export class LabJobWorker extends LighthouseJobWorker {
       screencastStorageKey,
       jsCoverageStorageKey,
       traceEventsStorageKey,
+      reactProfileStorageKey,
       metrics,
       failedReason,
     } = await this.audit()
@@ -68,6 +69,7 @@ export class LabJobWorker extends LighthouseJobWorker {
             screencastStorageKey,
             jsCoverageStorageKey,
             traceEventsStorageKey,
+            reactProfileStorageKey,
             status: SnapshotStatus.Completed,
             performanceScore: metrics![LighthouseScoreMetric.Performance],
             metrics,

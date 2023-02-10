@@ -20,6 +20,7 @@ import { join, dirname, basename } from 'path'
 import lighthouseLogger from 'lighthouse-logger'
 import { groupBy, mapValues } from 'lodash'
 import puppeteer from 'puppeteer-core'
+import { ProfilingDataFrontend } from 'react-devtools-inline'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker } from '@perfsee/job-runner-shared'
@@ -86,8 +87,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     const scripts = this.getScripts(artifacts)
-    const userTimings = this.getUserTimings(artifacts)
     const { requests, requestsBaseTimestamp } = this.getRequests(lhr)
+    const userTimings = this.getUserTimings(artifacts, requestsBaseTimestamp)
     const metrics = this.getMetrics(lhr)
     const { traceData, timings } = this.computeMainThreadTask(lhr, artifacts)
     // format overview render timeline data
@@ -96,12 +97,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const metricScores = getLighthouseMetricScores('navigation', lhr.audits, timings, timelines)
 
     const jsCoverage = artifacts.JsUsage ?? {}
+    const reactProfile = artifacts.ReactProfiler as ProfilingDataFrontend | null
 
     // artifacts
     const lighthouseFile = `snapshots/${uuid()}.json`
     const jsCoverageFile = `js-coverage/${uuid()}.json`
+    const reactProfileFile = `react-profile/${uuid()}.json`
     let lighthouseStorageKey
     let jsCoverageStorageKey
+    let reactProfileStorageKey
 
     // delete useless lighthouse data
     // @ts-expect-error
@@ -151,6 +155,24 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
+    if (reactProfile) {
+      try {
+        reactProfileStorageKey = await this.client.uploadArtifact(
+          reactProfileFile,
+          Buffer.from(
+            JSON.stringify(reactProfile, (_key, value) => {
+              if (value instanceof Map) {
+                return Object.fromEntries(value)
+              }
+              return value
+            }),
+          ),
+        )
+      } catch (e) {
+        this.logger.error('Failed to upload react profile', { error: e })
+      }
+    }
+
     const traceEventsStorageKey = await this.uploadTraceEvents(artifacts)
 
     return {
@@ -158,6 +180,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       screencastStorageKey,
       jsCoverageStorageKey,
       traceEventsStorageKey,
+      reactProfileStorageKey,
       metrics,
     }
   }
@@ -238,7 +261,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     for (let i = 0; i < runs; i++) {
       this.logger.info(`Running lighthouse auditing. Round #${i + 1}`)
-      const browser = await createBrowser({ headless: false, devtools: true })
+      const browser = await createBrowser()
 
       browser.on('targetcreated', (e: puppeteer.Target) => {
         const setup = async () => {
@@ -370,14 +393,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private getUserTimings(artifacts: LH.Artifacts) {
+  private getUserTimings(artifacts: LH.Artifacts, baseTimestamp: number) {
     const { traceEvents } = artifacts.traces['defaultPass']
-    const baseline = traceEvents.find((e) => e.name === 'navigationStart')
-
-    if (!baseline) return
     const userTimings = mapValues(
       groupBy(
-        traceEvents.filter((e: any) => e.scope === 'blink.user_timing'),
+        traceEvents.filter((e: any) => e.cat === 'blink.user_timing'),
         'name',
       ),
       (events) => {
@@ -386,7 +406,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
         return {
           name: start.name,
-          timestamp: start.ts - baseline.ts,
+          timestamp: start.ts - baseTimestamp,
           duration: end ? end.ts - start.ts : undefined,
         }
       },
