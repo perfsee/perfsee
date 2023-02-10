@@ -3,7 +3,9 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
-    "outDir": "esm"
+    "outDir": "dist",
+    "target": "ES2018",
+    "module": "CommonJS"
   },
   "include": [
     "./src/**/*"
