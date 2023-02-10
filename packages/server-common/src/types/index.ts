@@ -33,6 +33,7 @@ type PartialSnapshotReport = {
   screencastStorageKey?: string
   jsCoverageStorageKey?: string
   traceEventsStorageKey?: string
+  reactProfileStorageKey?: string
   performanceScore?: number | null
   metrics?: Record<MetricKeyType, number | null>
 }

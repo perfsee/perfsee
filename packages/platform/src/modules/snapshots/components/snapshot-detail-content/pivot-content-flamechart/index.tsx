@@ -43,6 +43,7 @@ export const FlameChartPivotContent = (props: Props) => {
           tasksBaseTimestamp={tasksBaseTimestamp}
           metrics={snapshot.metricScores}
           userTimings={snapshot.userTimings}
+          reactProfileLink={snapshot.report.reactProfileLink}
         />
       </FlamechartContainer>
     )
