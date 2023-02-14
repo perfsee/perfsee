@@ -6,6 +6,9 @@ query bundleFinishedEvent($projectSlug: ID!, $artifactIid: Int!) {
     ...webhookProject
     artifact(id: $artifactIid) {
       ...webhookArtifact
+      baseline {
+        ...webhookArtifact
+      }
     }
   }
 }
