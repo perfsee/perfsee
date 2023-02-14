@@ -231,7 +231,8 @@ export class BuildUploadClient {
       })
       .join('&')
 
-    const res = await fetch(`${getBuildEnv().platform}/api/v1/artifacts?${query}`, {
+    const platform = this.options.platform ?? getBuildEnv().platform
+    const res = await fetch(`${platform}/api/v1/artifacts?${query}`, {
       method: 'POST',
       body: stream,
       headers: {

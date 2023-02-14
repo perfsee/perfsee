@@ -16,6 +16,13 @@ interface Options {
   project?: string
 
   /**
+   * Your Perfsee platform url.
+   *
+   * Used for private deployment of Perfsee, equivalent to setting `PERFSEE_PLATFORM_HOST`.
+   */
+  platform?: string
+
+  /**
    * Authentication token used for uploading build to remote server.
    * will also read from env `PERFSEE_TOKEN` if not provided.
    *

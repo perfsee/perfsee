@@ -30,6 +30,11 @@ export interface CommonPluginOptions {
   project?: string
 
   /**
+   * Your Perfsee platform url.
+   */
+  platform?: string
+
+  /**
    * Give a uniq name for the bundled artifact.
    *
    * This option will be very useful when there are multiple builds in a single commit(in single CI progress)

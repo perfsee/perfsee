@@ -12,9 +12,15 @@ type Options = {
    * Perfsee 平台对应的项目 ID。
    *
    * **如果想要上传打包产物到平台进行分析，则该选项必填。**
-   * **Required if you want ot upload the build to Perfsee platform for further analysis.**
    */
   project?: string
+
+  /**
+   * Perfsee 平台对应的 url。
+   *
+   * 用于私有部署 perfsee，等同于设置 `PERFSEE_PLATFORM_HOST`。
+   */
+  platform?: string
 
   /**
    * 用于产物上传流程鉴权的凭证。
