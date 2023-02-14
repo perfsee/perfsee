@@ -22,6 +22,8 @@ import {
   CheckCircleOutlined,
   ArrowDownOutlined,
   ArrowUpOutlined,
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
   CloseCircleOutlined,
   LoadingOutlined,
   LeftOutlined,
@@ -138,6 +140,8 @@ registerIcons({
     fileSearch: <FileSearchOutlined />,
     fileProtect: <FileProtectOutlined />,
     dot: <LocationDotIcon />,
+    arrowLeft: <ArrowLeftOutlined />,
+    arrowRight: <ArrowRightOutlined />,
 
     // for password text field
     Hide: <HideIcon />,

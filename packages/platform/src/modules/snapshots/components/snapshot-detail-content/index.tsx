@@ -37,6 +37,7 @@ import {
   SourceCoverageTab,
   UserFlowTab,
   ReportTab,
+  ReactTab,
 } from '../../utils/format-lighthouse'
 import { LoadingShimmer } from '../loading-shimmer'
 
@@ -102,6 +103,7 @@ const flamechartPivot = <PivotItem itemKey={FlamechartTab.id} key={FlamechartTab
 const sourceCoveragePivot = (
   <PivotItem itemKey={SourceCoverageTab.id} key={SourceCoverageTab.id} headerText={SourceCoverageTab.title} />
 )
+const reactPivot = <PivotItem itemKey={ReactTab.id} key={ReactTab.id} headerText={ReactTab.title} />
 
 export const ReportContent: FC<ReportContentProps> = (props) => {
   const { tabName, snapshotReports, onLinkClick } = props
@@ -143,6 +145,7 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
           {report.flameChartLink ? flamechartPivot : undefined}
           {report.sourceCoverageLink ? sourceCoveragePivot : undefined}
           {page?.isE2e ? undefined : analysisPivot}
+          {report.reactProfileLink ? reactPivot : undefined}
         </Pivot>
         <PivotContent snapshot={detail} type={tabName} />
         <LighthouseBrand tokens={{ childrenGap: 8 }} horizontal horizontalAlign="center" verticalAlign="center">
