@@ -16,16 +16,8 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 import { InjectDataSource, InjectEntityManager } from '@nestjs/typeorm'
-import { BaseEntity, DataSource, EntityManager, EntityTarget, QueryRunner } from 'typeorm'
+import { DataSource, EntityManager, EntityTarget, QueryRunner } from 'typeorm'
 import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel'
-
-import * as models from '../mysql'
-
-export const mysqlEntities = Object.values(models).filter(
-  (model) =>
-    // @ts-expect-error
-    model?.prototype instanceof BaseEntity,
-) as typeof BaseEntity[]
 
 @Injectable()
 export class DBService {
