@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS `app_version` (
   `hash` varchar(40) NOT NULL,
   `branch` varchar(255) DEFAULT NULL,
   `version` varchar(255) DEFAULT NULL,
-  `snapshot_id` int DEFAULT NULL,
-  `artifact_id` int DEFAULT NULL,
   `exempted` tinyint NOT NULL DEFAULT '0',
   `exempted_reason` varchar(255) DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `commit_message` varchar(255) DEFAULT NULL,
+  `pr` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_e1e62448be830d8da33cb2c610` (`project_id`),
   KEY `idx_499e7cfbf322ba55318e769534` (`hash`),
@@ -33,6 +33,13 @@ CREATE TABLE IF NOT EXISTS `application_setting` (
   `job_zones` json DEFAULT NULL,
   `default_job_zone` varchar(50) NOT NULL,
   `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `enable_signup` tinyint NOT NULL DEFAULT '1',
+  `enable_oauth` tinyint NOT NULL DEFAULT '0',
+  `enable_project_create` tinyint NOT NULL DEFAULT '1',
+  `enable_project_delete` tinyint NOT NULL DEFAULT '1',
+  `enable_project_import` tinyint NOT NULL DEFAULT '0',
+  `enable_email` tinyint NOT NULL DEFAULT '0',
+  `user_email_confirmation` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `artifact` (
@@ -56,6 +63,7 @@ CREATE TABLE IF NOT EXISTS `artifact` (
   `is_baseline` tinyint NOT NULL DEFAULT '0',
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `upload_size` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_5f5da14712db92faa1ee41ed73` (`project_id`),
   KEY `idx_ddcde94bfc0addc4241c9e65fb` (`branch`),
@@ -145,6 +153,7 @@ CREATE TABLE IF NOT EXISTS `job` (
   `status` tinyint NOT NULL DEFAULT '0',
   `zone` varchar(50) NOT NULL,
   `runner_id` int DEFAULT NULL,
+  `extra` json DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_e100e9f656d36fa3f74d01f04b` (`project_id`),
   KEY `idx_d9fa8592dba62162a7e8636c73` (`entity_id`),
@@ -174,7 +183,7 @@ CREATE TABLE IF NOT EXISTS `page_with_competitor` (
   PRIMARY KEY (`id`),
   KEY `idx_cfc0e58dd919d0f6b360a475b4` (`page_id`),
   KEY `idx_b0f452aef10b0019e00eaa927e` (`competitor_id`),
-  CONSTRAINT `FK_b0f452aef10b0019e00eaa927e5` FOREIGN KEY (`competitor_id`) REFERENCES `page` (`id`),
+  CONSTRAINT `FK_b0f452aef10b0019e00eaa927e5` FOREIGN KEY (`competitor_id`) REFERENCES `page` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_cfc0e58dd919d0f6b360a475b40` FOREIGN KEY (`page_id`) REFERENCES `page` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `page_with_env` (
@@ -218,8 +227,33 @@ CREATE TABLE IF NOT EXISTS `project` (
   `artifact_baseline_branch` varchar(255) NOT NULL DEFAULT 'master',
   `is_public` tinyint NOT NULL DEFAULT '0',
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `usage_pack_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_6fce32ddd71197807027be6ad3` (`slug`)
+  UNIQUE KEY `idx_6fce32ddd71197807027be6ad3` (`slug`),
+  KEY `FK_89f29f98d1c234d1db6f47b1bb2` (`usage_pack_id`),
+  CONSTRAINT `FK_89f29f98d1c234d1db6f47b1bb2` FOREIGN KEY (`usage_pack_id`) REFERENCES `usage_pack` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `project_job_usage` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `year` int NOT NULL,
+  `month` int NOT NULL,
+  `job_count` int NOT NULL DEFAULT '0',
+  `job_duration` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `idx_da16e6d19467189502a62a0d99` (`project_id`),
+  CONSTRAINT `FK_da16e6d19467189502a62a0d993` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `project_storage_usage` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `used` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_rel_44711059df507f55fb11a5d68e` (`project_id`),
+  KEY `idx_44711059df507f55fb11a5d68e` (`project_id`),
+  CONSTRAINT `FK_44711059df507f55fb11a5d68e3` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `runner` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -253,6 +287,18 @@ CREATE TABLE IF NOT EXISTS `runner_script` (
   `enable` tinyint NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `script_file` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `from_artifact_id` int NOT NULL,
+  `artifact_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_4ab2865d99107c0fc1b97da866` (`project_id`,`file_name`,`artifact_name`),
+  KEY `FK_0f4041fb2f4039fefde6e27f0be` (`from_artifact_id`),
+  CONSTRAINT `FK_0f4041fb2f4039fefde6e27f0be` FOREIGN KEY (`from_artifact_id`) REFERENCES `artifact` (`id`),
+  CONSTRAINT `FK_949f2d365b7f3271a6509b5cf36` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `setting` (
   `id` int NOT NULL AUTO_INCREMENT,
   `project_id` int NOT NULL,
@@ -262,6 +308,7 @@ CREATE TABLE IF NOT EXISTS `setting` (
   `lab_message_source` tinyint NOT NULL DEFAULT '1' COMMENT 'what kind of lab message would be sent',
   `message_target_type` tinyint NOT NULL DEFAULT '1' COMMENT 'what kind of chat will receive message',
   `message_target` text COMMENT 'who will receive message if target type is specified',
+  `auto_detect_version` tinyint NOT NULL DEFAULT '0' COMMENT 'Whether to enable the experimental feature of automatic source association',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_rel_63751a9ebee56db104825bfbb4` (`project_id`),
   KEY `idx_63751a9ebee56db104825bfbb4` (`project_id`),
@@ -304,6 +351,7 @@ CREATE TABLE IF NOT EXISTS `snapshot_report` (
   `failed_reason` varchar(255) DEFAULT NULL,
   `performance_score` int DEFAULT NULL,
   `host` varchar(255) DEFAULT NULL,
+  `upload_size` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_d2df6dff88d77a3df1d3e3ae60` (`project_id`),
   KEY `idx_787259d4365648b21c28eb20ae` (`snapshot_id`),
@@ -315,6 +363,16 @@ CREATE TABLE IF NOT EXISTS `snapshot_report` (
   CONSTRAINT `FK_d3a913b2625d011ce5912bcedf8` FOREIGN KEY (`env_id`) REFERENCES `environment` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_e54660c3d494f0c80423667aa3a` FOREIGN KEY (`page_id`) REFERENCES `page` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_f56fe80334e2bbfbfa297373db6` FOREIGN KEY (`profile_id`) REFERENCES `profile` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `snapshot_report_with_artifact` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `snapshot_report_id` int NOT NULL,
+  `artifact_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_10237fe278bbbe6d5c22867857` (`snapshot_report_id`),
+  KEY `idx_5eff5c82056bf06a6f1c335adf` (`artifact_id`),
+  CONSTRAINT `FK_10237fe278bbbe6d5c228678577` FOREIGN KEY (`snapshot_report_id`) REFERENCES `snapshot_report` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_5eff5c82056bf06a6f1c335adf4` FOREIGN KEY (`artifact_id`) REFERENCES `artifact` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `source_issue` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -330,7 +388,7 @@ CREATE TABLE IF NOT EXISTS `source_issue` (
   KEY `idx_a7df2f155b406433c1091ca7a8` (`project_id`),
   KEY `idx_776b7d546ab57328a80a60d6d5` (`hash`),
   KEY `FK_4835a8bf4d0ae06e03541edfa89` (`snapshot_report_id`),
-  CONSTRAINT `FK_4835a8bf4d0ae06e03541edfa89` FOREIGN KEY (`snapshot_report_id`) REFERENCES `snapshot_report` (`id`),
+  CONSTRAINT `FK_4835a8bf4d0ae06e03541edfa89` FOREIGN KEY (`snapshot_report_id`) REFERENCES `snapshot_report` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_a7df2f155b406433c1091ca7a8d` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `timer` (
@@ -355,6 +413,19 @@ CREATE TABLE IF NOT EXISTS `typeorm_migration_table` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `usage_pack` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `desc` varchar(255) NOT NULL,
+  `is_public` tinyint NOT NULL DEFAULT '0',
+  `is_default` tinyint NOT NULL DEFAULT '0',
+  `job_count_monthly` int NOT NULL,
+  `job_duration_monthly` int NOT NULL,
+  `storage` int NOT NULL,
+  `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
@@ -377,7 +448,7 @@ CREATE TABLE IF NOT EXISTS `user_connected_account` (
   `access_token` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_e956657dfdd875f5bc44c412c1` (`user_id`),
-  CONSTRAINT `FK_e956657dfdd875f5bc44c412c17` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `FK_e956657dfdd875f5bc44c412c17` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `user_permission` (
   `id` int NOT NULL AUTO_INCREMENT,
