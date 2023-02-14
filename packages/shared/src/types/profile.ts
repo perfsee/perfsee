@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import type { ProfilingDataFrontend, TimelineData } from 'react-devtools-inline'
+import type { ProfilingDataForRootFrontend, ProfilingDataFrontend, TimelineData } from 'react-devtools-inline'
 
 import type { PerfseeFlameChartData, Frame } from '@perfsee/flamechart'
 
@@ -33,7 +33,7 @@ export interface FlameChartDiagnosticInfo {
 export type FlameChartData = PerfseeFlameChartData
 
 export type MapMapToRecord<T> = {
-  [key in keyof T]: T[key] extends Map<infer K, infer V>
+  [key in keyof T]: T[key] extends Map<infer K, infer V> | null
     ? K extends string | number | symbol
       ? Record<K, MapMapToRecord<V>>
       : never
@@ -43,6 +43,7 @@ export type MapMapToRecord<T> = {
 }
 
 export type ReactProfileData = MapMapToRecord<ProfilingDataFrontend>
+export type ProfilingDataForRoot = MapMapToRecord<ProfilingDataForRootFrontend>
 export type ReactTimelineData = MapMapToRecord<TimelineData>
 
-export type { ReactComponentMeasure, SuspenseEvent } from 'react-devtools-inline'
+export type { ReactComponentMeasure, SuspenseEvent, CommitDataFrontend } from 'react-devtools-inline'
