@@ -19,14 +19,17 @@ import { join } from 'path'
 
 import { DataSource } from 'typeorm'
 
+import { mysqlEntities } from './db/entities'
 import { SnakeNamingStrategy } from './db/mysql/utils'
 
 export const dataSource = new DataSource({
   ...perfsee.mysql,
   type: 'mysql',
   namingStrategy: new SnakeNamingStrategy(),
-  entities: [join(__dirname, './db/mysql/*.entity.ts')],
-  migrations: [join(__dirname, '../../../db/migrations/*.ts')],
-  migrationsRun: false,
+  entities: mysqlEntities,
+  migrations: perfsee.prod ? [] : [join(__dirname, '../../../db/migrations/*.ts')],
   migrationsTableName: 'typeorm_migration_table',
+  migrationsRun: false,
+  synchronize: false,
+  logging: !!process.env.VERBOSE,
 })

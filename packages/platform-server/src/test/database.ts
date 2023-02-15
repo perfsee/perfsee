@@ -19,8 +19,7 @@ import { Test } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { DataSource } from 'typeorm'
 
-import { dataSource } from '../datasource'
-import { DBService, mysqlEntities } from '../db'
+import { dataSource, DBService, mysqlEntities } from '../db'
 import { seed as seedDB } from '../db/fixtures'
 
 const TypeOrmTestingModule = () => [
@@ -30,7 +29,6 @@ const TypeOrmTestingModule = () => [
       return Promise.resolve(dataSource)
     },
   }),
-  TypeOrmModule.forFeature(mysqlEntities),
 ]
 
 async function truncateTables(conn: DataSource) {
