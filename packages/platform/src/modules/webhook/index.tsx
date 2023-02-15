@@ -17,6 +17,7 @@ limitations under the License.
 import { useTheme } from '@emotion/react'
 import { Icon, PrimaryButton, Shimmer, Stack, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
+import dayjs from 'dayjs'
 import { pick } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -179,12 +180,16 @@ const WebhookItem = ({
       ? {
           icon: 'completed',
           color: theme.colors.success,
-          message: `Last delivery was successful in ${lastDeliveryTime}ms. Status Code: ${webhook.lastDelivery.statusCode}.`,
+          message: `Last delivery was successful in ${lastDeliveryTime}ms, at ${dayjs(
+            webhook.lastDelivery.endTime,
+          ).fromNow()}. Status Code: ${webhook.lastDelivery.statusCode}.`,
         }
       : {
           icon: 'errorBadge',
           color: theme.colors.error,
-          message: `Last delivery was not successful in ${lastDeliveryTime}ms. Status Code: ${webhook.lastDelivery.statusCode}.`,
+          message: `Last delivery was not successful in ${lastDeliveryTime}ms, at ${dayjs(
+            webhook.lastDelivery.endTime,
+          ).fromNow()}. Status Code: ${webhook.lastDelivery.statusCode}.`,
         }
     : { icon: 'dot', color: theme.colors.disabled, message: 'This hook has never been triggered' }
 
