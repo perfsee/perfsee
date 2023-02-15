@@ -18,6 +18,8 @@ import { Module } from '@nestjs/common'
 
 import { StorageModule } from '@perfsee/platform-server/storage'
 
+import { ProjectModule } from '../project'
+
 import { FileController, JobArtifactController } from './file.controller'
 
 @Module({
@@ -27,7 +29,7 @@ import { FileController, JobArtifactController } from './file.controller'
 export class FileModule {}
 
 @Module({
-  imports: [StorageModule],
+  imports: [StorageModule, ProjectModule],
   controllers: [JobArtifactController],
 })
 export class JobArtifactModule {}

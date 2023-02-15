@@ -19,5 +19,5 @@ test.serial('get project', async (t) => {
     variables: { projectId: project.slug },
   })
 
-  t.is(response.project.name, project.name)
+  t.is(response.project!.name, project.name)
 })

@@ -84,18 +84,46 @@ test.serial('create existed project', async (t) => {
 
 test.serial('get project', async (t) => {
   const service = t.context.module.get(ProjectService)
+  const permissionProvider = t.context.module.get(PermissionProvider)
 
-  const projectResult = await service.getProject(project.slug)
-  t.truthy(projectResult)
+  let result: Project | null = null
+  // unsigned user + private project
+  result = await service.getProject(project.slug)
+  t.is(result, null)
 
-  const projectById = await service.getProjectById(project.id)
-  t.truthy(projectById)
-  t.is(project.slug, projectById!.slug)
+  // unsigned user + public project
+  const publicProject = await create(Project, { isPublic: true })
+  result = await service.getProject(publicProject.slug)
+  t.is(result!.id, publicProject.id)
 
+  // signed user + no permission
+  permissionProvider.check.resolves(false)
+  result = await service.getProject(project.slug, { id: 0 } as User)
+  t.is(result, null)
+
+  // signed user + with permission
+  permissionProvider.check.resolves(true)
+  const projectResult = await service.getProject(project.slug, { id: 0 } as User)
+  t.is(projectResult!.id, project.id)
+
+  permissionProvider.check.reset()
+  await Project.delete(publicProject.id)
+})
+
+test.serial('get projects by repo', async (t) => {
+  const service = t.context.module.get(ProjectService)
+  const project = await create(Project, {
+    host: GitHost.Unknown,
+    namespace: 'test',
+    name: 'test',
+  })
   const projectsByRepo = await service.getProjectsByRepo(project.host, project.namespace, project.name)
-  t.truthy(projectById)
   t.is(projectsByRepo.length, 1)
   t.is(project.slug, projectsByRepo[0].slug)
+})
+
+test.serial('resolve project id from slug', async (t) => {
+  const service = t.context.module.get(ProjectService)
 
   const projectId = await service.resolveRawProjectIdBySlug(project.slug)
   t.is(projectId, project.id)

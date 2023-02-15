@@ -98,19 +98,8 @@ test('unable to get project by no read permission user', async (t) => {
         },
       })
     },
-    { message: '[User Error] Unauthorized user' },
+    { message: 'Project not found' },
   )
-})
-
-test('get project by name', async (t) => {
-  const response = await gqlClient.query({
-    query: projectQuery,
-    variables: {
-      projectId: project.slug,
-    },
-  })
-
-  t.is(response.project.id, project.slug)
 })
 
 test('get projects', async (t) => {

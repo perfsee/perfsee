@@ -19,8 +19,6 @@ import { Reflector } from '@nestjs/core'
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { Request } from 'express'
 
-import { User } from '@perfsee/platform-server/db'
-
 import { getUserFromContext } from '../auth'
 
 import { Permission } from './def'
@@ -39,15 +37,11 @@ export class PermissionGuardImpl implements CanActivate {
   constructor(private readonly permission: PermissionProvider, private readonly reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const user =
-      this.getUserFromContext(context) ??
-      ({
-        id: 0,
-        isAdmin: false,
-        isApp: false,
-        username: 'anonymous',
-        email: 'anonymous@perfsee.com',
-      } as User)
+    const user = this.getUserFromContext(context)
+
+    if (!user) {
+      return false
+    }
 
     if (user.isAdmin) {
       return true
