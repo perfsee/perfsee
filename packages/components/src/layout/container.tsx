@@ -43,6 +43,7 @@ const BodyContainerInner = styled.div<{ wide?: boolean }>(({ theme, wide }) => (
   display: 'flex',
   flexDirection: 'column',
   padding: `20px ${theme.layout.mainPadding} 0`,
+  maxWidth: '100vw',
   ...(wide
     ? {
         width: '100%',
