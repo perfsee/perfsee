@@ -49,9 +49,17 @@ const CommitInfoContainer = styled.div(({ theme }) => ({
 
 const BuildHistoryItem = styled.div({
   overflow: 'hidden',
-  flexShrink: 0,
+  flexShrink: 1,
   flexGrow: '1',
   flexBasis: '100%',
+})
+
+const BuildHistoryContainer = styled(Stack)({
+  gap: '8px',
+  '@media(max-width: 960px)': {
+    flexWrap: 'wrap',
+    gap: '32px',
+  },
 })
 
 interface Props {
@@ -62,7 +70,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
   const { baseline, project } = artifact
   return (
     <BundleCard>
-      <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+      <BuildHistoryContainer horizontal verticalAlign="center">
         <BuildHistoryItem>
           <BuildRound>#{artifact.id}</BuildRound>
           <Tag type="warning">current</Tag>
@@ -95,7 +103,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
             </BuildHistoryItem>
           )
         )}
-      </Stack>
+      </BuildHistoryContainer>
     </BundleCard>
   )
 }
