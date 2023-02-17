@@ -67,6 +67,24 @@ app.post('/callback', express.text({ type: '*/*' }), function (req, res) {
 app.listen(3000)
 ```
 
+## TypeScript 定义
+
+Webhook 的类型定义包含在 npm 包 `@perfsee/sdk` 中，用法如下。
+
+```ts
+import express from 'express'
+import { WebhookEvent } from '@perfsee/sdk'
+
+const app = express()
+
+app.post('/callback', express.json(), function (req, res) {
+  const json = req.body as WebhookEvent
+  console.log(json)
+})
+
+app.listen(3001)
+```
+
 ## POST 示例
 
 Request:
