@@ -15,18 +15,19 @@ limitations under the License.
 */
 
 import { readFileSync } from 'fs'
-import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { promisify } from 'util'
 
 import Protocol from 'devtools-protocol'
 import Gatherer from 'lighthouse/types/gatherer'
-import { ProfilingDataFrontend } from 'react-devtools-inline'
+import type { ProfilingDataFrontend } from 'react-devtools-inline'
 
 import {
   createBrowser,
   detectReactDom,
+  detectVersion,
   Driver,
+  fetchReactDom,
   generateProfilingBundle,
   isProfilingBuild,
   prepareProfilingDataFrontendFromBackendAndStore,
@@ -46,14 +47,12 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   static bundleToReplace?: GeneratedBundle
   static lastProcessedUrl?: string
 
-  static REACT_DEVTOOLS_INJECT_SCRIPT = readFileSync(join(__dirname, '../../../inject-react-devtools.js'), 'utf-8')
-  static SCHEDULER_TRACING_SCRIPT = readFileSync(join(__dirname, '../../../scheduler-tracing.profiling.js'), 'utf-8')
+  static REACT_DEVTOOLS_INJECT_SCRIPT = readFileSync(join(__dirname, './devtools-injection.js'), 'utf-8')
 
   static async findReactDOMScriptAndGenerateProfilingBundle(url: string) {
     if (this.lastProcessedUrl === url) {
       return
     }
-    const reactDOMProfilingBuild = await readFile(join(__dirname, '../../react-dom-profiling-build/18.2.js'), 'utf-8')
 
     const browser = await createBrowser()
     const page = await browser.newPage()
@@ -61,22 +60,22 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     const reactDomFound = new Promise<GeneratedBundle | undefined>((resolve) => {
       page.on('response', (response) => {
         const url = response.url()
-        if (url.endsWith('.js')) {
-          void response.text().then((text) => {
-            if (detectReactDom(text)) {
-              if (isProfilingBuild(text)) {
-                resolve(undefined)
-              } else {
-                const generatedBundle = generateProfilingBundle(
-                  text,
-                  reactDOMProfilingBuild,
-                  ReactProfiler.SCHEDULER_TRACING_SCRIPT,
-                )
-                resolve([url, generatedBundle])
-              }
-            }
-          })
+        if (!url.endsWith('.js')) {
+          return
         }
+        void response.text().then((text) => {
+          if (url.endsWith('react-dom.production.min.js') || url.endsWith('react-dom.production.js')) {
+            void fetchReactDom(detectVersion(text), 'umd').then((profilingBuild) => resolve([url, profilingBuild]))
+          } else if (detectReactDom(text)) {
+            if (isProfilingBuild(text)) {
+              return resolve(undefined)
+            }
+
+            void generateProfilingBundle(text).then((generatedBundle) => {
+              resolve(generatedBundle ? [url, generatedBundle] : undefined)
+            })
+          }
+        })
       })
     })
 

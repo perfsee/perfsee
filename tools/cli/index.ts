@@ -23,6 +23,7 @@ import { DevCommand } from './dev'
 import { ExampleCommand } from './example'
 import { ExtractCommand } from './extract'
 import { GenerateLicenseCommand } from './generate-license'
+import { GenerateReactCommand } from './generate-react'
 import { UpdateWorkspaceCommand } from './update-workspace'
 import { UploadScriptsCommand } from './upload-scripts'
 import { VscodeExtensionCommand } from './vscode'
@@ -43,6 +44,7 @@ cli.register(VscodeExtensionCommand)
 cli.register(UpdateWorkspaceCommand)
 cli.register(ExtractCommand)
 cli.register(UploadScriptsCommand)
+cli.register(GenerateReactCommand)
 
 cli
   .run(process.argv.slice(2), {
