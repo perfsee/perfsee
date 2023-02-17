@@ -34,3 +34,4 @@ packages/plugins/utils/public
 tools/cli.generated.*.js
 assets
 db
+packages/runner/lab/src/lighthouse/lighthouse-runtime/gatherers/devtools-injection.js
