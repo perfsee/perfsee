@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { HttpException, HttpStatus } from '@nestjs/common'
 import { Resolver, Query, Args, Mutation, ResolveField, Parent, ObjectType, Field, ID } from '@nestjs/graphql'
 
 import { Project, User } from '@perfsee/platform-server/db'
@@ -43,11 +44,15 @@ export class ProjectIdVerificationResult {
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
-  @PermissionGuard(Permission.Read, 'id')
   @SkipAuth('skip it for public project, permission guard will cover it')
   @Query(() => Project, { name: 'project', description: 'get project by id' })
-  async getProjectById(@Args({ name: 'id', type: () => ID }) slug: string) {
-    return this.projectService.getProject(slug)
+  async getProjectById(@Args({ name: 'id', type: () => ID }) slug: string, @CurrentUser() user?: User) {
+    const project = await this.projectService.getProject(slug, user)
+    if (!project) {
+      throw new HttpException('Project not found', HttpStatus.NOT_FOUND)
+    }
+
+    return project
   }
 
   @Query(() => ProjectIdVerificationResult, {

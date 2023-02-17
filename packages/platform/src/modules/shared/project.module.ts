@@ -16,8 +16,8 @@ limitations under the License.
 
 import { Module, EffectModule, Effect, ImmerReducer } from '@sigi/core'
 import { Draft } from 'immer'
-import { Observable } from 'rxjs'
-import { map, switchMap, startWith, endWith, withLatestFrom, filter } from 'rxjs/operators'
+import { Observable, of } from 'rxjs'
+import { map, switchMap, startWith, endWith, withLatestFrom, filter, catchError } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
 import {
@@ -69,8 +69,8 @@ export class ProjectModule extends EffectModule<State> {
             variables: payload,
           })
           .pipe(
-            createErrorCatcher('Failed to get project information.'),
             map((data) => this.getActions().setProject(data.project)),
+            catchError(() => of(this.getActions().setProject(null))),
             endWith(this.getActions().setLoading(false)),
             startWith(this.getActions().setLoading(true)),
           ),

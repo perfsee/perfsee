@@ -120,7 +120,7 @@ test.serial('authorize application', async (t) => {
         },
       })
     },
-    { message: /Unauthorized user/ },
+    { message: 'Project not found' },
   )
 
   // authorize application
@@ -283,7 +283,7 @@ test.serial('revoke application permission', async (t) => {
         },
       })
     },
-    { message: /Unauthorized user/ },
+    { message: 'Project not found' },
   )
 })
 

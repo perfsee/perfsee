@@ -18,20 +18,18 @@ import { Controller, Get, Query, Res, HttpException, HttpStatus, Param } from '@
 import { Response } from 'express'
 import FileType from 'file-type'
 
+import { User } from '@perfsee/platform-server/db'
 import { Logger } from '@perfsee/platform-server/logger'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { artifactKey } from '@perfsee/platform-server/utils'
 
-import { Auth } from '../auth'
-import { Permission, PermissionGuard } from '../permission'
+import { Auth, CurrentUser } from '../auth'
+import { ProjectService } from '../project/service'
 
 @Controller('/v1')
 export class FileController {
   constructor(private readonly storage: ObjectStorage, private readonly logger: Logger) {}
 
-  /**
-   * @deprecated use /v1/artifacts/:key instead
-   */
   @Auth()
   @Get('/file')
   async resource(@Res() res: Response, @Query('key') name: string) {
@@ -62,11 +60,24 @@ export class FileController {
 
 @Controller('/artifacts')
 export class JobArtifactController {
-  constructor(private readonly storage: ObjectStorage, private readonly logger: Logger) {}
+  constructor(
+    private readonly storage: ObjectStorage,
+    private readonly logger: Logger,
+    private readonly project: ProjectService,
+  ) {}
 
-  @PermissionGuard(Permission.Read, 'projectId')
   @Get('/:projectId/*')
-  async getProjectArtifacts(@Res() res: Response, @Param() params: Record<string, string>) {
+  async getProjectArtifacts(
+    @CurrentUser() user: User | undefined,
+    @Res() res: Response,
+    @Param() params: Record<string, string>,
+  ) {
+    const project = await this.project.getProject(params.projectId, user)
+
+    if (!project) {
+      throw new HttpException(`Artifact file not found`, HttpStatus.NOT_FOUND)
+    }
+
     const key = artifactKey(params.projectId, params[0])
 
     try {
@@ -84,8 +95,8 @@ export class JobArtifactController {
         contentWithType.pipe(res)
       }
     } catch (error) {
-      this.logger.error('failed to get project artifact ', { key, error })
-      throw new HttpException(`${key} not found`, HttpStatus.NOT_FOUND)
+      this.logger.error('failed to get project artifact', { key, error })
+      throw new HttpException('Artifact file not found', HttpStatus.NOT_FOUND)
     }
   }
 }

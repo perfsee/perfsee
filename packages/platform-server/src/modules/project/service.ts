@@ -56,6 +56,14 @@ export class ProjectService {
     }),
   )
 
+  slugLoader = createDataLoader(
+    (slugs: string[]) =>
+      Project.findBy({
+        slug: In(slugs),
+      }),
+    'slug',
+  )
+
   constructor(
     private readonly permissionProvider: PermissionProvider,
     private readonly github: GithubService,
@@ -71,16 +79,12 @@ export class ProjectService {
   ) {}
 
   async resolveRawProjectIdBySlug(slug: string) {
-    const project = await this.getProject(slug)
+    const project = await this.slugLoader.load(slug)
     if (!project) {
       throw new NotFoundException('project not found')
     }
 
     return project.id
-  }
-
-  getProjectById(id: number) {
-    return Project.findOneByOrFail({ id })
   }
 
   getProjectsByRepo(host: GitHost, namespace: string, name: string) {
@@ -201,7 +205,7 @@ export class ProjectService {
   async checkPermission(payload: { user: User; slug: string; permission: Permission }) {
     const { user, slug, permission } = payload
 
-    const project = await this.getProject(slug)
+    const project = await this.slugLoader.load(slug)
     if (!project) {
       return false
     }
@@ -230,8 +234,21 @@ export class ProjectService {
     return this.permissionProvider.grant(user, projectId, Permission.Admin)
   }
 
-  getProject(slug: string) {
-    return Project.createQueryBuilder('project').where('project.slug = :slug').setParameters({ slug }).getOne()
+  async getProject(idOrSlug: number | string, user?: User) {
+    const project = await Project.findOneByIdSlug(idOrSlug)
+
+    if (project) {
+      if (project.isPublic) {
+        return project
+      } else if (user) {
+        const accessible = await this.permissionProvider.check(user, project.id, Permission.Read)
+        if (accessible) {
+          return project
+        }
+      }
+    }
+
+    return null
   }
 
   async update(projectId: number, input: UpdateProjectInput) {
@@ -281,22 +298,30 @@ export class ProjectService {
   }
 
   async verifyNewSlug(newSlug: string): Promise<{ error?: string; ok: boolean }> {
+    newSlug = newSlug.trim()
     if (newSlug.length > 100) {
       return { error: 'Id is too long', ok: false }
     }
     if (newSlug.length < 3) {
       return { error: 'Id is too short', ok: false }
     }
+
+    if (/^\d+$/.test(newSlug)) {
+      return { error: 'Id should not be all numbers', ok: false }
+    }
+
     if (!/^[0-9a-z-_]+$/.test(newSlug)) {
       return {
-        error: 'Invalid id, id should contains only lowercase letters "a-z", numbers "0-9", hyphen "-", underscore "_"',
+        error: `Invalid id ${newSlug}, id should contains only lowercase letters "a-z", numbers "0-9", hyphen "-", underscore "_"`,
         ok: false,
       }
     }
+
     const project = await Project.findOne({ where: { slug: newSlug } })
     if (project) {
-      return { error: 'Id is unavailable', ok: false }
+      return { error: `Id ${newSlug} is unavailable`, ok: false }
     }
+
     return { ok: true }
   }
 
@@ -375,7 +400,7 @@ export class ProjectService {
   }
 
   async toggleStarProject(userId: number, slug: string, add: boolean) {
-    const project = await this.getProject(slug)
+    const project = await this.slugLoader.load(slug)
 
     if (!project) {
       throw new UserError('Unknown Project')

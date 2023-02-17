@@ -22,7 +22,7 @@ import { registerEntityFactory } from './factory'
 
 registerEntityFactory(Project, () =>
   Project.create({
-    slug: faker.internet.domainWord(),
+    slug: faker.git.commitSha(),
     host: GitHost.Github,
     namespace: faker.internet.domainWord(),
     name: faker.internet.userName(),

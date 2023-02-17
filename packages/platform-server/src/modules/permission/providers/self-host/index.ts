@@ -63,7 +63,7 @@ export class SelfHostPermissionProvider extends PermissionProvider {
 
     const project = await Project.findOneByIdSlug(id)
     if (!project) {
-      throw new Error('Project not found')
+      return false
     }
 
     // pass read permission check if project is public
