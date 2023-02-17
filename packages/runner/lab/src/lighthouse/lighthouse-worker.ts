@@ -20,7 +20,7 @@ import { join, dirname, basename } from 'path'
 import lighthouseLogger from 'lighthouse-logger'
 import { groupBy, mapValues } from 'lodash'
 import puppeteer from 'puppeteer-core'
-import { ProfilingDataFrontend } from 'react-devtools-inline'
+import type { ProfilingDataFrontend } from 'react-devtools-inline'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker } from '@perfsee/job-runner-shared'

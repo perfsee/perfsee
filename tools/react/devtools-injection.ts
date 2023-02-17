@@ -16,4 +16,5 @@ limitations under the License.
 
 import * as ReactDevtoolsBackend from 'react-devtools-inline/backend'
 
+// @ts-expect-error
 window.ReactDevtoolsBackend = ReactDevtoolsBackend
