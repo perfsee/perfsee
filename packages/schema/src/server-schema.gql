@@ -646,6 +646,9 @@ type Environment {
 
   """extra localStorage value inserted into page"""
   localStorage: [LocalStorageType!]
+
+  """Enable react prfiling"""
+  reactProfiling: Boolean!
 }
 
 """message target setting"""
@@ -1555,6 +1558,9 @@ input UpdateEnvironmentInput {
 
   """Disable scanning of this environment"""
   disable: Boolean
+
+  """Enable react prfiling"""
+  reactProfiling: Boolean
   localStorage: [LocalStorageInputType!]
   cookies: [CookieInputType!]
   headers: [HeaderInputType!]

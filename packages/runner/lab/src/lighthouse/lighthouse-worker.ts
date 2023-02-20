@@ -51,7 +51,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected headers!: HostHeaders
   protected cookies!: CookieType[]
   protected localStorageContent!: LocalStorageType[]
-  protected enableReactProfiling = true
+  protected reactProfiling!: boolean
 
   protected async before() {
     this.warmupPageLoad()
@@ -204,18 +204,19 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   private warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
-    const { headers, cookies, localStorage } = this.payload
+    const { headers, cookies, localStorage, reactProfiling } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
     this.headers = hostHeaders
     this.cookies = cookies
     this.localStorageContent = localStorage
+    this.reactProfiling = reactProfiling
 
     this.logger.verbose('Warming up ended.')
   }
 
   private async runLighthouse() {
-    const { cookies, headers, localStorageContent } = this
+    const { cookies, headers, localStorageContent, reactProfiling } = this
     const { url, deviceId, throttle, runs } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
@@ -245,6 +246,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       },
       customFlags: {
         headers,
+        reactProfiling,
       },
     }
 

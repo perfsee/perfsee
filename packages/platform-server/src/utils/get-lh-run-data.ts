@@ -53,6 +53,7 @@ export function getLighthouseRunData(
       e2eScript: page.e2eScript,
       runs: page.isE2e || process.env.NODE_ENV === 'development' ? 1 : 5,
       localStorage: env.localStorage ?? [],
+      reactProfiling: env.reactProfiling ?? false,
     }
   })
 }
