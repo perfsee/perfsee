@@ -33,6 +33,7 @@ import { CookieSchema, EnvSchema, PropertyModule, LocalStorageSchema, HeaderSche
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
 import { FormLocalStorage } from './form-localstorage'
+import { FormReact } from './form-react'
 
 type FromProps = {
   defaultEnv?: EnvSchema
@@ -54,6 +55,7 @@ export const EnvEditForm = (props: FromProps) => {
   const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
   const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
   const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageSchema[] }>()
+  const reactProfilingRef = useRef<{ getReactProfilingEnable: () => boolean }>()
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
   const onSave = useCallback(
@@ -62,6 +64,7 @@ export const EnvEditForm = (props: FromProps) => {
       const cookies = cookiesRef.current!.getCookies()
       const headers = headersRef.current!.getHeaders()
       const localStorage = localStorageRef.current!.getLocalStorage()
+      const reactProfiling = reactProfilingRef.current!.getReactProfilingEnable()
 
       // Not allowed to save
       if (!name) {
@@ -77,6 +80,7 @@ export const EnvEditForm = (props: FromProps) => {
         localStorage,
         needReminder,
         zone,
+        reactProfiling,
       })
     },
     [onSubmit, defaultEnv, zone],
@@ -96,6 +100,7 @@ export const EnvEditForm = (props: FromProps) => {
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
       <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
+      <FormReact defaultEnable={defaultEnv?.reactProfiling ?? false} ref={reactProfilingRef} />
       <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">
         <DialogFooter>

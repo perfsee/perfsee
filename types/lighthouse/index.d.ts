@@ -35,6 +35,7 @@ module LH {
   export interface Flags extends SharedFlagsSettings {
     customFlags?: {
       headers?: Record<string, Record<string, string>>
+      reactProfiling?: boolean
     }
   }
 
