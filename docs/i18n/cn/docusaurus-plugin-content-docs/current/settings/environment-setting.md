@@ -69,3 +69,19 @@ sidebar_position: 4
 
 默认为 Table 模式，按照提示输入数据，如上图。点击按钮可切换至批量输入模式。
 ![](/settings/headers-stringify.png)
+
+### React Profiling
+
+:::caution 注意
+
+这是一个实验性的功能，可能存在不稳定的情况。如果没有按照预期工作，请向我们报告 Issue。
+
+这个功能可能会降低页面渲染速度。
+
+:::
+
+![](/settings/react-profiling.png)
+
+开启这个功能，会在 Lab 分析阶段收集 React 应用每个组件渲染时间等信息。分析报告中会展示组件火焰图，帮助我们分析 React 应用性能瓶颈。
+
+这个功能是基于 React Profiler API 实现的，但 Profier API 在生产环境是关闭的。我们通过拦截 `react-don` 对应资源的请求，并将其替换成 profiling build 来解决这个问题。
