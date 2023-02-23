@@ -36,13 +36,13 @@ ADD . /code
 WORKDIR /code
 RUN yarn
 
-FROM ghcr.io/perfsee/perfsee/runner:latest AS deploy
+FROM ghcr.io/perfsee/perfsee/server:latest AS deploy
 ADD . /code
 WORKDIR /code
 RUN yarn && yarn build
 CMD ["node", "-r", "./tools/paths-register", "packages/platform-server/dist/index.js"]
 
-FROM ghcr.io/perfsee/perfsee/server:latest as runner_deploy
+FROM ghcr.io/perfsee/perfsee/runner:latest as runner_deploy
 ADD . /code
 WORKDIR /code
 RUN yarn && yarn build
