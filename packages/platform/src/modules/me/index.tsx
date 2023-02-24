@@ -20,6 +20,7 @@ import { useCallback, useEffect } from 'react'
 import { Link, Switch, useHistory } from 'react-router-dom'
 
 import { BodyContainer, ContentCard, Route } from '@perfsee/components'
+import { serverLink } from '@perfsee/platform/common'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { SecondaryNav } from '../layout'
@@ -48,7 +49,7 @@ export const Me = () => {
       <Stack.Item>
         <Title>Actions</Title>
         <Text variant="medium">
-          <a href={SERVER + '/auth/logout'}>Logout</a>
+          <a href={serverLink`/auth/logout`}>Logout</a>
         </Text>
         <br />
         <Text variant="medium">

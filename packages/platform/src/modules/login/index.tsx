@@ -21,6 +21,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { BodyContainer, ForeignLink, useQueryString } from '@perfsee/components'
+import { serverLink } from '@perfsee/platform/common'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { GlobalModule, useSettings } from '../shared'
@@ -63,7 +64,7 @@ const StatusText = {
 
 export const Login = () => {
   const settings = useSettings()
-  const [{ returnUrl = SERVER, statusCode }] = useQueryString<{
+  const [{ returnUrl = '/', statusCode }] = useQueryString<{
     returnUrl: string
     statusCode: string
   }>()
@@ -72,14 +73,14 @@ export const Login = () => {
 
   useEffect(() => {
     if (logged) {
-      location.href = returnUrl || '/'
+      location.href = returnUrl
     }
   }, [logged, returnUrl])
 
   return (
     <BodyContainer>
       <form
-        action={SERVER + '/auth/login?returnUrl=' + encodeURIComponent(returnUrl)}
+        action={serverLink`/auth/login?returnUrl=${encodeURIComponent(returnUrl)}`}
         method="POST"
         encType="application/x-www-form-urlencoded"
       >

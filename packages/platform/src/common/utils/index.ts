@@ -23,6 +23,7 @@ export * from './cdn-detector'
 export * from './digest-string'
 export * from './time'
 export * from './adjust-oss-img-size'
+export * from './links'
 
 export function stopPropagation(e: MouseEvent<any>) {
   e.stopPropagation()

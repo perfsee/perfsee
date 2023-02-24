@@ -14,6 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export function getStorageLink(storageKey: string) {
-  return `${SERVER}/api/v1/file?key=${storageKey}`
+export function serverLink(strings: TemplateStringsArray, ...keys: any[]) {
+  const prefix =
+    process.env.NODE_ENV === 'production' && typeof PERFSEE_PLATFORM_HOST !== 'undefined' ? PERFSEE_PLATFORM_HOST : ''
+
+  let link = ''
+  strings.forEach((string, i) => {
+    link += string + (keys[i] ?? '')
+  })
+
+  return link.startsWith('/') ? prefix + link : prefix + '/' + link
 }

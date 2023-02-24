@@ -45,7 +45,6 @@ services:
     ports:
       - 3000:3000
     environment:
-      NODE_ENV: development
       MYSQL_HOST: mysql
       REDIS_HOST: redis
     volumes:
@@ -55,7 +54,7 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 10s
       timeout: 10s
-      retries: 3
+      retries: 10
       start_period: 20s
     command: yarn dev -p @perfsee/platform-server
 
@@ -64,8 +63,6 @@ services:
     depends_on:
       server:
         condition: service_healthy
-    environment:
-      NODE_ENV: development
     volumes:
       - .:/code
       - /code/node_modules
@@ -82,6 +79,5 @@ services:
       - .:/code
       - /code/node_modules
     environment:
-      NODE_ENV: development
-      SERVER: http://server:3000
+      PERFSEE_PLATFORM_HOST: http://server:3000
     command: yarn dev -p @perfsee/platform

@@ -23,7 +23,7 @@ const config = {
   globals: {
     globalThis: 'readonly',
     __IS_SERVER__: 'readonly',
-    SERVER: 'readonly',
+    PERFSEE_PLATFORM_HOST: 'readonly',
     APP_VERSION: 'readonly',
   },
   env: {
