@@ -338,13 +338,16 @@ export class StatsParser {
               const meta = this.getPackageMeta(fnModule.name)
 
               if (!meta) {
+                m.name = fnModule.name
+                m.path = fnModule.name
+                m.ignored = true
                 return
               }
 
               m.name = meta.name
               m.path = meta.path
               m.issuers = this.getIssuers(fnModule, meta)
-              m.ignored = fnModule.name.endsWith('(ignored)')
+              m.ignored = false
               m.version = this.packageVersionMap.get(m.path)
               m.realPath = fnModule.name
 
