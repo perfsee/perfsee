@@ -220,6 +220,9 @@ type Project {
 
     """name filter"""
     name: String
+
+    """is baseline"""
+    isBaseline: Boolean
   ): [ArtifactEntrypoint!]!
   artifactCount: Int!
   recentBranches: [String!]!
@@ -302,6 +305,18 @@ type Project {
 
   """All webhooks in project"""
   webhooks: [Webhook!]!
+
+  """bundle min,max,average score"""
+  bundleScores(from: DateTime!, to: DateTime!): ScoreItem!
+
+  """lab min,max,average score"""
+  labScores(from: DateTime!, to: DateTime!): ScoreItem!
+
+  """the oldest & latest artifacts"""
+  artifactRecords(from: DateTime!, to: DateTime!, isBaseline: Boolean): [Artifact!]
+
+  """the oldest & latest snapshot"""
+  snapshotRecords(from: DateTime!, to: DateTime!): [Snapshot!]
 }
 
 enum GitHost {
@@ -869,6 +884,25 @@ type Webhook {
   lastDelivery: DeliveryRecord
 }
 
+type Group {
+  """
+  group unique id, contains only lowercase letters "a-z", numbers "0-9", hyphen "-", underscore "_"
+  """
+  id: ID!
+
+  """group created timestamp"""
+  createdAt: DateTime!
+
+  """current user permission to this group"""
+  userPermission: [Permission!]!
+
+  """authorized users of this group"""
+  authorizedUsers: [UserWithPermission!]!
+
+  """projects in this group"""
+  projects: [Project!]!
+}
+
 type PageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -1130,6 +1164,27 @@ type DeliveryRecord {
   deliveryId: ID!
 }
 
+type ScoreItem {
+  minScore: Int
+  maxScore: Int
+  averageScore: Float
+}
+
+type GroupEdge {
+  cursor: String!
+  node: Group!
+}
+
+type PaginatedGroups {
+  edges: [GroupEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GroupIdVerificationResult {
+  ok: Boolean!
+  error: String
+}
+
 """message target setting"""
 input MessageTargetInput {
   userEmails: [String!]!
@@ -1208,6 +1263,20 @@ type Query {
   activatedRunnerScripts(jobType: JobType!): RunnerScript
   allUsagePacks: [UsagePack!]!
   publicUsagePacks: [UsagePack!]!
+
+  """get group by id"""
+  group(id: ID!): Group!
+
+  """Verify that the group id is available"""
+  verifyGroupId(id: ID!): GroupIdVerificationResult!
+
+  """paginated groups"""
+  groups(
+    pagination: PaginationInput = {first: 10}
+
+    """search group"""
+    query: String
+  ): PaginatedGroups!
 }
 
 input RunnerQueryFilter {
@@ -1324,6 +1393,15 @@ type Mutation {
   createWebhookForApplication(applicationId: Int!, input: WebhookInput!): Webhook!
   updateWebhook(id: ID!, input: WebhookInput!): Webhook!
   deleteWebhook(id: ID!): Boolean!
+  createGroup(input: CreateGroupInput!): Group!
+  addGroupOwner(groupId: ID!, email: String!): Boolean!
+  updateGroupProject(groupId: ID!, projectId: String!, isAdd: Boolean!): Project!
+  updateGroupUserPermission(groupId: ID!, email: String!, permission: Permission!, isAdd: Boolean!): Boolean!
+
+  """
+  Delete group with given id. NOTE: all data in this group will be deleted.
+  """
+  deleteGroup(groupId: ID!): Boolean!
 }
 
 input CreateProjectInput {
@@ -1597,4 +1675,11 @@ input WebhookInput {
   secret: String
   method: String!
   eventType: String!
+}
+
+input CreateGroupInput {
+  id: String!
+
+  """project slug"""
+  projectIds: [String!]!
 }

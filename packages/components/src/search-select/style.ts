@@ -24,3 +24,35 @@ export const OptionWrapper = styled.div({
     backgroundColor: NeutralColors.gray20,
   },
 })
+
+export const TargetWrapper = styled.div<{ error: boolean }>(({ theme, error }) => ({
+  width: '100%',
+  maxWidth: '100%',
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  border: `1px solid ${error ? theme.colors.error : NeutralColors.gray120}`,
+  borderRadius: '2px',
+}))
+
+export const ErrorMessage = styled.p(({ theme }) => ({
+  color: theme.colors.error,
+  fontSize: '12px',
+}))
+
+export const Tag = styled.span({
+  borderRadius: '4px',
+  padding: '1px 4px',
+
+  backgroundColor: NeutralColors.gray20,
+  whiteSpace: 'nowrap',
+
+  '> span': {
+    fontSize: '12px',
+    paddingLeft: '4px',
+  },
+
+  ':first-of-type': {
+    marginLeft: '4px',
+  },
+})

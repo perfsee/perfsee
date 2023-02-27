@@ -1,0 +1,45 @@
+query groupUsage($id: ID!, $from: DateTime!, $to: DateTime!) {
+  group(id: $id) {
+    projects {
+      id
+      bundleScores(from: $from, to: $to) {
+        minScore
+        maxScore
+        averageScore
+      }
+      labScores(from: $from, to: $to) {
+        minScore
+        maxScore
+        averageScore
+      }
+      usage {
+        jobCount
+        jobDuration
+        storage
+      }
+      artifactRecords(from: $from, to: $to, isBaseline: true) {
+        createdAt
+        score
+        entrypoints {
+          entrypoint
+          size {
+            raw
+            gzip
+            brotli
+          }
+          initialSize {
+            raw
+            gzip
+            brotli
+          }
+        }
+      }
+      snapshotRecords(from: $from, to: $to) {
+        snapshotReports {
+          metrics
+        }
+      }
+    }
+
+  }
+}

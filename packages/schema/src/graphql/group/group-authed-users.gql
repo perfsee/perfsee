@@ -1,0 +1,10 @@
+query groupAuthedUsers($groupId: ID!) {
+  group(id: $groupId) {
+    authorizedUsers {
+      username
+      avatarUrl
+      email
+      permission
+    }
+  }
+}

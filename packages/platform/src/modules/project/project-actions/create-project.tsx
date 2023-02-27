@@ -16,21 +16,41 @@ limitations under the License.
 
 import { Dialog, PrimaryButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { FC, memo, useEffect } from 'react'
+import { FC, memo, useCallback, useEffect, useState } from 'react'
 import { Redirect } from 'react-router'
 
-import { useToggleState } from '@perfsee/components'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { CreateProjectModule } from '../../shared'
+import { CreateGroupModule, CreateProjectModule } from '../../shared'
 
+import { CreateGroupForm } from './create-group-form'
 import { CreateProjectForm } from './create-project-form'
+
+enum Visible {
+  None,
+  Project,
+  Group,
+}
 
 export const CreateProjectAction: FC = memo(() => {
   const [{ createdProject }, dispatcher] = useModule(CreateProjectModule)
-  const [dialogVisible, openDialog, closeDialog] = useToggleState()
+  const [{ createdGroup }, orgDispatcher] = useModule(CreateGroupModule)
+  const [dialogVisible, setVisible] = useState<Visible>(Visible.None)
 
   useEffect(() => dispatcher.reset, [dispatcher])
+  useEffect(() => orgDispatcher.reset, [orgDispatcher])
+
+  const openProjectDialog = useCallback(() => {
+    setVisible(Visible.Project)
+  }, [])
+
+  const openGroupDialog = useCallback(() => {
+    setVisible(Visible.Group)
+  }, [])
+
+  const closeDialog = useCallback(() => {
+    setVisible(Visible.None)
+  }, [])
 
   if (createdProject) {
     return (
@@ -42,17 +62,35 @@ export const CreateProjectAction: FC = memo(() => {
     )
   }
 
+  if (createdGroup) {
+    return (
+      <Redirect
+        to={pathFactory.group.home({
+          groupId: createdGroup.id,
+        })}
+      />
+    )
+  }
+
   return (
     <Stack>
-      <PrimaryButton text="Create Project" onClick={openDialog} />
+      <Stack horizontal tokens={{ childrenGap: 4 }}>
+        <PrimaryButton text="Create Project" onClick={openProjectDialog} />
+        <PrimaryButton text="Create Group" onClick={openGroupDialog} />
+      </Stack>
+
       <Dialog
         minWidth="600px"
-        hidden={!dialogVisible}
+        hidden={dialogVisible === Visible.None}
         onDismiss={closeDialog}
-        dialogContentProps={{ title: 'Create Project' }}
+        dialogContentProps={{ title: `Create ${dialogVisible === Visible.Project ? 'Project' : 'Group'}` }}
         modalProps={{ isBlocking: true }}
       >
-        <CreateProjectForm onClose={closeDialog} />
+        {dialogVisible === Visible.Project ? (
+          <CreateProjectForm onClose={closeDialog} />
+        ) : (
+          <CreateGroupForm onClose={closeDialog} />
+        )}
       </Dialog>
     </Stack>
   )

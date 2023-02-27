@@ -17,14 +17,14 @@ limitations under the License.
 import { DefaultButton, Stack, Text } from '@fluentui/react'
 import { useCallback } from 'react'
 
-export function NoPermission({ link }: { link: string }) {
+export function NoPermission({ link, type = 'project' }: { link: string; type: 'project' | 'group' }) {
   const onClick = useCallback(() => {
     link && window.open(link, '_blank')
   }, [link])
 
   return (
     <Stack horizontalAlign="center">
-      <Text variant="xLarge">You don't has permission to access this project.</Text>
+      <Text variant="xLarge">You don't has permission to access this {type}.</Text>
       <Text variant="mediumPlus">Click the button to request permission.</Text>
       <DefaultButton onClick={onClick}>Request</DefaultButton>
     </Stack>

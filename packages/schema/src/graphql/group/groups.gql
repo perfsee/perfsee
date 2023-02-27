@@ -1,0 +1,12 @@
+query groups($input: PaginationInput!, $query: String) {
+  groups(pagination: $input, query: $query) {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

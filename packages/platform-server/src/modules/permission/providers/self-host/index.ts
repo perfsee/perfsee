@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.group/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import { Project, User, UserPermission } from '@perfsee/platform-server/db'
+import { Group, Project, User, UserPermission, UserGroupPermission } from '@perfsee/platform-server/db'
 
 import { Permission } from '../../def'
 import { PermissionProvider } from '../provider'
@@ -42,9 +42,26 @@ export class SelfHostPermissionProvider extends PermissionProvider {
     )
   }
 
-  async get(user: User, id: number | string) {
+  async onCreateGroup(group: Group, owners: User[], _creator: User) {
+    await UserGroupPermission.insert(
+      owners.map((owner) => ({
+        userId: owner.id,
+        groupId: group.id,
+        permission: Permission.Admin,
+      })),
+    )
+  }
+
+  async get(user: User, id: number | string, isGroup?: boolean) {
     if (user.isAdmin) {
       return [Permission.Admin]
+    }
+
+    if (isGroup) {
+      const group = await Group.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+      const permissions = await UserGroupPermission.findBy({ userId: user.id, groupId: group.id })
+
+      return permissions.map((permission) => permission.permission)
     }
 
     const project = await Project.findOneByIdSlug(id)
@@ -56,9 +73,17 @@ export class SelfHostPermissionProvider extends PermissionProvider {
     return permissions.map((permission) => permission.permission)
   }
 
-  async check(user: User, id: number | string, permission: Permission) {
+  async check(user: User, id: number | string, permission: Permission, isGroup?: boolean) {
     if (user.isAdmin) {
       return true
+    }
+
+    if (isGroup) {
+      const group = await Group.findOneByOrFail(typeof id === 'string' ? { slug: id } : { id })
+
+      const grantedPermissions = await UserGroupPermission.findBy({ userId: user.id, groupId: group.id })
+
+      return grantedPermissions.some((item) => validate(item.permission, permission))
     }
 
     const project = await Project.findOneByIdSlug(id)
@@ -76,8 +101,21 @@ export class SelfHostPermissionProvider extends PermissionProvider {
     return grantedPermissions.some((item) => validate(item.permission, permission))
   }
 
-  async grant(user: User, projectId: number, permission: Permission) {
-    const exist = await UserPermission.findOneBy({ userId: user.id, projectId, permission })
+  async grant(user: User, id: number, permission: Permission, isGroup?: boolean) {
+    if (isGroup) {
+      const exist = await UserGroupPermission.findOneBy({ userId: user.id, groupId: id, permission })
+      if (exist) {
+        return
+      }
+      await UserGroupPermission.insert({
+        userId: user.id,
+        groupId: id,
+        permission,
+      })
+      return
+    }
+
+    const exist = await UserPermission.findOneBy({ userId: user.id, projectId: id, permission })
 
     if (exist) {
       return
@@ -85,20 +123,35 @@ export class SelfHostPermissionProvider extends PermissionProvider {
 
     await UserPermission.insert({
       userId: user.id,
-      projectId,
+      projectId: id,
       permission,
     })
   }
 
-  async revoke(user: User, projectId: number, permission: Permission) {
-    await UserPermission.delete({
-      userId: user.id,
-      projectId,
-      permission,
-    })
+  async revoke(user: User, id: number, permission: Permission, isGroup?: boolean) {
+    if (isGroup) {
+      await UserGroupPermission.delete({
+        userId: user.id,
+        groupId: id,
+        permission,
+      })
+    } else {
+      await UserPermission.delete({
+        userId: user.id,
+        projectId: id,
+        permission,
+      })
+    }
   }
 
-  async userAllowList(user: User, permission: Permission) {
+  async userAllowList(user: User, permission: Permission, isGroup?: boolean) {
+    if (isGroup) {
+      const list = await UserGroupPermission.findBy({
+        userId: user.id,
+      })
+      return list.filter((item) => validate(item.permission, permission)).map((item) => item.groupId)
+    }
+
     const list = await UserPermission.findBy({
       userId: user.id,
     })
@@ -108,6 +161,12 @@ export class SelfHostPermissionProvider extends PermissionProvider {
 
   async projectAllowList(project: Project, permission: Permission) {
     const list = await UserPermission.findBy({ projectId: project.id })
+
+    return list.filter((item) => validate(item.permission, permission)).map((item) => item.userId)
+  }
+
+  async groupAllowList(group: Group, permission: Permission) {
+    const list = await UserGroupPermission.findBy({ groupId: group.id })
 
     return list.filter((item) => validate(item.permission, permission)).map((item) => item.userId)
   }

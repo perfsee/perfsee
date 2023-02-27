@@ -1,0 +1,7 @@
+mutation updateGroup($groupId: ID!, $projectId: String!, $isAdd: Boolean!) {
+  updateGroupProject(groupId: $groupId, projectId: $projectId, isAdd: $isAdd) {
+    id
+    name
+    namespace
+  }
+}

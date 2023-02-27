@@ -171,7 +171,7 @@ test('should pass query if permission.check resolves true', async (t) => {
   })
 
   t.assert(res)
-  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
+  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read, undefined])
 })
 
 test('should fail query if permission.check resolves false', async (t) => {
@@ -192,7 +192,7 @@ test('should fail query if permission.check resolves false', async (t) => {
     }),
     { message: 'Forbidden resource' },
   )
-  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
+  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read, undefined])
 })
 
 test('should fail controller if permission.check resolves false', async (t) => {
@@ -204,5 +204,5 @@ test('should fail controller if permission.check resolves false', async (t) => {
   const res = await request(app.getHttpServer()).get(`/test/1`).send()
 
   t.is(res.statusCode, HttpStatus.FORBIDDEN)
-  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read])
+  t.deepEqual(provider.check.args[0], [{ isAdmin: false }, '1', Permission.Read, undefined])
 })

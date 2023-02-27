@@ -107,8 +107,15 @@ export class ProjectArtifactResolver {
       description: 'name filter',
     })
     name?: string,
+    @Args({
+      name: 'isBaseline',
+      type: () => Boolean,
+      nullable: true,
+      description: 'is baseline',
+    })
+    isBaseline?: boolean,
   ) {
-    return this.service.getHistory(project.id, branch, name, from, to, length)
+    return this.service.getHistory(project.id, branch, name, from, to, length, isBaseline)
   }
 
   @ResolveField(() => Int, { name: 'artifactCount' })

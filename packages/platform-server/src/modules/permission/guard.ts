@@ -26,7 +26,7 @@ import { PermissionProvider } from './providers'
 
 const GuardParamsName = 'GuardParams'
 
-type PermissionGuardParams = [Permission, string]
+type PermissionGuardParams = [Permission, string] | [Permission, string, boolean]
 
 export const PermissionGuard = (...params: PermissionGuardParams) => {
   return applyDecorators(SetMetadata(GuardParamsName, params), UseGuards(PermissionGuardImpl))
@@ -47,7 +47,10 @@ export class PermissionGuardImpl implements CanActivate {
       return true
     }
 
-    const [permission, idParamName] = this.reflector.get<PermissionGuardParams>(GuardParamsName, context.getHandler())
+    const [permission, idParamName, isGroup] = this.reflector.get<PermissionGuardParams>(
+      GuardParamsName,
+      context.getHandler(),
+    )
     if (!permission) {
       throw new Error('PermissionGuard should be used in Permission decorator with [Permissions] as parameters!')
     }
@@ -70,7 +73,7 @@ export class PermissionGuardImpl implements CanActivate {
       throw new Error(`"${idParamName}" is requested for PermissionGuard`)
     }
 
-    return this.permission.check(user, id, permission)
+    return this.permission.check(user, id, permission, isGroup)
   }
 
   /**
