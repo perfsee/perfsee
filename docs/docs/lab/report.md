@@ -48,7 +48,7 @@ Click on the "Render Video" button on the right and it will display a video of t
 
 ![timeline](/lab/report-render-timeline.png)
 
-### Main Thread Execution Timeline：
+### Main Thread Execution Timeline:
 
 With the Main Thread Execution Timeline, it’s possible to pinpoint long-running and blocking JavaScript tasks.
 

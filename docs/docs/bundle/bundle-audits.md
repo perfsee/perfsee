@@ -21,7 +21,7 @@ For those builds with multiple entry points shipped, the final score would be th
 
 ### Large synchronous composable assets
 
-`Why`: Large synchronous composable(JS/CSS/HTML) files can significantly increase the loading time of a page. by splitting unnecessary first screen loading resources, you can achieve high optimization benefits. This can be done with webpack's [split chunks configuration](https://web.dev/reduce-javascript-payloads-with-code-splitting/) and lazy load.
+`Why`: Large synchronous composable(JS/CSS/HTML) files can significantly increase the loading time of a page. by splitting unnecessary first screen loading resources, you can achieve high optimization benefits. This can be done with Webpack's [split chunks configuration](https://web.dev/reduce-javascript-payloads-with-code-splitting/) and lazy load.
 
 `Judge`: file size(before compression) > 200 KB
 
@@ -35,7 +35,7 @@ For those builds with multiple entry points shipped, the final score would be th
 
 ### Large initial third-party libraries
 
-`Why`: Large third-party dependencies can increase the loading time and execution time. You can choose a smaller replacement for the same function to reduce the size, or load it on demand (lazy load) only when it is truly needed.
+`Why`: Large third-party dependencies can increase the loading time and execution time. You can choose a smaller replacement for the same function to reduce the size or load it on demand (lazy load) only when it is truly needed.
 
 `Judge`: total size of one package present in the bundles > 100 KB
 
@@ -89,7 +89,7 @@ For those builds with multiple entry points shipped, the final score would be th
 
 `Weight`: 20
 
-### Non-minified assets(js/css/html only)
+### Non-minified assets(JS/CSS/HTML only)
 
 `Why`: uglify to reduce the size of the bundle
 

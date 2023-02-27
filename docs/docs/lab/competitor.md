@@ -12,24 +12,16 @@ The Competitor function is based on the basic capabilities of the Lab Module, if
 
 ## Getting Started
 
-### 1. Add a competitor environment
-
-Navigate to **Settings->Environments**,
-Click the `Create environment` button in the upper right corner and check the checkbox to create a competing environment. The environment is used to set cookies and headers for competitor pages and temporary pages.
-
-![competitor environment](/settings/environment-competitor.png)
-
-### 2. Add a competitor page
+### 1. Add a competitor page
 
 Navigate to **Settings->Pages**,
 
 ![create competitor page](/settings/create-competitor-page.png)
 
 1. Click `Create a Competitor Page`
-2. The competitor page can only be associated with the competitor environment.
-3. Associate the competitor page with the site page to be compared. [It will only appear when you create a new one. If you need to modify the associated page or cancel the association subsequently, you need to go to the corresponding site page to edit it.]
+2. Associate the competitor page with the site page to be compared.
 
-### 3. Take a snapshot manually
+### 2. Take a snapshot manually
 
 Navigate to **Project→Lab** and click the `Take a snapshot` button at the top right of the page to select the page you just associated with a competitor page to trigger a scan.
 
@@ -37,7 +29,7 @@ Navigate to **Project→Lab** and click the `Take a snapshot` button at the top 
 
 ![take snapshot detail](/lab/take-snapshot-detail.png)
 
-### 4. View the competitor overview result
+### 3. View the competitor overview result
 
 Navigate to **Project→Competitor**.
 
@@ -49,7 +41,7 @@ Navigate to **Project→Competitor**.
 4. All scores in the table are the average of all valid data in the time span, and the percentages after ± refer to the relative margin of error, which is calculated by dividing the margin of error of all samples by the average, expressing the magnitude of random fluctuations in the statistical results.
 5. Select the data metric to be analyzed to see the trend of the corresponding metric, which defaults to the Lighthouse Performance Score.
 
-### 5. View the competitor detailed result
+### 4. View the competitor detailed result
 
 #### Overview
 

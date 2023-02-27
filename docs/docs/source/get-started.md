@@ -2,11 +2,18 @@
 sidebar_position: 1
 ---
 
-# Get started
+# Get Started
 
-The Source feature is automatically enabled when both the Bundle and Lab modules are enabled, no additional action is required.
-However, you need to make sure the bundle tool outputs `SourceMaps` correctly.
+The Source Analysis feature is automatically enabled when you have both Bundle and Lab modules enabled, no extra setup is required.
 
-:::tip
-SourceMaps is used to recover the analyzed runtime performance data to locate to the source code, which will help our editor plugin to display the performance data during the developing. If you want to use the full Source functionality, be sure to configure the packaged output with the correct SourceMaps.
-:::
+But since the analysis process needs to restore the runtime call stack to the source code structure, there are two main prerequisites to correctly use the source code analysis capabilities:
+
+## Commit Information
+
+Commit information is the basis of source code analysis. We need to know which version of your code is running to find the corresponding bundle and provide data support for the following analysis.
+
+The good news is that we are enabling an experimental feature that can automatically detect version information at runtime. Through a series of data matching, we can accurately find the corresponding Commit information. This experimental feature can be enabled in the project settings and we will gradually open it to all users when it's getting stable.
+
+## SourceMap
+
+You need to make sure that the bundle tool correctly outputs `SourceMaps`, which are the necessary data for the analysis process, and a complete SourceMap will also be beneficial to our editor plugin to help display performance data during development as well.

@@ -14,7 +14,7 @@ After installation, the Perfsee icon will appear in the sidebar of VSCode, and y
 
 ![Perfsee Icon](/source/vscode-icon.png)
 
-`Projects`：Shows the projects currently open in VSCode. The plugin will automatically analyze the project ID, directory, branch, and version information based on local Git information. You can also set this manually.
+`Projects`: Shows the projects currently open in VSCode. The plugin will automatically analyze the project ID, directory, branch, and version information based on local Git information. You can also set this manually.
 
 `Issues`: The performance issues analyzed found in the current project.
 

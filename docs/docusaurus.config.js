@@ -17,7 +17,9 @@ const config = {
   projectName: 'perfsee',
   staticDirectories: ['assets'],
   trailingSlash: false,
-
+  markdown: {
+    mermaid: true,
+  },
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -48,11 +50,15 @@ const config = {
         highlightSearchTermsOnTargetPage: true,
       },
     ],
+    '@docusaurus/theme-mermaid',
   ],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     {
+      mermaid: {
+        theme: { light: 'neutral', dark: 'forest' },
+      },
       navbar: {
         hideOnScroll: true,
         title: 'Perfsee',
@@ -72,7 +78,7 @@ const config = {
           {
             type: 'docSidebar',
             position: 'left',
-            label: 'API',
+            label: 'Development',
             sidebarId: 'apiSidebar',
           },
           {

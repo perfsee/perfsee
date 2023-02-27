@@ -1,11 +1,11 @@
 ---
-sidebar_position: 6
+sidebar_position: 5
 ---
 
-# How to use e2e test
+# How to use the E2E test
 
 :::caution
-This feature is still in experimental stage!
+This feature is still in the experimental stage!
 :::
 
 ## Background
@@ -104,13 +104,13 @@ await flow.endStep()
 
 **page.goto is a special Step that should not be called between `flow.startStep` and `flow.endStep`.**
 
-### Step 3：Take an E2E Snapshot manually
+### Step 3: Take an E2E Snapshot manually
 
 Navigate to **Project→Lab** and click the `Take a snapshot` button at the top right of the page to select the e2e page you want to test to trigger a scan.
 
 ![take snapshot](/lab/e2e-take-snapshot.png)
 
-### Step 4：View the result
+### Step 4: View the result
 
 Clicking on the Snapshot card in the Lab module will display all the results of this run and click the page name to go to the report you want to view.
 
@@ -124,6 +124,6 @@ When you go to the report page, the time that is taken to run the analysis and t
 
 #### User Flow
 
-Click on the User Flow tab on the report page to see the performance analysis data and optimization recommendations for each Step. Click on the thumbnail on the timeline to jump to the next Step.
+Click on the User Flow tab on the report page to see the performance analysis data and optimization recommendations for each step. Click on the thumbnail on the timeline to jump to the next step.
 
 ![userflow](/lab/e2e-report-userflow.png)

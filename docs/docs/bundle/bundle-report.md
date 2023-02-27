@@ -16,19 +16,19 @@ There are some terms that should be introduced before start reading the report.
 
 ### Entry Points
 
-Some bundle tools like `Webpack` allow us to configure multiple [Entry Points](https://webpack.js.org/concepts/entry-points/), and they are always treated(bundled) separately, so when we analyze the builds, we isolate entry points as well to achieve the most accurate result. If your project has multiple entry points, you can choose them through the dropdown list at the very top of the report.
+The frontend project bundling tool usually allows for setting up multiple Entry Points. Therefore, when analyzing the output, we isolate and analyze each Entry Point to obtain the most accurate results. If the bundle contains content from multiple Entry Points, you can select the Entry Point you want to view in the dropdown box at the top of the analysis report.
 
 ### Baseline
 
-Perfsee doesn't only analyze your every single build, but also compares them with **baselines** and shows you what has changed in between, for example, the assets size and libraries used.
+Perfsee doesn't only analyze your every single build, but also compares them with **baselines** and shows you what has changed in between, for example, the asset size and libraries used.
 
-Perfsee will always choose the built from the latest release branch as the baseline, which is `master` by default and you can change it in [Basic Settings](../settings/basic-setting) according to your project convention.
+Perfsee will always choose the build from the latest release branch as the baseline, which is `master` by default and you can change it in [Basic Settings](../settings/basic-setting) according to your project convention.
 
 ### Diff
 
-After selecting an entry point, the diff result of that entry with the same one in the baseline will be calculated, including the total assets size, initial js size, cache invalidation and such.
+After selecting an entry point, the diff result of that entry with the same one in the baseline will be calculated, including the size of the total assets, initial JS files size, cache invalidation and such.
 
-A popup will show up with more details after you hover on any of the size numbers.
+A popup will show up with more details after you hover over any of the size numbers.
 
 ![hover-size](/bundle/hover.png)
 
@@ -50,7 +50,7 @@ Generally speaking, the data used to generate the hash is always the content of 
 
 You can select and view the detail of each entry point in this dropdown.
 
-### 2. Change Baseline
+### 2. Change the Baseline
 
 It's free for you to choose any other build as the comparison baseline. A popup will show up and list all available builds.
 
@@ -101,7 +101,7 @@ So this information provides a strong credential to optimize your bundle.
 
 ### 10. Duplicated packages
 
-Normally, bundle tools won't pack the same package more than once into final js, but if some of your dependencies import different versions of other dependencies, you may encounter this situation.
+Normally, bundle tools won't pack the same package more than once into final JS files, but if some of your dependencies import different versions of other dependencies, you may encounter this situation.
 
 For instance, your source code directly depends on `foo@2.0` and `bar@1.0`, and at the same time, `bar@1.0` depend on `foo` as well but the semantic version set in its `package.json` is `foo@^1.0`. In this case, no matter what package manager you use, `foo@2.0` and `foo@^1.0` will be definitely resolved to different versions and both of them will exist in your bundle outputs.
 
@@ -111,12 +111,12 @@ We provided a list of duplicated packages with import paths of them for helping 
 
 ### 11. Bundle content in detail
 
-We have 4 tabs with different tables or lists to show you great detail of your bundle. They are:
+We have 4 tabs with different tables or lists to show you the great detail of your bundle. They are:
 
 1. List of all files that users will download when visiting your pages
 2. List of all packages that the files included and a lot more information
 3. List of all applied audit rules and applicable optimization suggestions
-4. Visualization of all modules and their references relationship
+4. Visualization of all modules and their reference relationship
 
 ## Tabs
 
@@ -124,7 +124,7 @@ We have 4 tabs with different tables or lists to show you great detail of your b
 
 ![assets](/bundle/assets.png)
 
-Columns：
+Columns:
 
 | Name              | Description                                                           |
 | ----------------- | --------------------------------------------------------------------- |
@@ -137,7 +137,7 @@ Columns：
 
 #### More Explanation
 
-1. We use such speeds to calculate the estimated downloading time：
+1. We use such speeds to calculate the estimated downloading time:
 
    - Slow 3G: 40 KB/s
    - Good 3g: 196 KB/s
@@ -150,7 +150,7 @@ Columns：
 
    For instance, in the above picture, the total size of package `@fluentui/react` is `538KB`(which is available in [Packages Table](#Packages)), but file `npm-36cd78e3.753182e1.js` only contains `494 KB` of this package, which means the rest of that package is bundled into other files.
 
-   Packages with `(concatenated)` before their names means they are processed by Webpack `Module Concatenation` feature,
+   Packages with `(concatenated)` before their names means they are processed by Webpack's `Module Concatenation` feature,
    and merged into other modules, leading to we can't recognize the real used size of them.
    But be relaxed, it doesn't mean we calculate the wrong size number. The size is just appended to the other package's size, but the total number is correct.
 

@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# 从 0 开始的 Lab 分析流程
+# 从 0 开始的运行时分析流程
 
 ## Step 1: 添加运行环境
 
@@ -18,7 +18,7 @@ sidebar_position: 1
 
 ### 设置 Environment
 
-> Environment 用于配置自定义的 headers 和 cookies。
+> Environment 用于配置访问页面所必须的环境，如 headers 和 cookies 及必要的地理位置。
 
 很多情况下我们并不能直接地访问到待测试页面，比如需要登录的应用。我们可以设置 Authorization header 或者 cookies 来模拟访问需要的配置。
 

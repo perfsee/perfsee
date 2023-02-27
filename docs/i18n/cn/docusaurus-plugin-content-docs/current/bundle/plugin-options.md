@@ -1,10 +1,10 @@
 ---
 id: plugin-options
-title: 插件参数
+title: 打包工具插件参数
 sidebar_position: 4
 ---
 
-### 插件参数
+### 打包工具插件通用参数描述
 
 ```typescript
 type Options = {
@@ -71,7 +71,7 @@ type Options = {
   shouldPassAudit?: (score: number, result: BundleResult) => Promise<boolean> | boolean
 
   /**
-   * 在审计不通过时已非 0 状态吗退出分析进程。
+   * 在审计不通过时已非 0 状态码退出分析进程。
    *
    * 设置为 `true` 后，可以让 CI 流程失败。
    *
