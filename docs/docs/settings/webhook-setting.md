@@ -67,6 +67,24 @@ app.post('/callback', express.text({ type: '*/*' }), function (req, res) {
 app.listen(3000)
 ```
 
+## TypeScript definitions
+
+You can find the type definition of webhook in npm package `@perfsee/sdk`.
+
+```ts
+import express from 'express'
+import { WebhookEvent } from '@perfsee/sdk'
+
+const app = express()
+
+app.post('/callback', express.json(), function (req, res) {
+  const json = req.body as WebhookEvent
+  console.log(json)
+})
+
+app.listen(3001)
+```
+
 ## POST Example
 
 Request:

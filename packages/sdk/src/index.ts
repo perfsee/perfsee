@@ -16,3 +16,4 @@ limitations under the License.
 
 export { Client } from './client'
 export { runCli } from './cli'
+export type { WebhookEvent } from './webhook'

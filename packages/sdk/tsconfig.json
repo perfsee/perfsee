@@ -9,6 +9,9 @@
     {
       "path": "../schema"
     },
+    {
+      "path": "../shared"
+    }
   ],
   "include": [
     "./src/**/*"

@@ -5862,6 +5862,7 @@ __metadata:
   resolution: "@perfsee/sdk@workspace:packages/sdk"
   dependencies:
     "@perfsee/schema": "workspace:*"
+    "@perfsee/shared": "workspace:*"
     chalk: ^4.1.2
     clipanion: ^3.1.0
     graphql: ^16.0.0
