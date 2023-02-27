@@ -155,6 +155,12 @@ export class Profile extends BaseEntity {
   @Column({ default: 'no' })
   bandWidth!: string
 
+  @Field(() => Boolean, {
+    description: 'Enable react prfiling',
+  })
+  @Column({ type: 'boolean', default: false })
+  reactProfiling!: boolean
+
   @ManyToOne('Project', 'profiles', { onDelete: 'CASCADE' })
   project!: Project
 
@@ -232,12 +238,6 @@ export class Environment extends BaseEntity {
   })
   @Column({ type: 'json', nullable: true })
   localStorage!: LocalStorageType[]
-
-  @Field(() => Boolean, {
-    description: 'Enable react prfiling',
-  })
-  @Column({ type: 'boolean', default: false })
-  reactProfiling!: boolean
 
   @OneToMany('SnapshotReport', 'environment')
   reports!: SnapshotReport[]

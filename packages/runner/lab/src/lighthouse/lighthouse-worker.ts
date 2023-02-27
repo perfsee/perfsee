@@ -20,7 +20,6 @@ import { join, dirname, basename } from 'path'
 import lighthouseLogger from 'lighthouse-logger'
 import { groupBy, mapValues } from 'lodash'
 import puppeteer from 'puppeteer-core'
-import type { ProfilingDataFrontend } from 'react-devtools-inline'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker } from '@perfsee/job-runner-shared'
@@ -32,6 +31,7 @@ import {
   LocalStorageType,
   MetricKeyType,
   MetricType,
+  ProfilingDataExport,
   RequestSchema,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
@@ -46,6 +46,7 @@ import {
   formatCookies,
 } from './helpers'
 import { computeMedianRun, getFCP, getNumericValue, getTTI, lighthouse, MetricsRecord } from './lighthouse-runtime'
+import { ReactProfiler } from './lighthouse-runtime/gatherers'
 
 export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected headers!: HostHeaders
@@ -97,7 +98,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const metricScores = getLighthouseMetricScores('navigation', lhr.audits, timings, timelines)
 
     const jsCoverage = artifacts.JsUsage ?? {}
-    const reactProfile = artifacts.ReactProfiler as ProfilingDataFrontend | null
+    const reactProfile = artifacts.ReactProfiler as ProfilingDataExport | null
 
     // artifacts
     const lighthouseFile = `snapshots/${uuid()}.json`
@@ -155,18 +156,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    if (reactProfile) {
+    if (reactProfile?.dataForRoots) {
       try {
         reactProfileStorageKey = await this.client.uploadArtifact(
           reactProfileFile,
-          Buffer.from(
-            JSON.stringify(reactProfile, (_key, value) => {
-              if (value instanceof Map) {
-                return Object.fromEntries(value)
-              }
-              return value
-            }),
-          ),
+          Buffer.from(JSON.stringify(reactProfile)),
         )
       } catch (e) {
         this.logger.error('Failed to upload react profile', { error: e })
@@ -288,6 +282,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           this.logger.error('Failed to set cookies and viewport to page', e)
         })
       })
+
+      if (reactProfiling) {
+        try {
+          this.logger.info('React profiler enabled.')
+          await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser)
+        } catch (e) {
+          this.logger.error(`Failed to detect react-dom script`, { error: e })
+        }
+      }
 
       try {
         const wsEndpoint = new URL(browser.wsEndpoint())

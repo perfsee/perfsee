@@ -133,8 +133,8 @@ const HoveredFiberInfo = ({ fiberData }: HoveredFiberInfoProps) => {
 
   const commitIndices = useMemo(() => {
     const fiberCommits: number[] = []
-    reactProfile?.dataForRoots[rootID].commitData.forEach((commitDatum, commitIndex) => {
-      if (commitDatum.fiberActualDurations[id]) {
+    reactProfile?.dataForRoots.get(rootID)?.commitData.forEach((commitDatum, commitIndex) => {
+      if (commitDatum.fiberActualDurations.get(id)) {
         fiberCommits.push(commitIndex)
       }
     })
@@ -148,9 +148,9 @@ const HoveredFiberInfo = ({ fiberData }: HoveredFiberInfoProps) => {
       const commitIndex = commitIndices[i]
       if (selectedCommitIndex === commitIndex) {
         const { fiberActualDurations, fiberSelfDurations } =
-          reactProfile?.dataForRoots[rootID]?.commitData[commitIndex] || {}
-        const actualDuration = fiberActualDurations?.[id] || 0
-        const selfDuration = fiberSelfDurations?.[id] || 0
+          reactProfile?.dataForRoots.get(rootID)?.commitData[commitIndex] || {}
+        const actualDuration = fiberActualDurations?.get(id) || 0
+        const selfDuration = fiberSelfDurations?.get(id) || 0
 
         return (
           <GraphItemCurrentCommit key={commitIndex}>

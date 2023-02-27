@@ -18,7 +18,7 @@ import { join } from 'path'
 
 import esbuild from 'esbuild'
 
-import { packagePath } from '../utils'
+import { packagePath, writeFileAsync } from '../utils'
 
 import { Command } from './command'
 
@@ -30,11 +30,18 @@ export class GenerateReactCommand extends Command {
   }
 
   private async generateDevtoolsScript() {
-    await esbuild.build({
+    const result = await esbuild.build({
       entryPoints: [join(__dirname, '../react/devtools-injection.ts')],
       bundle: true,
-      write: true,
-      outdir: packagePath('@perfsee/job-runner-lab', 'src/lighthouse/lighthouse-runtime/gatherers'),
+      write: false,
     })
+
+    await writeFileAsync(
+      packagePath('@perfsee/job-runner-lab', 'src/lighthouse/lighthouse-runtime/gatherers/devtools-injection.ts'),
+      `export const DEVTOOLS_INJECTION = \`${result.outputFiles[0].text
+        .replaceAll(/\\/g, '\\\\')
+        .replaceAll(/`/g, '\\`')
+        .replaceAll(/\$\{/g, '\\${')}\``,
+    )
   }
 }

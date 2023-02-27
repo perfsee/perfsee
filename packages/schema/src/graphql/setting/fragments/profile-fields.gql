@@ -4,4 +4,5 @@ fragment profileFields on Profile {
     device
     bandWidth
     disable
+    reactProfiling
 }
