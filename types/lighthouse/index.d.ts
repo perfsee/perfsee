@@ -50,7 +50,7 @@ module LH {
     Screencast: ScreencastGathererResult | null
     CpuProfiler: Crdp.Profiler.Profile
     ConsoleLogger: null
-    ReactProfiler: ProfilingDataFrontend | null
+    ReactProfiler: ProfilingDataExport | null
   }
 
   export interface PerfseeGathererInstance extends Gatherer.GathererInstance {

@@ -94,6 +94,11 @@ export const fetchReactDom = async (version?: string, moduleType = 'cjs') => {
   return resp.text()
 }
 
+export const fetchReact = async (version?: string, moduleType = 'cjs') => {
+  const resp = await fetch(`${SCRIPT_CDN}/react${version ? `@${version}` : ''}/${moduleType}/react.profiling.min.js`)
+  return resp.text()
+}
+
 export async function generateProfilingBundle(origin: string) {
   const matchComments = REACT_DOM_WITH_LICENSE_COMMENTS_REGEXP.exec(origin)
   const state: State = {}
@@ -118,12 +123,22 @@ export async function generateProfilingBundle(origin: string) {
 
     if (match) {
       state.params = node.params.map((param) => origin.substring(...param.range!))
-      const dependencies = node.body.body.find((stmt) => {
-        return stmt.type === 'VariableDeclaration'
-      }) as VariableDeclaration
+      const body = node.body.body
+      const dependencies = body.find((stmt, i) => {
+        return (
+          stmt.type === 'VariableDeclaration' &&
+          body[i + 1] &&
+          body[i + 1].type === 'FunctionDeclaration' &&
+          origin.substring(...body[i + 1].range!).includes('error-decoder.html')
+        )
+      }) as VariableDeclaration | undefined
+
+      if (!dependencies) {
+        return callback(node.body, state)
+      }
 
       state.deps ||= []
-      for (const depDecl of dependencies.declarations) {
+      for (const depDecl of dependencies.declarations.filter((decl) => decl.init)) {
         const text = origin.substring(...depDecl.init!.range!)
         state.deps.push(text)
       }
@@ -152,11 +167,12 @@ export async function generateProfilingBundle(origin: string) {
     if (text.startsWith('(function()')) {
       // it's umd
       const reactDomProflingBuild = await fetchReactDom(version.split('-')[0], 'umd')
-      return origin.slice(0, start) + reactDomProflingBuild + origin.slice(end)
+      const reactProfilingBuild = await fetchReact(version.split('-')[0], 'umd')
+      return origin.slice(0, start) + reactProfilingBuild + reactDomProflingBuild + origin.slice(end)
     }
   }
 
-  const ast = parse(origin, { ecmaVersion: 'latest' as any, sourceType: 'script', ranges: true })
+  const ast = parse(origin, { ecmaVersion: 'latest' as any, sourceType: 'script', ranges: true }) as Node
 
   visit(ast, state, {
     FunctionExpression: visitFunction,
@@ -174,7 +190,7 @@ export async function generateProfilingBundle(origin: string) {
       ecmaVersion: 'latest' as any,
       sourceType: 'script',
       ranges: true,
-    })
+    }) as Node
 
     visit(ast, state, {
       FunctionExpression: visitFunction,

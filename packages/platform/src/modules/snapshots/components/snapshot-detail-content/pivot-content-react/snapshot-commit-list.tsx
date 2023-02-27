@@ -2,7 +2,7 @@ import { SharedColors, Stack, TooltipHost } from '@fluentui/react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 
-import { CommitDataFrontend, MapMapToRecord } from '@perfsee/shared'
+import { CommitDataFrontend } from '@perfsee/shared'
 
 import { minBarWidth } from './constant'
 import {
@@ -18,7 +18,7 @@ import {
 import { formatDuration, formatTime, getGradientColor } from './util'
 
 export interface ListProps {
-  commitData: MapMapToRecord<CommitDataFrontend>[]
+  commitData: CommitDataFrontend[]
   commitTimes: Array<number>
   height: number
   filteredCommitIndices: Array<number>
@@ -187,6 +187,8 @@ interface ItemProps {
 }
 
 const SnapshotCommitListItem = memo(({ data: itemData, index, style }: ItemProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+
   const {
     filteredCommitIndices,
     maxDuration,
@@ -229,6 +231,12 @@ const SnapshotCommitListItem = memo(({ data: itemData, index, style }: ItemProps
     backgroundColor = getGradientColor(colorScale)
   }
 
+  useEffect(() => {
+    if (isSelected) {
+      ref.current?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+    }
+  }, [isSelected])
+
   const onMouseEnter = useCallback(() => {
     setHoveredCommitIndex(index)
   }, [setHoveredCommitIndex, index])
@@ -243,6 +251,7 @@ const SnapshotCommitListItem = memo(({ data: itemData, index, style }: ItemProps
         width,
         borderBottom: isSelected ? `3px solid ${SharedColors.cyanBlue10}` : undefined,
       }}
+      ref={ref}
     >
       <SnapshotCommitInner
         className={isSelected ? 'selected' : ''}

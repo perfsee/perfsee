@@ -1,4 +1,4 @@
-import { ProfilingDataForRoot, ReactProfileData } from '@perfsee/shared'
+import { ProfilingDataForRootFrontend, ProfilingDataFrontend } from '@perfsee/shared'
 
 import {
   commitGradient,
@@ -56,7 +56,7 @@ export function getCommitTree({
   rootID,
 }: {
   commitIndex: number
-  profilingData: ReactProfileData
+  profilingData: ProfilingDataFrontend
   rootID: number
 }): CommitTree {
   if (!rootToCommitTreeMap.has(rootID)) {
@@ -72,7 +72,7 @@ export function getCommitTree({
     throw Error(`No profiling data available`)
   }
 
-  const dataForRoot = profilingData.dataForRoots[rootID]
+  const dataForRoot = profilingData.dataForRoots.get(rootID)
   if (dataForRoot == null) {
     throw Error(`Could not find profiling data for root "${rootID}"`)
   }
@@ -116,9 +116,9 @@ function recursivelyInitializeTree(
   id: number,
   parentID: number,
   nodes: Map<number, CommitTreeNode>,
-  dataForRoot: ProfilingDataForRoot,
+  dataForRoot: ProfilingDataForRootFrontend,
 ): void {
-  const node = dataForRoot.snapshots[id]
+  const node = dataForRoot.snapshots.get(id)
   if (node != null) {
     nodes.set(id, {
       id,
@@ -127,7 +127,7 @@ function recursivelyInitializeTree(
       hocDisplayNames: node.hocDisplayNames,
       key: node.key,
       parentID,
-      treeBaseDuration: dataForRoot.initialTreeBaseDurations[id],
+      treeBaseDuration: dataForRoot.initialTreeBaseDurations.get(id)!,
       type: node.type,
     })
 
@@ -171,10 +171,6 @@ function updateTree(commitTree: CommitTree, operations: Array<number>): CommitTr
         const type = operations[i + 2] as ElementType
 
         i += 3
-
-        if (nodes.has(id)) {
-          throw new Error(`Commit tree already contains fiber "${id}". This is a bug in React DevTools.`)
-        }
 
         if (type === ElementTypeRoot) {
           i++ // isStrictModeCompliant
@@ -234,10 +230,6 @@ function updateTree(commitTree: CommitTree, operations: Array<number>): CommitTr
         for (let removeIndex = 0; removeIndex < removeLength; removeIndex++) {
           id = operations[i]
           i++
-
-          if (!nodes.has(id)) {
-            throw new Error(`Commit tree does not contain fiber "${id}". This is a bug in React DevTools.`)
-          }
 
           const node = getClonedNode(id)
           const parentID = node.parentID
@@ -314,10 +306,10 @@ export function getChartData({
 }: {
   commitIndex: number
   commitTree: CommitTree
-  profilingData: ReactProfileData
+  profilingData: ProfilingDataFrontend
   rootID: number
 }): ChartData {
-  const commitDatum = profilingData.dataForRoots[rootID].commitData[commitIndex]
+  const commitDatum = profilingData.dataForRoots.get(rootID)!.commitData[commitIndex]
 
   const { fiberActualDurations, fiberSelfDurations } = commitDatum
   const { nodes } = commitTree
@@ -345,9 +337,9 @@ export function getChartData({
 
     const { children, displayName, hocDisplayNames, key, treeBaseDuration } = node
 
-    const actualDuration = fiberActualDurations[id] || 0
-    const selfDuration = fiberSelfDurations[id] || 0
-    const didRender = !!fiberActualDurations[id]
+    const actualDuration = fiberActualDurations.get(id) || 0
+    const selfDuration = fiberSelfDurations.get(id) || 0
+    const didRender = !!fiberActualDurations.get(id)
 
     const name = displayName || 'Anonymous'
     const maybeKey = key !== null ? ` key="${key}"` : ''

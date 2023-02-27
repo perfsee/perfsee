@@ -55,7 +55,7 @@ export function ChartNode({
           style={{
             paddingLeft: x < 0 ? -x : 0,
             opacity: isDimmed ? 0.75 : 1,
-            display: width < minWidthToDisplay ? 'none' : 'block',
+            display: 'block',
           }}
           y={0}
         >

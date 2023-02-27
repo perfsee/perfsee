@@ -35,6 +35,8 @@ import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/platform/modul
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
+import { ReactFlameGraphModule } from '../pivot-content-react/module'
+
 import { buildProfileFromReactTimelineData } from './util'
 
 function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing | null {
@@ -90,13 +92,14 @@ export const FlamechartView: React.FunctionComponent<{
     userTimings,
   }) => {
     useWideScreen()
-    const [{ flamechart, reactProfile }, dispatcher] = useModule(FlamechartModule)
+    const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
+    const [{ reactProfile }, reactFlameDispatcher] = useModule(ReactFlameGraphModule)
 
     useEffect(() => {
       dispatcher.fetchFlamechartData(flameChartLink)
-      reactProfileLink && dispatcher.fetchReactProfileData(reactProfileLink)
+      reactProfileLink && reactFlameDispatcher.fetchReactProfileData(reactProfileLink)
       return dispatcher.reset
-    }, [dispatcher, flameChartLink, reactProfileLink])
+    }, [dispatcher, flameChartLink, reactProfileLink, reactFlameDispatcher])
 
     const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
     const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0

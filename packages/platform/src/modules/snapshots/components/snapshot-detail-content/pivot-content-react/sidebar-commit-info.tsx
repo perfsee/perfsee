@@ -29,7 +29,7 @@ export const SidebarCommitInfo = () => {
     priorityLevel,
     timestamp = 0,
     updaters,
-  } = reactProfile?.dataForRoots[rootID]?.commitData[selectedCommitIndex] || {}
+  } = reactProfile?.dataForRoots.get(rootID)?.commitData[selectedCommitIndex] || {}
 
   const hasCommitPhaseDurations = effectDuration !== null || passiveEffectDuration !== null
 

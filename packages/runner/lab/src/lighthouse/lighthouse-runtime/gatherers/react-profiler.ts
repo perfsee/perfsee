@@ -14,16 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { readFileSync } from 'fs'
-import { join } from 'path'
 import { promisify } from 'util'
 
 import Protocol from 'devtools-protocol'
 import Gatherer from 'lighthouse/types/gatherer'
-import type { ProfilingDataFrontend } from 'react-devtools-inline'
+import { Browser } from 'puppeteer-core'
+
+import { prepareProfilingDataExport, ProfilingDataExport } from '@perfsee/shared'
 
 import {
-  createBrowser,
   detectReactDom,
   detectVersion,
   Driver,
@@ -33,7 +32,7 @@ import {
   prepareProfilingDataFrontendFromBackendAndStore,
 } from '../../helpers'
 
-type GeneratedBundle = [url: string, text: string]
+import { DEVTOOLS_INJECTION } from './devtools-injection'
 
 export class ReactProfiler implements LH.PerfseeGathererInstance {
   static SEND = 'reactDevltoolsBridgeWallSend'
@@ -44,46 +43,47 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     showInlineWarningsAndErrors: false,
     hideConsoleLogsInStrictMode: true,
   }
-  static bundleToReplace?: GeneratedBundle
+  static bundleToReplace = new Map<string, string>()
   static lastProcessedUrl?: string
 
-  static REACT_DEVTOOLS_INJECT_SCRIPT = readFileSync(join(__dirname, './devtools-injection.js'), 'utf-8')
-
-  static async findReactDOMScriptAndGenerateProfilingBundle(url: string) {
+  static async findReactDOMScriptAndGenerateProfilingBundle(url: string, browser: Browser) {
     if (this.lastProcessedUrl === url) {
       return
     }
+    this.reset()
 
-    const browser = await createBrowser()
     const page = await browser.newPage()
 
-    const reactDomFound = new Promise<GeneratedBundle | undefined>((resolve) => {
-      page.on('response', (response) => {
-        const url = response.url()
-        if (!url.endsWith('.js')) {
-          return
-        }
-        void response.text().then((text) => {
-          if (url.endsWith('react-dom.production.min.js') || url.endsWith('react-dom.production.js')) {
-            void fetchReactDom(detectVersion(text), 'umd').then((profilingBuild) => resolve([url, profilingBuild]))
-          } else if (detectReactDom(text)) {
-            if (isProfilingBuild(text)) {
-              return resolve(undefined)
-            }
-
-            void generateProfilingBundle(text).then((generatedBundle) => {
-              resolve(generatedBundle ? [url, generatedBundle] : undefined)
-            })
+    page.on('response', (response) => {
+      const url = response.url()
+      if (!url.endsWith('.js') || this.bundleToReplace.has(url)) {
+        return
+      }
+      void response.text().then((text) => {
+        if (url.endsWith('react-dom.production.min.js') || url.endsWith('react-dom.production.js')) {
+          void fetchReactDom(detectVersion(text), 'umd').then((profilingBuild) => {
+            this.bundleToReplace.set(url, profilingBuild)
+          })
+        } else if (detectReactDom(text)) {
+          if (isProfilingBuild(text)) {
+            return
           }
-        })
+
+          void generateProfilingBundle(text).then((generatedBundle) => {
+            generatedBundle && this.bundleToReplace.set(url, generatedBundle)
+          })
+        }
       })
     })
 
     await page.goto(url)
-    const result = await Promise.race([page.waitForNetworkIdle(), reactDomFound])
-    await browser.close()
+    await Promise.race([promisify(setTimeout)(10000), page.waitForNetworkIdle()])
+    await page.close()
     this.lastProcessedUrl = url
-    this.bundleToReplace = result as GeneratedBundle | undefined
+  }
+
+  static reset() {
+    this.bundleToReplace.clear()
   }
 
   name = 'ReactProfiler' as const
@@ -94,13 +94,13 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   private readonly inProgressOperationsByRootID = new Map<number, number[][]>()
   private driver?: Driver
 
-  private readonly profilingDataPromise: Promise<ProfilingDataFrontend | null>
-  private resolveProfilngData!: (result: ProfilingDataFrontend | null) => void
+  private readonly profilingDataPromise: Promise<ProfilingDataExport | null>
+  private resolveProfilngData!: (result: ProfilingDataExport | null) => void
 
   private readonly teardowns: (() => Promise<void>)[] = []
-  private result?: ProfilingDataFrontend | null
+  private result?: ProfilingDataExport | null
 
-  constructor(private readonly url: string) {
+  constructor() {
     this.profilingDataPromise = new Promise((resolve) => {
       this.resolveProfilngData = resolve
     })
@@ -108,7 +108,6 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
 
   async beforePass(ctx: Gatherer.PassContext) {
     const driver = ctx.driver as Driver
-    await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(this.url)
     if (!ReactProfiler.bundleToReplace) {
       this.resolveProfilngData(null)
       return
@@ -139,7 +138,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   private async injectDevtoolsBackendRuntime() {
     const driver = this.driver!
     const injection = `
-    ${ReactProfiler.REACT_DEVTOOLS_INJECT_SCRIPT};
+    ${DEVTOOLS_INJECTION};
     ReactDevtoolsBackend.initialize(window);
     const wall = {
       listen(fn) {
@@ -171,12 +170,11 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   }
 
   private async interceptRequest() {
-    const [bundleUrl, profilingBuildText] = ReactProfiler.bundleToReplace!
     const driver = this.driver!
 
     const onRequestIntercepted = ({ interceptionId, request }: Protocol.Network.RequestInterceptedEvent) => {
-      if (request.url === bundleUrl) {
-        const responseBody = profilingBuildText
+      if (ReactProfiler.bundleToReplace.has(request.url)) {
+        const responseBody = ReactProfiler.bundleToReplace.get(request.url)!
 
         const responseHeaders = [
           `Date: ${new Date().toUTCString()}`,
@@ -186,7 +184,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
         const rawResponse = `HTTP/1.1 200 OK\r\n` + responseHeaders.join('\r\n') + '\r\n\r\n' + responseBody
         void driver.sendCommand('Network.continueInterceptedRequest', {
           interceptionId,
-          rawResponse: btoa(rawResponse),
+          rawResponse: Buffer.from(rawResponse).toString('base64'),
         })
       } else {
         void driver.sendCommand('Network.continueInterceptedRequest', { interceptionId })
@@ -196,7 +194,13 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     driver.on('Network.requestIntercepted', onRequestIntercepted)
 
     await driver.sendCommand('Network.setRequestInterception', {
-      patterns: [{ urlPattern: bundleUrl, resourceType: 'Script', interceptionStage: 'HeadersReceived' }],
+      patterns: [...ReactProfiler.bundleToReplace.keys()].map(
+        (url): Protocol.Network.RequestPattern => ({
+          urlPattern: url,
+          resourceType: 'Script',
+          interceptionStage: 'HeadersReceived',
+        }),
+      ),
     })
 
     return async () => {
@@ -271,7 +275,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
           [payload],
           this.inProgressOperationsByRootID,
         )
-        this.resolveProfilngData(profilingDataFrontend)
+        this.resolveProfilngData(prepareProfilingDataExport(profilingDataFrontend))
         break
       }
       default:

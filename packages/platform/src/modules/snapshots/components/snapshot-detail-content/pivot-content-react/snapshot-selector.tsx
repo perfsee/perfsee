@@ -1,6 +1,6 @@
 import { IconButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { ChangeEvent, MouseEvent, useCallback, useMemo } from 'react'
+import { ChangeEvent, CSSProperties, MouseEvent, useCallback, useMemo } from 'react'
 
 import { ReactFlameGraphModule } from './module'
 import { RootSelector } from './root-selector'
@@ -10,10 +10,14 @@ import { SnapshotSelectorContainer, SnapshotSelectorInput } from './styles'
 const iconLeft = { iconName: 'arrowLeft' }
 const iconRight = { iconName: 'arrowRight' }
 const commitsContainerTokens = { padding: '0 4px' }
+const commitsContainerStyles: CSSProperties = {
+  maxWidth: '40vw',
+  overflow: 'hidden',
+}
 
 export const SnapshotSelector = () => {
   const [{ reactProfile, selectedCommitIndex, rootID }, dispatcher] = useModule(ReactFlameGraphModule)
-  const commitData = reactProfile?.dataForRoots[rootID]?.commitData
+  const commitData = reactProfile?.dataForRoots.get(rootID)?.commitData
 
   const [commitTimes, totalDurations] = useMemo(() => {
     const totalDurations: Array<number> = []
@@ -113,7 +117,7 @@ export const SnapshotSelector = () => {
       <RootSelector />
       <span>{label}</span>
       <IconButton iconProps={iconLeft} disabled={numFilteredCommits === 0} onClick={viewPrevCommit} />
-      <Stack tokens={commitsContainerTokens}>
+      <Stack tokens={commitsContainerTokens} style={commitsContainerStyles}>
         {numFilteredCommits > 0 && (
           <SnapshotCommitList
             commitData={commitData}
@@ -124,7 +128,7 @@ export const SnapshotSelector = () => {
             selectCommitIndex={dispatcher.selectCommitIndex}
             totalDurations={totalDurations}
             height={35}
-            width={numFilteredCommits * 25}
+            width={numFilteredCommits * 30}
           />
         )}
         {numFilteredCommits === 0 && <div>No commits</div>}

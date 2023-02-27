@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { TimingProfile, TimeFormatter } from '@perfsee/flamechart'
-import { MapMapToRecord, ReactTimelineData, ReactComponentMeasure, SuspenseEvent } from '@perfsee/shared'
+import { ReactTimelineData, ReactComponentMeasure, SuspenseEvent } from '@perfsee/shared'
 
 export function buildProfileFromReactTimelineData(timelineData: ReactTimelineData, timeOffset: number) {
   const totalWeight = timelineData.duration * 1000 + timeOffset
@@ -67,8 +67,8 @@ export function buildProfileFromReactTimelineData(timelineData: ReactTimelineDat
   laneNum++
 
   const lanes = timelineData.laneToLabelMap
-  for (const [laneId, measures] of Object.entries(timelineData.laneToReactMeasureMap)) {
-    const laneLabel = `${lanes[laneId]}(${laneId})`
+  for (const [laneId, measures] of timelineData.laneToReactMeasureMap.entries()) {
+    const laneLabel = `${lanes.get(laneId)}(${laneId})`
     for (const measure of measures) {
       const timestamp = measure.timestamp * 1000 + timeOffset
       const duration = measure.duration * 1000
@@ -88,13 +88,13 @@ export function buildProfileFromReactTimelineData(timelineData: ReactTimelineDat
   return profile
 }
 
-function formatSuspenseName(suspense: MapMapToRecord<SuspenseEvent>) {
+function formatSuspenseName(suspense: SuspenseEvent) {
   const name = suspense.componentName ? `${suspense.componentName} ` : ''
   const phase = suspense.phase ? ` during ${suspense.phase}` : ''
   return `${name}suspended${phase}`
 }
 
-function formatMeasureName(measure: MapMapToRecord<ReactComponentMeasure>) {
+function formatMeasureName(measure: ReactComponentMeasure) {
   switch (measure.type) {
     case 'render':
       return `${measure.componentName} rendered`
