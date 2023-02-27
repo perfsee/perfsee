@@ -39,5 +39,5 @@ declare interface Dict<T = any> {
 }
 
 declare const __IS_SERVER__: boolean
-declare const SERVER: string
+declare const PERFSEE_PLATFORM_HOST: string
 declare const APP_VERSION: string

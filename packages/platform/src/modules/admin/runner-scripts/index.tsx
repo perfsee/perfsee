@@ -19,6 +19,7 @@ import { useModule } from '@sigi/react'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { ColorButton, ContentCard, Table, TableColumnProps } from '@perfsee/components'
+import { serverLink } from '@perfsee/platform/common'
 import { JobType } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
 
@@ -118,7 +119,7 @@ export const RunnerScriptManager = () => {
                 {script.enable ? 'Disable' : 'Enable'}
               </ColorButton>
               <a
-                href={`${SERVER}/api/runners/scripts/${script.jobType}/${script.version}/download`}
+                href={serverLink`/api/runners/scripts/${script.jobType}/${script.version}/download`}
                 download={`${script.jobType}-${script.version}.tar.gz`}
               >
                 <ColorButton color={theme.palette.green}>Download</ColorButton>

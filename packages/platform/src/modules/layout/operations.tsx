@@ -20,6 +20,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ForeignLink } from '@perfsee/components'
+import { serverLink } from '@perfsee/platform/common'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { UserAvatar } from '../me/avatar'
@@ -41,7 +42,7 @@ export const Operations = () => {
       <>
         {isAdmin && <Link to={staticPath.admin.home}>Admin</Link>}
         <ForeignLink href={staticPath.docs.home}>Docs</ForeignLink>
-        {loggedIn && <a href={SERVER + `/auth/logout`}>Logout</a>}
+        {loggedIn && <a href={serverLink`/auth/logout`}>Logout</a>}
       </>
     ),
     [loggedIn, isAdmin],

@@ -20,7 +20,7 @@ import { omit, merge } from 'lodash'
 import { defer, throwError } from 'rxjs'
 import { tap, map, catchError } from 'rxjs/operators'
 
-import { LoggerFactory } from '@perfsee/platform/common'
+import { LoggerFactory, serverLink } from '@perfsee/platform/common'
 
 import { RxFetch } from './rx-fetch'
 import { RequestOptions, GraphQLQuery, RequestBody, QueryOptions, MutationOptions, QueryResponse } from './types'
@@ -28,11 +28,8 @@ import { appendFormData, filterEmptyValue } from './utils'
 
 @Injectable()
 export class GraphQLClient {
-  protected host: string = SERVER
-  protected endpoint = '/graphql'
-  protected get url() {
-    return this.host + this.endpoint
-  }
+  protected url = serverLink`/graphql`
+
   protected presetHeaders: { [key: string]: string } = {
     'content-type': 'application/json',
   }

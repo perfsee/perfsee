@@ -20,7 +20,7 @@ import qs from 'query-string'
 import { forkJoin, Observable } from 'rxjs'
 import { exhaustMap, map, switchMap, mergeMap, startWith, endWith } from 'rxjs/operators'
 
-import { GraphQLClient, RxFetch, createErrorCatcher } from '@perfsee/platform/common'
+import { GraphQLClient, RxFetch, createErrorCatcher, serverLink } from '@perfsee/platform/common'
 import {
   runnerScriptsQuery,
   activatedRunnerScriptsQuery,
@@ -132,7 +132,7 @@ export class RunnerScriptModule extends EffectModule<RunnerScriptState> {
         this.fetch
           .post(
             qs.stringifyUrl({
-              url: `${SERVER}/api/runners/scripts/${payload.jobType}/${payload.version}`,
+              url: serverLink`/api/runners/scripts/${payload.jobType}/${payload.version}`,
               query: { enable: payload.enable, description: payload.description },
             }),
             {

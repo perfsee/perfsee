@@ -20,6 +20,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { BodyContainer, useQueryString } from '@perfsee/components'
+import { serverLink } from '@perfsee/platform/common'
 import { staticPath } from '@perfsee/shared/routes'
 
 import { GlobalModule } from '../shared'
@@ -50,7 +51,7 @@ export const Register = () => {
   return (
     <BodyContainer>
       <form
-        action={SERVER + '/auth/register?returnUrl=' + encodeURIComponent(returnUrl)}
+        action={serverLink`/auth/register?returnUrl=${encodeURIComponent(returnUrl)}`}
         method="POST"
         encType="application/x-www-form-urlencoded"
       >

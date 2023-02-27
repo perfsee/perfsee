@@ -199,7 +199,7 @@ export async function startDevServer(entry: string, externalConfig: webpack.Conf
         compress: true,
         proxy: serverProxyRoutes.map((route) => ({
           path: route,
-          target: process.env.SERVER ?? 'http://localhost:3000',
+          target: process.env.PERFSEE_PLATFORM_HOST ?? 'http://localhost:3000',
         })),
       },
       compiler,

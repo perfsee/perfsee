@@ -19,7 +19,7 @@ import { Draft } from 'immer'
 import { Observable } from 'rxjs'
 import { exhaustMap, map } from 'rxjs/operators'
 
-import { GraphQLClient, RxFetch } from '@perfsee/platform/common'
+import { GraphQLClient, RxFetch, serverLink } from '@perfsee/platform/common'
 import { pendingJobsAggregationQuery, PendingJobsAggregationQuery } from '@perfsee/schema'
 import { HealthCheckCategory, HealthCheckStatus } from '@perfsee/shared'
 
@@ -75,7 +75,7 @@ export class StatusModule extends EffectModule<StatusState> {
     return payload$.pipe(
       exhaustMap(() =>
         this.fetch
-          .get<HealthCheckResponse>(`${SERVER}/health`)
+          .get<HealthCheckResponse>(serverLink`/health`)
           .pipe(map((res) => this.getActions().setHealthDetails(res.details))),
       ),
     )
