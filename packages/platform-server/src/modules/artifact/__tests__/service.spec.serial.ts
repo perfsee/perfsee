@@ -216,6 +216,7 @@ test.serial('on job update', async (t) => {
   const updates = {
     reportKey: faker.datatype.string(),
     contentKey: faker.datatype.string(),
+    moduleMapKey: faker.datatype.string(),
     entryPoints: { main: bundleEntrypoint },
     duration: faker.datatype.number(),
     score: 10,

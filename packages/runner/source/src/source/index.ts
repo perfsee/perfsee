@@ -19,7 +19,7 @@ import { join, parse, relative } from 'path'
 
 import { v4 as uuid } from 'uuid'
 
-import { extractBundleFromStream, readJSONFile, readStatsFile, trimModuleName } from '@perfsee/bundle-analyzer'
+import { BundleResult, extractBundleFromStream, ModuleMap, readJSONFile } from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
 import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
 import { FlameChartData, FlameChartDiagnostic } from '@perfsee/shared'
@@ -123,13 +123,26 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     this.logger.info('Downloading bundle artifacts.')
     const pwd = this.pwd
 
-    const statsList = await Promise.allSettled(
-      this.payload.artifacts.map(async ({ id: artifactId, buildKey, hash }) => {
+    const bundleList = await Promise.allSettled(
+      this.payload.artifacts.map(async ({ id: artifactId, buildKey, reportKey, moduleMapKey, hash }) => {
+        if (!reportKey) {
+          throw new Error(`Skip artifact ${artifactId} missing reportKey`)
+        }
         const readStream = await this.client.getArtifactStream(buildKey)
         this.logger.verbose(`Downloading ${[artifactId, buildKey]} now.`)
-        const statsPath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
+        const bundlePath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
         this.logger.verbose(`Downloading ${[artifactId, buildKey]} finished.`)
-        return { artifactId, hash, statsPath }
+
+        this.logger.verbose(`Downloading ${[artifactId, reportKey]} now.`)
+        const bundleReport = JSON.parse((await this.client.getArtifact(reportKey)).toString('utf-8')) as BundleResult
+        this.logger.verbose(`Downloading ${[artifactId, reportKey]} finished.`)
+
+        this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} now.`)
+        const moduleMap =
+          moduleMapKey && (JSON.parse((await this.client.getArtifact(moduleMapKey)).toString('utf-8')) as ModuleMap)
+        this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} finished.`)
+
+        return { artifactId, hash, bundlePath, bundleReport, moduleMap }
       }),
     ).then((list) => {
       const result = []
@@ -147,37 +160,39 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     const files: BundleMeta['files'] = []
     const bundles: BundleMeta['bundles'] = {}
 
-    for (const { artifactId, hash, statsPath } of statsList) {
-      const moduleMap: Record<string, string> = {}
-      const stats = await readStatsFile(statsPath)
-      const baseDir = parse(statsPath).dir
+    for (const { artifactId, hash, bundlePath, bundleReport, moduleMap } of bundleList) {
+      const baseDir = parse(bundlePath).dir
 
-      stats.assets?.forEach((asset) => {
+      bundleReport.assets?.forEach((asset) => {
         if (asset.name.endsWith('.js')) {
           files.push({
             fileName: asset.name,
             bundleId: artifactId.toString(),
-            diskPath: join(baseDir, asset.name),
+            diskPath: join(baseDir, asset.path ?? asset.name),
           })
         }
       })
 
-      stats.chunks?.forEach((chunk) => {
-        chunk.modules?.forEach((m) => {
-          if (m.id) {
-            moduleMap[String(m.id)] = trimModuleName(m.name)
-          }
-        })
-      })
+      const bundleModuleMap = {}
+
+      if (moduleMap) {
+        for (const moduleId in moduleMap) {
+          const module = moduleMap[moduleId]
+          const moduleName =
+            module.concatenatingLength > 0 ? module.path + `+${module.concatenatingLength} modules` : module.path
+
+          bundleModuleMap[moduleId] = moduleName
+        }
+      }
 
       bundles[artifactId] = {
-        moduleMap,
+        moduleMap: bundleModuleMap,
         dir: baseDir,
-        repoPath: stats.repoPath,
+        repoPath: bundleReport.repoPath,
         hash,
         buildPath:
-          stats.buildPath && stats.repoPath && stats.buildPath !== stats.repoPath
-            ? relative(stats.repoPath, stats.buildPath)
+          bundleReport.buildPath && bundleReport.repoPath && bundleReport.buildPath !== bundleReport.repoPath
+            ? relative(bundleReport.repoPath, bundleReport.buildPath)
             : undefined,
       }
     }

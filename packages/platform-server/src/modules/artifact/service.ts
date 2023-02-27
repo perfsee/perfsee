@@ -213,6 +213,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     if (update.status === BundleJobStatus.Passed) {
       artifact.reportKey = update.reportKey!
       artifact.contentKey = update.contentKey!
+      artifact.moduleMapKey = update.moduleMapKey!
       artifact.duration = update.duration!
       artifact.score = update.score!
     } else if (update.status === BundleJobStatus.Failed) {
@@ -312,7 +313,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     await Artifact.delete(artifact.id)
     await this.projectUsage.recordStorageUsage(projectId, -artifact.uploadSize)
     await this.storage.bulkDelete(
-      [artifact.buildKey, artifact.contentKey, artifact.reportKey].filter(Boolean) as string[],
+      [artifact.buildKey, artifact.contentKey, artifact.reportKey, artifact.moduleMapKey].filter(Boolean) as string[],
     )
 
     return true

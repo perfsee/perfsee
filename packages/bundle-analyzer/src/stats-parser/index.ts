@@ -51,6 +51,7 @@ import {
   BundleResult,
   EntryPoint,
   Size,
+  ModuleMap,
 } from './types'
 
 const defaultLogger = getConsoleLogger()
@@ -104,7 +105,22 @@ export class StatsParser {
       report: this.serializeResult(),
       moduleTree: bundleContent,
       assets: Array.from(this.assetsMap.values()),
+      moduleMap: this.serializeModuleMap(),
     }
+  }
+
+  private serializeModuleMap(): ModuleMap {
+    const moduleMap: ModuleMap = {}
+
+    for (const module of this.modulesMap.values()) {
+      moduleMap[String(module.id)] = {
+        path: module.realPath,
+        packageRef: module.ref,
+        concatenatingLength: module.concatenating.length,
+      }
+    }
+
+    return moduleMap
   }
 
   private serializeResult(): BundleResult {
@@ -137,6 +153,7 @@ export class StatsParser {
               size,
             }))
             .sort((a, b) => b.size.raw - a.size.raw),
+          moduleRefs: modules.map((m) => m.id),
         }
       }),
       chunks: Array.from(this.chunksMap.values()).map(({ id, modules, assets, children, names, reason, ...chunk }) => ({
@@ -144,6 +161,9 @@ export class StatsParser {
         assetRefs: mapRefs(assets),
       })),
       packages: Array.from(this.packagePathRefMap.values()),
+      repoPath: this.stats.repoPath,
+      buildPath: this.stats.buildPath,
+      buildTool: this.stats.buildTool,
     }
   }
 
@@ -231,6 +251,7 @@ export class StatsParser {
           ref,
           size: { raw: parsedSize, gzip: parsedSize, brotli: parsedSize },
           name,
+          path: realName,
           type,
           modules,
           intermediate,
