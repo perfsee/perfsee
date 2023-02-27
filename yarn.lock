@@ -5626,6 +5626,8 @@ __metadata:
     "@types/fluent-ffmpeg": ^2.1.20
     "@types/node-fetch": ^2.5.12
     "@types/react-devtools-inline": ^4.24.3
+    acorn: ^8.7.1
+    acorn-walk: ^8.2.0
     fluent-ffmpeg: ^2.1.2
     jimp: ^0.22.0
     lighthouse: ^9.6.3

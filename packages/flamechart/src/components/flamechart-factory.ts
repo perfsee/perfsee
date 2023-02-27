@@ -156,7 +156,7 @@ export const FlamechartFactoryMap = {
   /**
    * used for react flame chart
    */
-  react: getReactFlamechart,
+  react: getReactFlamechart as FlamechartFactory,
 }
 
 export type FlamechartFactory = (t: Profile, rootFilter?: RootFilter) => Flamechart

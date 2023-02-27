@@ -72,21 +72,3 @@ Set custom headers for the environment.
 Table mode is default, just input data according to the prompt. Click the button to switch to Stringify mode that can bulk create headers.
 
 ![](/settings/headers-stringify.png)
-
-### React Profiling
-
-:::caution Notice
-
-This is an experimental feature which may be unstable in some circumstances. Please report an issue if it works unexpectedly.
-
-It may slow down the rendering speed of pages.
-
-:::
-![](/settings/react-profiling.png)
-
-By enabling this feature, timing information about each component that’s rendered in React applications will be collected during lab analysis.
-
-Flamegraph will be shown in the snapshot report, which can help us to identify performance bottlenecks in React applications.
-
-This feature is based on the use of React Profier API, which is disabled in the production build.
-We solved this by intercepting the network request of `react-dom` and replace it with a profiling build.

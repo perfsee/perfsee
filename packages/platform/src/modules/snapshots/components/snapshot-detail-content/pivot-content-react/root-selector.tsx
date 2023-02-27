@@ -10,7 +10,7 @@ export const RootSelector = () => {
   const [{ reactProfile, rootID }, dispatcher] = useModule(ReactFlameGraphModule)
 
   const options = useMemo(() => {
-    return Object.values(reactProfile?.dataForRoots ?? {}).map((data) => {
+    return Array.from(reactProfile?.dataForRoots.values() ?? []).map((data) => {
       return { key: data.rootID, text: data.displayName }
     })
   }, [reactProfile])

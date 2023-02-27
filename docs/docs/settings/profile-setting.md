@@ -54,3 +54,21 @@ The following network speed options are available:
 | 4G LTE                  | 70ms    | 3.00 MB/s   | 3.00 MB/s   | 80ms  |
 | WiFi                    | 10ms    | 3.93 MB/s   | 1.97 MB/s   | 40ms  |
 | Cable                   | 20ms    | 5.00 MB/s   | 5.00 MB/s   | 0ms   |
+
+### React Profiling
+
+:::caution Notice
+
+This is an experimental feature which may be unstable in some circumstances. Please report an issue if it works unexpectedly.
+
+It may slow down the rendering speed of pages.
+
+:::
+![](/settings/react-profiling.png)
+
+By enabling this feature, timing information about each component that’s rendered in React applications will be collected during lab analysis.
+
+Flamegraph will be shown in the snapshot report, which can help us to identify performance bottlenecks in React applications.
+
+This feature is based on the use of React Profier API, which is disabled in the production build.
+We solved this by intercepting the network request of `react-dom` and replace it with a profiling build.

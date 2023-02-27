@@ -28,14 +28,14 @@ export const WhatChanged = memo(({ fiberID }: Props) => {
   const { reactProfile, rootID, selectedCommitIndex } = useModuleState(ReactFlameGraphModule)
 
   const changeDescriptions = useMemo(() => {
-    return reactProfile?.dataForRoots[rootID].commitData[selectedCommitIndex]?.changeDescriptions
+    return reactProfile?.dataForRoots.get(rootID)?.commitData[selectedCommitIndex]?.changeDescriptions
   }, [rootID, selectedCommitIndex, reactProfile])
 
   if (changeDescriptions === null) {
     return null
   }
 
-  const changeDescription = changeDescriptions?.[fiberID]
+  const changeDescription = changeDescriptions?.get(fiberID)
   if (changeDescription == null) {
     return null
   }

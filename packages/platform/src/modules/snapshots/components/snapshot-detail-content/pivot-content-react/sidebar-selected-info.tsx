@@ -21,9 +21,9 @@ export const SidebarSelectedFiberInfo = () => {
 
   const commitIndices = useMemo(() => {
     const fiberCommits: number[] = []
-    const dataForRoot = reactProfile?.dataForRoots[rootID]
+    const dataForRoot = reactProfile?.dataForRoots.get(rootID)
     dataForRoot?.commitData.forEach((commitDatum, commitIndex) => {
-      if (selectedFiberID && commitDatum.fiberActualDurations[selectedFiberID]) {
+      if (selectedFiberID && commitDatum.fiberActualDurations.has(selectedFiberID)) {
         fiberCommits.push(commitIndex)
       }
     })
@@ -51,7 +51,7 @@ export const SidebarSelectedFiberInfo = () => {
     for (i = 0; i < commitIndices.length; i++) {
       const commitIndex = commitIndices[i]
 
-      const { duration, timestamp } = reactProfile?.dataForRoots[rootID]?.commitData?.[commitIndex] ?? {}
+      const { duration, timestamp } = reactProfile?.dataForRoots.get(rootID)?.commitData?.[commitIndex] ?? {}
 
       listItems.push(
         <RenderedCommit
