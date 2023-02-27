@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- add baseline on webhook ([d243069](https://github.com/perfsee/perfsee/commit/d2430693091736f8ba6ad33d9c06216f991f6706))
+- **platform-server:** artifact link use public path ([d4add46](https://github.com/perfsee/perfsee/commit/d4add4638276c2cb48ae04579b93b93291d0c78f))
+- **platform-server:** correct dataloader return type ([2c0e00d](https://github.com/perfsee/perfsee/commit/2c0e00dbacaf5ba20b842b5f8078ea053c5e6953))
+- **platform-server:** delete relevant files in storage when property is deleted ([e30b9b5](https://github.com/perfsee/perfsee/commit/e30b9b5904b03806c9b1a90a6810c4ba1622e96b))
+- **schema:** convert schema to commonjs ([a306643](https://github.com/perfsee/perfsee/commit/a3066438dc251bfb2d16ab64be9aa8e0852222e3))
+
+### Features
+
+- organization ([4aab6fc](https://github.com/perfsee/perfsee/commit/4aab6fce6b082571c1983851ba8b177457de044b))
+- **platform,platform-server:** allow anonymous users visit public project ([bf32d38](https://github.com/perfsee/perfsee/commit/bf32d3865f55d56be1e71d4d0c2a2ac6141dd0c4))
+- **platform,platform-server:** show commit message ([b3ea2fd](https://github.com/perfsee/perfsee/commit/b3ea2fd65f67b8fec22369e69b07dfc0ec47d2ff))
+- **platform,platform-server:** webhook ([061c081](https://github.com/perfsee/perfsee/commit/061c081bfdcfc7125828eae948193f673092cd0d))
+- **platform:** install app page ([9f3a089](https://github.com/perfsee/perfsee/commit/9f3a0899ffa01b431deb778e1f78b691f3c60aaf))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Features

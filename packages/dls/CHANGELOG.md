@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- **platform:** dedupe sigi di which causes unresolved injections ([0aac1e5](https://github.com/perfsee/perfsee/commit/0aac1e5929c6a13169266425cf9b13a9a53d12a4))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Features

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- add options to specify platform by plugin options ([6fc85da](https://github.com/perfsee/perfsee/commit/6fc85da6ed791c3421fc8f48cabac388d04e7177))
+- **plugin-utils:** missing commit message ([1acc033](https://github.com/perfsee/perfsee/commit/1acc0335018a62de122648a97da28b2e501b1cef))
+
+### Features
+
+- **platform,platform-server:** show commit message ([b3ea2fd](https://github.com/perfsee/perfsee/commit/b3ea2fd65f67b8fec22369e69b07dfc0ec47d2ff))
+- **plugin-utils:** support dynamic `artifactName` by bundle results ([fe4fe35](https://github.com/perfsee/perfsee/commit/fe4fe35f26e2f8d25b4377ceaf58b7adf7c40d22))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Features

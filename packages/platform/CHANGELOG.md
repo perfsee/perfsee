@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- **platform-server:** correct dataloader return type ([2c0e00d](https://github.com/perfsee/perfsee/commit/2c0e00dbacaf5ba20b842b5f8078ea053c5e6953))
+- **platform-server:** patch unsigned user project accessing behavior ([a37954b](https://github.com/perfsee/perfsee/commit/a37954bcc1325443d85b9a75f859338e3c742707))
+- **platform:** adjust commit message style ([fd1de4c](https://github.com/perfsee/perfsee/commit/fd1de4c15da7f4aaf8f1ef8022859aa8d2ac41ad))
+- **platform:** cast possible numeric query value to string ([397b1dc](https://github.com/perfsee/perfsee/commit/397b1dc532a3f9db614deba9afa24155b98f7fa0))
+- **platform:** dedupe sigi di which causes unresolved injections ([0aac1e5](https://github.com/perfsee/perfsee/commit/0aac1e5929c6a13169266425cf9b13a9a53d12a4))
+- **platform:** fix page setting style ([b01a3d0](https://github.com/perfsee/perfsee/commit/b01a3d031ef60905deab06fa75b253e23beb5941))
+
+### Features
+
+- organization ([4aab6fc](https://github.com/perfsee/perfsee/commit/4aab6fce6b082571c1983851ba8b177457de044b))
+- **platform,platform-server:** allow anonymous users visit public project ([bf32d38](https://github.com/perfsee/perfsee/commit/bf32d3865f55d56be1e71d4d0c2a2ac6141dd0c4))
+- **platform,platform-server:** show commit message ([b3ea2fd](https://github.com/perfsee/perfsee/commit/b3ea2fd65f67b8fec22369e69b07dfc0ec47d2ff))
+- **platform,platform-server:** webhook ([061c081](https://github.com/perfsee/perfsee/commit/061c081bfdcfc7125828eae948193f673092cd0d))
+- **platform:** install app page ([9f3a089](https://github.com/perfsee/perfsee/commit/9f3a0899ffa01b431deb778e1f78b691f3c60aaf))
+- **platform:** only show online runners by default ([2762bd5](https://github.com/perfsee/perfsee/commit/2762bd5c45eca448f66f4b00040fb455542fc3b8))
+- **platform:** remember projects page tab choice ([b3686ad](https://github.com/perfsee/perfsee/commit/b3686ad888bc8ba7fae194f22822e796f937622b))
+- **platform:** show scores in audits detail ([af93167](https://github.com/perfsee/perfsee/commit/af93167f1927c06aeb5cfb4a2f20c436e6df385d))
+- **platform:** webhook show last delivery time ([8eb57df](https://github.com/perfsee/perfsee/commit/8eb57df134b2d8cc7c013c2306ba267bcfcdbcf5))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Bug Fixes

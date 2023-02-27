@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- **bundle-analyzer:** missing module path ([6324071](https://github.com/perfsee/perfsee/commit/6324071f03ca769d50839c933e876086e8c3181c))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Bug Fixes

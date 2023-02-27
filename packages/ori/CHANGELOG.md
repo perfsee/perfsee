@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- **ori:** apply clippy suggestions ([a5893a4](https://github.com/perfsee/perfsee/commit/a5893a4a1d123627bd3c6ca98f5374d9ed91b611))
+- **ori:** check rust error ([d93f4a1](https://github.com/perfsee/perfsee/commit/d93f4a1295b4f01c9a79297d892cd657b797c064))
+
 # [1.1.0](https://github.com/perfsee/perfsee/compare/v1.0.0...v1.1.0) (2022-11-04)
 
 ### Features

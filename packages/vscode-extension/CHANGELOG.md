@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Features
+
+- **platform,platform-server:** allow anonymous users visit public project ([bf32d38](https://github.com/perfsee/perfsee/commit/bf32d3865f55d56be1e71d4d0c2a2ac6141dd0c4))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 **Note:** Version bump only for package perfsee-vscode

@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- add baseline on webhook ([d243069](https://github.com/perfsee/perfsee/commit/d2430693091736f8ba6ad33d9c06216f991f6706))
+- add options to specify platform by plugin options ([6fc85da](https://github.com/perfsee/perfsee/commit/6fc85da6ed791c3421fc8f48cabac388d04e7177))
+- **bundle-analyzer:** missing module path ([6324071](https://github.com/perfsee/perfsee/commit/6324071f03ca769d50839c933e876086e8c3181c))
+- **bundle-report:** adjust build history style ([9fe51f5](https://github.com/perfsee/perfsee/commit/9fe51f5702b0c418ba53a6fa3611b5e09d703142))
+- move image build phase to prepare service ([c42d0ce](https://github.com/perfsee/perfsee/commit/c42d0ceeb8cd824495237963694af9204b5cef05))
+- **ori:** apply clippy suggestions ([a5893a4](https://github.com/perfsee/perfsee/commit/a5893a4a1d123627bd3c6ca98f5374d9ed91b611))
+- **ori:** check rust error ([d93f4a1](https://github.com/perfsee/perfsee/commit/d93f4a1295b4f01c9a79297d892cd657b797c064))
+- **platform-server:** adapt nest throttler v4 ([5114ad9](https://github.com/perfsee/perfsee/commit/5114ad9f634ea8ba11079ac2ea14db73ba860c44))
+- **platform-server:** artifact link use public path ([d4add46](https://github.com/perfsee/perfsee/commit/d4add4638276c2cb48ae04579b93b93291d0c78f))
+- **platform-server:** correct dataloader return type ([2c0e00d](https://github.com/perfsee/perfsee/commit/2c0e00dbacaf5ba20b842b5f8078ea053c5e6953))
+- **platform-server:** delete relevant files in storage when property is deleted ([e30b9b5](https://github.com/perfsee/perfsee/commit/e30b9b5904b03806c9b1a90a6810c4ba1622e96b))
+- **platform-server:** patch unsigned user project accessing behavior ([a37954b](https://github.com/perfsee/perfsee/commit/a37954bcc1325443d85b9a75f859338e3c742707))
+- **platform-server:** try to complete the snapshot when all reports are completed ([2d7ca5d](https://github.com/perfsee/perfsee/commit/2d7ca5dc76279442c01a97c0067254549bf953ee))
+- **platform:** adjust commit message style ([fd1de4c](https://github.com/perfsee/perfsee/commit/fd1de4c15da7f4aaf8f1ef8022859aa8d2ac41ad))
+- **platform:** cast possible numeric query value to string ([397b1dc](https://github.com/perfsee/perfsee/commit/397b1dc532a3f9db614deba9afa24155b98f7fa0))
+- **platform:** dedupe sigi di which causes unresolved injections ([0aac1e5](https://github.com/perfsee/perfsee/commit/0aac1e5929c6a13169266425cf9b13a9a53d12a4))
+- **platform:** fix page setting style ([b01a3d0](https://github.com/perfsee/perfsee/commit/b01a3d031ef60905deab06fa75b253e23beb5941))
+- **platform:** optimize the interaction of bundle packages ([5c06ee1](https://github.com/perfsee/perfsee/commit/5c06ee1cf8db20f578a31c2e8fafc7a5c72e2c99))
+- **plugin-utils:** missing commit message ([1acc033](https://github.com/perfsee/perfsee/commit/1acc0335018a62de122648a97da28b2e501b1cef))
+- **schema:** convert schema to commonjs ([a306643](https://github.com/perfsee/perfsee/commit/a3066438dc251bfb2d16ab64be9aa8e0852222e3))
+- typeorm cli need to always know migrations ([fd1a4b8](https://github.com/perfsee/perfsee/commit/fd1a4b83ceb1ff9d943d6bd394d675aba60b57b4))
+- Update runner files ([6ed1e46](https://github.com/perfsee/perfsee/commit/6ed1e469ce4744f085155d1708c10a099f82329b))
+
+### Features
+
+- organization ([4aab6fc](https://github.com/perfsee/perfsee/commit/4aab6fce6b082571c1983851ba8b177457de044b))
+- **platform-server:** auto add job available zone if new runner registered ([b1f205e](https://github.com/perfsee/perfsee/commit/b1f205e498658691a1a98788b81d367d16505f6e))
+- **platform,platform-server:** allow anonymous users visit public project ([bf32d38](https://github.com/perfsee/perfsee/commit/bf32d3865f55d56be1e71d4d0c2a2ac6141dd0c4))
+- **platform,platform-server:** show commit message ([b3ea2fd](https://github.com/perfsee/perfsee/commit/b3ea2fd65f67b8fec22369e69b07dfc0ec47d2ff))
+- **platform,platform-server:** webhook ([061c081](https://github.com/perfsee/perfsee/commit/061c081bfdcfc7125828eae948193f673092cd0d))
+- **platform:** install app page ([9f3a089](https://github.com/perfsee/perfsee/commit/9f3a0899ffa01b431deb778e1f78b691f3c60aaf))
+- **platform:** only show online runners by default ([2762bd5](https://github.com/perfsee/perfsee/commit/2762bd5c45eca448f66f4b00040fb455542fc3b8))
+- **platform:** remember projects page tab choice ([b3686ad](https://github.com/perfsee/perfsee/commit/b3686ad888bc8ba7fae194f22822e796f937622b))
+- **platform:** show scores in audits detail ([af93167](https://github.com/perfsee/perfsee/commit/af93167f1927c06aeb5cfb4a2f20c436e6df385d))
+- **platform:** webhook show last delivery time ([8eb57df](https://github.com/perfsee/perfsee/commit/8eb57df134b2d8cc7c013c2306ba267bcfcdbcf5))
+- **plugin-utils:** support dynamic `artifactName` by bundle results ([fe4fe35](https://github.com/perfsee/perfsee/commit/fe4fe35f26e2f8d25b4377ceaf58b7adf7c40d22))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Bug Fixes

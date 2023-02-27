@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- **bundle-report:** adjust build history style ([9fe51f5](https://github.com/perfsee/perfsee/commit/9fe51f5702b0c418ba53a6fa3611b5e09d703142))
+- **platform:** dedupe sigi di which causes unresolved injections ([0aac1e5](https://github.com/perfsee/perfsee/commit/0aac1e5929c6a13169266425cf9b13a9a53d12a4))
+
+### Features
+
+- organization ([4aab6fc](https://github.com/perfsee/perfsee/commit/4aab6fce6b082571c1983851ba8b177457de044b))
+- **platform:** show scores in audits detail ([af93167](https://github.com/perfsee/perfsee/commit/af93167f1927c06aeb5cfb4a2f20c436e6df385d))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Bug Fixes

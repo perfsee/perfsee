@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
+
+### Bug Fixes
+
+- **platform-server:** adapt nest throttler v4 ([5114ad9](https://github.com/perfsee/perfsee/commit/5114ad9f634ea8ba11079ac2ea14db73ba860c44))
+- **platform-server:** artifact link use public path ([d4add46](https://github.com/perfsee/perfsee/commit/d4add4638276c2cb48ae04579b93b93291d0c78f))
+- **platform-server:** correct dataloader return type ([2c0e00d](https://github.com/perfsee/perfsee/commit/2c0e00dbacaf5ba20b842b5f8078ea053c5e6953))
+- **platform-server:** delete relevant files in storage when property is deleted ([e30b9b5](https://github.com/perfsee/perfsee/commit/e30b9b5904b03806c9b1a90a6810c4ba1622e96b))
+- **platform-server:** patch unsigned user project accessing behavior ([a37954b](https://github.com/perfsee/perfsee/commit/a37954bcc1325443d85b9a75f859338e3c742707))
+- **platform-server:** try to complete the snapshot when all reports are completed ([2d7ca5d](https://github.com/perfsee/perfsee/commit/2d7ca5dc76279442c01a97c0067254549bf953ee))
+- **platform:** adjust commit message style ([fd1de4c](https://github.com/perfsee/perfsee/commit/fd1de4c15da7f4aaf8f1ef8022859aa8d2ac41ad))
+- typeorm cli need to always know migrations ([fd1a4b8](https://github.com/perfsee/perfsee/commit/fd1a4b83ceb1ff9d943d6bd394d675aba60b57b4))
+
+### Features
+
+- organization ([4aab6fc](https://github.com/perfsee/perfsee/commit/4aab6fce6b082571c1983851ba8b177457de044b))
+- **platform-server:** auto add job available zone if new runner registered ([b1f205e](https://github.com/perfsee/perfsee/commit/b1f205e498658691a1a98788b81d367d16505f6e))
+- **platform,platform-server:** allow anonymous users visit public project ([bf32d38](https://github.com/perfsee/perfsee/commit/bf32d3865f55d56be1e71d4d0c2a2ac6141dd0c4))
+- **platform,platform-server:** show commit message ([b3ea2fd](https://github.com/perfsee/perfsee/commit/b3ea2fd65f67b8fec22369e69b07dfc0ec47d2ff))
+- **platform,platform-server:** webhook ([061c081](https://github.com/perfsee/perfsee/commit/061c081bfdcfc7125828eae948193f673092cd0d))
+- **platform:** install app page ([9f3a089](https://github.com/perfsee/perfsee/commit/9f3a0899ffa01b431deb778e1f78b691f3c60aaf))
+
 # [1.2.0](https://github.com/perfsee/perfsee/compare/v1.1.1...v1.2.0) (2022-12-19)
 
 ### Features
