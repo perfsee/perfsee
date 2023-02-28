@@ -45,6 +45,7 @@ export class Metric {
   readonly snapshotCreate = this.metricsProvider.meter('features.snapshot.create')
   readonly snapshotCreateFail = this.metricsProvider.counter('features.snapshot.create.fail')
   readonly snapshotComplete = this.metricsProvider.counter('features.snapshot.complete')
+  readonly snapshotCompleteByCron = this.metricsProvider.counter('features.snapshot.complete.by.cron')
   readonly snapshotFail = this.metricsProvider.counter('features.lab.fail')
   readonly snapshotReportCreate = this.metricsProvider.counter('features.lab.report.create')
   readonly snapshotReportComplete = this.metricsProvider.counter('features.lab.report.complete')

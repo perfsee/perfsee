@@ -14,6 +14,7 @@ import { seedProjectProperty } from '@perfsee/platform-server/db/fixtures'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Metric } from '@perfsee/platform-server/metrics'
+import { Redis } from '@perfsee/platform-server/redis'
 import test, { createMock, initTestDB, createDBTestingModule, create } from '@perfsee/platform-server/test'
 import { SnapshotStatus } from '@perfsee/server-common'
 
@@ -269,13 +270,15 @@ test.serial('update snapshot report when status is failed', async (t) => {
 test.serial('try snapshot completed', async (t) => {
   const service = t.context.module.get(SnapshotService)
   const metricService = t.context.module.get(Metric)
+  const redis = t.context.module.get(Redis)
 
   const snapshot = await create(Snapshot, { projectId: 1, status: SnapshotStatus.Running })
 
   await mockCreateReport(1, { snapshotId: snapshot.id, status: SnapshotStatus.Completed })
-  await mockCreateReport(1, { snapshotId: snapshot.id, status: SnapshotStatus.Completed })
+  const report = await mockCreateReport(1, { snapshotId: snapshot.id, status: SnapshotStatus.Completed })
+  redis.decr.resolves(0)
 
-  await service.tryCompleteSnapshot(snapshot.id)
+  await service.tryCompleteSnapshot(report)
 
   const updateSnapshot = await Snapshot.findOneByOrFail({ id: snapshot.id })
   t.is(metricService.snapshotComplete.callCount, 1)
@@ -285,13 +288,16 @@ test.serial('try snapshot completed', async (t) => {
 test.serial('try snapshot completed when report status is not completed', async (t) => {
   const service = t.context.module.get(SnapshotService)
   const metricService = t.context.module.get(Metric)
+  const redis = t.context.module.get(Redis)
 
   const snapshot = await create(Snapshot, { status: SnapshotStatus.Running })
 
-  await mockCreateReport(1, { snapshotId: snapshot.id, status: SnapshotStatus.Completed })
+  const report = await mockCreateReport(1, { snapshotId: snapshot.id, status: SnapshotStatus.Completed })
   await mockCreateReport(1, { snapshotId: snapshot.id, status: SnapshotStatus.Running })
 
-  await service.tryCompleteSnapshot(snapshot.id)
+  redis.decr.resolves(1)
+
+  await service.tryCompleteSnapshot(report)
 
   const updateSnapshot = await Snapshot.findOneByOrFail({ id: snapshot.id })
 
