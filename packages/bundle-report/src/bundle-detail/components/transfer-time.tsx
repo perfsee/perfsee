@@ -54,6 +54,7 @@ const DisplayTime = styled.span<{ time: number }>(({ theme, time }) => {
 
   return {
     color,
+    textDecoration: 'underline',
   }
 })
 

@@ -16,7 +16,7 @@ limitations under the License.
 
 import { FilterFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { IStackTokens } from '@fluentui/react'
+import { IStackTokens, Pivot, Stack } from '@fluentui/react'
 
 import { lighten, NeutralColors } from '@perfsee/dls'
 
@@ -191,27 +191,24 @@ export const TraceIconWrap = styled(BaseIconWrap)(({ theme }) => ({
   color: theme.link.color,
 }))
 
-export const PackageLoadTypeWrap = styled.div({
+export const TableExtraWrap = styled(Stack)({
   padding: '8px 10px',
-  maxHeight: '200px',
 })
 
-export const PackageLoadTypeContent = styled.div({
-  marginTop: '8px',
-  fontSize: '12px',
+export const StyledPivot = styled(Pivot)(() => {
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  }
 })
 
-export const PackageLoadTypeHead = styled.div({
+export const StyledInfoItem = styled.div(({ theme }) => ({
   display: 'flex',
-  alignItems: 'center',
-  fontSize: '14px',
-  marginBottom: '4px',
-})
-
-export const PackageLoadTypeSpan = styled.span({
-  marginRight: '4px',
-})
-
-export const PackageLoadTypeTrigger = styled.span({
-  textDecoration: 'underline',
-})
+  padding: '8px',
+  borderBottom: `1px solid ${theme.border.color}`,
+  '> div:first-of-type': {
+    width: '300px',
+    fontWeight: 'bold',
+  },
+}))

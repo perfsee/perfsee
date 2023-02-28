@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 import { PartitionOutlined } from '@ant-design/icons'
-import { SelectionMode, HoverCard, HoverCardType, DirectionalHint, IPlainCardProps } from '@fluentui/react'
-import { useMemo, useCallback, useState, FC, memo } from 'react'
+import { SelectionMode, HoverCard, HoverCardType } from '@fluentui/react'
+import { useMemo, useCallback, useState, FC } from 'react'
 
 import { TableColumnProps, Table } from '@perfsee/components'
 import {
@@ -24,27 +24,19 @@ import {
   SOURCE_CODE_PATH,
   WEBPACK_INTERNAL_PATH,
   OLD_WEBPACK_INTERNAL_PATH,
-  Size,
   AssetInfo,
   EntryDiff,
   getDefaultSize,
   addSize,
 } from '@perfsee/shared'
 
-import { ByteSizeWithDiff, ColoredSize } from '../components'
-import {
-  TableHeaderFilterWrap,
-  PackageLoadTypeContent,
-  PackageLoadTypeHead,
-  PackageLoadTypeSpan,
-  PackageLoadTypeWrap,
-  TraceIconWrap,
-  PackageLoadTypeTrigger,
-} from '../style'
+import { ByteSizeWithDiff } from '../components'
+import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
 
 import { ImportTraceModal } from './import-trace-modal'
 import { PackageCard } from './package-card'
 import { PackageFilter, Package } from './package-filter'
+import { onPackageTableRenderRow, LoadType } from './package-table-row'
 
 function getPackagePath(path: string) {
   return path === OLD_SOURCE_CODE_PATH
@@ -52,26 +44,6 @@ function getPackagePath(path: string) {
     : path === OLD_WEBPACK_INTERNAL_PATH
     ? WEBPACK_INTERNAL_PATH
     : path
-}
-
-const renderIssuersCard = (issuers: string[]) => {
-  return (
-    <ul style={{ paddingRight: '20px' }}>
-      {issuers.map((issuer) => (
-        <li key={issuer}>{issuer === OLD_SOURCE_CODE_PATH ? SOURCE_CODE_PATH : issuer}</li>
-      ))}
-    </ul>
-  )
-}
-
-const renderNotesCard = (notes: string[]) => {
-  return (
-    <ul style={{ paddingRight: '20px' }}>
-      {notes.map((note, i) => (
-        <li key={i}>{note}</li>
-      ))}
-    </ul>
-  )
 }
 
 const renderPackageCard = (pkg: Package) => {
@@ -88,17 +60,6 @@ const getAssetType = (asset: AssetInfo) => {
   }
 
   return 'async'
-}
-
-type LoadInner = {
-  size: Size
-  list: Record<string, Size>
-}
-
-type LoadType = {
-  intermidiate?: LoadInner
-  initial?: LoadInner
-  async?: LoadInner
 }
 
 interface Props {
@@ -229,7 +190,9 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         name: 'size',
         minWidth: 100,
         maxWidth: 200,
-        onRender: (pkg) => <ByteSizeWithDiff current={pkg.size} baseline={pkg.base} hideIfNonComparable={true} />,
+        onRender: (pkg) => (
+          <ByteSizeWithDiff underline={true} current={pkg.size} baseline={pkg.base} hideIfNonComparable={true} />
+        ),
         sorter: (pkg1, pkg2) => pkg1.size.raw - pkg2.size.raw,
         isSorted: true,
         isSortedDescending: true,
@@ -246,7 +209,7 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         },
         onRender: (pkg) => {
           const loadType = packagesLoadTypeMap.get(pkg.ref) ?? {}
-          return <PackageLoadType loadType={loadType} />
+          return Object.keys(loadType).join('/')
         },
       },
       {
@@ -259,20 +222,19 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
             return null
           }
 
-          return (
-            <HoverCard
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: renderIssuersCard,
-                renderData: pkg.issuers,
-                directionalHint: DirectionalHint.bottomRightEdge,
-                gapSpace: 10,
-              }}
-              instantOpenOnClick={true}
-            >
-              <a>(count: {pkg.issuers.length})</a>
-            </HoverCard>
-          )
+          return <span>count: {pkg.issuers.length}</span>
+        },
+      },
+      {
+        key: 'notes',
+        name: 'Notes',
+        minWidth: 100,
+        onRender: (pkg) => {
+          if (!pkg.notes?.length) {
+            return null
+          }
+
+          return <span>count: {pkg.notes.length}</span>
         },
       },
       {
@@ -294,31 +256,6 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
           )
         },
       },
-      {
-        key: 'notes',
-        name: 'Notes',
-        minWidth: 100,
-        onRender: (pkg) => {
-          if (!pkg.notes?.length) {
-            return null
-          }
-
-          return (
-            <HoverCard
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: renderNotesCard,
-                renderData: pkg.notes,
-                directionalHint: DirectionalHint.bottomRightEdge,
-                gapSpace: 10,
-              }}
-              instantOpenOnClick={true}
-            >
-              <a>(count: {pkg.notes.length})</a>
-            </HoverCard>
-          )
-        },
-      },
     ],
     [allPackages, onChangePackages, onShowTraceModal, packagesLoadTypeMap],
   )
@@ -334,6 +271,7 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         selectionMode={SelectionMode.none}
         columns={columns}
         disableVirtualization={allPackages.length < 50}
+        onRenderRow={onPackageTableRenderRow(packagesLoadTypeMap)}
       />
       <ImportTraceModal
         traceSourceRef={traceSourceRef}
@@ -344,38 +282,3 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
     </>
   )
 }
-
-type PackageLoadTypeProps = {
-  loadType: LoadType
-}
-
-const PackageLoadType: FC<PackageLoadTypeProps> = memo(({ loadType }) => {
-  const plainCardProps: IPlainCardProps = {
-    onRenderPlainCard: () => {
-      return (
-        <PackageLoadTypeWrap>
-          {Object.entries(loadType).map(([type, { size, list }]) => (
-            <PackageLoadTypeContent key={type}>
-              <PackageLoadTypeHead>
-                [<PackageLoadTypeSpan>{type}</PackageLoadTypeSpan> <ColoredSize size={size} hoverable={false} />]
-              </PackageLoadTypeHead>
-              {Object.entries(list)
-                .sort(([, sizeA], [, sizeB]) => sizeB.raw - sizeA.raw)
-                .map(([key, innerSize]) => (
-                  <div key={key}>
-                    {key}: <ColoredSize size={innerSize} hoverable={false} />
-                  </div>
-                ))}
-            </PackageLoadTypeContent>
-          ))}
-        </PackageLoadTypeWrap>
-      )
-    },
-  }
-
-  return (
-    <HoverCard type={HoverCardType.plain} plainCardProps={plainCardProps}>
-      <PackageLoadTypeTrigger>{Object.keys(loadType).join('/')}</PackageLoadTypeTrigger>
-    </HoverCard>
-  )
-})
