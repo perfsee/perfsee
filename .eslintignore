@@ -31,6 +31,6 @@ target
 packages/tracing/__test__
 packages/tracing/example
 packages/plugins/utils/public
-tools/cli.generated.js
+tools/cli.generated.*.js
 assets
 db

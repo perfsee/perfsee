@@ -5,7 +5,7 @@ paths:
     base: /docs
     paths:
       api:
-        path: /api
+        path: /development/api
       settings:
         base: /settings
         paths:

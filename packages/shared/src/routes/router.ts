@@ -69,7 +69,7 @@ export const staticPath = {
   home: '/',
   docs: {
     home: '/docs',
-    api: '/docs/api',
+    api: '/docs/development/api',
     settings: { home: '/docs/settings', webhook: '/docs/settings/webhook-setting' },
   },
   features: { home: '/features', bundle: '/features/bundle', lab: '/features/lab', source: '/features/source' },
@@ -131,7 +131,7 @@ export const pathFactory = {
   home: makePathsFrom<FactoryParams<RouteTypes['home']>>('/'),
   docs: {
     home: makePathsFrom<FactoryParams<RouteTypes['docs']['home']>>('/docs'),
-    api: makePathsFrom<FactoryParams<RouteTypes['docs']['api']>>('/docs/api'),
+    api: makePathsFrom<FactoryParams<RouteTypes['docs']['api']>>('/docs/development/api'),
     settings: {
       home: makePathsFrom<FactoryParams<RouteTypes['docs']['settings']['home']>>('/docs/settings'),
       webhook: makePathsFrom<FactoryParams<RouteTypes['docs']['settings']['webhook']>>(
@@ -231,7 +231,7 @@ export const pathFactory = {
 export const titleFactory = {
   '/': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/docs': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
-  '/docs/api': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
+  '/docs/development/api': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/docs/settings': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/docs/settings/webhook-setting': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
   '/features': (data: Record<string, any>) => makeTitlesFrom('Perfsee', data),
