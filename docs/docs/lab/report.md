@@ -88,8 +88,6 @@ The request information in each row of the table can be expanded by clicking on 
 
 ## Flame chart
 
-> The Flame chart feature requires Snapshot to set the commit before it will be displayed. Check: [how to set commit](./set-commit).
-
 The detailed runtime of the browser during Lab runs is visualized as a flame graph. For more information about flame graphs, please refer to [How to use flame chart](../source/flamechart).
 
 The flame chart contains three parts of information:
@@ -101,8 +99,6 @@ The flame chart contains three parts of information:
 ![flamechart](/lab/report-flamechart.png)
 
 ## Treemap
-
-> The Treemap feature requires Snapshot to set the commit before it will be displayed too. Check: [how to set commit](./set-commit).
 
 The visualization shows the JavaScript coverage on the page during runtime. The red shaded parts of the graph are the JavaScript that was downloaded but not run.
 
