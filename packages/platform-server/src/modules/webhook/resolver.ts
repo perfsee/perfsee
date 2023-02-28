@@ -93,7 +93,7 @@ export class WebhookResolver {
     @Args({ name: 'projectId', type: () => ID }) projectId: string,
     @Args({ name: 'input' }) input: WebhookInput,
   ) {
-    const project = await this.projectService.getProject(projectId)
+    const project = await this.projectService.slugLoader.load(projectId)
     if (!project) {
       throw new UserError('Project not found')
     }

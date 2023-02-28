@@ -72,7 +72,7 @@ export class JobArtifactController {
     @Res() res: Response,
     @Param() params: Record<string, string>,
   ) {
-    const project = await this.project.getProject(params.projectId, user)
+    const project = await this.project.getAccessibleProject(params.projectId, user)
 
     if (!project) {
       throw new HttpException(`Artifact file not found`, HttpStatus.NOT_FOUND)

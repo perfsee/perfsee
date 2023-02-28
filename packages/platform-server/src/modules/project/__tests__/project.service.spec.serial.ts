@@ -88,22 +88,22 @@ test.serial('get project', async (t) => {
 
   let result: Project | null = null
   // unsigned user + private project
-  result = await service.getProject(project.slug)
+  result = await service.getAccessibleProject(project.slug)
   t.is(result, null)
 
   // unsigned user + public project
   const publicProject = await create(Project, { isPublic: true })
-  result = await service.getProject(publicProject.slug)
+  result = await service.getAccessibleProject(publicProject.slug)
   t.is(result!.id, publicProject.id)
 
   // signed user + no permission
   permissionProvider.check.resolves(false)
-  result = await service.getProject(project.slug, { id: 0 } as User)
+  result = await service.getAccessibleProject(project.slug, { id: 0 } as User)
   t.is(result, null)
 
   // signed user + with permission
   permissionProvider.check.resolves(true)
-  const projectResult = await service.getProject(project.slug, { id: 0 } as User)
+  const projectResult = await service.getAccessibleProject(project.slug, { id: 0 } as User)
   t.is(projectResult!.id, project.id)
 
   permissionProvider.check.reset()
