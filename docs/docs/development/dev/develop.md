@@ -106,13 +106,13 @@ yarn ava -s
 
 ## Code style
 
-We use [`ESLint`](./.eslintrc.js) and [`Prettier`](./package.json) to enforce code style:
+We use `ESLint` and `Prettier` to enforce code style:
 
 ```bash
 yarn lint
 ```
 
-And use [`TypeScript`](./tsconfig.json) to perform strong type checking:
+And use `TypeScript` to perform strong type checking:
 
 ```bash
 yarn typecheck
@@ -154,4 +154,4 @@ yarn release
 
 ## Deployment
 
-Since the deployment progress are quite complicated, we will describe in detail how to deploy the Perfsee to the production environment in a separate [deployment document](../deployment).
+Since the deployment progress is quite complicated, we will describe in detail how to deploy the Perfsee to the production environment in a separate [deployment document](./deployment).

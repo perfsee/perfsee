@@ -159,7 +159,7 @@ run your-build-script
 ```
 
 :::note
-Go to [API](../api) to learn how to generate Perfsee Token.
+Go to [API](../development/api) to learn how to generate Perfsee Token.
 :::
 
 ### Option 2: Analyze in CI

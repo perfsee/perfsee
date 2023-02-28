@@ -84,8 +84,6 @@ Overview Tab 下主要展示该页面的性能指标，请求资源类型饼图�
 
 ## Flamechart
 
-> Flamechart 功能需要 Snapshot 设置版本后才会显示：[如何设置 Lab 版本](./set-commit) 。
-
 将 Lab 运行期间浏览器详细的运行过程以火焰图形式可视化展示出来。关于火焰图可以参考 [如何阅读与使用火焰图](../source/flamechart) 。
 
 火焰图包含三个部分信息
@@ -97,8 +95,6 @@ Overview Tab 下主要展示该页面的性能指标，请求资源类型饼图�
 ![img](/lab/report-flamechart.png)
 
 ## Treemap
-
-> Treemap 功能需要 Snapshot 设置版本后才会显示：[如何设置 Lab 版本](./set-commit)。
 
 可视化展示了 Lab 运行过程中页面上 JS 代码覆盖率情况。图中红色阴影部分是下载了但没有运行过的 JS 代码。
 

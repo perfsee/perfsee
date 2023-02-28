@@ -107,13 +107,13 @@ yarn ava -s
 
 ## 代码风格
 
-我们使用 [`ESLint`](./.eslintrc.js) 和 [`Prettier`](./package.json) 来强制代码风格：
+我们使用 `ESLint` 和 `Prettier` 来强制代码风格：
 
 ```bash
 yarn lint
 ```
 
-并且使用 [`TypeScript`](./tsconfig.json) 来进行强类型检查：
+并且使用 `TypeScript` 来进行强类型检查：
 
 ```bash
 yarn typecheck
@@ -155,4 +155,4 @@ yarn release
 
 ## 部署
 
-由于部署涉及到的细节较多，我们将会在单独的[部署文档](../deployment)中详细描述一下，如何将 Perfsee 一系列服务部署到生产环境上去。
+由于部署涉及到的细节较多，我们将会在单独的[部署文档](./deployment)中详细描述一下，如何将 Perfsee 一系列服务部署到生产环境上去。

@@ -112,8 +112,12 @@ const config = {
                 to: '/',
               },
               {
+                label: 'Develop',
+                to: '/development/dev/architecture',
+              },
+              {
                 label: 'API',
-                to: '/api',
+                to: '/development/api',
               },
             ],
           },
