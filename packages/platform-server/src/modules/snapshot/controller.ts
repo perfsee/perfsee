@@ -72,7 +72,7 @@ export class SnapshotController {
     const pageFilter = parseArrayParams(params.page)
     const profileFilter = parseArrayParams(params.profile)
 
-    const project = await this.projectService.getProject(params.projectId)
+    const project = await this.projectService.slugLoader.load(params.projectId)
 
     if (!project) {
       throw new NotFoundException(`Project ${params.projectId} not found. Did you forget to create it?`)

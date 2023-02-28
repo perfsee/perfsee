@@ -47,7 +47,7 @@ export class ProjectResolver {
   @SkipAuth('skip it for public project, permission guard will cover it')
   @Query(() => Project, { name: 'project', description: 'get project by id' })
   async getProjectById(@Args({ name: 'id', type: () => ID }) slug: string, @CurrentUser() user?: User) {
-    const project = await this.projectService.getProject(slug, user)
+    const project = await this.projectService.getAccessibleProject(slug, user)
     if (!project) {
       throw new HttpException('Project not found', HttpStatus.NOT_FOUND)
     }

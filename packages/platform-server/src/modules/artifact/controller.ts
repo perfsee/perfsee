@@ -70,7 +70,7 @@ export class ArtifactController {
       throw new BadRequestException('unsupported codebase host: ' + params.host)
     }
 
-    const project = await this.projectService.getProject(params.projectId)
+    const project = await this.projectService.slugLoader.load(params.projectId)
 
     if (!project) {
       throw new NotFoundException(`Project ${params.projectId} not found. Did you forget to create it?`)

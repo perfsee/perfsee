@@ -234,7 +234,7 @@ export class ProjectService {
     return this.permissionProvider.grant(user, projectId, Permission.Admin)
   }
 
-  async getProject(idOrSlug: number | string, user?: User) {
+  async getAccessibleProject(idOrSlug: number | string, user?: User) {
     const project = await Project.findOneByIdSlug(idOrSlug)
 
     if (project) {
