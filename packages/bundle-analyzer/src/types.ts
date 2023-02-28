@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { BundleToolkit } from './stats'
+
 export interface Size {
   raw: number
   gzip: number
@@ -35,6 +37,7 @@ export interface Asset {
   name: string
   type: AssetTypeEnum
   size: Size
+  path?: string
   packageRefs: Array<{ ref: number; size: Size }>
 }
 
@@ -131,6 +134,13 @@ export interface BundleResult {
   assets: Asset[]
   chunks: Chunk[]
   packages: BasePackage[]
+  repoPath?: string
+  buildPath?: string
+  buildTool?: BundleToolkit
+}
+
+export interface ModuleMap {
+  [moduleId: string]: { path: string; packageRef: number; concatenatingLength: number }
 }
 
 export interface ModuleTreeNodeUnit {

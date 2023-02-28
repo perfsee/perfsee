@@ -98,6 +98,7 @@ export type BundleJobPassedUpdate = {
   status: BundleJobStatus.Passed
   reportKey: string
   contentKey: string | undefined
+  moduleMapKey: string | undefined
   entryPoints: Record<string, BundleJobEntryPoint>
   duration: number
   score: number
@@ -130,6 +131,8 @@ export interface SourceAnalyzeJob {
     id: number
     hash: string
     buildKey: string
+    reportKey?: string | null
+    moduleMapKey?: string | null
   }[]
   snapshotReport: {
     pageUrl: string

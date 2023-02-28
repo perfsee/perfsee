@@ -171,8 +171,14 @@ export class SourceService implements OnApplicationBootstrap {
                 .where('id in (:...artifactIds)', {
                   artifactIds,
                 })
-                .select(['build_key as buildKey', 'id', 'hash'])
-                .getRawMany<{ id: number; buildKey: string; hash: string }>()
+                .select([
+                  'build_key as buildKey',
+                  'report_key as reportKey',
+                  'module_map_key as moduleMapKey',
+                  'id',
+                  'hash',
+                ])
+                .getRawMany<{ id: number; buildKey: string; reportKey: string; moduleMapKey: string; hash: string }>()
             : []),
         )
 
@@ -202,6 +208,8 @@ export class SourceService implements OnApplicationBootstrap {
       artifacts: uniqBy(artifacts, (a) => a.id).map((a) => ({
         id: a.id,
         buildKey: a.buildKey,
+        reportKey: a.reportKey,
+        moduleMapKey: a.moduleMapKey,
         hash: a.hash,
       })),
       snapshotReport: {
