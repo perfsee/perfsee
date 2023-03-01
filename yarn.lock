@@ -5595,6 +5595,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/flamechart@workspace:packages/flamechart"
   dependencies:
+    "@types/react-devtools-inline": ^4.24.3
     tslib: ^2.4.0
   peerDependencies:
     react: ">= 16.8.0"
@@ -5900,7 +5901,6 @@ __metadata:
     "@perfsee/plugin-utils": "workspace:*"
     "@perfsee/tracehouse": "workspace:*"
     "@perfsee/utils": "workspace:*"
-    "@types/react-devtools-inline": ^4.24.3
     lodash: ^4.17.21
   languageName: unknown
   linkType: soft

@@ -12,6 +12,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@types/react-devtools-inline": "^4.24.3",
     "tslib": "^2.4.0"
   },
   "peerDependencies": {

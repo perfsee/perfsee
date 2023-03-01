@@ -16,19 +16,21 @@ limitations under the License.
 
 import { Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { useWideScreen } from '@perfsee/components'
+import {
+  buildProfilesFromReactDevtoolExportProfileData,
+  FlamechartReactDevtoolProfileContainer,
+} from '@perfsee/flamechart'
 
 import { SnapshotDetailType } from '../../../snapshot-type'
 
-import { CommitFlameGraph } from './commit-flame-graph'
 import { ReactFlameGraphModule } from './module'
 import { SidebarCommitInfo } from './sidebar-commit-info'
 import { SidebarSelectedFiberInfo } from './sidebar-selected-info'
 import { SnapshotSelector } from './snapshot-selector'
 import { NoCommitData, NoCommitDataHeader, Container } from './styles'
-import { getChartData, getCommitTree } from './util'
 
 export interface Props {
   snapshot: SnapshotDetailType
@@ -45,38 +47,34 @@ export const PivotContentReact = ({ snapshot }: Props) => {
     return dispatcher.reset
   }, [dispatcher, reactProfileLink])
 
-  const chartData = useMemo(() => {
+  const reactProfiles = useMemo(() => {
     if (!reactProfile) {
       return null
     }
-    try {
-      const commitTree = getCommitTree({
-        commitIndex: selectedCommitIndex,
-        profilingData: reactProfile,
-        rootID,
-      })
+    return buildProfilesFromReactDevtoolExportProfileData(reactProfile)
+  }, [reactProfile])
 
-      return getChartData({
-        commitIndex: selectedCommitIndex,
-        commitTree,
-        profilingData: reactProfile,
-        rootID,
-      })
-    } catch (e) {
-      console.error(e)
-      return null
-    }
-  }, [reactProfile, selectedCommitIndex, rootID])
+  const handleSelectFiber = useCallback(
+    (fiber: { id: number; name: string } | null) => {
+      dispatcher.selectFiber({ id: fiber?.id || null, name: fiber?.name || null })
+    },
+    [dispatcher],
+  )
 
   const sidebar = selectedFiberID ? <SidebarSelectedFiberInfo /> : <SidebarCommitInfo />
 
-  if (chartData?.depth) {
+  if (reactProfiles) {
     return (
       <Container>
         <Stack horizontal verticalFill>
           <Stack grow={4}>
             <SnapshotSelector />
-            <CommitFlameGraph chartData={chartData} />
+            <div style={{ width: '100%', height: '100%' }}>
+              <FlamechartReactDevtoolProfileContainer
+                profile={reactProfiles[rootID][selectedCommitIndex]}
+                onSelectFiber={handleSelectFiber}
+              />
+            </div>
           </Stack>
           {sidebar}
         </Stack>

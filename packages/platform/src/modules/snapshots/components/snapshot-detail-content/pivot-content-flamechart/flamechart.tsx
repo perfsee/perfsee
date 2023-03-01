@@ -30,14 +30,13 @@ import {
   FlamechartGroupContainerProps,
   FlamechartContainer,
   buildProfileFromUserTimings,
+  buildTimelineProfilesFromReactDevtoolProfileData,
 } from '@perfsee/flamechart'
 import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/platform/modules/flamechart'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
 import { ReactFlameGraphModule } from '../pivot-content-react/module'
-
-import { buildProfileFromReactTimelineData } from './util'
 
 function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing | null {
   value *= 1000
@@ -116,7 +115,7 @@ export const FlamechartView: React.FunctionComponent<{
     }, [flamechart, flamechartTimeOffset])
 
     const reactSchedulingEventsProfiles = useMemo(() => {
-      return reactProfile?.timelineData.map((data) => buildProfileFromReactTimelineData(data, reactTimeOffset))
+      return reactProfile && buildTimelineProfilesFromReactDevtoolProfileData(reactProfile, reactTimeOffset)
     }, [reactProfile, reactTimeOffset])
 
     const tasksProfile = useMemo(() => {
@@ -176,7 +175,7 @@ export const FlamechartView: React.FunctionComponent<{
           ...(reactSchedulingEventsProfiles?.map((p) => ({
             name: 'React',
             profile: p,
-            flamechartFactory: 'react',
+            flamechartFactory: 'react-timeline',
             grow: 0.1,
             theme: lightTheme,
           })) || []),
