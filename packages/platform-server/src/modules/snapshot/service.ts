@@ -22,6 +22,7 @@ import {
   NotFoundException,
   OnApplicationBootstrap,
 } from '@nestjs/common'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import { In } from 'typeorm'
 
 import {
@@ -240,11 +241,14 @@ export class SnapshotService implements OnApplicationBootstrap {
       hash,
     }).save()
 
+    this.metrics.snapshotCreate(1)
+
     if (failed) {
       return snapshot
     }
 
     const reports = await this.createReports(snapshot.projectId, snapshot.id, propertyIds)
+    await this.redis.set(`snapshot-report-count-${snapshot.id}`, reports.length)
 
     try {
       await this.emitLabJobs(snapshot.projectId, reports, { pages, envs, profiles })
@@ -401,24 +405,29 @@ export class SnapshotService implements OnApplicationBootstrap {
     const report = await this.updateSnapshotReport(snapshotReport)
 
     if (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed) {
-      const completed = await this.tryCompleteSnapshot(report.snapshotId)
+      const completed = await this.tryCompleteSnapshot(report)
+
       if (completed) {
-        const snapshot = await Snapshot.findOneByOrFail({ id: report.snapshotId })
-        const reports = await SnapshotReport.createQueryBuilder('report')
-          .leftJoinAndSelect('report.page', 'page', 'page.id = report.page_id')
-          .leftJoinAndSelect('report.profile', 'profile', 'profile.id = report.profile_id')
-          .where('report.snapshot_id = :snapshotId', { snapshotId: report.snapshotId })
-          .getMany()
-        const project = await Project.findOneByOrFail({ id: snapshot.projectId })
-        await this.sendLabNotification(snapshot, reports)
-        await this.checkSuite.endLabCheck(project, snapshot, reports)
-        this.event.emit('webhook.deliver', project, {
-          eventType: 'lab:snapshot-completed',
-          projectSlug: project.slug,
-          snapshotIid: snapshot.iid,
-        })
+        await this.onSnapshotCompleted(report.snapshotId)
       }
     }
+  }
+
+  async onSnapshotCompleted(snapshotId: number) {
+    const snapshot = await Snapshot.findOneByOrFail({ id: snapshotId })
+    const reports = await SnapshotReport.createQueryBuilder('report')
+      .leftJoinAndSelect('report.page', 'page', 'page.id = report.page_id')
+      .leftJoinAndSelect('report.profile', 'profile', 'profile.id = report.profile_id')
+      .where('report.snapshot_id = :snapshotId', { snapshotId })
+      .getMany()
+    const project = await Project.findOneByOrFail({ id: snapshot.projectId })
+    await this.sendLabNotification(snapshot, reports)
+    await this.checkSuite.endLabCheck(project, snapshot, reports)
+    this.event.emit('webhook.deliver', project, {
+      eventType: 'lab:snapshot-completed',
+      projectSlug: project.slug,
+      snapshotIid: snapshot.iid,
+    })
   }
 
   async sendLabNotification(snapshot: Snapshot, reports: SnapshotReport[]) {
@@ -477,44 +486,65 @@ export class SnapshotService implements OnApplicationBootstrap {
     return report
   }
 
-  async tryCompleteSnapshot(snapshotId: number) {
-    try {
-      return await this.db.useMasterRunner(async (runner) => {
-        const snapshot = await runner.manager.getRepository(Snapshot).findOneBy({ id: snapshotId })
-
-        if (!snapshot || snapshot.status === SnapshotStatus.Completed) {
-          return false
-        }
-
-        const reports = await runner.manager.getRepository(SnapshotReport).findBy({ snapshotId })
-
-        if (!reports.length) {
-          return false
-        }
-
-        const finishedCount = reports.reduce((p, report) => {
-          return p + (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed ? 1 : 0)
-        }, 0)
-
-        // all reports finished
-        if (finishedCount === reports.length) {
-          this.logger.verbose('complete snapshot', snapshot)
-          snapshot.status = SnapshotStatus.Completed
-          await snapshot.save()
-          this.metrics.snapshotComplete(1)
-          return true
-        }
-
-        return false
-      })
-    } catch (e) {
-      this.logger.error(e as Error, { phase: 'complete snapshot' })
-      this.metrics.snapshotFail(1)
-      await Snapshot.update(snapshotId, {
-        status: SnapshotStatus.Failed,
-        failedReason: (e as Error).message,
-      })
+  async tryCompleteSnapshot(report: SnapshotReport) {
+    const snapshot = await Snapshot.findOneBy({ id: report.snapshotId })
+    if (!snapshot || snapshot.status === SnapshotStatus.Completed || snapshot.status === SnapshotStatus.Failed) {
       return false
+    }
+
+    const left = await this.redis.decr(`snapshot-report-count-${snapshot.id}`)
+
+    if (left <= 0) {
+      await this.redis.del(`snapshot-report-count-${snapshot.id}`)
+      this.logger.verbose('complete snapshot', snapshot)
+      snapshot.status = SnapshotStatus.Completed
+      await snapshot.save()
+      this.metrics.snapshotComplete(1)
+
+      return true
+    }
+
+    return false
+  }
+
+  @Cron(CronExpression.EVERY_HOUR, { exclusive: true, name: 'completedSnapshots' })
+  async completedSnapshots() {
+    const snapshots = await Snapshot.createQueryBuilder('snapshot')
+      .where('snapshot.status = :status', {
+        status: SnapshotStatus.Running,
+      })
+      .andWhere('snapshot.created_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)')
+      .getMany()
+
+    const completedSnapshots: Snapshot[] = []
+
+    for (const snapshot of snapshots) {
+      const result = await SnapshotReport.createQueryBuilder()
+        .select('count(*) as total')
+        .addSelect(
+          `sum(case when (status = ${SnapshotStatus.Completed} or status = ${SnapshotStatus.Failed}) then 1 else 0 end) as completedCount`,
+        )
+        .where('snapshot_id = :snapshotId', { snapshotId: snapshot.id })
+        .getRawOne<{ total: string; completedCount: string }>()
+
+      if (result && result.completedCount === result.total) {
+        snapshot.status = SnapshotStatus.Completed
+        completedSnapshots.push(snapshot)
+      }
+    }
+
+    try {
+      if (completedSnapshots.length) {
+        await Snapshot.save(completedSnapshots)
+        this.logger.verbose('complete snapshot by cron', { completedSnapshots })
+        this.metrics.snapshotCompleteByCron(completedSnapshots.length)
+      }
+
+      for (const snapshot of completedSnapshots) {
+        await this.onSnapshotCompleted(snapshot.id)
+      }
+    } catch (error) {
+      this.logger.error('complete snapshot by cron failed', { completedSnapshots })
     }
   }
 
