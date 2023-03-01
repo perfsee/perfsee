@@ -20,7 +20,7 @@ import Protocol from 'devtools-protocol'
 import Gatherer from 'lighthouse/types/gatherer'
 import { Browser } from 'puppeteer-core'
 
-import { prepareProfilingDataExport, ProfilingDataExport } from '@perfsee/shared'
+import { ReactDevtoolProfilingDataExport } from '@perfsee/shared'
 
 import {
   detectReactDom,
@@ -30,6 +30,7 @@ import {
   generateProfilingBundle,
   isProfilingBuild,
   prepareProfilingDataFrontendFromBackendAndStore,
+  prepareReactDevtoolProfilingDataExport,
 } from '../../helpers'
 
 import { DEVTOOLS_INJECTION } from './devtools-injection'
@@ -94,11 +95,11 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   private readonly inProgressOperationsByRootID = new Map<number, number[][]>()
   private driver?: Driver
 
-  private readonly profilingDataPromise: Promise<ProfilingDataExport | null>
-  private resolveProfilngData!: (result: ProfilingDataExport | null) => void
+  private readonly profilingDataPromise: Promise<ReactDevtoolProfilingDataExport | null>
+  private resolveProfilngData!: (result: ReactDevtoolProfilingDataExport | null) => void
 
   private readonly teardowns: (() => Promise<void>)[] = []
-  private result?: ProfilingDataExport | null
+  private result?: ReactDevtoolProfilingDataExport | null
 
   constructor() {
     this.profilingDataPromise = new Promise((resolve) => {
@@ -275,7 +276,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
           [payload],
           this.inProgressOperationsByRootID,
         )
-        this.resolveProfilngData(prepareProfilingDataExport(profilingDataFrontend))
+        this.resolveProfilngData(prepareReactDevtoolProfilingDataExport(profilingDataFrontend))
         break
       }
       default:

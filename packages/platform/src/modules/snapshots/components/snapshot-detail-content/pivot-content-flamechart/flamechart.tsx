@@ -18,7 +18,7 @@ import { SharedColors } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { memo, useEffect, useMemo } from 'react'
 
-import { useWideScreen } from '@perfsee/components'
+import { ReactLogoIcon, useWideScreen } from '@perfsee/components'
 import {
   buildProfileFromFlameChartData,
   buildProfileFromNetworkRequests,
@@ -30,14 +30,13 @@ import {
   FlamechartGroupContainerProps,
   FlamechartContainer,
   buildProfileFromUserTimings,
+  buildTimelineProfilesFromReactDevtoolProfileData,
 } from '@perfsee/flamechart'
 import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/platform/modules/flamechart'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
 import { ReactFlameGraphModule } from '../pivot-content-react/module'
-
-import { buildProfileFromReactTimelineData } from './util'
 
 function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing | null {
   value *= 1000
@@ -116,7 +115,7 @@ export const FlamechartView: React.FunctionComponent<{
     }, [flamechart, flamechartTimeOffset])
 
     const reactSchedulingEventsProfiles = useMemo(() => {
-      return reactProfile?.timelineData.map((data) => buildProfileFromReactTimelineData(data, reactTimeOffset))
+      return reactProfile && buildTimelineProfilesFromReactDevtoolProfileData(reactProfile, reactTimeOffset)
     }, [reactProfile, reactTimeOffset])
 
     const tasksProfile = useMemo(() => {
@@ -147,12 +146,14 @@ export const FlamechartView: React.FunctionComponent<{
           name: e.componentName ? `${e.componentName} ${e.type}` : e.type,
           value: e.timestamp * 1000 + reactTimeOffset,
           color: SharedColors.cyan10,
+          style: 'point' as const,
         }))
 
         const throwErrorEvents = data.thrownErrors.map((e) => ({
           name: e.componentName ? `${e.componentName} throw error during ${e.phase}` : `throw error during ${e.phase}`,
           value: e.timestamp * 1000 + reactTimeOffset,
           color: SharedColors.red10,
+          style: 'point' as const,
         }))
 
         return schedulingEvents.concat(throwErrorEvents)
@@ -174,9 +175,13 @@ export const FlamechartView: React.FunctionComponent<{
         profile &&
         ([
           ...(reactSchedulingEventsProfiles?.map((p) => ({
-            name: 'React',
+            name: (
+              <>
+                <ReactLogoIcon /> React
+              </>
+            ),
             profile: p,
-            flamechartFactory: 'react',
+            flamechartFactory: 'react-timeline',
             grow: 0.1,
             theme: lightTheme,
           })) || []),

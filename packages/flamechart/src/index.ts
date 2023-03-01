@@ -1,5 +1,5 @@
 import { NetworkProfile } from './lib/network-profile'
-import { CallTreeNodeAttribute, FrameInfo, Profile, StackListProfileBuilder } from './lib/profile'
+import { CallTreeNodeAttribute, Frame, Profile, StackListProfileBuilder } from './lib/profile'
 import { TimingProfile } from './lib/timing-profile'
 import { TracehouseProfile } from './lib/tracehouse-profile'
 import { TimeFormatter } from './lib/value-formatters'
@@ -20,12 +20,14 @@ export function buildProfileFromFlameChartData(data: PerfseeFlameChartData, time
 
   profile.appendSampleWithWeight([], timeOffset)
 
+  const frames = data.frames.map((info) => new Frame(info))
+
   for (let i = 0; i < data.samples.length; i++) {
     const sample = data.samples[i]
 
-    const stack: FrameInfo[] = sample
+    const stack: Frame[] = sample
       .map((frame) => {
-        return data.frames[frame] as FrameInfo
+        return frames[frame]
       })
       .filter((frame) => frame.name !== '(idle)')
 
@@ -100,6 +102,7 @@ export function buildProfileFromUserTimings(userTimings: TimingSchema[]) {
 
 export * from './components/flamechart-container'
 export * from './components/flamechart-group-container'
+export * from './components/react-devtool/flamechart-react-devtool-profile-container'
 export * from './components/flamechart-factory'
 export { Profile, Frame, CallTreeNode } from './lib/profile'
 export { NetworkProfile } from './lib/network-profile'
@@ -116,3 +119,4 @@ export { Timing } from './lib/timing'
 export * from './lib/profile-search'
 export * from './types'
 export * from './views'
+export * from './lib/react-devtool'

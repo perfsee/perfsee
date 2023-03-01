@@ -1,4 +1,4 @@
-import { ProfilingDataForRootFrontend, ProfilingDataFrontend } from '@perfsee/shared'
+import { ReactDevtoolProfilingDataForRootFrontend, ReactDevtoolProfilingDataFrontend } from '@perfsee/flamechart'
 
 import {
   commitGradient,
@@ -56,7 +56,7 @@ export function getCommitTree({
   rootID,
 }: {
   commitIndex: number
-  profilingData: ProfilingDataFrontend
+  profilingData: ReactDevtoolProfilingDataFrontend
   rootID: number
 }): CommitTree {
   if (!rootToCommitTreeMap.has(rootID)) {
@@ -116,7 +116,7 @@ function recursivelyInitializeTree(
   id: number,
   parentID: number,
   nodes: Map<number, CommitTreeNode>,
-  dataForRoot: ProfilingDataForRootFrontend,
+  dataForRoot: ReactDevtoolProfilingDataForRootFrontend,
 ): void {
   const node = dataForRoot.snapshots.get(id)
   if (node != null) {
@@ -306,7 +306,7 @@ export function getChartData({
 }: {
   commitIndex: number
   commitTree: CommitTree
-  profilingData: ProfilingDataFrontend
+  profilingData: ReactDevtoolProfilingDataFrontend
   rootID: number
 }): ChartData {
   const commitDatum = profilingData.dataForRoots.get(rootID)!.commitData[commitIndex]

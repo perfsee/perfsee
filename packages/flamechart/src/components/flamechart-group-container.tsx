@@ -18,7 +18,7 @@ import { useElementSize } from './utils'
 
 export interface FlamechartGroupContainerProps {
   profiles: {
-    name: string
+    name: React.ReactNode
     profile: Profile
     flamechartFactory?: FlamechartFactory | keyof typeof FlamechartFactoryMap
     grow?: number
@@ -38,6 +38,7 @@ export interface FlamechartGroupContainerProps {
     theme: Theme,
     profileIndex: number,
   ) => React.ReactNode
+  renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme, profileIndex: number) => React.ReactNode
 }
 
 const CollapseButton = memo<{ collapsed: boolean }>(({ collapsed }) => {
@@ -108,6 +109,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       disableTimelineCursor,
       disableTooltip,
       renderTooltip,
+      renderTimingTooltip,
       timings = [],
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
@@ -165,7 +167,10 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
           : Math.max(...flamecharts.map((flamechart) => flamechart.getMaxValue()))
       }, [flamecharts, maxRight])
 
-      const timingsWithoutName = useMemo(() => timings.map((t) => ({ ...t, name: undefined })), [timings])
+      const timingsOnlyLine = useMemo(
+        () => timings.map((t) => ({ ...t, name: undefined })).filter((t) => t.style !== 'point'),
+        [timings],
+      )
 
       const sashStyle = useMemo<React.CSSProperties>(
         () => ({
@@ -215,6 +220,17 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
           })
       }, [profiles.length, renderTooltip])
 
+      const profilesRenderTimingTooltip = useMemo(() => {
+        if (typeof renderTimingTooltip !== 'function') {
+          return
+        }
+        return new Array(profiles.length)
+          .fill(0)
+          .map((_, index) => (timing: Timing, flamechart: Flamechart, theme: Theme) => {
+            return renderTimingTooltip(timing, flamechart, theme, index)
+          })
+      }, [profiles.length, renderTimingTooltip])
+
       const views = profiles.map((item, index) => {
         const isFirstVisible = index === firstVisibleSplit
         const collapsed = !!splitCollapsed[index]
@@ -241,10 +257,11 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               width={width}
               height={isFirstVisible ? height - 24 : height}
               topPadding={isFirstVisible ? undefined : 1}
-              timings={isFirstVisible ? timings : timingsWithoutName}
+              timings={isFirstVisible ? timings : timingsOnlyLine}
               style={{ top: !isFirstVisible ? '-24px' : 0 }}
               onSelectFrame={handleSelectFlamechart}
               renderTooltip={profilesRenderTooltip?.[index]}
+              renderTimingTooltip={profilesRenderTimingTooltip?.[index]}
             />
           </Fragment>
         )

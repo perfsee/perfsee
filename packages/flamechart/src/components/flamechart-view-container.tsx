@@ -15,6 +15,7 @@ import { Hovertip } from './hovertip'
 import SplitView from './split-view'
 import { CallTreeNodeTooltip } from './tooltip/calltreenode-tooltip'
 import { NetworkTreeNodeTooltip } from './tooltip/networktreenode-tooltip'
+import { renderTimingNameTooltip } from './tooltip/timing-tooltip'
 import { TimingTreeNodeTooltip } from './tooltip/timingnode-tooltip'
 
 const SplitViewDefaultGrow = [1, 0]
@@ -55,6 +56,7 @@ export interface FlamechartViewProps {
   maxRight?: number
   style?: React.CSSProperties
   renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
+  renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme) => React.ReactNode
 }
 
 export type FlamechartViewContainerRef = FlamechartView | undefined
@@ -85,11 +87,13 @@ export const FlamechartViewContainer = memo(
         disableTooltip,
         style,
         renderTooltip,
+        renderTimingTooltip,
       }: FlamechartViewProps,
       ref: ForwardedRef<FlamechartViewContainerRef>,
     ) => {
       const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame | null>(null)
       const [hoverFrame, onFrameHover] = useState<{ frame: FlamechartFrame; event: MouseEvent } | null>(null)
+      const [hoverTiming, onTimingHover] = useState<{ timing: Timing; event: MouseEvent } | null>(null)
       const [externalHoverFrame, onExternalHoverFrame] = useState<FlamechartFrame | null>(null)
       const [flamechartContainer, setFlamechartContainer] = useState<HTMLDivElement | null>(null)
       const [splitSize, setSplitSize] = useState<number[]>([100, 200])
@@ -98,38 +102,56 @@ export const FlamechartViewContainer = memo(
       useImperativeHandle(ref, () => view, [view])
 
       const tooltipContent = useMemo(() => {
-        if (disableTooltip || !hoverFrame?.frame) {
-          return <></>
+        if (disableTooltip || (!hoverFrame?.frame && !hoverTiming?.timing)) {
+          return undefined
         }
 
-        return typeof renderTooltip === 'function' ? (
-          renderTooltip(hoverFrame.frame, flamechart, theme)
-        ) : hoverFrame.frame.node.frame instanceof TimingFrame ? (
-          <TimingTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
-        ) : hoverFrame.frame.node.frame instanceof NetworkFrame ? (
-          <NetworkTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
-        ) : (
-          <CallTreeNodeTooltip node={hoverFrame.frame.node} theme={theme} formatValue={flamechart.formatValue} />
-        )
-      }, [disableTooltip, flamechart, hoverFrame?.frame, renderTooltip, theme])
+        if (hoverFrame?.frame) {
+          return typeof renderTooltip === 'function' ? (
+            renderTooltip(hoverFrame.frame, flamechart, theme)
+          ) : hoverFrame.frame.node.frame instanceof TimingFrame ? (
+            <TimingTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
+          ) : hoverFrame.frame.node.frame instanceof NetworkFrame ? (
+            <NetworkTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
+          ) : (
+            <CallTreeNodeTooltip node={hoverFrame.frame.node} theme={theme} formatValue={flamechart.formatValue} />
+          )
+        }
+
+        if (hoverTiming?.timing) {
+          return typeof renderTooltip === 'function'
+            ? renderTimingTooltip?.(hoverTiming.timing, flamechart, theme)
+            : renderTimingNameTooltip({ timing: hoverTiming.timing })
+        }
+      }, [
+        disableTooltip,
+        flamechart,
+        hoverFrame?.frame,
+        hoverTiming?.timing,
+        renderTimingTooltip,
+        renderTooltip,
+        theme,
+      ])
 
       const tooltip = useMemo(() => {
         if (disableTooltip) {
           return <></>
         }
 
-        if (!hoverFrame) {
+        if ((!hoverFrame && !hoverTiming) || tooltipContent === undefined) {
           return <Hovertip theme={theme} />
         }
 
-        const offset = new Vec2(hoverFrame.event.clientX, hoverFrame.event.clientY)
+        const offset = hoverFrame
+          ? new Vec2(hoverFrame.event.clientX, hoverFrame.event.clientY)
+          : new Vec2(hoverTiming!.event.clientX, hoverTiming!.event.clientY)
 
         return (
           <Hovertip offset={offset} theme={theme}>
             {tooltipContent}
           </Hovertip>
         )
-      }, [disableTooltip, hoverFrame, theme, tooltipContent])
+      }, [disableTooltip, hoverFrame, hoverTiming, theme, tooltipContent])
 
       const handleSelectFlamechart = useCallback(
         (frame: FlamechartFrame | null) => {
@@ -186,6 +208,7 @@ export const FlamechartViewContainer = memo(
             disableTimelineCursor,
             onNodeSelect: handleSelectFlamechart,
             onNodeHover: onFrameHover,
+            onTimingHover: onTimingHover,
           })
 
           setView(newView)
