@@ -2,7 +2,7 @@ import { SharedColors, Stack, TooltipHost } from '@fluentui/react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 
-import { CommitDataFrontend } from '@perfsee/shared'
+import { CommitDataFrontend } from '@perfsee/flamechart'
 
 import { minBarWidth } from './constant'
 import {

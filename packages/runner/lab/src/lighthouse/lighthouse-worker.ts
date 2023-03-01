@@ -31,7 +31,7 @@ import {
   LocalStorageType,
   MetricKeyType,
   MetricType,
-  ProfilingDataExport,
+  ReactDevtoolProfilingDataExport,
   RequestSchema,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
@@ -98,7 +98,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const metricScores = getLighthouseMetricScores('navigation', lhr.audits, timings, timelines)
 
     const jsCoverage = artifacts.JsUsage ?? {}
-    const reactProfile = artifacts.ReactProfiler as ProfilingDataExport | null
+    const reactProfile = artifacts.ReactProfiler as ReactDevtoolProfilingDataExport | null
 
     // artifacts
     const lighthouseFile = `snapshots/${uuid()}.json`

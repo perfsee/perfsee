@@ -1,6 +1,6 @@
-import {Profile, FrameInfo, CallTreeProfileBuilder, ProfileGroup} from './profile'
-import {getOrInsert, lastOf, sortBy, itForEach} from './utils'
-import {TimeFormatter} from './value-formatters'
+import { Profile, CallTreeProfileBuilder, ProfileGroup, Frame } from './profile'
+import { getOrInsert, lastOf, sortBy, itForEach } from './utils'
+import { TimeFormatter } from './value-formatters'
 
 // See: https://github.com/v8/v8/blob/master/src/inspector/js_protocol.json
 
@@ -14,7 +14,7 @@ interface TimelineEvent {
   dur: number
   tdur: number
   tts: number
-  args: {[key: string]: any}
+  args: { [key: string]: any }
   id?: string
 }
 
@@ -53,11 +53,7 @@ export function isChromeTimeline(rawProfile: any): boolean {
   if (rawProfile.length < 1) return false
   const first = rawProfile[0]
   if (!('pid' in first && 'tid' in first && 'ph' in first && 'cat' in first)) return false
-  if (
-    !rawProfile.find(
-      e => e.name === 'CpuProfile' || e.name === 'Profile' || e.name === 'ProfileChunk',
-    )
-  )
+  if (!rawProfile.find((e) => e.name === 'CpuProfile' || e.name === 'Profile' || e.name === 'ProfileChunk'))
     return false
   return true
 }
@@ -82,7 +78,7 @@ export function importFromChromeTimeline(events: TimelineEvent[], fileName: stri
 
   // The events aren't necessarily recorded in chronological order. Sort them so
   // that they are.
-  sortBy(events, e => e.ts)
+  sortBy(events, (e) => e.ts)
 
   for (let event of events) {
     if (event.name === 'CpuProfile') {
@@ -144,7 +140,7 @@ export function importFromChromeTimeline(events: TimelineEvent[], fileName: stri
     const profiles: Profile[] = []
     let indexToView = 0
 
-    itForEach(cpuProfileByID.keys(), profileId => {
+    itForEach(cpuProfileByID.keys(), (profileId) => {
       let threadName: string | null = null
       let pidTid = pidTidById.get(profileId)
       if (pidTid) {
@@ -164,15 +160,15 @@ export function importFromChromeTimeline(events: TimelineEvent[], fileName: stri
       profiles.push(profile)
     })
 
-    return {name: fileName, indexToView, profiles}
+    return { name: fileName, indexToView, profiles }
   } else {
     throw new Error('Could not find CPU profile in Timeline')
   }
 }
 
-const callFrameToFrameInfo = new Map<CPUProfileCallFrame, FrameInfo>()
-function frameInfoForCallFrame(callFrame: CPUProfileCallFrame) {
-  return getOrInsert(callFrameToFrameInfo, callFrame, callFrame => {
+const callFrameToFrame = new Map<CPUProfileCallFrame, Frame>()
+function frameForCallFrame(callFrame: CPUProfileCallFrame) {
+  return getOrInsert(callFrameToFrame, callFrame, (callFrame) => {
     const name = callFrame.functionName || '(anonymous)'
     const file = callFrame.url
 
@@ -186,18 +182,18 @@ function frameInfoForCallFrame(callFrame: CPUProfileCallFrame) {
     let col = callFrame.columnNumber
     if (col != null) col++
 
-    return {
+    return new Frame({
       key: `${name}:${file}:${line}:${col}`,
       name,
       file,
       line,
       col,
-    }
+    })
   })
 }
 
 function shouldIgnoreFunction(callFrame: CPUProfileCallFrame) {
-  const {functionName, url} = callFrame
+  const { functionName, url } = callFrame
   if (url === 'native dummy.js') {
     // I'm not really sure what this is about, but this seems to be used
     // as a way of avoiding edge cases in V8's implementation.
@@ -291,15 +287,13 @@ export function importFromChromeCPUProfile(chromeProfile: CPUProfile): Profile {
     for (
       lca = stackTop;
       lca && prevStack.indexOf(lca) === -1;
-      lca = shouldPlaceOnTopOfPreviousStack(lca.callFrame.functionName)
-        ? lastOf(prevStack)
-        : lca.parent || null
+      lca = shouldPlaceOnTopOfPreviousStack(lca.callFrame.functionName) ? lastOf(prevStack) : lca.parent || null
     ) {}
 
     // Close frames that are no longer open
     while (prevStack.length > 0 && lastOf(prevStack) != lca) {
       const closingNode = prevStack.pop()!
-      const frame = frameInfoForCallFrame(closingNode.callFrame)
+      const frame = frameForCallFrame(closingNode.callFrame)
       profile.leaveFrame(frame, value)
     }
 
@@ -309,16 +303,14 @@ export function importFromChromeCPUProfile(chromeProfile: CPUProfile): Profile {
       let node: CPUProfileNode | null = stackTop;
       node && node != lca && !shouldIgnoreFunction(node.callFrame);
       // Place Chrome internal functions on top of the previous call stack
-      node = shouldPlaceOnTopOfPreviousStack(node.callFrame.functionName)
-        ? lastOf(prevStack)
-        : node.parent || null
+      node = shouldPlaceOnTopOfPreviousStack(node.callFrame.functionName) ? lastOf(prevStack) : node.parent || null
     ) {
       toOpen.push(node)
     }
     toOpen.reverse()
 
     for (let node of toOpen) {
-      profile.enterFrame(frameInfoForCallFrame(node.callFrame), value)
+      profile.enterFrame(frameForCallFrame(node.callFrame), value)
     }
 
     prevStack = prevStack.concat(toOpen)
@@ -326,7 +318,7 @@ export function importFromChromeCPUProfile(chromeProfile: CPUProfile): Profile {
 
   // Close frames that are open at the end of the trace
   for (let i = prevStack.length - 1; i >= 0; i--) {
-    profile.leaveFrame(frameInfoForCallFrame(prevStack[i].callFrame), lastOf(sampleTimes)!)
+    profile.leaveFrame(frameForCallFrame(prevStack[i].callFrame), lastOf(sampleTimes)!)
   }
 
   profile.setValueFormatter(new TimeFormatter('microseconds'))

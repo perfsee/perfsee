@@ -244,7 +244,7 @@ export class FlamechartViewRenderer {
           if (configSpaceBounds.right() < viewport.left()) continue
 
           renderSpecialFrameOutlines(frame, configSpaceBounds)
-          if (!props.hiddenFrameLabels && width >= minWidthToRender) {
+          if (!props.hiddenFrameLabels) {
             renderFrameLabel(frame, configSpaceBounds)
           }
         }

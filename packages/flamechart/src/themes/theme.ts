@@ -3,6 +3,7 @@ import { Color } from '../lib/color'
 export { darkTheme } from './dark-theme'
 export { lightTheme } from './light-theme'
 export { lightGrayTheme } from './light-gray-theme'
+export { lightWeightTheme } from './light-weight-theme'
 
 export interface Theme {
   fgPrimaryColor: string
