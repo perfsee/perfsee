@@ -3,14 +3,18 @@ import { Draft, freeze } from 'immer'
 import { Observable } from 'rxjs'
 import { map, mergeMap } from 'rxjs/operators'
 
+import {
+  prepareProfilingDataFrontendFromExport,
+  ReactDevtoolProfilingDataExport,
+  ReactDevtoolProfilingDataFrontend,
+} from '@perfsee/flamechart'
 import { createErrorCatcher, RxFetch } from '@perfsee/platform/common'
-import { prepareProfilingDataFrontendFromExport, ProfilingDataExport, ProfilingDataFrontend } from '@perfsee/shared'
 
 interface State {
   selectedFiberID: number | null
   selectedFiberName: string | null
   selectedCommitIndex: number
-  reactProfile: ProfilingDataFrontend | null
+  reactProfile: ReactDevtoolProfilingDataFrontend | null
   rootID: number
 }
 
@@ -32,7 +36,7 @@ export class ReactFlameGraphModule extends EffectModule<State> {
   fetchReactProfileData(payload$: Observable<string>) {
     return payload$.pipe(
       mergeMap((key) =>
-        this.fetch.get<ProfilingDataExport>(key).pipe(
+        this.fetch.get<ReactDevtoolProfilingDataExport>(key).pipe(
           createErrorCatcher('Failed to download react profile'),
           map((profile) => this.getActions().setReactProfile(prepareProfilingDataFrontendFromExport(profile))),
         ),
@@ -41,7 +45,7 @@ export class ReactFlameGraphModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setReactProfile(state: Draft<State>, payload: ProfilingDataFrontend) {
+  setReactProfile(state: Draft<State>, payload: ReactDevtoolProfilingDataFrontend) {
     state.reactProfile = freeze(payload)
     state.rootID = payload.dataForRoots.values().next().value?.rootID
   }

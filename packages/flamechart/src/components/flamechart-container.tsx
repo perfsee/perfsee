@@ -58,6 +58,10 @@ export interface FlamechartProps {
    */
   bottomPadding?: number
   /**
+   * distance to pad above content in the chart
+   */
+  topPadding?: number
+  /**
    * flamechart factory
    */
   flamechartFactory?: FlamechartFactory | keyof typeof FlamechartFactoryMap
@@ -78,6 +82,10 @@ export interface FlamechartProps {
    */
   disableTimelineCursor?: boolean
   /**
+   * disable the timeline indicators
+   */
+  disableTimeIndicators?: boolean
+  /**
    * only matched frames will be shown as root frames
    */
   rootFilter?: RootFilter
@@ -85,6 +93,10 @@ export interface FlamechartProps {
    * render custom tooltip
    */
   renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
+  /**
+   * on select frame
+   */
+  onSelectFrame?: (frame: FlamechartFrame | null) => void
 }
 
 const styles = {
@@ -115,11 +127,14 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           flamechartFactory = 'default',
           bottomTimingLabels,
           bottomPadding,
+          topPadding,
           hiddenFrameLabels,
           disableSearchBox,
           disableTimelineCursor,
+          disableTimeIndicators,
           rootFilter,
           renderTooltip,
+          onSelectFrame,
         },
         ref,
       ) => {
@@ -199,14 +214,17 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 initialRight={initialRight}
                 minLeft={minLeft}
                 maxRight={maxRight}
+                topPadding={topPadding}
                 disableDetailView={disableDetailView}
                 disableTimelineCursor={disableTimelineCursor}
+                disableTimeIndicators={disableTimeIndicators}
                 width={containerWidth}
                 height={containerHeight}
                 bottomTimingLabels={bottomTimingLabels}
                 bottomPadding={bottomPadding}
                 hiddenFrameLabels={hiddenFrameLabels}
                 renderTooltip={renderTooltip}
+                onSelectFrame={onSelectFrame}
               />
             )}
           </div>

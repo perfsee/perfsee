@@ -1,6 +1,6 @@
-import {lastOf, KeyedSet} from './utils'
-import {ValueFormatter, RawValueFormatter} from './value-formatters'
-import {FileFormat} from './file-format-spec'
+import { lastOf, KeyedSet } from './utils'
+import { ValueFormatter, RawValueFormatter } from './value-formatters'
+import { FileFormat } from './file-format-spec'
 
 export interface FrameInfo {
   key: string | number
@@ -20,9 +20,7 @@ export interface FrameInfo {
   col?: number
 }
 
-export type SymbolRemapper = (
-  frame: Frame,
-) => {name?: string; file?: string; line?: number; col?: number} | null
+export type SymbolRemapper = (frame: Frame) => { name?: string; file?: string; line?: number; col?: number } | null
 
 export class HasWeights {
   private selfWeight = 0
@@ -77,14 +75,14 @@ export class Frame extends HasWeights {
     name: '(profile root)',
   })
 
-  static getOrInsert(set: KeyedSet<Frame>, info: FrameInfo) {
-    return set.getOrInsert(new Frame(info))
+  static getOrInsert(set: KeyedSet<Frame>, info: Frame) {
+    return set.getOrInsert(info)
   }
 }
 
 export enum CallTreeNodeAttribute {
   NORMAL = 0,
-  LONG_TASK = 1
+  LONG_TASK = 1,
 }
 
 export class CallTreeNode extends HasWeights {
@@ -194,10 +192,7 @@ export class Profile {
   private totalNonIdleWeight: number | null = null
   getTotalNonIdleWeight() {
     if (this.totalNonIdleWeight === null) {
-      this.totalNonIdleWeight = this.groupedCalltreeRoot.children.reduce(
-        (n, c) => n + c.getTotalWeight(),
-        0,
-      )
+      this.totalNonIdleWeight = this.groupedCalltreeRoot.children.reduce((n, c) => n + c.getTotalWeight(), 0)
     }
     return this.totalNonIdleWeight
   }
@@ -250,11 +245,7 @@ export class Profile {
 
       // This is O(n^2), but n should be relatively small here (stack height),
       // so hopefully this isn't much of a problem
-      for (
-        lca = stackTop;
-        lca && lca.frame != Frame.root && prevStack.indexOf(lca) === -1;
-        lca = lca.parent
-      ) {}
+      for (lca = stackTop; lca && lca.frame != Frame.root && prevStack.indexOf(lca) === -1; lca = lca.parent) {}
 
       // Close frames that are no longer open
       while (prevStack.length > 0 && lastOf(prevStack) != lca) {
@@ -340,15 +331,15 @@ export class Profile {
     // thing to be able to do accurately, and we don't want this to change when recursion
     // is flattened. To work around that, we'll just copy the weights directly from the
     // un-flattened profile.
-    this.forEachFrame(f => {
+    this.forEachFrame((f) => {
       flattenedProfile.frames.getOrInsert(f).overwriteWeightWith(f)
     })
 
     return flattenedProfile
   }
 
-  getInvertedProfileForCallersOf(focalFrameInfo: FrameInfo): Profile {
-    const focalFrame = Frame.getOrInsert(this.frames, focalFrameInfo)
+  getInvertedProfileForCallersOf(focalFrame: Frame): Profile {
+    focalFrame = Frame.getOrInsert(this.frames, focalFrame)
     const builder = new StackListProfileBuilder()
 
     const nodes: CallTreeNode[] = []
@@ -366,7 +357,7 @@ export class Profile {
     visit(this.appendOrderCalltreeRoot)
 
     for (let node of nodes) {
-      const stack: FrameInfo[] = []
+      const stack: Frame[] = []
       for (let n: CallTreeNode | null = node; n != null && n.frame !== Frame.root; n = n.parent) {
         stack.push(n.frame)
       }
@@ -379,12 +370,12 @@ export class Profile {
     return ret
   }
 
-  getProfileForCalleesOf(focalFrameInfo: FrameInfo): Profile {
-    const focalFrame = Frame.getOrInsert(this.frames, focalFrameInfo)
+  getProfileForCalleesOf(focalFrame: Frame): Profile {
+    focalFrame = Frame.getOrInsert(this.frames, focalFrame)
     const builder = new StackListProfileBuilder()
 
     function recordSubtree(focalFrameNode: CallTreeNode) {
-      const stack: FrameInfo[] = []
+      const stack: Frame[] = []
 
       function visit(node: CallTreeNode) {
         stack.push(node.frame)
@@ -422,7 +413,7 @@ export class Profile {
       if (remapped == null) {
         continue
       }
-      const {name, file, line, col} = remapped
+      const { name, file, line, col } = remapped
       if (name != null) {
         frame.name = name
       }
@@ -440,21 +431,24 @@ export class Profile {
 }
 
 export class StackListProfileBuilder extends Profile {
-  constructor(totalWeight?: number, maxValue?: number, minValue?: number, private getAttributesForNode?: (n: CallTreeNode) => CallTreeNodeAttribute) {
+  constructor(
+    totalWeight?: number,
+    maxValue?: number,
+    minValue?: number,
+    private getAttributesForNode?: (n: CallTreeNode) => CallTreeNodeAttribute,
+  ) {
     super(totalWeight, maxValue, minValue)
   }
 
-  _appendSample(stack: FrameInfo[], weight: number, useAppendOrder: boolean) {
+  _appendSample(stack: Frame[], weight: number, useAppendOrder: boolean) {
     if (isNaN(weight)) throw new Error('invalid weight')
     let node = useAppendOrder ? this.appendOrderCalltreeRoot : this.groupedCalltreeRoot
 
     let framesInStack = new Set<Frame>()
 
-    for (let frameInfo of stack) {
-      const frame = Frame.getOrInsert(this.frames, frameInfo)
-      const last = useAppendOrder
-        ? lastOf(node.children)
-        : node.children.find(c => c.frame === frame)
+    for (let newFrame of stack) {
+      const frame = Frame.getOrInsert(this.frames, newFrame)
+      const last = useAppendOrder ? lastOf(node.children) : node.children.find((c) => c.frame === frame)
       if (last && !last.isFrozen() && last.frame == frame) {
         node = last
       } else {
@@ -497,7 +491,7 @@ export class StackListProfileBuilder extends Profile {
     }
   }
 
-  appendSampleWithWeight(stack: FrameInfo[], weight: number) {
+  appendSampleWithWeight(stack: Frame[], weight: number) {
     if (weight === 0) {
       // Samples with zero weight have no effect, so let's ignore them
       return
@@ -511,23 +505,20 @@ export class StackListProfileBuilder extends Profile {
   }
 
   private pendingSample: {
-    stack: FrameInfo[]
+    stack: Frame[]
     startTimestamp: number
     centralTimestamp: number
   } | null = null
-  appendSampleWithTimestamp(stack: FrameInfo[], timestamp: number) {
+  appendSampleWithTimestamp(stack: Frame[], timestamp: number) {
     if (this.pendingSample) {
       if (timestamp < this.pendingSample.centralTimestamp) {
         throw new Error('Timestamps received out of order')
       }
       const endTimestamp = (timestamp + this.pendingSample.centralTimestamp) / 2
-      this.appendSampleWithWeight(
-        this.pendingSample.stack,
-        endTimestamp - this.pendingSample.startTimestamp,
-      )
-      this.pendingSample = {stack, startTimestamp: endTimestamp, centralTimestamp: timestamp}
+      this.appendSampleWithWeight(this.pendingSample.stack, endTimestamp - this.pendingSample.startTimestamp)
+      this.pendingSample = { stack, startTimestamp: endTimestamp, centralTimestamp: timestamp }
     } else {
-      this.pendingSample = {stack, startTimestamp: timestamp, centralTimestamp: timestamp}
+      this.pendingSample = { stack, startTimestamp: timestamp, centralTimestamp: timestamp }
     }
   }
 
@@ -606,9 +597,7 @@ export class CallTreeProfileBuilder extends Profile {
         }
       }
 
-      const last = useAppendOrder
-        ? lastOf(prevTop.children)
-        : prevTop.children.find(c => c.frame === frame)
+      const last = useAppendOrder ? lastOf(prevTop.children) : prevTop.children.find((c) => c.frame === frame)
       let node: CallTreeNode
       if (last && !last.isFrozen() && last.frame == frame) {
         node = last
@@ -619,8 +608,8 @@ export class CallTreeProfileBuilder extends Profile {
       stack.push(node)
     }
   }
-  enterFrame(frameInfo: FrameInfo, value: number) {
-    const frame = Frame.getOrInsert(this.frames, frameInfo)
+  enterFrame(frame: Frame, value: number) {
+    frame = Frame.getOrInsert(this.frames, frame)
     this.addWeightsToFrames(value)
     this._enterFrame(frame, value, true)
     this._enterFrame(frame, value, false)
@@ -669,8 +658,8 @@ export class CallTreeProfileBuilder extends Profile {
     }
   }
 
-  leaveFrame(frameInfo: FrameInfo, value: number) {
-    const frame = Frame.getOrInsert(this.frames, frameInfo)
+  leaveFrame(frame: Frame, value: number) {
+    frame = Frame.getOrInsert(this.frames, frame)
     this.addWeightsToFrames(value)
 
     this._leaveFrame(frame, value, true)

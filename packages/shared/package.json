@@ -15,7 +15,6 @@
   "devDependencies": {
     "@perfsee/bundle-analyzer": "workspace:*",
     "@perfsee/plugin-utils": "workspace:*",
-    "@perfsee/tracehouse": "workspace:*",
-    "@types/react-devtools-inline": "^4.24.3"
+    "@perfsee/tracehouse": "workspace:*"
   }
 }

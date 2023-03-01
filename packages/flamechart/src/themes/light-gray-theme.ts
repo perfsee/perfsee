@@ -18,6 +18,9 @@ const colorForBucketGLSL = `
   }
 `
 
+/**
+ * A variant of the light color theme, the node color is always gray
+ */
 export const lightGrayTheme: Theme = {
   ...lightTheme,
   colorForBucket,
