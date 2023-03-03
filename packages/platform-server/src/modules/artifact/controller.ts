@@ -36,7 +36,7 @@ import { Metric } from '@perfsee/platform-server/metrics'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { artifactKey } from '@perfsee/platform-server/utils'
 import { BundleJobUpdate, JobType } from '@perfsee/server-common'
-import { BuildUploadParams, GitHost, gitHostFromDomain, isBaseline } from '@perfsee/shared'
+import { BuildUploadParams, EMAIL_REGEXP, GitHost, gitHostFromDomain, isBaseline } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { AppVersionService } from '../app-version/service'
@@ -80,6 +80,10 @@ export class ArtifactController {
       throw new ForbiddenException('Invalid build uploading token.')
     }
 
+    if (params.author && !params.author.match(EMAIL_REGEXP)) {
+      throw new BadRequestException('Invalid author email address: ' + params.author)
+    }
+
     if (
       project.host !== GitHost.Unknown &&
       (project.host !== gitHost || project.namespace !== params.namespace || project.name !== params.name)
@@ -106,7 +110,7 @@ export class ArtifactController {
         branch: params.branch,
         hash: params.commitHash,
         name: params.artifactName,
-        issuer: user.email,
+        issuer: params.author || user.email,
         buildKey,
         appVersion: params.appVersion,
         toolkit: params.toolkit,
