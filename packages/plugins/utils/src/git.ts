@@ -58,6 +58,22 @@ export const getCommitMessage = async (commitHash: string) => {
   }
 }
 
+export const getCommitAuthorEmail = async (commitHash: string) => {
+  try {
+    return await simpleGit().show([commitHash, '--format=%ae', '-s'])
+  } catch {
+    try {
+      // in github action, the commit maybe not in local
+      console.info(`Fetching commit '${commitHash}' information from origin.`)
+      await simpleGit().fetch(['origin', commitHash, '--depth', '1'])
+
+      return await simpleGit().show([commitHash, '--format=%ae', '-s'])
+    } catch {
+      return undefined
+    }
+  }
+}
+
 export const getProjectInfoFromGit = async () => {
   const git = simpleGit()
 

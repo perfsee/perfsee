@@ -19,7 +19,7 @@ import envCI, { CiEnv } from 'env-ci'
 
 import { GitHost } from '@perfsee/utils'
 
-import { getCommitMessage, getCurrentCommit, getProjectInfoFromGit } from './git'
+import { getCommitAuthorEmail, getCommitMessage, getCurrentCommit, getProjectInfoFromGit } from './git'
 
 type GithubEnv = {
   isCi: true
@@ -103,6 +103,29 @@ function getCiBranch() {
   }
 }
 
+function getCiAuthor() {
+  try {
+    const event = process.env.GITHUB_EVENT_PATH ? require(process.env.GITHUB_EVENT_PATH) : undefined
+
+    console.info(event)
+
+    if (event?.pull_request?.user) {
+      // if is pull request event
+      const user = event?.pull_request?.user
+      if (user.type === 'User' && user.email) {
+        return user.email
+      }
+    }
+
+    if (event?.push?.pusher.email) {
+      // if is push event
+      return event?.push.pusher.email
+    }
+  } catch (err) {
+    console.error(chalk.red(`[perfsee] Failed to get author`, err))
+  }
+}
+
 async function getGitEnv(): Promise<GitEnv> {
   if (envs.isCi) {
     if (envs.service === 'github' || envs.service === 'gitlab') {
@@ -110,6 +133,7 @@ async function getGitEnv(): Promise<GitEnv> {
       const commitMessage = await getCommitMessage(commit)
       const branch = getCiBranch() || envs.branch
       const [namespace, name] = envs.slug.split('/')
+      const author = getCiAuthor() || (await getCommitAuthorEmail(commit))
 
       return {
         host: envs.service === 'github' ? GitHost.Github : GitHost.Gitlab,
@@ -118,6 +142,7 @@ async function getGitEnv(): Promise<GitEnv> {
         commit,
         branch,
         commitMessage,
+        author,
         pr: getPr(),
       }
     } else if (
