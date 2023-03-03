@@ -79,6 +79,7 @@ export interface BuildUploadParams {
   appVersion?: string
   nodeVersion?: string
   toolkit?: string
+  author?: string
   pr?: {
     number: number
     baseHash: string
