@@ -14,12 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
-
+import { getScoreColor, ScoreBlock } from '@perfsee/components'
 import { formatTime } from '@perfsee/platform/common'
 import { MetricScoreSchema } from '@perfsee/shared'
-
-import { ScoreDesc, ScoreTitle, FailedContent, ColorScore } from './style'
 
 type Props = {
   detail: MetricScoreSchema
@@ -36,17 +33,10 @@ export const LighthouseScoreBlock = (props: Props) => {
     value = formatted.value
   }
 
-  return (
-    <Stack styles={{ root: { minWidth: '190px', padding: '12px 16px' } }}>
-      <ScoreDesc>{detail.title}</ScoreDesc>
-      {typeof value === 'undefined' ? (
-        <FailedContent>Failed to calculate</FailedContent>
-      ) : (
-        <ColorScore score={colorful ? detail.score : undefined}>
-          <ScoreTitle>{value}</ScoreTitle>
-          <span>{unit}</span>
-        </ColorScore>
-      )}
-    </Stack>
-  )
+  let color
+  if (typeof detail.score === 'number' && colorful) {
+    color = getScoreColor(detail.score * 100)
+  }
+
+  return <ScoreBlock title={detail.title} color={color} value={value} unit={unit} />
 }

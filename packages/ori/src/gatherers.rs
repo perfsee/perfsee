@@ -1,9 +1,9 @@
 use crate::{analyzer::Context, profile::Profile};
 
-pub mod long_func_call;
-pub mod long_lib_call;
+pub mod time_using_by_script_file;
+pub mod total_execution_time;
 
-pub trait Rule {
+pub trait Gatherer {
   fn new() -> Box<Self>
   where
     Self: Sized;
@@ -14,9 +14,9 @@ pub trait Rule {
   }
 }
 
-pub fn get_all_rules() -> Vec<Box<dyn Rule>> {
+pub fn get_all_gatherers() -> Vec<Box<dyn Gatherer>> {
   vec![
-    long_func_call::LongFuncCall::new(),
-    long_lib_call::LongLibCall::new(),
+    time_using_by_script_file::TimeUsingByScriptFile::new(),
+    total_execution_time::TotalExecutionTime::new(),
   ]
 }

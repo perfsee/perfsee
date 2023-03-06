@@ -73,6 +73,13 @@ export enum SnapshotStatus {
   Failed,
 }
 
+export enum SourceStatus {
+  Pending,
+  Running,
+  Completed,
+  Failed,
+}
+
 export interface BundleJobPayload {
   artifactId: number
   buildKey: string
@@ -131,6 +138,9 @@ export interface SourceAnalyzeJob {
   reportId: number
   artifacts: {
     id: number
+    iid: number
+    createdAt: string
+    branch?: string
     hash: string
     buildKey: string
     reportKey?: string | null
@@ -140,15 +150,20 @@ export interface SourceAnalyzeJob {
     pageUrl: string
     traceEventsStorageKey: string
     jsCoverageStorageKey: string
-    artifactIds?: number[]
+    scripts?: { fileName: string }[]
   }
 }
 
-export type SourceAnalyzeJobResult = {
-  projectId: number
-  reportId: number
-  artifactIds: number[]
-  diagnostics: FlameChartDiagnostic[]
-  flameChartStorageKey: string
-  sourceCoverageStorageKey?: string
-}
+export type SourceAnalyzeJobResult =
+  | { status: SourceStatus.Running; reportId: number }
+  | { status: SourceStatus.Failed; reportId: number }
+  | {
+      status: SourceStatus.Completed
+      projectId: number
+      reportId: number
+      artifactIds: number[]
+      diagnostics: FlameChartDiagnostic[]
+      flameChartStorageKey: string
+      sourceCoverageStorageKey?: string
+      statisticsStorageKey?: string
+    }

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { InfoCircleOutlined } from '@ant-design/icons'
-import { Pivot, PivotItem, MessageBarType, Stack } from '@fluentui/react'
+import { Pivot, PivotItem, MessageBarType, Stack, TooltipHost, SharedColors, IButtonProps } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { parse, stringifyUrl } from 'query-string'
 import { useMemo, useCallback, FC, useEffect, memo } from 'react'
@@ -23,7 +23,7 @@ import { useParams, useHistory } from 'react-router-dom'
 
 import { ForeignLink, MessageBar } from '@perfsee/components'
 import { useProject } from '@perfsee/platform/modules/shared'
-import { SnapshotStatus } from '@perfsee/schema'
+import { SnapshotStatus, SourceStatus } from '@perfsee/schema'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { PerformanceTabType, SnapshotReportSchema } from '../../snapshot-type'
@@ -38,6 +38,7 @@ import {
   UserFlowTab,
   ReportTab,
   ReactTab,
+  SourceStatisticsTab,
 } from '../../utils/format-lighthouse'
 import { LoadingShimmer } from '../loading-shimmer'
 
@@ -94,16 +95,43 @@ type ReportContentProps = {
   onLinkClick: (item?: PivotItem) => void
 }
 
+const sourceLoadingProps: IButtonProps = {
+  disabled: true,
+  iconProps: { iconName: 'loading', styles: { root: { color: SharedColors.green10 } } },
+  onRenderIcon: (p, d) => (
+    <TooltipHost content="Generating... Check out the 'source' tab to learn more.">{d?.(p)}</TooltipHost>
+  ),
+}
+
 const overviewPivot = <PivotItem itemKey={OverviewTab.id} key={OverviewTab.id} headerText={OverviewTab.title} />
 const userFlowPivot = <PivotItem itemKey={UserFlowTab.id} key={UserFlowTab.id} headerText={UserFlowTab.title} />
 const breakdownPivot = <PivotItem itemKey={BreakdownTab.id} key={BreakdownTab.id} headerText={BreakdownTab.title} />
 const assetPivot = <PivotItem itemKey={AssetTab.id} key={AssetTab.id} headerText={AssetTab.title} />
 const analysisPivot = <PivotItem itemKey={ReportTab.id} key={ReportTab.id} headerText={ReportTab.title} />
 const flamechartPivot = <PivotItem itemKey={FlamechartTab.id} key={FlamechartTab.id} headerText={FlamechartTab.title} />
+const flamechartLoadingPivot = (
+  <PivotItem
+    itemKey={FlamechartTab.id}
+    key={FlamechartTab.id}
+    headerText={FlamechartTab.title}
+    headerButtonProps={sourceLoadingProps}
+  />
+)
 const sourceCoveragePivot = (
   <PivotItem itemKey={SourceCoverageTab.id} key={SourceCoverageTab.id} headerText={SourceCoverageTab.title} />
 )
 const reactPivot = <PivotItem itemKey={ReactTab.id} key={ReactTab.id} headerText={ReactTab.title} />
+const sourceCoverageLoadingPivot = (
+  <PivotItem
+    itemKey={SourceCoverageTab.id}
+    key={SourceCoverageTab.id}
+    headerText={SourceCoverageTab.title}
+    headerButtonProps={sourceLoadingProps}
+  />
+)
+const sourceStatisticsPivot = (
+  <PivotItem itemKey={SourceStatisticsTab.id} key={SourceStatisticsTab.id} headerText={SourceStatisticsTab.title} />
+)
 
 export const ReportContent: FC<ReportContentProps> = (props) => {
   const { tabName, snapshotReports, onLinkClick } = props
@@ -136,14 +164,17 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
 
     const page = report.page as SnapshotReportSchema['page'] | undefined
 
+    const sourceOnGoing = report.sourceStatus === SourceStatus.Running || report.sourceStatus === SourceStatus.Pending
+
     return (
       <div>
         <Pivot styles={{ root: { marginBottom: '16px' } }} selectedKey={tabName} onLinkClick={onLinkClick}>
           {overviewPivot}
           {page?.isE2e ? userFlowPivot : undefined}
           {assetPivot}
-          {report.flameChartLink ? flamechartPivot : undefined}
-          {report.sourceCoverageLink ? sourceCoveragePivot : undefined}
+          {sourceStatisticsPivot}
+          {report.flameChartLink ? flamechartPivot : sourceOnGoing ? flamechartLoadingPivot : undefined}
+          {report.sourceCoverageLink ? sourceCoveragePivot : sourceOnGoing ? sourceCoverageLoadingPivot : undefined}
           {page?.isE2e ? undefined : analysisPivot}
           {report.reactProfileLink ? reactPivot : undefined}
         </Pivot>

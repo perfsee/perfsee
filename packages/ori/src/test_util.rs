@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+use super::analyzer::Diagnostic;
 use super::profile::Frame;
-use super::rules::{Diagnostic, Rule};
+use super::rules::Rule;
 use serde::{Deserialize, Serialize};
 use serde_json::value::Value as JsonValue;
 use std::env::current_dir;
@@ -36,6 +37,7 @@ impl From<&str> for Frame {
       bundle_hash: None,
       sourced: false,
       node_module: None,
+      origin_script_file: String::from(""),
     };
 
     if s.is_empty() {
@@ -105,9 +107,12 @@ macro_rules! profile {
 macro_rules! rule_pass {
   ($rule:ty, $prof:expr) => {{
     let profile = $prof;
-    let mut analyzer =
-      $crate::rules::Analyzer::new(&profile, $crate::test_util::get_rules::<$rule>());
-    let diagnostics = analyzer.analyse();
+    let mut analyzer = $crate::analyzer::Analyzer::new(
+      &profile,
+      $crate::test_util::get_rules::<$rule>(),
+      Default::default(),
+    );
+    let (diagnostics, _) = analyzer.analyse();
     if !diagnostics.is_empty() {
       panic!("Unexpected diagnostics found:\n{:#?}", diagnostics);
     }
@@ -119,9 +124,12 @@ macro_rules! rule_invalid {
     let profile = $prof;
     let expected_diagnostics: Vec<$crate::test_util::SimpleDiagnostic> =
       serde_json::from_value($diags).unwrap();
-    let mut analyzer =
-      $crate::rules::Analyzer::new(&profile, $crate::test_util::get_rules::<$rule>());
-    let diagnostics = analyzer.analyse();
+    let mut analyzer = $crate::analyzer::Analyzer::new(
+      &profile,
+      $crate::test_util::get_rules::<$rule>(),
+      Default::default(),
+    );
+    let (diagnostics, _) = analyzer.analyse();
     let diagnostics: Vec<_> = diagnostics
       .into_iter()
       .map($crate::test_util::SimpleDiagnostic::from)

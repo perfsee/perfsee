@@ -58,19 +58,10 @@ export const ColorScore = styled.b<{ score?: number | null; size?: number }>(({ 
   }
 })
 
-export const FailedContent = styled.span(({ theme }) => ({
-  color: theme.text.colorSecondary,
-}))
-
 export const ScoreTitle = styled.b({
   display: 'inline-block',
   margin: '0 5px 0 0',
   fontSize: '32px',
-})
-
-export const ScoreDesc = styled.span({
-  textOverflow: 'clip',
-  fontWeight: 500,
 })
 
 export const OverviewZoneContent = styled.div<{ bordered: boolean; padding: boolean }>(

@@ -37,6 +37,8 @@ pub struct Frame {
   #[serde(skip)]
   pub sourced: bool,
   #[serde(skip)]
+  pub origin_script_file: String,
+  #[serde(skip)]
   pub node_module: Option<String>,
 }
 
@@ -80,6 +82,7 @@ impl<T: ToFrame> From<T> for Frame {
       file: t.file(),
       line: t.line(),
       col: t.col(),
+      origin_script_file: t.file(),
       ..Frame::default()
     }
   }

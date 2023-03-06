@@ -16,6 +16,7 @@ limitations under the License.
 
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { uniqBy } from 'lodash'
+import { In } from 'typeorm'
 
 import {
   Artifact,
@@ -32,12 +33,11 @@ import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
-import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult } from '@perfsee/server-common'
+import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult, SourceStatus } from '@perfsee/server-common'
 import { FlameChartDiagnostic, LHStoredSchema } from '@perfsee/shared'
 
 import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
-import { SettingService } from '../setting/service'
 import { SnapshotReportService } from '../snapshot/snapshot-report/service'
 
 @Injectable()
@@ -46,7 +46,6 @@ export class SourceService implements OnApplicationBootstrap {
     private readonly logger: Logger,
     private readonly internalIdService: InternalIdService,
     private readonly scriptFile: ScriptFileService,
-    private readonly settingService: SettingService,
     private readonly objectStorage: ObjectStorage,
     private readonly event: EventEmitter,
     private readonly reportService: SnapshotReportService,
@@ -64,8 +63,9 @@ export class SourceService implements OnApplicationBootstrap {
     diagnostics,
     flameChartStorageKey,
     sourceCoverageStorageKey,
-  }: SourceAnalyzeJobResult) {
-    await this.updateReport(reportId, artifactIds, flameChartStorageKey, sourceCoverageStorageKey)
+    statisticsStorageKey,
+  }: Extract<SourceAnalyzeJobResult, { status: SourceStatus.Completed }>) {
+    await this.updateReport(reportId, artifactIds, flameChartStorageKey, sourceCoverageStorageKey, statisticsStorageKey)
     await this.saveSourceIssues(projectId, reportId, diagnostics)
     const project = await Project.findOneByOrFail({ id: projectId })
     const snapshotReport = await SnapshotReport.findOneByOrFail({ id: reportId })
@@ -81,9 +81,20 @@ export class SourceService implements OnApplicationBootstrap {
     artifactIds: number[],
     flameChartStorageKey: string,
     sourceCoverageStorageKey: string | undefined,
+    statisticsStorageKey: string | undefined,
   ) {
-    await SnapshotReport.update(id, { sourceCoverageStorageKey, flameChartStorageKey })
+    await SnapshotReport.update(id, {
+      sourceCoverageStorageKey,
+      flameChartStorageKey,
+      sourceAnalyzeStatisticsStorageKey: statisticsStorageKey,
+    })
     await SnapshotReportWithArtifact.insert(artifactIds.map((artifactId) => ({ snapshotReportId: id, artifactId })))
+  }
+
+  async updateReportSourceStatus(id: number | number[], status: SourceStatus) {
+    await SnapshotReport.update(id, {
+      sourceStatus: status,
+    })
   }
 
   async saveSourceIssues(projectId: number, reportId: number, issues: FlameChartDiagnostic[]) {
@@ -119,6 +130,11 @@ export class SourceService implements OnApplicationBootstrap {
     // so it's safe
     await this.projectUsage.recordJobCountUsage(snapshotReports[0].projectId, snapshotReports.length)
 
+    await this.updateReportSourceStatus(
+      snapshotReports.map((s) => s.id),
+      SourceStatus.Pending,
+    )
+
     await this.event.emitAsync(
       'job.create',
       snapshotReports.map((snapshotReport) => ({
@@ -148,43 +164,6 @@ export class SourceService implements OnApplicationBootstrap {
     }
 
     const artifacts = []
-    const snapshotArtifactIds = []
-
-    const settings = await this.settingService.byProjectLoader.load(snapshotReport.projectId)
-
-    if (settings?.autoDetectVersion) {
-      const lighthouseResult = JSON.parse(
-        (await this.objectStorage.get(snapshotReport.lighthouseStorageKey)).toString('utf-8'),
-      ) as LHStoredSchema
-
-      if (lighthouseResult.scripts && lighthouseResult.scripts.length > 0) {
-        const searchedArtifacts = await this.scriptFile.findArtifactsByScript(
-          snapshotReport.projectId,
-          lighthouseResult.scripts,
-        )
-
-        const artifactIds = searchedArtifacts.map((a) => a.id)
-
-        artifacts.push(
-          ...(artifactIds.length > 0
-            ? await Artifact.createQueryBuilder()
-                .where('id in (:...artifactIds)', {
-                  artifactIds,
-                })
-                .select([
-                  'build_key as buildKey',
-                  'report_key as reportKey',
-                  'module_map_key as moduleMapKey',
-                  'id',
-                  'hash',
-                ])
-                .getRawMany<{ id: number; buildKey: string; reportKey: string; moduleMapKey: string; hash: string }>()
-            : []),
-        )
-
-        snapshotArtifactIds.push(...artifactIds)
-      }
-    }
 
     if (snapshot.hash) {
       artifacts.push(
@@ -200,23 +179,40 @@ export class SourceService implements OnApplicationBootstrap {
       )
     }
 
+    const lighthouseResult = JSON.parse(
+      (await this.objectStorage.get(snapshotReport.lighthouseStorageKey)).toString('utf-8'),
+    ) as LHStoredSchema
+
+    if (lighthouseResult.scripts && lighthouseResult.scripts.length > 0) {
+      const searchedArtifacts = await this.scriptFile.findArtifactsByScript(
+        snapshotReport.projectId,
+        lighthouseResult.scripts,
+      )
+
+      const artifactIds = searchedArtifacts.map((a) => a.id)
+
+      artifacts.push(
+        ...(artifactIds.length > 0
+          ? await Artifact.find({
+              where: {
+                id: In(artifactIds),
+              },
+            })
+          : []),
+      )
+    }
+
     const page = await Page.findOneByOrFail({ id: snapshotReport.pageId })
 
     return {
       projectId: snapshotReport.projectId,
       reportId: snapshotReport.id,
-      artifacts: uniqBy(artifacts, (a) => a.id).map((a) => ({
-        id: a.id,
-        buildKey: a.buildKey,
-        reportKey: a.reportKey,
-        moduleMapKey: a.moduleMapKey,
-        hash: a.hash,
-      })),
+      artifacts: uniqBy(artifacts, (a) => a.id).map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })),
       snapshotReport: {
         jsCoverageStorageKey: snapshotReport.jsCoverageStorageKey,
         traceEventsStorageKey: snapshotReport.traceEventsStorageKey,
         pageUrl: page.url,
-        artifactIds: snapshotArtifactIds,
+        scripts: lighthouseResult.scripts,
       },
     }
   }

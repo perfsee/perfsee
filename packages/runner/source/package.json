@@ -11,6 +11,7 @@
     "@perfsee/server-common": "workspace:*",
     "@perfsee/shared": "workspace:*",
     "@perfsee/source-coverage": "workspace:*",
+    "lodash": "^4.17.21",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

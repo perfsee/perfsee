@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing'
 
 import test, { createMock } from '@perfsee/platform-server/test'
+import { SourceStatus } from '@perfsee/server-common'
 
 import { SourceController } from '../controller'
 import { SourceService } from '../service'
@@ -23,6 +24,7 @@ test('items have coverage report', async (t) => {
     projectId: 1,
     reportId: 1,
     sourceCoverageStorageKey: 'StorageKey',
+    status: SourceStatus.Completed,
   })
   await controller.onReceiveAnalyzeResult(analyzeResult)
 
