@@ -48,6 +48,13 @@ There are requirements that only some branches need to be monitored, or you don'
 - All: Monitor all branches and send notification
 - Specific Branched: Only monitor specific branches and notifications from such branches will be sent, if checked, new input for branches will be shown.
 
+We support the following glob syntax:
+
+- `?` matches exactly one arbitrary character.
+- `*` matches zero or more arbitrary characters.
+
+For example: `fix/*` would match `fix/foo`, `version-?` would match `version-x`.
+
 ![specific branch notification](/settings/specific-branch-notification.png)
 
 ### Lab Notification Filter

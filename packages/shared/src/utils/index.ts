@@ -17,5 +17,6 @@ limitations under the License.
 export * from './codebase'
 export * from './is-baseline'
 export * from './permission'
+export * from './is-wildcard-match'
 
 export * from '@perfsee/utils'
