@@ -20,15 +20,24 @@ import { Observable } from 'rxjs'
 import { map, switchMap, startWith, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { groupUsageQuery, GroupUsageQuery, GroupUsageQueryVariables } from '@perfsee/schema'
+import {
+  groupUsageQuery,
+  GroupUsageQuery,
+  GroupUsageQueryVariables,
+  latestSnapshotReportsQuery,
+  LatestSnapshotReportsQuery,
+  LatestSnapshotReportsQueryVariables,
+} from '@perfsee/schema'
 
 export type ProjectUsageInfo = GroupUsageQuery['group']['projects'][0]
 export type ArtifactEntrypoints = NonNullable<ProjectUsageInfo['artifactRecords']>[0]['entrypoints']
 export type SnapshotReports = NonNullable<ProjectUsageInfo['snapshotRecords']>[0]['snapshotReports']
+export type LatestReport = NonNullable<LatestSnapshotReportsQuery['project']['latestSnapshot']>['snapshotReports'][0]
 
 interface State {
   groupUsage: ProjectUsageInfo[]
   usageLoading: boolean
+  reportsInProject: Record<string /**project id */, LatestReport[]>
 }
 
 @Module('GroupUsageModule')
@@ -36,6 +45,7 @@ export class GroupUsageModule extends EffectModule<State> {
   defaultState = {
     usageLoading: true,
     groupUsage: [],
+    reportsInProject: {},
   }
 
   constructor(private readonly client: GraphQLClient) {
@@ -61,6 +71,23 @@ export class GroupUsageModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  getLatestSnapshotReports(payload$: Observable<LatestSnapshotReportsQueryVariables>) {
+    return payload$.pipe(
+      switchMap((payload) =>
+        this.client
+          .query({
+            query: latestSnapshotReportsQuery,
+            variables: payload,
+          })
+          .pipe(
+            createErrorCatcher('Failed to get latest snapshot reports.'),
+            map((data) => this.getActions().setReportsInProject(data.project)),
+          ),
+      ),
+    )
+  }
+
   @ImmerReducer()
   setGroupUsage(state: Draft<State>, payload: GroupUsageQuery['group']['projects']) {
     state.groupUsage = payload
@@ -69,5 +96,10 @@ export class GroupUsageModule extends EffectModule<State> {
   @ImmerReducer()
   setUsageLoading(state: Draft<State>, loading: boolean) {
     state.usageLoading = loading
+  }
+
+  @ImmerReducer()
+  setReportsInProject(state: Draft<State>, payload: LatestSnapshotReportsQuery['project']) {
+    state.reportsInProject = { ...state.reportsInProject, [payload.id]: payload.latestSnapshot?.snapshotReports ?? [] }
   }
 }

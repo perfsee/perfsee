@@ -14,7 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Resolver, Args, Int, Mutation, ResolveField, Parent, ObjectType, ID } from '@nestjs/graphql'
+import {
+  Resolver,
+  Args,
+  Int,
+  Mutation,
+  ResolveField,
+  Parent,
+  ObjectType,
+  ID,
+  GraphQLISODateTime,
+} from '@nestjs/graphql'
 
 import { Snapshot, Project, User, SnapshotTrigger } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
@@ -76,6 +86,15 @@ export class ProjectSnapshotResolver {
   @ResolveField(() => Int, { name: 'snapshotCount' })
   snapshotCount(@Parent() project: Project) {
     return this.service.getSnapshotCount(project.id)
+  }
+
+  @ResolveField(() => Snapshot, { nullable: true, description: 'latest snapshot detail' })
+  latestSnapshot(
+    @Parent() project: Project,
+    @Args({ name: 'from', type: () => GraphQLISODateTime, nullable: true }) from: Date | undefined,
+    @Args({ name: 'to', type: () => GraphQLISODateTime, nullable: true }) to: Date | undefined,
+  ) {
+    return this.service.getLatestSnapshot(project.id, from, to)
   }
 }
 

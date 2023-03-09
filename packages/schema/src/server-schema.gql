@@ -268,6 +268,9 @@ type Project {
   ): PaginatedSnapshots!
   snapshotCount: Int!
 
+  """latest snapshot detail"""
+  latestSnapshot(from: DateTime, to: DateTime): Snapshot
+
   """All pages created in project"""
   pages: [Page!]!
 
