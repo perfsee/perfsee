@@ -49,16 +49,23 @@ export class ArtifactSelectModule extends EffectModule<State> {
 
   @Effect()
   fetchArtifacts(
-    payload$: Observable<{ projectId: string; pageNumber: number; pageSize: number; artifactName?: string }>,
+    payload$: Observable<{
+      projectId: string
+      pageNumber: number
+      pageSize: number
+      artifactName?: string
+      branch?: string
+    }>,
   ) {
     return payload$.pipe(
-      switchMap(({ projectId, pageNumber, pageSize, artifactName }) =>
+      switchMap(({ branch, projectId, pageNumber, pageSize, artifactName }) =>
         this.client
           .query({
             query: artifactsQuery,
             variables: {
               projectId,
               name: artifactName,
+              branch,
               pagination: {
                 first: pageSize,
                 skip: pageNumber * pageSize,
