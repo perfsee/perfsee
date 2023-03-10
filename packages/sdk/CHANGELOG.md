@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/perfsee/perfsee/compare/v1.3.0...v1.4.0) (2023-03-10)
+
+### Features
+
+- **sdk:** webhook type ([bb721b3](https://github.com/perfsee/perfsee/commit/bb721b30821326923189162bcc5b3bd49ce39de2))
+
 # [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
 
 **Note:** Version bump only for package @perfsee/sdk

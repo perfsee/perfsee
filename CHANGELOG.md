@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/perfsee/perfsee/compare/v1.3.0...v1.4.0) (2023-03-10)
+
+### Bug Fixes
+
+- assets with vite ([bcb4253](https://github.com/perfsee/perfsee/commit/bcb4253ea066be57446d86874e0bae89fca5b32d))
+- docker compose ([9e3104d](https://github.com/perfsee/perfsee/commit/9e3104d66d41b1e88b0524cc2bfb153e112db085))
+- **platform-server:** complete the snapshot when reports are all completed ([e9c360e](https://github.com/perfsee/perfsee/commit/e9c360e3eb484e7d7307cd639a78fee3c587115f))
+- **platform-server:** wrong way to fetch project ([f53e272](https://github.com/perfsee/perfsee/commit/f53e27236b3c7eba31f55039f6dfdc52db92d598))
+- **platform:** the interaction of bundle report ([a76ee6e](https://github.com/perfsee/perfsee/commit/a76ee6e346f7e8abeda8a45070aaaae50e745a79))
+
+### Features
+
+- **platform-server:** allow artifact upload with author ([be267c7](https://github.com/perfsee/perfsee/commit/be267c756bdda9d9407ef3a7f2762337acf049b2))
+- **sdk:** webhook type ([bb721b3](https://github.com/perfsee/perfsee/commit/bb721b30821326923189162bcc5b3bd49ce39de2))
+
 # [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
 
 ### Bug Fixes

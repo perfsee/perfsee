@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/perfsee/perfsee/compare/v1.3.0...v1.4.0) (2023-03-10)
+
+### Bug Fixes
+
+- assets with vite ([bcb4253](https://github.com/perfsee/perfsee/commit/bcb4253ea066be57446d86874e0bae89fca5b32d))
+
 # [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
 
 **Note:** Version bump only for package @perfsee/rollup

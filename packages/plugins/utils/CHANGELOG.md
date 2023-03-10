@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/perfsee/perfsee/compare/v1.3.0...v1.4.0) (2023-03-10)
+
+### Features
+
+- **platform-server:** allow artifact upload with author ([be267c7](https://github.com/perfsee/perfsee/commit/be267c756bdda9d9407ef3a7f2762337acf049b2))
+
 # [1.3.0](https://github.com/perfsee/perfsee/compare/v1.2.0...v1.3.0) (2023-02-27)
 
 ### Bug Fixes
