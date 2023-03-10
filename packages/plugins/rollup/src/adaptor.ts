@@ -22,6 +22,17 @@ import { getBuildEnv } from '@perfsee/plugin-utils'
 
 import { recursivelyFindEntryChunks } from './util'
 
+interface ChunkMetadata {
+  importedAssets: Set<string>
+  importedCss: Set<string>
+}
+
+declare module 'rollup' {
+  interface OutputChunk {
+    viteMetadata?: ChunkMetadata
+  }
+}
+
 const isChunk = (output: OutputAsset | OutputChunk): output is OutputChunk => output.type === 'chunk'
 
 let id = 0
@@ -136,11 +147,10 @@ export function rollupOutput2WebpackStats(this: PluginContext, outputBundle: Out
       importChunk.parents.includes(currentChunk.id) || importChunk.parents.push(currentChunk.id)
     })
 
-    currentChunk.files = union(
-      currentChunk.files,
-      allImports,
-      assetsEntries.map(([path]) => path),
-    )
+    const assetFiles = chunk.viteMetadata
+      ? Array.from(chunk.viteMetadata.importedAssets.values())
+      : assetsEntries.map(([path]) => path)
+    currentChunk.files = union(currentChunk.files, allImports, assetFiles)
   })
 
   const assetsByChunkName = Object.fromEntries([...chunksMap.entries()].map(([name, { files }]) => [name, files]))
