@@ -5919,6 +5919,7 @@ __metadata:
   dependencies:
     "@types/d3-hierarchy": ^3.1.0
     d3-hierarchy: ^3.1.2
+    tslib: ^2.4.0
     twgl.js: ^5.0.0
   languageName: unknown
   linkType: soft
