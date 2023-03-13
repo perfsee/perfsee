@@ -2,6 +2,10 @@
 
 Web tree map chart, based on webgl.
 
+[![](https://user-images.githubusercontent.com/13579374/224657148-9125c3ba-6716-492e-afc9-72a102f4f2f7.png)](https://codesandbox.io/s/treemap-demo-4dehlh?file=/src/index.js)
+
+[CodeSandbox Demo](https://codesandbox.io/s/treemap-demo-4dehlh?file=/src/index.js)
+
 ## Usage
 
 ```ts
