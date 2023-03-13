@@ -57,7 +57,8 @@ const webpackConfigs: { [index: string]: webpack.Configuration } = {
     devtool: 'inline-cheap-module-source-map',
     output: {
       path: packagePath('@perfsee/plugin-utils', 'public'),
-      filename: '[name].js',
+      filename: 'report.js',
+      asyncChunks: false,
     },
     optimization: {
       splitChunks: false,

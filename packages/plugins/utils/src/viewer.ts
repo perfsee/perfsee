@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { createReadStream, existsSync, statSync } from 'fs'
-import { createServer } from 'http'
-import { join } from 'path'
+import { mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { join, resolve } from 'path'
 
-import { bold } from 'chalk'
-import FileType from 'file-type'
+import findCacheDir from 'find-cache-dir'
+import open from 'open'
 
 import { BundleResult, calcBundleScore, ModuleTreeNode } from '@perfsee/bundle-analyzer'
+
+const PACKAGE_NAME = '@perfsee/plugin-utils'
 
 interface Data {
   branch: string
@@ -30,30 +31,24 @@ interface Data {
   content: ModuleTreeNode[]
 }
 
-export interface ServerOptions {
+export interface ReportOptions {
   /**
-   * Port the local report server will listen on
+   * Automatically open report in default browser.
    *
-   * @default 8080
+   * @default true
    */
-  port?: number
+  openBrowser?: boolean
 
   /**
-   * Host of the local report server
+   * Path to bundle report file that will be generated.
+   * It can be either an absolute path or a path relative to a bundle output directory.
    *
-   * @default '127.0.0.1'
+   * By default the report will be output in the cache directory.
    */
-  host?: string
-
-  /**
-   * Path of the static files used to render report.
-   *
-   * Unless you want to change the default report viewer, otherwise leave it undefined.
-   */
-  publicPath?: string
+  fileName?: string
 }
 
-export function renderReportViewer(entry: string, data: Data) {
+export function renderReportViewer(data: Data) {
   return `<!DOCTYPE html>
 		<html lang="en" translate="no">
 		<head>
@@ -69,66 +64,47 @@ export function renderReportViewer(entry: string, data: Data) {
 				createdAt: new Date().toISOString(),
 				score: ${calcBundleScore(data.report.entryPoints)}
 			};
-			window.bundleReport = ${JSON.stringify(data.report)};
-			window.bundleContent = ${JSON.stringify(data.content)};
+			window.bundleReport = ${JSON.stringify(data.report).replace(/</gu, '\\u003c')};
+			window.bundleContent = ${JSON.stringify(data.content).replace(/</gu, '\\u003c')};
 		</script>
 	</head>
 
 	<body>
 		<div id="app" style="min-height: 100vh;display: flex;flex-direction: column;"></div>
-		<script type="text/javascript" src="${entry}"></script>
+		<script>
+      ${readFileSync(require.resolve(`${PACKAGE_NAME}/public/report.js`), 'utf-8')}
+    </script>
 	</body>
 	</html>`
 }
 
-export async function startServer(data: Data, options: ServerOptions = {}) {
-  const { port = 8080, host = '127.0.0.1', publicPath = join(__dirname, '../public') } = options
+function getDefaultReportFileName() {
+  const cacheDir = findCacheDir({ name: PACKAGE_NAME })
+  if (cacheDir) {
+    mkdirSync(cacheDir, { recursive: true })
+    return join(cacheDir, `report-${Date.now()}.html`)
+  }
+  return undefined
+}
 
-  const server = createServer((req, res) => {
-    if (!req.url) {
-      res.writeHead(400)
-      res.end()
-      return
+export async function saveReport(
+  data: Data,
+  outputPath: string,
+  { fileName = getDefaultReportFileName(), openBrowser = true }: ReportOptions = {},
+) {
+  if (!fileName) {
+    return
+  }
+  const html = renderReportViewer(data)
+  const htmlPath = resolve(outputPath, fileName)
+  writeFileSync(htmlPath, html, 'utf-8')
+  console.info(`[perfsee] bundle report is written to ${htmlPath}`)
+  if (openBrowser) {
+    try {
+      await open(htmlPath)
+    } catch (err) {
+      console.error(`[perfsee] failed to open default browser`, err)
     }
-
-    if (req.method === 'GET') {
-      const url = new URL(req.url, `http://${req.headers.host}`)
-      const filepath = join(publicPath, url.pathname)
-
-      if (existsSync(filepath) && statSync(filepath).isFile()) {
-        const fileStream = createReadStream(filepath)
-        void FileType.stream(fileStream).then((file) => {
-          res.writeHead(200, { 'Content-Type': file.fileType?.mime ?? 'text/html' })
-          file.pipe(res)
-        })
-      } else {
-        const html = renderReportViewer('/main.js', data)
-        res.writeHead(200, { 'Content-Type': 'text/html' })
-        res.end(html)
-      }
-    } else {
-      res.writeHead(404)
-      res.end()
-    }
-  })
-
-  await new Promise<void>((resolve, reject) => {
-    server.listen(port, host, () => {
-      const url = `http://${host}:${port}`
-
-      console.info(
-        `${bold('Perfsee Bundle Analyzer')} is started at ${bold(url)}\n` + `Use ${bold('Ctrl+C')} to close it`,
-      )
-    })
-
-    server
-      .on('close', () => {
-        resolve()
-      })
-      .on('error', (e) => {
-        reject(e)
-      })
-  })
-
-  return server
+  }
+  return htmlPath
 }

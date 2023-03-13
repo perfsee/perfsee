@@ -26,9 +26,10 @@
     "chalk": "^4.1.2",
     "debug": "4.3.4",
     "env-ci": "^7.2.1",
-    "file-type": "^16.5.4",
+    "find-cache-dir": "^3.3.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.2",
+    "open": "^8.4.2",
     "query-string": "^7.1.1",
     "simple-git": "^3.15.0",
     "table": "^6.8.0",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@types/env-ci": "^3.1.1",
+    "@types/find-cache-dir": "^3.2.1",
     "@types/node-fetch": "^2.5.12",
     "@types/table": "^6.3.2",
     "@types/uuid": "^9.0.0"
