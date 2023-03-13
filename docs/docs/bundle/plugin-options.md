@@ -80,29 +80,24 @@ interface Options {
   failIfNotPass?: boolean
 
   /**
-   * Server options used to start local report viewer
+   * Options for output bundle report static html file.
+   * Only used when `enableAudit` is true.
    */
-  serverOptions?: {
+  reportOptions?: {
     /**
-     * Port the local report server will listen on
+     * Automatically open report in default browser.
      *
-     * @default 8080
+     * @default true
      */
-    port?: number
+    openBrowser?: boolean
 
     /**
-     * Host of the local report server
+     * Path to bundle report file that will be generated.
+     * It can be either an absolute path or a path relative to a bundle output directory.
      *
-     * @default '127.0.0.1'
+     * By default the report will be output in the cache directory.
      */
-    host?: string
-
-    /**
-     * Path of the static files used to render report.
-     *
-     * Unless you want to change the default report viewer, otherwise leave it undefined.
-     */
-    publicPath?: string
+    fileName?: string
   }
 }
 ```

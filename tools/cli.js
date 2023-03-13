@@ -27,6 +27,7 @@ const cliDeps = [
   path.resolve(__dirname, './codegen'),
   path.resolve(__dirname, './utils'),
   path.resolve(__dirname, '../node_modules/@perfsee/webpack/src'),
+  path.resolve(__dirname, '../node_modules/@perfsee/plugin-utils/src'),
 ]
 const cliSrc = path.resolve(__dirname, './cli/index.ts')
 const cliDist = `./cli.generated.${cliHash()}.js`

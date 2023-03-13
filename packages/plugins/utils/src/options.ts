@@ -19,7 +19,7 @@ import { merge } from 'lodash'
 import { BundleResult, PerfseeReportStats } from '@perfsee/bundle-analyzer'
 
 import { getBuildEnv } from './build-env'
-import { ServerOptions } from './viewer'
+import { ReportOptions } from './viewer'
 
 export interface CommonPluginOptions {
   /**
@@ -91,9 +91,10 @@ export interface CommonPluginOptions {
   failIfNotPass?: boolean
 
   /**
-   * Server options used to start local report viewer
+   * Options for output bundle report static html file.
+   * Only used when `enableAudit` is true.
    */
-  serverOptions?: ServerOptions
+  reportOptions?: ReportOptions
 
   /**
    * Authentication token used for uploading build to remote server.

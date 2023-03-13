@@ -34,8 +34,7 @@ import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Switch, Route } from 'react-router'
-import { BrowserRouter } from 'react-router-dom'
+import { Switch, Route, MemoryRouter } from 'react-router'
 
 import { MDXComponents } from '@perfsee/components'
 import { ThemeProvider } from '@perfsee/dls'
@@ -99,12 +98,12 @@ function App() {
 
   return (
     <MDXProvider components={MDXComponents}>
-      <BrowserRouter>
+      <MemoryRouter>
         <Switch>
           <Route path="/" exact={true} component={BundleReportContainer} />
           <Route path="/content" exact={true} component={BundleContentContainer} />
         </Switch>
-      </BrowserRouter>
+      </MemoryRouter>
     </MDXProvider>
   )
 }

@@ -7,7 +7,7 @@ sidebar_position: 4
 ### 打包工具插件通用参数描述
 
 ```typescript
-type Options = {
+interface Options {
   /**
    * Perfsee 平台对应的项目 ID。
    *
@@ -81,29 +81,24 @@ type Options = {
   failIfNotPass?: boolean
 
   /**
-   * 用于本地分析结果展示的服务配置。
+   * 输出 Bundle 报告静态 html 文件的选项。
+   * 只有当 `enableAudit` 为 `true` 时才会使用这个参数。
    */
-  serverOptions?: {
+  reportOptions?: {
     /**
-     * 本地报告服务监听的端口
+     * 自动在浏览器中打开报告。
      *
-     * @default 8080
+     * @default true
      */
-    port?: number
+    openBrowser?: boolean
 
     /**
-     * 本地报告服务监听的地址
+     * 生成的 Bundle 报告文件的路径
+     * 它可以是绝对路径，也可以是相对于 Bundle 输出目录的路径。
      *
-     * @default '127.0.0.1'
+     * 默认报告会生成到 node_modules 中的 .cache 目录。
      */
-    host?: string
-
-    /**
-     * 用于渲染本地报告的静态文件路径。
-     *
-     * 除非你想更改默认的渲染视图，否则不要设置这个参数。
-     */
-    publicPath?: string
+    fileName?: string
   }
 }
 ```

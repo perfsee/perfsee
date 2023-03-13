@@ -21,7 +21,7 @@ import { calcBundleScore, StatsParser, PerfseeReportStats } from '@perfsee/bundl
 import { getBuildEnv } from './build-env'
 import { formatAuditResult } from './formater'
 import { CommonPluginOptions } from './options'
-import { startServer } from './viewer'
+import { saveReport } from './viewer'
 
 export async function generateReports(stats: PerfseeReportStats, outputPath: string, options: CommonPluginOptions) {
   const { enableAudit, shouldPassAudit = (score) => score >= 80, failIfNotPass = false } = options
@@ -58,14 +58,15 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
       console.info('Finish bundle audit')
     } else {
       // start local server with report UI served
-      await startServer(
+      await saveReport(
         {
           branch: '',
           hash: '',
           report: report,
           content: moduleTree,
         },
-        options.serverOptions,
+        outputPath,
+        options.reportOptions,
       )
     }
   } catch (e) {
