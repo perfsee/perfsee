@@ -238,20 +238,15 @@ pub enum Phase {
   AsyncStop,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub enum InstantScope {
   #[serde(rename = "g")]
   Global,
   #[serde(rename = "p")]
   Process,
   #[serde(rename = "t")]
+  #[default]
   Thread,
-}
-
-impl Default for InstantScope {
-  fn default() -> Self {
-    InstantScope::Thread
-  }
 }
 
 impl PartialEq for CpuProfileNode {
