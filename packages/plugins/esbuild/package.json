@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/esbuild",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "perfsee esbuild plugin",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
