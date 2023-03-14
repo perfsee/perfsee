@@ -23,7 +23,7 @@ import { FC, useState, useEffect, useMemo, useCallback } from 'react'
 import { Pagination, Table, TableColumnProps } from '@perfsee/components'
 
 import { useProject } from '../../shared'
-import { ArtifactNameSelector } from '../bundle-property'
+import { ArtifactNameSelector, BranchSelector } from '../bundle-property'
 import { Commit } from '../commit'
 
 import { ArtifactSelectModule, Artifact } from './module'
@@ -59,6 +59,7 @@ export const ArtifactSelect: FC<Props> = (props) => {
   const project = useProject()
   const [page, setPage] = useState(1)
   const [artifactName, setArtifactName] = useState(defaultArtifactName)
+  const [branch, setBranch] = useState<string>()
 
   const handleSelect = useCallback(
     (artifact: Artifact) => () => {
@@ -134,9 +135,15 @@ export const ArtifactSelect: FC<Props> = (props) => {
 
   useEffect(() => {
     if (project) {
-      dispatcher.fetchArtifacts({ projectId: project.id, pageNumber: page - 1, pageSize: PAGE_SIZE, artifactName })
+      dispatcher.fetchArtifacts({
+        projectId: project.id,
+        pageNumber: page - 1,
+        pageSize: PAGE_SIZE,
+        artifactName,
+        branch,
+      })
     }
-  }, [artifactName, dispatcher, page, project])
+  }, [artifactName, dispatcher, page, project, branch])
 
   useEffect(() => dispatcher.reset(), [dispatcher])
 
@@ -145,6 +152,7 @@ export const ArtifactSelect: FC<Props> = (props) => {
       <Header>
         <span>Select baseline</span>
 
+        <BranchSelector defaultBranch={branch} onChange={setBranch} />
         <ArtifactNameSelector defaultArtifactName={defaultArtifactName} onChange={setArtifactName} />
         <IconWrapper onClick={onDismiss}>
           <CloseOutlined />
