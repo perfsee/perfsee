@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { CloseOutlined } from '@ant-design/icons'
-import { useTheme } from '@emotion/react'
+import { useTheme, css } from '@emotion/react'
 import {
   Callout,
   Label,
@@ -202,7 +202,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
       <TargetWrapper error={!!errorMessage} ref={wrapperRef}>
         <Stack horizontal tokens={{ childrenGap: 4 }} styles={{ root: { flexWrap: 'wrap' } }}>
           {_values?.map((v) => (
-            <Tag key={v}>
+            <Tag css={css({ margin: '2px 0' })} key={v}>
               {v}
               <CloseOutlined onClick={removeItem(v)} />
             </Tag>

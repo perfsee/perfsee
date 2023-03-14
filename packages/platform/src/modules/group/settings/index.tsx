@@ -50,7 +50,7 @@ export function Settings() {
   )
 
   const onDeleteUser = useCallback(
-    (user: User) => () => {
+    (user: User) => {
       dispatcher.saveGroupOwners({ email: user.email, permission: user.permission, isAdd: false })
     },
     [dispatcher],
