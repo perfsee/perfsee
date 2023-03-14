@@ -30,7 +30,7 @@ interface State {
   groups: OrgNode[]
   loading: boolean
   totalCount: number
-  orgTotalCount: number
+  groupTotalCount: number
   page: number
   pageSize: number
   query: string
@@ -43,7 +43,7 @@ export class ProjectsModule extends EffectModule<State> {
     projects: [],
     groups: [],
     totalCount: 0,
-    orgTotalCount: 0,
+    groupTotalCount: 0,
     page: 1,
     pageSize: 10,
     query: '',
@@ -111,7 +111,7 @@ export class ProjectsModule extends EffectModule<State> {
 
   @ImmerReducer()
   setGroups(state: Draft<State>, { pageInfo, edges }: GroupsQuery['groups']) {
-    state.orgTotalCount = pageInfo.totalCount
+    state.groupTotalCount = pageInfo.totalCount
     state.groups = edges.map((edge) => edge.node)
   }
 

@@ -1,0 +1,21 @@
+query latestSnapshotReports($projectId: ID!, $from: DateTime!, $to: DateTime!) {
+    project(id: $projectId) {
+      id
+      latestSnapshot(from: $from, to: $to) {
+        snapshotReports {
+          status
+          metrics
+          page {
+            name
+          }
+          profile {
+            name
+          }
+          environment {
+            name
+          }
+        }
+      }
+    }
+
+}

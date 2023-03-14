@@ -134,6 +134,19 @@ export class SnapshotService implements OnApplicationBootstrap {
     return Snapshot.findOneBy({ projectId, iid })
   }
 
+  async getLatestSnapshot(projectId: number, from?: Date, to?: Date) {
+    const qb = Snapshot.createQueryBuilder()
+      .where('project_id = :projectId', { projectId })
+      .andWhere('status = :status', { status: SnapshotStatus.Completed })
+      .orderBy('created_at', 'DESC')
+
+    if (from && to) {
+      qb.andWhere('created_at between :from and :to', { from, to })
+    }
+
+    return qb.getOne()
+  }
+
   async getSnapshotByCommit(projectId: number, hash: string) {
     return Snapshot.createQueryBuilder()
       .where('project_id = :projectId', { projectId })

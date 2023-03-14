@@ -26,7 +26,7 @@ type Props = {
   type: string
 }
 
-const formatMetric = (key: string, v?: number) => {
+export const formatMetric = (key: string, v?: number) => {
   if (v && key !== 'CLS') {
     const { value, unit } = formatTime(v)
     return `${value}${unit}`
@@ -48,7 +48,7 @@ export const MetricDiff = ({ type, current, baseline }: Props) => {
       <p>{formatMetric(type, current)}</p>
       <ColorSpan good={diff < 0}>
         {diff > 0 ? '+' : '-'}
-        {formatMetric(type, Math.abs(diff))} {(diff / current).toFixed(2) + '%'}
+        {formatMetric(type, Math.abs(diff))} {((diff / current) * 100).toFixed(2) + '%'}
       </ColorSpan>
     </div>
   )

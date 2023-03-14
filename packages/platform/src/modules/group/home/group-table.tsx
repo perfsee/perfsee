@@ -28,6 +28,7 @@ import { pathFactory } from '@perfsee/shared/routes'
 
 import { UnderlineText } from '../styled'
 
+import { onGroupTableRenderRow } from './group-table-row'
 import { MetricDiff } from './metric-diff'
 import { GroupUsageModule, ProjectUsageInfo } from './module'
 import { getAverageBundleSize, getAverageInitialSize, getLabAverageMetricValue } from './utils'
@@ -259,6 +260,8 @@ export const GroupTable = memo(({ startTime, endTime, groupId }: Props) => {
         to: dayjs.unix(endTime).toISOString(),
       })
     }
+
+    return dispatcher.reset
   }, [dispatcher, endTime, groupId, startTime])
 
   return (
@@ -267,6 +270,7 @@ export const GroupTable = memo(({ startTime, endTime, groupId }: Props) => {
       selectionMode={SelectionMode.none}
       columns={columns}
       disableVirtualization={groupUsage.length < 100}
+      onRenderRow={onGroupTableRenderRow({ startTime, endTime })}
     />
   )
 })

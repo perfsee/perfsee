@@ -122,7 +122,7 @@ const GroupItem = ({ org }: { org: OrgNode }) => {
 enum ProjectsEnum {
   All = 'all',
   Starred = 'starred',
-  Org = 'org',
+  Group = 'group',
 }
 
 const PROJECTS_LOCAL_STORAGE_KEY = 'perfsee_home_page'
@@ -171,7 +171,7 @@ const GithubButtonStyles = {
 }
 
 export const ProjectList = () => {
-  const [{ projects, loading, totalCount, orgTotalCount, groups }, dispatcher] = useModule(ProjectsModule)
+  const [{ projects, loading, totalCount, groupTotalCount, groups }, dispatcher] = useModule(ProjectsModule)
   const [pivotKey, setPivotKey] = useState<ProjectsEnum>(
     () => localStorage[PROJECTS_LOCAL_STORAGE_KEY] ?? ProjectsEnum.All,
   )
@@ -185,7 +185,7 @@ export const ProjectList = () => {
   }>()
 
   useEffect(() => {
-    if (pivotKey === ProjectsEnum.Org) {
+    if (pivotKey === ProjectsEnum.Group) {
       dispatcher.getGroups({
         page: Number(page),
         pageSize: Number(pageSize),
@@ -244,8 +244,11 @@ export const ProjectList = () => {
   )
 
   const content = loading ? (
-    <Spinner label="Loading Projects" styles={{ root: { maxWidth: 300, margin: 10 } }} />
-  ) : pivotKey === ProjectsEnum.Org ? (
+    <Spinner
+      label={`Loading ${pivotKey === ProjectsEnum.Group ? 'Group' : 'Projects'}`}
+      styles={{ root: { maxWidth: 300, margin: 10 } }}
+    />
+  ) : pivotKey === ProjectsEnum.Group ? (
     groups.length ? (
       <List items={groups} onRenderCell={renderOrgItem} css={css({ minHeight: 700 })} />
     ) : (
@@ -280,12 +283,12 @@ export const ProjectList = () => {
       <Pivot styles={{ root: { marginTop: 4 } }} defaultSelectedKey={pivotKey} onLinkClick={onPivotChange}>
         <PivotItem headerText="All Projects" itemKey={ProjectsEnum.All} />
         <PivotItem headerText="Starred Projects" itemKey={ProjectsEnum.Starred} />
-        <PivotItem headerText="Groups" itemKey={ProjectsEnum.Org} />
+        <PivotItem headerText="Groups" itemKey={ProjectsEnum.Group} />
       </Pivot>
       {content}
       <Pagination
         key={pivotKey}
-        total={pivotKey === ProjectsEnum.Org ? orgTotalCount : totalCount}
+        total={pivotKey === ProjectsEnum.Group ? groupTotalCount : totalCount}
         onChange={onPageChange}
         page={page}
         pageSize={pageSize}
