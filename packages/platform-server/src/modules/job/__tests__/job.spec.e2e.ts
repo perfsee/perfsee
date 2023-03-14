@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common'
 import request from 'supertest'
 
-import { Artifact, Job, JobStatus, Runner } from '@perfsee/platform-server/db'
+import { Artifact, Job, JobStatus, PendingJob, Runner } from '@perfsee/platform-server/db'
 import test, { create, initTestDB } from '@perfsee/platform-server/test'
 import { JobRequestResponse, JobType, UpdateJobTraceParams } from '@perfsee/server-common'
 
@@ -16,6 +16,7 @@ test('should return pending job when job requested', async (t) => {
     buildKey: 'test-build-key.tar',
   })
   const job = await create(Job, { jobType: JobType.BundleAnalyze, entityId: artifact.id })
+  await create(PendingJob, { jobId: job.id, jobType: job.jobType, zone: job.zone })
 
   const res = await request(perfsee.baseUrl).post('/api/jobs/request').set('x-runner-token', runner.token).send({})
 

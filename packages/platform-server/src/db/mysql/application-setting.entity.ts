@@ -71,6 +71,10 @@ export class ApplicationSetting extends BaseEntity {
   @Column({ type: 'varchar', length: 50 })
   defaultJobZone!: string
 
+  @Column({ default: false })
+  @Field()
+  usePendingJobTable!: boolean
+
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date
 

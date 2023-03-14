@@ -538,6 +538,7 @@ type ApplicationSettings {
   enableProjectCreate: Boolean!
   enableProjectDelete: Boolean!
   enableProjectImport: Boolean!
+  usePendingJobTable: Boolean!
   registrationToken: String!
   oauthProviders: [ExternalAccount!]!
 }
@@ -1623,6 +1624,7 @@ input UpdateApplicationSettingsInput {
   enableProjectCreate: Boolean
   enableProjectDelete: Boolean
   enableProjectImport: Boolean
+  usePendingJobTable: Boolean
 }
 
 input UpdateRunnerScriptInput {

@@ -60,9 +60,12 @@ export function Settings() {
     <ContentCard>
       <Stack tokens={{ childrenGap: 20 }}>
         {Object.entries(settings).map(([field, value]) => (
-          <Stack.Item key={field}>
-            <SettingFieldRenderer field={field} value={changes.current[field] ?? value} onChange={onFieldChange} />
-          </Stack.Item>
+          <SettingFieldRenderer
+            key={field}
+            field={field}
+            value={changes.current[field] ?? value}
+            onChange={onFieldChange}
+          />
         ))}
 
         <Stack.Item>

@@ -28,7 +28,6 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { Response } from 'express'
-import Redlock from 'redlock'
 
 import { Config } from '@perfsee/platform-server/config'
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
@@ -62,7 +61,6 @@ export class JobController {
     private readonly logger: Logger,
     private readonly metrics: Metric,
     private readonly runner: RunnerService,
-    private readonly redlock: Redlock,
     private readonly maintenance: MaintenanceService,
     private readonly storage: ObjectStorage,
   ) {
@@ -91,49 +89,29 @@ export class JobController {
       return {}
     }
 
-    const runnerUpdates = {
-      jobType: runner.jobType,
-      concurrency: getJobTypeConcurrency(runner.jobType),
+    const response: JobRequestResponse = {
+      set: {
+        jobType: runner.jobType,
+        concurrency: getJobTypeConcurrency(runner.jobType),
+      },
     }
 
-    const endTimer = this.metrics.jobRequestTimer({ jobType: runner.jobType })
-    const jobs = await this.queue
-      .enqueue(() => this.service.getQueuedJobs(runner))
-      .catch((e) => {
-        this.logger.error(e, { phase: 'acquire runner' })
-        return []
-      })
+    try {
+      const job = await this.queue.enqueue(() => this.service.requestJob(runner))
 
-    for (const job of jobs) {
-      const acquired = await this.acquireJobLock(job.id)
-      if (!acquired) {
-        continue
-      }
-
-      await this.service.assignRunner(job, runner)
-      const payload = await this.service.getJobPayload(job)
-
-      if (!payload) {
-        this.event.emit(`${job.jobType}.error`, job.entityId, 'Fail to fetch job payload.')
-        continue
-      }
-
-      endTimer()
-      return {
-        job: {
+      if (job) {
+        response.job = {
           jobId: job.id,
           jobType: job.jobType,
           timeout: this.config.job.executionTimeoutSec,
-          payload,
-        },
-        set: runnerUpdates,
+          payload: job.payload,
+        }
       }
+    } catch (e) {
+      this.logger.error(e, { phase: 'request job' })
     }
 
-    endTimer()
-    return {
-      set: runnerUpdates,
-    }
+    return response
   }
 
   @Post('/trace')
@@ -223,12 +201,5 @@ export class JobController {
       this.event.emit(`${job.jobType}.error`, job.entityId, 'Timeout')
       this.metrics.jobFail(1, { jobType: job.jobType })
     })
-  }
-
-  private async acquireJobLock(id: number) {
-    return this.redlock
-      .lock(`JOB_READ_LOCK:${id}`, 3000)
-      .then(() => true)
-      .catch(() => false)
   }
 }

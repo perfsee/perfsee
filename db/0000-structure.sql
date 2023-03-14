@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `application_setting` (
   `enable_project_import` tinyint NOT NULL DEFAULT '0',
   `enable_email` tinyint NOT NULL DEFAULT '0',
   `user_email_confirmation` tinyint NOT NULL DEFAULT '0',
+  `use_pending_job_table` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `artifact` (
@@ -64,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `artifact` (
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   `upload_size` int NOT NULL DEFAULT '0',
+  `module_map_key` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_5f5da14712db92faa1ee41ed73` (`project_id`),
   KEY `idx_ddcde94bfc0addc4241c9e65fb` (`branch`),
@@ -129,6 +131,13 @@ CREATE TABLE IF NOT EXISTS `github_pull_requests_association` (
   `github_pull_request_comment_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_3c44938514dbc81bd35b1797db` (`github_pull_request_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `group` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `slug` varchar(100) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_d3240eaf64d34439513e46cb49` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `internal_id` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -206,6 +215,17 @@ CREATE TABLE IF NOT EXISTS `page_with_profile` (
   CONSTRAINT `FK_0058255655f7027135025c65202` FOREIGN KEY (`profile_id`) REFERENCES `profile` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_e5d1753d9cb6a1243fac087cd5e` FOREIGN KEY (`page_id`) REFERENCES `page` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `pending_job` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `job_id` int NOT NULL,
+  `job_type` varchar(50) NOT NULL,
+  `zone` varchar(50) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_rel_4e809fcfc3267ce1383af6bbbd` (`job_id`),
+  KEY `idx_4e809fcfc3267ce1383af6bbbd` (`job_id`),
+  CONSTRAINT `FK_4e809fcfc3267ce1383af6bbbd0` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `profile` (
   `id` int NOT NULL AUTO_INCREMENT,
   `iid` int NOT NULL,
@@ -232,6 +252,16 @@ CREATE TABLE IF NOT EXISTS `project` (
   UNIQUE KEY `idx_6fce32ddd71197807027be6ad3` (`slug`),
   KEY `FK_89f29f98d1c234d1db6f47b1bb2` (`usage_pack_id`),
   CONSTRAINT `FK_89f29f98d1c234d1db6f47b1bb2` FOREIGN KEY (`usage_pack_id`) REFERENCES `usage_pack` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `project_group` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `group_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ffbce6a59e3bb90fa35224f7ec` (`group_id`),
+  KEY `FK_f2b5c987c8e4700c911d2b4d289` (`project_id`),
+  CONSTRAINT `FK_f2b5c987c8e4700c911d2b4d289` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ffbce6a59e3bb90fa35224f7ec0` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `project_job_usage` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -450,6 +480,18 @@ CREATE TABLE IF NOT EXISTS `user_connected_account` (
   KEY `idx_e956657dfdd875f5bc44c412c1` (`user_id`),
   CONSTRAINT `FK_e956657dfdd875f5bc44c412c17` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `user_group_permission` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `group_id` int NOT NULL,
+  `permission` varchar(255) NOT NULL,
+  `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `idx_c4df58a6a7c64143d7685ab02d` (`user_id`),
+  KEY `idx_a26c366b81deab243e1082a8ba` (`group_id`),
+  CONSTRAINT `FK_a26c366b81deab243e1082a8ba0` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_c4df58a6a7c64143d7685ab02d2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `user_permission` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -471,4 +513,20 @@ CREATE TABLE IF NOT EXISTS `user_starred_project` (
   KEY `FK_3eb5014f29193c627413e62746d` (`project_id`),
   CONSTRAINT `FK_23737fe5d3ccef3214da0d3d90f` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_3eb5014f29193c627413e62746d` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `webhook` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) NOT NULL,
+  `project_id` int DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `url` varchar(1024) NOT NULL,
+  `secret` varchar(255) DEFAULT NULL,
+  `method` varchar(255) NOT NULL DEFAULT 'POST',
+  `event_type` varchar(1024) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_f707b8cf5e56d69bb8fac17c9b` (`uuid`),
+  KEY `idx_95bc3b4bf6b329b6c6dd2ed217` (`project_id`),
+  KEY `idx_b0dcfcc8c95edc2232ea8e9771` (`user_id`),
+  CONSTRAINT `FK_95bc3b4bf6b329b6c6dd2ed2174` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_b0dcfcc8c95edc2232ea8e97710` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -16,28 +16,29 @@ limitations under the License.
 
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { countBy } from 'lodash'
-import { Between, In } from 'typeorm'
+import { Between, FindOptionsWhere, In } from 'typeorm'
 
 import {
-  ApplicationSetting,
   Artifact,
+  DBService,
   InternalIdUsage,
   Job,
   JobStatus,
+  PendingJob,
   Runner,
   SnapshotReport,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
-import { OnEvent } from '@perfsee/platform-server/event'
+import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
-import { Redis } from '@perfsee/platform-server/redis'
 import { JobLogStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { CreateJobEvent, JobType, UNKNOWN_RUNNER_ZONE, UpdateJobTraceParams } from '@perfsee/server-common'
 import { JobLog, JobLogLevel } from '@perfsee/shared'
 
+import { ApplicationSettingService } from '../application-setting'
 import { ProjectUsageService } from '../project-usage/service'
 
 import { TimeUsageInput } from './types'
@@ -80,8 +81,6 @@ function getLogStorageKey(job: Job) {
   return `logs/${job.projectId}/${job.jobType}/${job.id}.json`
 }
 
-const LATEST_DONE_JOB_KEY = 'LATEST_DONE_JOB_ID'
-
 type PayloadGetter = (entityId: number, extra: Record<string, string> | null) => Promise<any>
 
 @Injectable()
@@ -106,28 +105,31 @@ export class JobService {
     private readonly logger: Logger,
     private readonly metrics: Metric,
     private readonly internalId: InternalIdService,
-    private readonly redis: Redis,
     private readonly logStorage: JobLogStorage,
     private readonly projectUsage: ProjectUsageService,
+    private readonly db: DBService,
+    private readonly setting: ApplicationSettingService,
+    private readonly event: EventEmitter,
   ) {}
 
   @OnEvent('job.create')
   async createJobs(events: CreateJobEvent | CreateJobEvent[]) {
-    const jobs: Job[] = []
     if (!Array.isArray(events)) {
       events = [events]
     }
 
-    for (const event of events) {
-      const job = await this.createJob(event)
+    const jobs = await Promise.all(
+      events.map(async (event) => {
+        try {
+          return await this.createJob(event)
+        } catch (e) {
+          this.logger.error(e, { phase: 'create job' })
+          return null
+        }
+      }),
+    ).then((results) => results.filter(Boolean) as Job[])
 
-      if (job) {
-        jobs.push(job)
-      }
-    }
-
-    await Job.insert(jobs)
-    await this.recordJobCount(jobs)
+    await this.recordProjectJobCountUsage(jobs)
     this.recordJobCreating(jobs)
   }
 
@@ -141,45 +143,27 @@ export class JobService {
     this.jobPayloadGetters.set(type, getter)
   }
 
-  async getQueuedJobs(runner: Runner) {
-    const qb = Job.createQueryBuilder().where('status = :status', { status: JobStatus.Pending })
+  async requestJob(runner: Runner) {
+    const endTimer = this.metrics.jobRequestTimer({ jobType: runner.jobType })
+    const pendingJobs = await this.getPendingJobs(runner)
 
-    if (runner.zone !== UNKNOWN_RUNNER_ZONE) {
-      qb.andWhere('zone = :zone', { zone: runner.zone })
+    for (const pendingJob of pendingJobs) {
+      const acquired = await this.assignRunner(pendingJob, runner)
+      if (acquired) {
+        const payload = await this.getJobPayload(pendingJob)
 
-      // accelerate query with cached latest job id
-      const latestDoneJobId = await this.getLatestDoneJobId(runner.jobType, runner.zone)
-      if (latestDoneJobId) {
-        qb.andWhere('id > :id', { id: latestDoneJobId })
+        if (!payload) {
+          this.event.emit(`${pendingJob.jobType}.error`, pendingJob.entityId, 'Fail to fetch job payload.')
+          continue
+        }
+
+        endTimer()
+        pendingJob.payload = payload
+        return pendingJob
       }
     }
 
-    if (runner.jobType !== JobType.All) {
-      const types = getJobTypeGroup(runner.jobType)
-      if (types.length === 1) {
-        qb.andWhere('job_type = :type', {
-          type: types[0],
-        })
-      } else if (types.length > 1) {
-        qb.andWhere('job_type in (:...types)', {
-          types,
-        })
-      } else {
-        qb.andWhere('job_type = :type', {
-          type: runner.jobType,
-        })
-      }
-    }
-
-    return qb.orderBy('id', 'ASC').take(20).getMany()
-  }
-
-  async assignRunner(job: Job, runner: Runner) {
-    job.runnerId = runner.id
-    job.startedAt = new Date()
-    job.status = JobStatus.Running
-    await job.save({ reload: false })
-    this.metrics.jobPendingTime(job.startedAt.getTime() - job.createdAt.getTime(), { jobType: job.jobType })
+    endTimer()
   }
 
   async getPendingJobsCount() {
@@ -277,7 +261,6 @@ export class JobService {
       if (errored) {
         this.metrics.jobFail(1, { jobType: job.jobType })
       } else {
-        await this.setLatestDoneJobId(job.jobType, job.zone, job.id)
         this.metrics.jobSuccess(1, { jobType: job.jobType })
       }
     }
@@ -376,17 +359,32 @@ export class JobService {
       this.logger.error(new Error(`Non related job type bound to event type: ${type}`), { phase: 'create job' })
     }
 
-    return Job.create({
+    const settings = await this.setting.current()
+    const iid = await this.internalId.generate(projectId, InternalIdUsage.Job)
+    const jobZone = zone ?? settings.defaultJobZone
+    const job = Job.create({
       jobType: type,
-      iid: await this.internalId.generate(projectId, InternalIdUsage.Job),
-      projectId: projectId,
+      projectId,
+      iid,
       entityId,
-      zone: zone ?? (await ApplicationSetting.defaultJobZone()),
+      zone: jobZone,
       extra: 'extra' in event.payload ? event.payload.extra : undefined,
+    })
+
+    return this.db.transaction(async (manager) => {
+      await manager.save(job)
+      await manager.save(
+        PendingJob.create({
+          jobId: job.id,
+          zone: jobZone,
+          jobType: type,
+        }),
+      )
+      return job
     })
   }
 
-  private async recordJobCount(jobs: Job[]) {
+  private async recordProjectJobCountUsage(jobs: Job[]) {
     const counts = countBy(jobs, 'projectId')
 
     for (const [projectId, count] of Object.entries(counts)) {
@@ -395,29 +393,11 @@ export class JobService {
   }
 
   private recordJobCreating(jobs: Job[]) {
-    const date = new Date()
-    date.setUTCHours(0, 0, 0, 0)
     jobs.forEach((job) => {
       this.metrics.jobCreate(1, {
         jobType: job.jobType,
       })
     })
-  }
-
-  private async getLatestDoneJobId(type: JobType, zone: string) {
-    return this.redis
-      .get(`${LATEST_DONE_JOB_KEY}_${zone}_${type}`)
-      .then((idString) => {
-        if (idString) {
-          return parseInt(idString)
-        }
-        return 0
-      })
-      .catch(() => 0)
-  }
-
-  private async setLatestDoneJobId(type: JobType, zone: string, id: number) {
-    await this.redis.set(`${LATEST_DONE_JOB_KEY}_${zone}_${type}`, id)
   }
 
   private async getEntityRealId(jobType: JobType, entityId: number, projectId: number) {
@@ -437,5 +417,68 @@ export class JobService {
       default:
         return null
     }
+  }
+
+  private async getPendingJobs(runner: Runner) {
+    const filter: FindOptionsWhere<Job | PendingJob> = {}
+    if (runner.zone !== UNKNOWN_RUNNER_ZONE) {
+      filter.zone = runner.zone
+    }
+
+    if (runner.jobType !== JobType.All) {
+      const types = getJobTypeGroup(runner.jobType)
+      if (types.length === 1) {
+        filter.jobType = types[0]
+      } else if (types.length > 1) {
+        filter.jobType = In(types)
+      } else {
+        filter.jobType = runner.jobType
+      }
+    }
+
+    const settings = await this.setting.current()
+
+    if (settings.usePendingJobTable) {
+      const pendingJobs = await PendingJob.find({ where: filter, take: 20, order: { id: 'ASC' } })
+
+      if (pendingJobs.length) {
+        return Job.findBy({
+          id: In(pendingJobs.map(({ jobId }) => jobId)),
+        })
+      }
+
+      return []
+    }
+
+    return Job.find({
+      where: { ...filter, status: JobStatus.Pending },
+      take: 20,
+      order: { id: 'ASC' },
+    })
+  }
+
+  private async assignRunner(job: Job, runner: Runner) {
+    const startedAt = new Date()
+    const result = await Job.update(
+      { id: job.id, status: JobStatus.Pending },
+      { runnerId: runner.id, status: JobStatus.Running, startedAt },
+    )
+
+    // we add `status: pending` in update query
+    // so that if the job is not pending, it will not be updated,
+    // which means it was assigned to other runner right before.
+    if (!result.affected) {
+      return false
+    }
+
+    try {
+      await PendingJob.delete({ jobId: job.id })
+    } catch (e) {
+      this.logger.error(e, { phase: 'delete pending job' })
+    }
+
+    this.metrics.jobPendingTime(startedAt.getTime() - job.createdAt.getTime(), { jobType: job.jobType })
+
+    return true
   }
 }
