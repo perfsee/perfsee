@@ -12,6 +12,7 @@ import {
 } from '@perfsee/platform-server/db'
 import { seedProjectProperty } from '@perfsee/platform-server/db/fixtures'
 import { EventEmitter } from '@perfsee/platform-server/event'
+import { AnalyzeUpdateType } from '@perfsee/platform-server/event/type'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Metric } from '@perfsee/platform-server/metrics'
 import { Redis } from '@perfsee/platform-server/redis'
@@ -116,6 +117,7 @@ test.serial('take snapshot', async (t) => {
 
   t.true(event.emitAsync.calledOnce)
   t.true(event.emitAsync.calledWith('job.create'))
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Pending}`))
   t.is(snapshot.status, SnapshotStatus.Pending)
   // equals to page x profile x env bindings
   // see packages/platform-server/src/db/fixtures/seed.ts
@@ -236,6 +238,7 @@ test.serial('get report job payload', async (t) => {
 test.serial('update snapshot report when status is completed', async (t) => {
   const service = t.context.module.get(SnapshotService)
   const metricService = t.context.module.get(Metric)
+  const event = t.context.module.get(EventEmitter)
 
   const report = await mockCreateReport(1)
 
@@ -245,6 +248,7 @@ test.serial('update snapshot report when status is completed', async (t) => {
     status: SnapshotStatus.Completed,
   })
 
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.SnapshotReportUpdate}.${SnapshotStatus.Completed}`))
   t.true(metricService.snapshotReportComplete.calledOnce)
   t.true(metricService.snapshotReportFail.notCalled)
   t.is(updatedReport!.lighthouseStorageKey, 'foo')
@@ -254,6 +258,7 @@ test.serial('update snapshot report when status is completed', async (t) => {
 test.serial('update snapshot report when status is failed', async (t) => {
   const service = t.context.module.get(SnapshotService)
   const metricService = t.context.module.get(Metric)
+  const event = t.context.module.get(EventEmitter)
 
   const report = await mockCreateReport(1)
 
@@ -261,6 +266,8 @@ test.serial('update snapshot report when status is failed', async (t) => {
     id: report.id,
     status: SnapshotStatus.Failed,
   })
+
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.SnapshotReportUpdate}.${SnapshotStatus.Failed}`))
 
   t.true(metricService.snapshotReportComplete.notCalled)
   t.true(metricService.snapshotReportFail.calledOnce)

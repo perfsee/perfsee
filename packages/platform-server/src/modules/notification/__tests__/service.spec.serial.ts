@@ -14,7 +14,7 @@ import {
 } from '@perfsee/platform-server/db'
 import { Redis } from '@perfsee/platform-server/redis'
 import test, { create, createDBTestingModule, createMock, initTestDB } from '@perfsee/platform-server/test'
-import { BundleJobUpdate, BundleJobStatus } from '@perfsee/server-common'
+import { BundleJobPassedUpdate, BundleJobStatus } from '@perfsee/server-common'
 
 import { ProjectService } from '../../project/service'
 import { NotificationProviderFactory } from '../provider'
@@ -59,7 +59,7 @@ test.beforeEach(async (t) => {
 
 test.serial('sendBundleJobNotification', async (t) => {
   const service = t.context.module.get(NotificationService)
-  const result = createMock<BundleJobUpdate>()
+  const result = createMock<BundleJobPassedUpdate>()
 
   const artifact = await create(Artifact, {
     project,
@@ -67,7 +67,7 @@ test.serial('sendBundleJobNotification', async (t) => {
     score: faker.datatype.number({ min: 1, max: 100 }),
   })
 
-  await service.sendBundleJobNotification(artifact, result)
+  await service.sendBundleJobNotification({ project, artifact, bundleJobResult: result, baselineArtifact: undefined })
 
   t.true(
     notificationProviderStub.sendBundleNotification.calledOnceWith(
@@ -106,7 +106,7 @@ test.serial('sendLabJobNotification', async (t) => {
     profile,
   })
 
-  await service.sendLabJobNotification(snapshot, [snapshotReport])
+  await service.sendLabJobNotification({ snapshot, reports: [snapshotReport], project })
 
   t.true(
     notificationProviderStub.sendLabNotification.calledOnceWith(

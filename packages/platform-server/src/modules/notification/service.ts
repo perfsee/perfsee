@@ -16,18 +16,12 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import {
-  Environment,
-  Snapshot,
-  SnapshotReport,
-  Project,
-  Setting,
-  Artifact,
-  SnapshotTrigger,
-} from '@perfsee/platform-server/db'
+import { Environment, Setting, SnapshotTrigger } from '@perfsee/platform-server/db'
+import { OnEvent } from '@perfsee/platform-server/event'
+import { AnalyzeUpdateType, BundleUpdatePayload, SnapshotUpdatePayload } from '@perfsee/platform-server/event/type'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Redis } from '@perfsee/platform-server/redis'
-import { BundleJobUpdate as BundleJobResultMessage } from '@perfsee/server-common'
+import { BundleJobPassedUpdate, BundleJobStatus, SnapshotStatus } from '@perfsee/server-common'
 import { Permission } from '@perfsee/shared'
 
 import { ProjectService } from '../project/service'
@@ -49,24 +43,21 @@ export class NotificationService {
     this.providers = factory.getProviders()
   }
 
-  async sendBundleJobNotification(artifact: Artifact, result: BundleJobResultMessage) {
-    if (artifact.inProgress()) {
-      return false
-    }
-
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Passed}`)
+  async sendBundleJobNotification(payload: BundleUpdatePayload) {
+    const { artifact, bundleJobResult, project } = payload
     const notifiedKey = `bundle-job-notification-${artifact.id}`
     const duplicated = await this.redis.exists(notifiedKey)
     if (duplicated) {
       return false
     }
 
-    const project = await Project.findOneByOrFail({ id: artifact.projectId })
     const setting = await Setting.findOneByOrFail({ projectId: project.id })
     const owners = await this.project.getProjectUsers(project, Permission.Admin)
 
     const info: BundleNotificationInfo = {
       artifact,
-      result,
+      result: bundleJobResult as BundleJobPassedUpdate,
       project,
       projectSetting: setting,
       projectOwners: owners,
@@ -88,14 +79,15 @@ export class NotificationService {
     await this.redis.set(notifiedKey, 1, 'EX', 3600)
   }
 
-  async sendLabJobNotification(snapshot: Snapshot, reports: SnapshotReport[]) {
+  @OnEvent(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Completed}`)
+  async sendLabJobNotification(payload: SnapshotUpdatePayload) {
+    const { snapshot, reports, project } = payload
     const notifiedKey = `lab-job-notification-${snapshot.id}`
     const duplicated = await this.redis.exists(notifiedKey)
     if (duplicated || snapshot.trigger === SnapshotTrigger.Scheduler) {
       return false
     }
 
-    const project = await Project.findOneByOrFail({ id: snapshot.projectId })
     const setting = await Setting.findOneByOrFail({ projectId: project.id })
     const owners = await this.project.getProjectUsers(project, Permission.Admin)
 

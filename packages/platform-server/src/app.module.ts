@@ -55,6 +55,7 @@ import {
   WebhookModule,
   GroupModule,
 } from './modules'
+import { CheckSuiteModule } from './modules/checksuite'
 import { RedisModule } from './redis'
 import { RestfulModule } from './restful.module'
 import { StaticModule } from './static.module'
@@ -109,6 +110,7 @@ const businessModules: ModuleMetadata['imports'] = [
   ProjectUsageModule,
   WebhookModule,
   GroupModule,
+  CheckSuiteModule,
 ]
 
 @Module({

@@ -19,6 +19,7 @@ import { In } from 'typeorm'
 
 import { AppVersion, Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
+import { AnalyzeUpdateType } from '@perfsee/platform-server/event/type'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
@@ -26,8 +27,6 @@ import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { BundleJobPayload, BundleJobUpdate, BundleJobStatus, JobType } from '@perfsee/server-common'
 
-import { CheckSuiteService } from '../checksuite/service'
-import { NotificationService } from '../notification/service'
 import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
 import { SettingService } from '../setting/service'
@@ -41,12 +40,10 @@ export class ArtifactService implements OnApplicationBootstrap {
   )
 
   constructor(
-    private readonly checkSuiteService: CheckSuiteService,
     private readonly event: EventEmitter,
     private readonly logger: Logger,
     private readonly storage: ObjectStorage,
     private readonly metric: Metric,
-    private readonly notification: NotificationService,
     private readonly scriptFile: ScriptFileService,
     private readonly setting: SettingService,
     private readonly projectUsage: ProjectUsageService,
@@ -63,8 +60,8 @@ export class ArtifactService implements OnApplicationBootstrap {
     const artifact = await Artifact.create<Artifact>(input).save()
 
     await ArtifactName.record(project.id, artifact.name)
-    await this.checkSuiteService.startBundleCheck(artifact, project)
     await this.dispatchJob(artifact)
+    this.event.emit(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Pending}`, { project, artifact })
 
     return artifact
   }
@@ -252,9 +249,15 @@ export class ArtifactService implements OnApplicationBootstrap {
       }
     }
 
+    const project = await Project.findOneByOrFail({ id: artifact.projectId })
+    const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
     this.tapMetrics(artifact)
-    await this.updateCheck(artifact, update)
-    await this.notification.sendBundleJobNotification(artifact, update)
+    this.event.emit(`${AnalyzeUpdateType.ArtifactUpdate}.${update.status}`, {
+      project,
+      artifact,
+      bundleJobResult: update,
+      baselineArtifact: baseline,
+    })
   }
 
   async handleJobFailed(artifactId: number, reason: string) {
@@ -267,11 +270,19 @@ export class ArtifactService implements OnApplicationBootstrap {
     artifact.failedReason = reason
 
     await artifact.save({ reload: false })
-    await this.updateCheck(artifact, {
-      artifactId,
-      status: BundleJobStatus.Failed,
-      failedReason: reason,
-      duration: 0,
+    const project = await Project.findOneByOrFail({ id: artifact.projectId })
+    const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
+
+    this.event.emit(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Failed}`, {
+      artifact,
+      baselineArtifact: baseline,
+      project,
+      bundleJobResult: {
+        artifactId,
+        status: BundleJobStatus.Failed,
+        failedReason: reason,
+        duration: 0,
+      },
     })
   }
 
@@ -327,21 +338,6 @@ export class ArtifactService implements OnApplicationBootstrap {
       if (artifact.score && artifact.score <= 80) {
         this.metric.blockRelease(1, { jobType: JobType.BundleAnalyze })
       }
-    }
-  }
-
-  private async updateCheck(artifact: Artifact, update: BundleJobUpdate) {
-    const project = await Project.findOneByOrFail({ id: artifact.projectId })
-    if (artifact.inProgress()) {
-      await this.checkSuiteService.runBundleCheck(artifact, project)
-    } else {
-      const baseline = artifact.baselineId ? await this.loader.load(artifact.baselineId) : undefined
-      await this.checkSuiteService.endBundleCheck(artifact, baseline, project, update)
-      this.event.emit('webhook.deliver', project, {
-        eventType: 'bundle:finished',
-        projectSlug: project.slug,
-        artifactIid: artifact.iid,
-      })
     }
   }
 

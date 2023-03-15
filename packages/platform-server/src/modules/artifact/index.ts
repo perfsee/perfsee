@@ -20,9 +20,7 @@ import { DBModule } from '@perfsee/platform-server/db'
 import { StorageModule } from '@perfsee/platform-server/storage'
 
 import { AppVersionModule } from '../app-version'
-import { CheckSuiteModule } from '../checksuite'
 import { JobModule } from '../job'
-import { NotificationModule } from '../notification'
 import { ProjectModule } from '../project'
 import { ProjectUsageModule } from '../project-usage'
 import { ScriptFileModule } from '../script-file'
@@ -39,8 +37,6 @@ import { ArtifactService } from './service'
     AppVersionModule,
     ProjectModule,
     JobModule,
-    CheckSuiteModule,
-    NotificationModule,
     ScriptFileModule,
     SettingModule,
     ProjectUsageModule,

@@ -28,6 +28,7 @@ import {
   SourceIssue,
 } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
+import { AnalyzeUpdateType } from '@perfsee/platform-server/event/type'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -69,10 +70,9 @@ export class SourceService implements OnApplicationBootstrap {
     await this.saveSourceIssues(projectId, reportId, diagnostics)
     const project = await Project.findOneByOrFail({ id: projectId })
     const snapshotReport = await SnapshotReport.findOneByOrFail({ id: reportId })
-    this.event.emit('webhook.deliver', project, {
-      eventType: 'source:finished',
-      projectSlug: project.slug,
-      snapshotReportIid: snapshotReport.iid,
+    this.event.emit(`${AnalyzeUpdateType.SourceUpdate}.completed`, {
+      project,
+      report: snapshotReport,
     })
   }
 

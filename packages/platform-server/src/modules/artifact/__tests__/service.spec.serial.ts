@@ -19,13 +19,11 @@ import { omit, pick } from 'lodash'
 
 import { Artifact, ArtifactEntrypoint, ArtifactName, Project } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
-import { Metric } from '@perfsee/platform-server/metrics'
+import { AnalyzeUpdateType } from '@perfsee/platform-server/event/type'
 import test, { createMock, initTestDB, createDBTestingModule, create } from '@perfsee/platform-server/test'
 import { BundleJobStatus, JobType } from '@perfsee/server-common'
 import { Size } from '@perfsee/shared'
 
-import { CheckSuiteService } from '../../checksuite/service'
-import { NotificationService } from '../../notification/service'
 import { ArtifactService } from '../service'
 
 let project: Project
@@ -44,7 +42,6 @@ test.beforeEach(async (t) => {
 
 test.serial('create new artifact', async (t) => {
   const service = t.context.module.get(ArtifactService)
-  const checkSuiteService = t.context.module.get(CheckSuiteService)
   const event = t.context.module.get(EventEmitter)
 
   const entity: Partial<Artifact> = {
@@ -64,7 +61,8 @@ test.serial('create new artifact', async (t) => {
 
   t.truthy(artifact)
   t.truthy(artifactName)
-  t.truthy(checkSuiteService.startBundleCheck.calledOnce)
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Pending}`))
+
   t.truthy(
     event.emitAsync.calledWith('job.create', {
       type: JobType.BundleAnalyze,
@@ -177,9 +175,8 @@ test.serial('get baseline artifact', async (t) => {
 
 test.serial('on job update', async (t) => {
   const service = t.context.module.get(ArtifactService)
-  const checkSuiteService = t.context.module.get(CheckSuiteService)
-  const notificationService = t.context.module.get(NotificationService)
-  const metrics = t.context.module.get(Metric)
+
+  const event = t.context.module.get(EventEmitter)
 
   const artifact = await create(Artifact, { project, name: faker.datatype.string() })
 
@@ -188,8 +185,8 @@ test.serial('on job update', async (t) => {
   const artifact2 = await Artifact.findOneBy({ id: artifact.id })
 
   t.is(artifact2?.status, BundleJobStatus.Running)
-  t.truthy(checkSuiteService.runBundleCheck.calledOnce)
-  t.truthy(notificationService.sendBundleJobNotification.calledOnce)
+  t.true(event.emit.calledOnce)
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Running}`))
 
   // complete status
   const size: Size = {
@@ -230,7 +227,7 @@ test.serial('on job update', async (t) => {
   t.truthy(entrypoint)
   t.is(entrypoint?.entrypoint, 'main')
   t.is(entrypoint?.score, bundleEntrypoint.score.current)
-  t.truthy(metrics.bundleComplete.calledOnce)
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Passed}`))
 
   // fail
   const failedReason = faker.datatype.string()
@@ -239,7 +236,7 @@ test.serial('on job update', async (t) => {
   const artifact4 = await Artifact.findOneBy({ id: artifact.id })
   t.is(artifact4?.status, BundleJobStatus.Failed)
   t.is(artifact4?.failedReason, failedReason)
-  t.truthy(metrics.bundleFail.calledOnce)
+  t.true(event.emit.calledWith(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Failed}`))
 })
 
 test.serial('on job failed', async (t) => {
