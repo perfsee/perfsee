@@ -47,7 +47,7 @@ export function SettingsPermission() {
   )
 
   const onDeleteUser = useCallback(
-    (user: User) => () => {
+    (user: User) => {
       dispatcher.saveProjectOwners({ email: user.email, permission: user.permission, isAdd: false })
     },
     [dispatcher],

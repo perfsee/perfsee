@@ -88,6 +88,7 @@ export const BundleScoreChart = ({ flatData, minY, maxY, loading }: Props) => {
 
       const id = items[0]?.id
       const title = items[0].hash
+      const time = dayjs(items[0].createdAt).format('YYYY/MM/DD HH:mm')
       const projectId = items[0].projectId
 
       const node = (
@@ -102,6 +103,7 @@ export const BundleScoreChart = ({ flatData, minY, maxY, loading }: Props) => {
             </p>
           )}
           <p>Commit hash: {title}</p>
+          <p>Created: {time}</p>
           <table>
             <thead>
               <tr>
