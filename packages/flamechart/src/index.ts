@@ -89,7 +89,7 @@ export function buildProfileFromUserTimings(userTimings: TimingSchema[]) {
   const profile = new TimingProfile(totalWeight, totalWeight, 0)
   profile.setValueFormatter(new TimeFormatter('microseconds'))
   for (const timing of userTimings) {
-    if (timing.timestamp <= 0 || !timing.duration) {
+    if (!timing.duration) {
       profile.appendTiming(timing.name, timing.timestamp, timing.timestamp + 1, timing)
       continue
     }
