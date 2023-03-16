@@ -2,25 +2,14 @@ name: Release packages
 
 on:
   push:
-    branches-ignore:
+    branches:
+      - main
+    tags-ignore:
       - '**'
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-  workflow_dispatch:
-    inputs:
-      job:
-        description: 'Which job to dispatch'
-        required: true
-        default: 'release-scripts'
-        type: choice
-        options:
-          - npm
-          - vscode
-          - script
 
 jobs:
   release-npm-packages:
-    if: ${{ !inputs.job || inputs.job == 'npm' }}
+    if: "${{ contains(github.event.head_commit.message, 'chore: release') }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -37,12 +26,11 @@ jobs:
           yarn codegen
           yarn build:npm
       - name: Publish
-        run: |
-          yarn lerna publish from-package --exact --pre-dist-tag beta --yes
+        run: yarn release --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   release-vscode:
-    if: ${{ !inputs.job || inputs.job == 'vscode' }}
+    if: "${{ contains(github.event.head_commit.message, 'chore: release') }}"
     runs-on: ubuntu-latest
     env:
       VSCE_PAT: ${{ secrets.VSC_MARKET_PAT }}
@@ -74,7 +62,7 @@ jobs:
           cd packages/vscode-extension
           vsce publish --no-dependencies --no-git-tag-version --no-update-package-json --baseImagesUrl https://github.com/perfsee/perfsee/raw/main/packages/vscode-extension
   release-scripts:
-    if: ${{ !inputs.job || inputs.job == 'script' }}
+    if: "${{ contains(github.event.head_commit.message, 'chore: release') }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

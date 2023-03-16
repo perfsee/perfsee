@@ -159,8 +159,9 @@
     "lint": "cross-env NODE_OPTIONS=--max-old-space-size=8192 eslint . --cache --cache-location ./.eslint-cache",
     "circular": "madge --circular --ts-config ./tsconfig.json packages/**/src/index.ts packages/**/src/index.tsx",
     "postinstall": "husky install",
-    "release": "lerna version --sign-git-tag --exact --allow-branch main",
-    "docs": "cd docs && yarn"
+    "docs": "cd docs && yarn",
+    "version": "lerna version --sign-git-tag --exact --allow-branch main --conventional-commits --create-release github",
+    "release": "lerna publish from-package --exact --pre-dist-tag beta"
   },
   "packageManager": "yarn@3.4.1"
 }
