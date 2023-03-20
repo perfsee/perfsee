@@ -73,6 +73,7 @@ import {
   HideIcon,
   RedEyeIcon,
   LocationDotIcon,
+  CubeShapeIcon,
 } from '@fluentui/react-icons-mdl2'
 
 import { FlameIcon } from '@perfsee/components'
@@ -142,6 +143,7 @@ registerIcons({
     dot: <LocationDotIcon />,
     arrowLeft: <ArrowLeftOutlined />,
     arrowRight: <ArrowRightOutlined />,
+    packages: <CubeShapeIcon style={{ lineHeight: 0, textAlign: 'center', verticalAlign: '0.475rem' }} />,
 
     // for password text field
     Hide: <HideIcon />,

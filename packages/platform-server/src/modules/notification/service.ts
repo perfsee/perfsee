@@ -18,17 +18,28 @@ import { Injectable } from '@nestjs/common'
 
 import { Environment, Setting, SnapshotTrigger } from '@perfsee/platform-server/db'
 import { OnEvent } from '@perfsee/platform-server/event'
-import { AnalyzeUpdateType, BundleUpdatePayload, SnapshotUpdatePayload } from '@perfsee/platform-server/event/type'
+import {
+  AnalyzeUpdateType,
+  BundleUpdatePayload,
+  PackageUpdatePayload,
+  SnapshotUpdatePayload,
+} from '@perfsee/platform-server/event/type'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Redis } from '@perfsee/platform-server/redis'
-import { BundleJobPassedUpdate, BundleJobStatus, SnapshotStatus } from '@perfsee/server-common'
+import { BundleJobPassedUpdate, BundleJobStatus, SnapshotStatus, PackageJobPassedUpdate } from '@perfsee/server-common'
 import { Permission } from '@perfsee/shared'
 
 import { ProjectService } from '../project/service'
 import { SettingService } from '../setting/service'
 
 import { NotificationProviderFactory } from './provider'
-import { BundleNotificationInfo, CookieNotificationInfo, LabNotificationInfo, NotificationProvider } from './type'
+import {
+  BundleNotificationInfo,
+  CookieNotificationInfo,
+  LabNotificationInfo,
+  NotificationProvider,
+  PackageNotificationInfo,
+} from './type'
 
 @Injectable()
 export class NotificationService {
@@ -71,6 +82,46 @@ export class NotificationService {
       } catch (err) {
         this.logger.error(
           `[notification] provider ${providerName}, send bundle notification failed` +
+            (err instanceof Error ? err.stack : err),
+        )
+      }
+    }
+
+    await this.redis.set(notifiedKey, 1, 'EX', 3600)
+  }
+
+  @OnEvent(`${AnalyzeUpdateType.PackageUpdate}.${BundleJobStatus.Passed}`)
+  async sendPackageJobNotification(payload: PackageUpdatePayload) {
+    const { bundle: packageBundle, project, packageJobResult } = payload
+    if (packageBundle.inProgress()) {
+      return false
+    }
+
+    const notifiedKey = `package-job-notification-${packageBundle.id}`
+    const duplicated = await this.redis.exists(notifiedKey)
+    if (duplicated) {
+      return false
+    }
+
+    const setting = await Setting.findOneByOrFail({ projectId: project.id })
+    const owners = await this.project.getProjectUsers(project, Permission.Admin)
+
+    const info: PackageNotificationInfo = {
+      package: packageBundle,
+      result: packageJobResult as PackageJobPassedUpdate,
+      project,
+      projectSetting: setting,
+      projectOwners: owners,
+    }
+
+    for (const providerName in this.providers) {
+      const provider = this.providers[providerName]
+      try {
+        await provider.sendPackageNotification(info)
+        this.logger.verbose(`[notification] provider ${providerName}, send package notification success`)
+      } catch (err) {
+        this.logger.error(
+          `[notification] provider ${providerName}, send package notification failed` +
             (err instanceof Error ? err.stack : err),
         )
       }

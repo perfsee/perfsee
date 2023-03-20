@@ -13,3 +13,15 @@ export function artifactLink(key: string | null) {
 export function artifactKey(projectId: number | string, key: string) {
   return `artifacts/${projectId}/${key}`
 }
+
+export function packageLink(key: string | null) {
+  if (!key) {
+    return null
+  }
+
+  return `${perfsee.baseUrl}/${key}`
+}
+
+export function packageKey(projectId: number | string, key: string) {
+  return `packages/${projectId}/${key}`
+}

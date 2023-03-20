@@ -19,16 +19,17 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, Unique, BaseEntity, Many
 import type { Project } from './project.entity'
 
 export enum InternalIdUsage {
-  Artifact,
-  Snapshot,
-  SourceIssue,
-  Setting,
-  Page,
-  Env,
-  Profile,
-  AppVersion,
-  Job,
-  SnapshotReport,
+  Artifact = 0,
+  Snapshot = 1,
+  SourceIssue = 2,
+  Setting = 3,
+  Page = 4,
+  Env = 5,
+  Profile = 6,
+  AppVersion = 7,
+  Job = 8,
+  SnapshotReport = 9,
+  Package = 10,
 }
 
 @Entity()

@@ -1,0 +1,14 @@
+#import './fragments/bundle.gql'
+
+query packageBundleDetail($packageId: ID!, $id: ID) {
+  packageBundle(packageId: $packageId, id: $id) {
+    ...packageBundle
+    reportLink
+    benchmarkLink
+    buildLink
+    hasSideEffects
+    hasJSModule
+    hasJSNext
+    isModuleType
+  }
+}

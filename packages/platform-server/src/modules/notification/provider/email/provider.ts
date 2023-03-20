@@ -20,7 +20,13 @@ import { Config } from '@perfsee/platform-server/config'
 
 import { EmailService } from '../../../email'
 import { getBundleJobMessageTargets, getCookieMessageTargets, getLabJobMessageTargets } from '../../shared'
-import { BundleNotificationInfo, CookieNotificationInfo, LabNotificationInfo, NotificationProvider } from '../../type'
+import {
+  BundleNotificationInfo,
+  CookieNotificationInfo,
+  LabNotificationInfo,
+  NotificationProvider,
+  PackageNotificationInfo,
+} from '../../type'
 
 import { bundleEmailTemplate } from './bundle-template'
 import { cookieEmailTemplate } from './cookie-template'
@@ -50,6 +56,11 @@ export class EmailNotificationProvider implements NotificationProvider {
       ...template,
       to: emails,
     })
+  }
+
+  async sendPackageNotification(_info: PackageNotificationInfo) {
+    // TODO
+    return Promise.resolve(false)
   }
 
   async sendLabNotification(info: LabNotificationInfo) {

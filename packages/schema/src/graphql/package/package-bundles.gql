@@ -1,0 +1,18 @@
+#import './fragments/bundle.gql'
+
+query packageBundles($projectId: ID!, $packageId: Int!, $pagination: PaginationInput, $branch: String) {
+  project(id: $projectId) {
+    package(id: $packageId) {
+      bundles(pagination: $pagination, branch: $branch) {
+        edges {
+          node {
+            ...packageBundle
+          }
+        }
+        pageInfo {
+          totalCount
+        }
+      }
+    }
+  }
+}

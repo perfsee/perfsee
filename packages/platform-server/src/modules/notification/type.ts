@@ -14,12 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Environment, Project, Setting, Snapshot, SnapshotReport, User, Artifact } from '@perfsee/platform-server/db'
-import { BundleJobPassedUpdate } from '@perfsee/server-common'
+import {
+  Environment,
+  Project,
+  Setting,
+  Snapshot,
+  SnapshotReport,
+  User,
+  Artifact,
+  PackageBundle,
+} from '@perfsee/platform-server/db'
+import { BundleJobPassedUpdate, PackageJobPassedUpdate } from '@perfsee/server-common'
 
 export interface BundleNotificationInfo {
   artifact: Artifact
   result: BundleJobPassedUpdate
+  project: Project
+  projectSetting: Setting
+  projectOwners: User[]
+}
+
+export interface PackageNotificationInfo {
+  package: PackageBundle
+  result: PackageJobPassedUpdate
   project: Project
   projectSetting: Setting
   projectOwners: User[]
@@ -44,4 +61,5 @@ export interface NotificationProvider {
   sendBundleNotification: (info: BundleNotificationInfo) => Promise<boolean>
   sendLabNotification: (info: LabNotificationInfo) => Promise<boolean>
   sendCookieNotification: (info: CookieNotificationInfo) => Promise<boolean>
+  sendPackageNotification: (info: PackageNotificationInfo) => Promise<boolean>
 }

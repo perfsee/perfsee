@@ -141,7 +141,7 @@
     "cli": "cross-env DEBUG='perfsee:*' node tools/cli.js",
     "codegen": "yarn cli codegen",
     "build:ts": "tsc -b ./tsconfigs/tsconfig.project.json --verbose",
-    "build": "yarn codegen && cross-env NODE_ENV=production run-p 'build:ts' 'cli bundle -p @perfsee/platform'",
+    "build": "yarn codegen && cross-env NODE_ENV=production run-p 'build:ts' 'cli bundle -p @perfsee/platform';lerna run postbuild",
     "build:npm": "cross-env NODE_ENV=production yarn cli bundle -p @perfsee/bundle-report && yarn cli build -a && yarn clean:tests",
     "build:rs": "lerna run build:rs --concurrency 1 --stream",
     "vscode:watch": "cross-env NODE_ENV=development yarn cli vscode watch",

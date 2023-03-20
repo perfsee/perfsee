@@ -6,4 +6,5 @@ fragment projectFields on Project {
   isPublic
   artifactBaselineBranch
   userPermission
+  hasPackages
 }

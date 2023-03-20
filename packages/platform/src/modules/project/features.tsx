@@ -38,6 +38,7 @@ import {
   VersionReport,
   SettingsPage,
   JobTrace,
+  PackagesRoutes,
 } from './lazy-modules'
 
 export const FeaturesPage = memo(() => {
@@ -75,6 +76,7 @@ export const FeaturesPage = memo(() => {
       <BodyContainer>
         <Switch>
           <Route exact={true} path={staticPath.project.home} component={ProjectHome} />
+          <Route path={staticPath.project.package.home} component={PackagesRoutes} />
           <Route path={staticPath.project.statistics.artifacts} component={ArtifactStatistics} />
           <Route path={staticPath.project.statistics.snapshots} component={SnapshotStatistics} />
           <Route path={staticPath.project.bundle.home} component={BundleRoutes} />

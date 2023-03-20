@@ -25,3 +25,15 @@ export * from './source-statistics'
 export * from '@perfsee/bundle-analyzer/types'
 export * from '@perfsee/bundle-analyzer/stats'
 export type { BuildUploadParams } from '@perfsee/plugin-utils'
+export type {
+  SaveOptions,
+  Summary as BenchmarkSummary,
+  CaseResult,
+  BenchmarkSuite,
+  PackOptions,
+  GetPackageStatsOptions,
+  PackageUploadParams,
+  PackageJson,
+  PackageStats,
+  BenchmarkResult,
+} from '@perfsee/package'

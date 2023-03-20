@@ -1,0 +1,20 @@
+fragment packageBundle on PackageBundle {
+  id
+  packageId
+  branch
+  name
+  version
+  hash
+  duration
+  status
+  createdAt
+  failedReason
+  uploadSize
+  size {
+    raw
+    gzip
+  }
+  appVersion {
+    commitMessage
+  }
+}

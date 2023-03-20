@@ -164,6 +164,11 @@ export class ProjectResolver {
     return this.projectService.getAuthorizedUsers(project)
   }
 
+  @ResolveField(() => Boolean, { description: 'if this project has packages uploaded' })
+  async hasPackages(@Parent() project: Project) {
+    return this.projectService.hasPackages(project)
+  }
+
   @Mutation(() => Boolean, {
     description: 'Delete project with given id. NOTE: all data in this project will be deleted.',
   })

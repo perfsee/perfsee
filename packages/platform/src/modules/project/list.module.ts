@@ -20,17 +20,28 @@ import { Observable } from 'rxjs'
 import { switchMap, map, startWith, endWith } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
-import { Permission, ProjectsQuery, projectsQuery, groupsQuery, GroupsQuery } from '@perfsee/schema'
+import {
+  Permission,
+  ProjectsQuery,
+  projectsQuery,
+  groupsQuery,
+  GroupsQuery,
+  allPackagesQuery,
+  AllPackagesQuery,
+} from '@perfsee/schema'
 
 export type ProjectNode = ProjectsQuery['projects']['edges'][0]['node']
 export type OrgNode = GroupsQuery['groups']['edges'][0]['node']
+export type PackageNode = AllPackagesQuery['packages']['edges'][0]['node']
 
 interface State {
   projects: ProjectNode[]
   groups: OrgNode[]
+  packages: PackageNode[]
   loading: boolean
   totalCount: number
   groupTotalCount: number
+  packageTotalCount: number
   page: number
   pageSize: number
   query: string
@@ -42,8 +53,10 @@ export class ProjectsModule extends EffectModule<State> {
     loading: true,
     projects: [],
     groups: [],
+    packages: [],
     totalCount: 0,
     groupTotalCount: 0,
+    packageTotalCount: 0,
     page: 1,
     pageSize: 10,
     query: '',
@@ -85,6 +98,27 @@ export class ProjectsModule extends EffectModule<State> {
   }
 
   @Effect()
+  getPackages(
+    payload$: Observable<{ page: number; pageSize: number; query: string; starred: boolean; permission?: Permission }>,
+  ) {
+    return payload$.pipe(
+      switchMap(({ page, pageSize, starred, query, permission }) =>
+        this.client
+          .query({
+            query: allPackagesQuery,
+            variables: { input: { skip: (page - 1) * pageSize, first: pageSize }, starred, query, permission },
+          })
+          .pipe(
+            createErrorCatcher('Failed to get packages list.'),
+            map((data) => this.getActions().setPackages(data.packages)),
+            startWith(this.getActions().setLoading(true)),
+            endWith(this.getActions().setLoading(false)),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
   getGroups(payload$: Observable<{ page: number; pageSize: number; query: string }>) {
     return payload$.pipe(
       switchMap(({ page, pageSize, query }) =>
@@ -107,6 +141,12 @@ export class ProjectsModule extends EffectModule<State> {
   setProjects(state: Draft<State>, { pageInfo, edges }: ProjectsQuery['projects']) {
     state.totalCount = pageInfo.totalCount
     state.projects = edges.map((edge) => edge.node)
+  }
+
+  @ImmerReducer()
+  setPackages(state: Draft<State>, { pageInfo, edges }: AllPackagesQuery['packages']) {
+    state.packageTotalCount = pageInfo.totalCount
+    state.packages = edges.map((edge) => edge.node)
   }
 
   @ImmerReducer()

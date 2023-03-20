@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { Stack, Image } from '@fluentui/react'
+import { Stack, Image, NeutralColors } from '@fluentui/react'
 
 export const Cell = styled(Stack)(({ theme }) => ({
   cursor: 'pointer',
@@ -42,4 +42,41 @@ export const TextImage = styled(Image)(({ theme, title }) => ({
     color: theme.colors.white,
   },
   backgroundColor: theme.colors.primary,
+}))
+
+export const PackageCardHeader = styled.div({
+  borderBottom: `1px solid ${NeutralColors.gray30}`,
+  display: 'flex',
+  padding: '0 12px',
+  height: '48px',
+  alignItems: 'center',
+  '> span:first-of-type': {
+    marginRight: '10px',
+  },
+})
+
+export const PackageTitle = styled.div(({ theme }) => ({
+  fontSize: '18px',
+  color: theme.text.color,
+  fontWeight: 600,
+  maxWidth: '100%',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+}))
+
+export const PackageListWrap = styled.div({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+  gridColumnGap: '18px',
+  gridRowGap: '24px',
+  margin: '12px 0',
+})
+
+export const PackageInfoText = styled.span(({ theme }) => ({
+  fontSize: '12px',
+  color: theme.text.colorSecondary,
+}))
+
+export const PackageInfoTitle = styled(PackageInfoText)(({ theme }) => ({
+  color: theme.text.color,
 }))

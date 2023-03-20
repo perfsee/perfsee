@@ -1,0 +1,42 @@
+{
+  "name": "@perfsee/package",
+  "version": "1.3.0",
+  "description": "package analyzer sdk by perfsee",
+  "sideEffect": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/perfsee/perfsee",
+  "license": "Apache-2.0",
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "bin"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "bin": "./bin/cli.js",
+  "dependencies": {
+    "@arrows/composition": "^1.2.2",
+    "@arrows/dispatch": "^1.0.3",
+    "@perfsee/chrome-finder": "workspace:*",
+    "@perfsee/package-build-stats": "workspace:*",
+    "@perfsee/plugin-utils": "workspace:*",
+    "@perfsee/utils": "workspace:*",
+    "@swc-node/register": "^1.6.3",
+    "benchmark": "^2.1.4",
+    "chalk": "^4.1.2",
+    "clipanion": "^3.1.0",
+    "esbuild": "^0.17.11",
+    "glob": "^9.2.1",
+    "node-fetch": "^2.6.2",
+    "puppeteer-core": "^13.7.0",
+    "tar": "^6.1.13",
+    "tslib": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/benchmark": "^2.1.2",
+    "package-json-type": "^1.0.3"
+  }
+}

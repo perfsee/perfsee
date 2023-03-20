@@ -30,6 +30,12 @@
       "path": "../packages/ori"
     },
     {
+      "path": "../packages/package-build-stats"
+    },
+    {
+      "path": "../packages/package"
+    },
+    {
       "path": "../packages/platform-server"
     },
     {
@@ -82,6 +88,9 @@
     },
     {
       "path": "../packages/runner/lab"
+    },
+    {
+      "path": "../packages/runner/package"
     },
     {
       "path": "../packages/runner/shared"

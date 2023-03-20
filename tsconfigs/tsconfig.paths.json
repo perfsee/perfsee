@@ -57,6 +57,18 @@
       "@perfsee/ori/*": [
         "packages/ori/src/*"
       ],
+      "@perfsee/package-build-stats": [
+        "packages/package-build-stats/src"
+      ],
+      "@perfsee/package-build-stats/*": [
+        "packages/package-build-stats/src/*"
+      ],
+      "@perfsee/package": [
+        "packages/package/src"
+      ],
+      "@perfsee/package/*": [
+        "packages/package/src/*"
+      ],
       "@perfsee/platform-server": [
         "packages/platform-server/src"
       ],
@@ -164,6 +176,12 @@
       ],
       "@perfsee/job-runner-lab/*": [
         "packages/runner/lab/src/*"
+      ],
+      "@perfsee/job-runner-package": [
+        "packages/runner/package/src"
+      ],
+      "@perfsee/job-runner-package/*": [
+        "packages/runner/package/src/*"
       ],
       "@perfsee/job-runner-shared": [
         "packages/runner/shared/src"

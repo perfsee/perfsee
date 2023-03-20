@@ -2,7 +2,6 @@
   "name": "@perfsee/chrome-finder",
   "version": "1.0.0",
   "description": "Chrome executable bin finder",
-  "private": true,
   "license": "Apache-2.0",
   "repository": "https://github.com/perfsee/perfsee",
   "main": "dist/index.js",

@@ -1,0 +1,3 @@
+mutation dispatchPackageJob($projectId: ID!, $packageId: Int! $id: Int!) {
+  dispatchPackageJob(projectId: $projectId, packageId: $packageId, id: $id)
+}

@@ -1,0 +1,3 @@
+mutation deletePackageBundle($projectId: ID!, $packageId: Int!, $id: Int!) {
+  deletePackageBundle(projectId: $projectId, packageId: $packageId, id: $id)
+}

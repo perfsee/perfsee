@@ -26,6 +26,8 @@ export function localRunnerScriptEntry(jobType: JobType) {
       return require.resolve('@perfsee/job-runner-lab/src/loader.js')
     case JobType.SourceAnalyze:
       return require.resolve('@perfsee/job-runner-source/src/loader.js')
+    case JobType.PackageAnalyze:
+      return require.resolve('@perfsee/job-runner-package/src/loader.js')
     default:
       throw new Error('Unknown job type')
   }

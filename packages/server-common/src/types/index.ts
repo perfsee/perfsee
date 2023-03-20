@@ -80,6 +80,13 @@ export enum SourceStatus {
   Failed,
 }
 
+export interface PackageJobPayload {
+  packageBundleId: number
+  packageString?: string
+  buildKey?: string
+  baselineReportKey?: string | null
+}
+
 export interface BundleJobPayload {
   artifactId: number
   buildKey: string
@@ -114,6 +121,31 @@ export type BundleJobPassedUpdate = {
   totalSize: Size
   scripts?: { fileName: string }[]
 }
+
+export type PackageJobRunningUpdate = {
+  packageBundleId: number
+  status: BundleJobStatus.Running
+}
+
+export type PackageJobFailedUpdate = {
+  packageBundleId: number
+  status: BundleJobStatus.Failed
+  failedReason: string
+  duration: number
+}
+export type PackageJobPassedUpdate = {
+  packageBundleId: number
+  status: BundleJobStatus.Passed
+  reportKey: string
+  benchmarkKey: string | undefined
+  duration: number
+  size: Size
+  hasSideEffects?: boolean
+  hasJSModule?: boolean
+  hasJSNext?: boolean
+  isModuleType?: boolean
+}
+export type PackageJobUpdate = PackageJobRunningUpdate | PackageJobFailedUpdate | PackageJobPassedUpdate
 
 export type BundleJobUpdate = BundleJobRunningUpdate | BundleJobFailedUpdate | BundleJobPassedUpdate
 export function isPassedBundleJobUpdate(update: BundleJobUpdate): update is BundleJobPassedUpdate {

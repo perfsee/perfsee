@@ -177,6 +177,9 @@ type Project {
   """authorized users of this project"""
   authorizedUsers: [UserWithPermission!]!
 
+  """if this project has packages uploaded"""
+  hasPackages: Boolean!
+
   """current user permission to this project"""
   userPermission: [Permission!]!
 
@@ -251,6 +254,20 @@ type Project {
 
   """get project settings"""
   setting: Setting!
+
+  """paginated packages for given project"""
+  packages(
+    pagination: PaginationInput = {first: 10}
+
+    """name filter"""
+    name: String
+  ): PaginatedPackages!
+
+  """get package by id"""
+  package(
+    """package id"""
+    id: Int!
+  ): Package!
 
   """snapshot detail"""
   snapshot(snapshotId: Int!): Snapshot!
@@ -348,6 +365,7 @@ input PaginationInput {
 enum JobType {
   All
   BundleAnalyze
+  PackageAnalyze
   LabAnalyze
   E2EAnalyze
   SourceAnalyze
@@ -924,6 +942,102 @@ type Group {
   projects: [Project!]!
 }
 
+type Package {
+  id: Int!
+
+  """project id of package"""
+  projectId: Int!
+
+  """package name"""
+  name: String!
+
+  """package description"""
+  description: String
+
+  """package author"""
+  keywords: [String!]
+
+  """artifact created timestamp"""
+  createdAt: DateTime!
+
+  """artifact updated timestamp"""
+  updatedAt: DateTime!
+  bundles(
+    pagination: PaginationInput = {first: 5}
+
+    """git branch filter"""
+    branch: String
+
+    """hash filter"""
+    hash: String
+  ): PaginatedPackageBundles!
+}
+
+type PackageBundle {
+  id: Int!
+
+  """package name"""
+  name: String!
+
+  """package version"""
+  version: String!
+
+  """git commit hash"""
+  hash: String!
+
+  """git branch"""
+  branch: String!
+
+  """user uploaded the build"""
+  issuer: String!
+
+  """status of bundle analyzing progress"""
+  status: BundleJobStatus!
+
+  """reason for failed analyzing"""
+  failedReason: String
+
+  """total size introduced by build, report and content files, in bytes"""
+  uploadSize: Int!
+
+  """size of the entrypoint"""
+  size: FileSize
+
+  """time spent to analyze the build"""
+  duration: Int!
+
+  """has size effects"""
+  hasSideEffects: Boolean
+
+  """has js module"""
+  hasJSModule: Boolean
+
+  """has js next"""
+  hasJSNext: Boolean
+
+  """is module type"""
+  isModuleType: Boolean
+
+  """artifact created timestamp"""
+  createdAt: DateTime!
+
+  """artifact updated timestamp"""
+  updatedAt: DateTime!
+  appVersion: AppVersion
+
+  """package iid"""
+  packageId: Int!
+
+  """the link to build analysis report file"""
+  reportLink: String
+
+  """the link to build benchmark report file"""
+  benchmarkLink: String
+
+  """the link to uploaded build tar file"""
+  buildLink: String
+}
+
 type PageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -1220,6 +1334,26 @@ type GroupIdVerificationResult {
   error: String
 }
 
+type PackageEdge {
+  cursor: String!
+  node: Package!
+}
+
+type PaginatedPackages {
+  edges: [PackageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PackageBundleEdge {
+  cursor: String!
+  node: PackageBundle!
+}
+
+type PaginatedPackageBundles {
+  edges: [PackageBundleEdge!]!
+  pageInfo: PageInfo!
+}
+
 """message target setting"""
 input MessageTargetInput {
   userEmails: [String!]!
@@ -1287,6 +1421,32 @@ type Query {
   pendingJobsAggregation: [JobAggregation!]!
   runner(id: ID!): Runner!
   runners(filter: RunnerQueryFilter!): PaginatedRunners!
+
+  """paginated packages"""
+  packages(
+    pagination: PaginationInput = {first: 10}
+
+    """filter your starred packages"""
+    starred: Boolean = false
+
+    """search packages with name"""
+    query: String
+
+    """filter packages with permission"""
+    permission: Permission
+  ): PaginatedPackages!
+
+  """get package bundle by id"""
+  packageBundle(
+    """package id"""
+    packageId: ID!
+
+    """package bundle id"""
+    id: ID
+  ): PackageBundle!
+
+  """get package bundle history"""
+  packageBundleHistory(packageId: ID!, to: DateTime!, limit: Int, branch: String): [PackageBundle!]!
   connections: [ConnectionType!]!
   devices: [DeviceType!]!
   availableOAuthProviders: [ExternalAccount!]!
@@ -1365,6 +1525,24 @@ type Mutation {
 
   """update project settings"""
   updateProjectSettings(projectId: ID!, input: UpdateSettingInput!): Setting!
+  deletePackageBundle(
+    projectId: ID!
+    packageId: Int!
+
+    """pakcage bundle id"""
+    id: Int!
+  ): Boolean!
+
+  """trigger artifact bundle analyze job"""
+  dispatchPackageJob(
+    projectId: ID!
+
+    """package id"""
+    packageId: Int!
+
+    """package bundle id"""
+    id: Int!
+  ): Boolean!
 
   """delete snapshot"""
   deleteSnapshot(projectId: ID!, snapshotId: Int!): Boolean!

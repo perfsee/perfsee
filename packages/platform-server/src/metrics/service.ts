@@ -42,6 +42,14 @@ export class Metric {
   readonly bundleComplete = this.metricsProvider.counter('features.bundle.complete')
   readonly bundleFail = this.metricsProvider.counter('features.bundle.fail')
 
+  readonly packageUpload = this.metricsProvider.meter('features.package.upload', ['appVersion', 'nodeVersion'])
+  readonly packageUploadFail = this.metricsProvider.counter('features.packages.upload.fail', [
+    'appVersion',
+    'nodeVersion',
+  ])
+  readonly packageComplete = this.metricsProvider.counter('feature.package.complete')
+  readonly packageFaile = this.metricsProvider.counter('feature.package.fail')
+
   readonly snapshotCreate = this.metricsProvider.meter('features.snapshot.create')
   readonly snapshotCreateFail = this.metricsProvider.counter('features.snapshot.create.fail')
   readonly snapshotComplete = this.metricsProvider.counter('features.snapshot.complete')
