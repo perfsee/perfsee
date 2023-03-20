@@ -440,7 +440,7 @@ export class PageService {
 
   private async getCompetitorIidMapByPageIds(pageIds: number[]) {
     const withCompetitor = await PageWithCompetitor.createQueryBuilder('item')
-      .leftJoin(Page, 'page', 'page.id = item.competitor_id')
+      .innerJoin(Page, 'page', 'page.id = item.competitor_id')
       .select(['page.iid as competitorId', 'item.pageId as pageId'])
       .where('item.page_id in (:...pageIds)', { pageIds })
       .getRawMany<{ pageId: number; competitorId: number }>()
