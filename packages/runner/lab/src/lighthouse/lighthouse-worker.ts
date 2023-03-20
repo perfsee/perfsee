@@ -55,7 +55,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected reactProfiling!: boolean
 
   protected async before() {
-    this.warmupPageLoad()
+    await this.warmupPageLoad()
     return Promise.resolve()
   }
 
@@ -195,10 +195,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private warmupPageLoad() {
+  private async warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
-    const { headers, cookies, localStorage, reactProfiling } = this.payload
+    const { headers, cookies, localStorage, reactProfiling, url } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
     this.headers = hostHeaders
@@ -206,14 +206,60 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.localStorageContent = localStorage
     this.reactProfiling = reactProfiling
 
+    if (reactProfiling) {
+      try {
+        this.logger.info('React profiler enabled.')
+        const browser = await this.createBrowser()
+        await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser)
+        this.logger.info('`react-dom` script detected')
+        await browser.close()
+      } catch (e) {
+        this.logger.error('Failed to detect `react-dom` script', { error: e })
+      }
+    }
+
     this.logger.verbose('Warming up ended.')
+  }
+
+  private async createBrowser() {
+    const { cookies, localStorageContent } = this
+    const { url, deviceId } = this.payload
+    const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
+    const domain = new URL(url).host
+
+    const browser = await createBrowser()
+
+    browser.on('targetcreated', (e: puppeteer.Target) => {
+      const setup = async () => {
+        const page = await e.page()
+        if (!page) {
+          return
+        }
+        await page.setCookie(...formatCookies(cookies, domain))
+        await page.setViewport(device.viewport)
+
+        if (localStorageContent.length) {
+          await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
+            localStorage.clear()
+            localStorageContent.forEach(({ key, value }) => {
+              localStorage.setItem(key, value)
+            })
+          }, localStorageContent)
+        }
+      }
+
+      setup().catch((e) => {
+        this.logger.error('Failed to set cookies and viewport to page', e)
+      })
+    })
+
+    return browser
   }
 
   private async runLighthouse() {
     const { cookies, headers, localStorageContent, reactProfiling } = this
     const { url, deviceId, throttle, runs } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
-    const domain = new URL(url).host
 
     this.logger.info(`Will load page: ${url}`, {
       device,
@@ -257,40 +303,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     for (let i = 0; i < runs; i++) {
       this.logger.info(`Running lighthouse auditing. Round #${i + 1}`)
-      const browser = await createBrowser()
-
-      browser.on('targetcreated', (e: puppeteer.Target) => {
-        const setup = async () => {
-          const page = await e.page()
-          if (!page) {
-            return
-          }
-          await page.setCookie(...formatCookies(cookies, domain))
-          await page.setViewport(device.viewport)
-
-          if (localStorageContent.length) {
-            await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
-              localStorage.clear()
-              localStorageContent.forEach(({ key, value }) => {
-                localStorage.setItem(key, value)
-              })
-            }, localStorageContent)
-          }
-        }
-
-        setup().catch((e) => {
-          this.logger.error('Failed to set cookies and viewport to page', e)
-        })
-      })
-
-      if (reactProfiling) {
-        try {
-          this.logger.info('React profiler enabled.')
-          await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser)
-        } catch (e) {
-          this.logger.error(`Failed to detect react-dom script`, { error: e })
-        }
-      }
+      const browser = await this.createBrowser()
 
       try {
         const wsEndpoint = new URL(browser.wsEndpoint())
