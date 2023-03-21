@@ -213,8 +213,8 @@ export const BundleList = memo(() => {
       {
         key: 'status',
         name: 'Status',
-        minWidth: 160,
-        maxWidth: 200,
+        minWidth: 140,
+        maxWidth: 180,
         onRender: (item: Artifact) => {
           if (item) {
             const status = (
@@ -240,15 +240,15 @@ export const BundleList = memo(() => {
       {
         key: 'artifact',
         name: 'Artifact',
-        minWidth: 100,
+        minWidth: 80,
         maxWidth: 150,
         onRender: (item: Artifact) => `#${item.id}`,
       },
       {
         key: 'name',
         name: 'Artifact Name',
-        minWidth: 100,
-        maxWidth: 150,
+        minWidth: 150,
+        maxWidth: 220,
         onRender: (item: Artifact) => <TooltipWithEllipsis content={item.name}>{item.name}</TooltipWithEllipsis>,
       },
       {

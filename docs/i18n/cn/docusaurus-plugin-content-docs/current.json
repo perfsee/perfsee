@@ -21,5 +21,9 @@
   },
   "sidebar.apiSidebar.category.dev": {
     "message": "开发"
+  },
+  "sidebar.documentsSidebar.doc.Group View": {
+    "message": "群组视图",
+    "description": "群组视图功能说明"
   }
 }

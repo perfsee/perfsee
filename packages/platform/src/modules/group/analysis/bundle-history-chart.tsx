@@ -177,7 +177,10 @@ export const BundleHistoryChart = ({ flatData, minY, maxY, loading }: Props) => 
 
   return (
     <Chart option={option} showLoading={loading} notMerge={true} hideBorder>
-      <ChartHeader title="Bundle Size History" tips="From baseline branch data" />
+      <ChartHeader
+        title="Bundle Size History"
+        tips="The legend is group by 'projectName-entrypoint', You can click legends to toggle displaying series in the chart."
+      />
     </Chart>
   )
 }
