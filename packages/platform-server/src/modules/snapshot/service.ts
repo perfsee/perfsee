@@ -22,9 +22,9 @@ import {
   NotFoundException,
   OnApplicationBootstrap,
 } from '@nestjs/common'
-import { Cron, CronExpression } from '@nestjs/schedule'
 import { In } from 'typeorm'
 
+import { Cron, CronExpression } from '@perfsee/platform-server/cron'
 import {
   SnapshotReport,
   Environment,
@@ -520,13 +520,14 @@ export class SnapshotService implements OnApplicationBootstrap {
     return false
   }
 
-  @Cron(CronExpression.EVERY_HOUR, { exclusive: true, name: 'completedSnapshots' })
+  @Cron(CronExpression.EVERY_30_MINUTES, { exclusive: true, name: 'completed-snapshots' })
   async completedSnapshots() {
     const snapshots = await Snapshot.createQueryBuilder('snapshot')
       .where('snapshot.status = :status', {
         status: SnapshotStatus.Running,
       })
       .andWhere('snapshot.created_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)')
+      .take(30)
       .getMany()
 
     const completedSnapshots: Snapshot[] = []
@@ -540,7 +541,7 @@ export class SnapshotService implements OnApplicationBootstrap {
         .where('snapshot_id = :snapshotId', { snapshotId: snapshot.id })
         .getRawOne<{ total: string; completedCount: string }>()
 
-      if (result && result.completedCount === result.total) {
+      if (result && parseInt(result.completedCount) === parseInt(result.total)) {
         snapshot.status = SnapshotStatus.Completed
         completedSnapshots.push(snapshot)
       }
