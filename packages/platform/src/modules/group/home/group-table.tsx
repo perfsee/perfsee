@@ -45,7 +45,7 @@ const columns = [
   },
   {
     key: 'jobDuration',
-    name: 'Job Duration',
+    name: 'Job duration',
     minWidth: 100,
     maxWidth: 160,
     onRender: (item) => <div>{item.usage.jobDuration}mins</div>,
@@ -73,7 +73,10 @@ const columns = [
       return (
         <Stack horizontal>
           Lab score
-          <IconWithTips marginLeft="4px" content="During this time period, display the average score of all records" />
+          <IconWithTips
+            marginLeft="4px"
+            content="Average of the performance scores of all successful lab reports scanned during the time period."
+          />
         </Stack>
       )
     },
@@ -108,7 +111,10 @@ const columns = [
       return (
         <Stack horizontal>
           Bundle score
-          <IconWithTips marginLeft="4px" content="During this time period, display the average score of all records" />
+          <IconWithTips
+            marginLeft="4px"
+            content="Average of the scores of all successful bundle reports scanned during the time period."
+          />
         </Stack>
       )
     },
@@ -178,7 +184,7 @@ const columns = [
     onRenderHeader: () => {
       return (
         <Stack horizontal>
-          initial JS Size
+          Initial JS Size
           <IconWithTips
             marginLeft="4px"
             content="The value is the average value of all entrypoints. The latest record is displayed, compared with the oldest record. "
@@ -218,7 +224,7 @@ const columns = [
             {key}
             <IconWithTips
               marginLeft="4px"
-              content="The displayed value is the average value of the reports in latest snapshot. Compared with the oldest record. "
+              content="The value displayed is the average value of the reports in latest snapshot. Compared with the oldest record. "
             />
           </Stack>
         )

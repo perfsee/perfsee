@@ -1,11 +1,13 @@
-import { IDetailsRowProps, IDetailsRowStyles, DetailsRow, Spinner, SelectionMode } from '@fluentui/react'
+import { IDetailsRowProps, IDetailsRowStyles, DetailsRow, Spinner, SelectionMode, Link } from '@fluentui/react'
 import { NeutralColors } from '@fluentui/theme'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 
 import { Empty, Table, TableColumnProps, TooltipWithEllipsis } from '@perfsee/components'
+import { SnapshotStatus } from '@perfsee/schema'
 import { MetricType } from '@perfsee/shared'
+import { pathFactory } from '@perfsee/shared/routes'
 
 import { SnapshotStatusTag } from '../../lab/list/status-tag'
 
@@ -18,16 +20,6 @@ type Props = { item: ProjectUsageInfo } & TimeFilterProps
 const tableHeaderStyles = { cellName: { fontSize: '12px' } }
 const columns = [
   {
-    key: 'name',
-    name: 'Name',
-    styles: tableHeaderStyles,
-    minWidth: 100,
-    maxWidth: 160,
-    onRender: (item) => (
-      <TooltipWithEllipsis content={`${item.page.name}-${item.profile.name}-${item.environment.name}`} />
-    ),
-  },
-  {
     key: 'status',
     name: 'Status',
     styles: tableHeaderStyles,
@@ -39,8 +31,8 @@ const columns = [
     return {
       key: key,
       name: key,
-      minWidth: 120,
-      maxWidth: 180,
+      minWidth: 80,
+      maxWidth: 120,
       styles: tableHeaderStyles,
       onRender: (item: LatestReport) => {
         if (!item.metrics[MetricType[key]]) {
@@ -71,6 +63,37 @@ const TableExtraInfo = (props: Props) => {
     })
   }, [dispatcher, endTime, item.id, startTime])
 
+  const nameColumn = useMemo(() => {
+    return {
+      key: 'name',
+      name: 'Name',
+      styles: tableHeaderStyles,
+      minWidth: 120,
+      maxWidth: 220,
+      onRender: (report: LatestReport) => {
+        const name = (
+          <TooltipWithEllipsis content={`${report.page.name}-${report.profile.name}-${report.environment.name}`} />
+        )
+
+        if (report.status !== SnapshotStatus.Completed) {
+          return name
+        }
+
+        return (
+          <Link
+            to={pathFactory.project.lab.report({
+              projectId: item.id,
+              reportId: report.id,
+              tabName: 'overview',
+            })}
+          >
+            {name}
+          </Link>
+        )
+      },
+    }
+  }, [item.id])
+
   if (!reports) {
     return <Spinner />
   }
@@ -91,7 +114,7 @@ const TableExtraInfo = (props: Props) => {
         compact={true}
         items={reports}
         selectionMode={SelectionMode.none}
-        columns={columns}
+        columns={[nameColumn, ...columns]}
         disableVirtualization={reports.length < 100}
       />
     </div>

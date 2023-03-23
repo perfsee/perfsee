@@ -105,7 +105,10 @@ export const Charts = ({ startTime, endTime, groupId }: Props) => {
       }
     }
 
-    const scoreFlatData = Array.from(scoreDataMap.values()).map((d) => ({ ...d, score: d.sumScore / d.entryCount }))
+    const scoreFlatData = Array.from(scoreDataMap.values()).map((d) => ({
+      ...d,
+      score: d.sumScore / d.entryCount /**the score is average score of entrypoints  */,
+    }))
 
     return { flatData: data, scoreFlatData, largest, smallest, maxScore, minScore }
   }, [bundleHistoryMap])

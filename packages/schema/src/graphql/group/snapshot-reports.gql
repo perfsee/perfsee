@@ -3,6 +3,7 @@ query latestSnapshotReports($projectId: ID!, $from: DateTime!, $to: DateTime!) {
       id
       latestSnapshot(from: $from, to: $to) {
         snapshotReports {
+          id
           status
           metrics
           page {

@@ -154,7 +154,10 @@ export const BundleScoreChart = ({ flatData, minY, maxY, loading }: Props) => {
 
   return (
     <Chart option={option} showLoading={loading} notMerge={true} hideBorder>
-      <ChartHeader title="Bundle Score History" tips="From baseline branch data" />
+      <ChartHeader
+        title="Bundle Score History"
+        tips="The legend is group by 'projectName-artifactName', You can click legends to toggle displaying series in the chart. the value of y-axis is the average score of entrypoints."
+      />
     </Chart>
   )
 }
