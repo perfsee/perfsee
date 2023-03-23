@@ -31,6 +31,10 @@ export interface RenderProps {
   hiddenFrameLabels?: boolean
 }
 
+export interface RenderFeedback {
+  timingPhysicalAreas: { timing: Timing; area: Rect }[]
+}
+
 /**
  * stateless flamechart view renderer
  */
@@ -62,14 +66,14 @@ export class FlamechartViewRenderer {
     )
   }
 
-  render(width: number, height: number, viewport: Rect, props: RenderProps) {
+  render(width: number, height: number, viewport: Rect, props: RenderProps): RenderFeedback | undefined {
     if (viewport.isEmpty()) {
-      return
+      return undefined
     }
     assert(width > 0, 'width is zero')
     assert(height > 0, 'height is zero')
     this.renderGl(width, height, viewport)
-    this.renderOverlay(width, height, viewport, props)
+    return this.renderOverlay(width, height, viewport, props)
   }
 
   private renderGl(width: number, height: number, viewport: Rect) {
@@ -84,7 +88,10 @@ export class FlamechartViewRenderer {
     })
   }
 
-  private renderOverlay(width: number, height: number, viewport: Rect, props: RenderProps) {
+  private renderOverlay(width: number, height: number, viewport: Rect, props: RenderProps): RenderFeedback {
+    // for hover testing
+    const timingPhysicalAreas: { timing: Timing; area: Rect }[] = []
+
     const ctx = this.overlayCtx
 
     const physicalSize = new Vec2(width, height)
@@ -268,6 +275,8 @@ export class FlamechartViewRenderer {
       const timings = this.timings
       if (timings && timings.length > 0) {
         const sortedTimings = timings.sort((a, b) => a.value - b.value)
+        const pointTimings = sortedTimings.filter((t) => t.style === 'point')
+        const labelTimings = sortedTimings.filter((t) => t.style !== 'point')
 
         const labelPaddingHorizontal = 10 * props.devicePixelRatio
         const labelPaddingVertical = 4 * props.devicePixelRatio
@@ -278,39 +287,67 @@ export class FlamechartViewRenderer {
         ctx.save()
         ctx.font = `bold ${physicalFontSize}px/${physicalFrameHeight}px ${this.theme.fontFamily}`
         ctx.textBaseline = 'top'
-        for (const timing of sortedTimings!) {
+        for (const timing of [...labelTimings, ...pointTimings]) {
           const pos = new Vec2(
             timing.value,
-            props.bottomTimingLabels ? this.flamechart.getLayers().length + 0.25 : -1.25,
+            props.bottomTimingLabels ? this.flamechart.getLayers().length + 0.5 : -0.75,
           )
           const physicalPos = viewportToPhysical.transformPosition(pos)
 
           const labelText = timing.name
-          if (labelText) {
-            const textWidth = cachedMeasureTextWidth(ctx, labelText)
-
-            const labelStart = Math.max(physicalPos.x, lastLabelEnd)
-
+          if (timing.style === 'point') {
+            ctx.save()
+            ctx.setLineDash([])
+            ctx.translate(physicalPos.x, physicalPos.y)
+            ctx.scale(0.8, 0.8)
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.bezierCurveTo(20, -20, 20, -40, 0, -40)
+            ctx.bezierCurveTo(-20, -40, -20, -20, 0, 0)
             ctx.fillStyle = timing.color
-            ctx.fillRect(
-              labelStart,
-              physicalPos.y,
-              labelPaddingHorizontal * 2 + textWidth,
-              labelPaddingVertical * 2 + physicalFontSize,
-            )
-            ctx.fillStyle = '#fff'
-            ctx.fillText(labelText, labelStart + labelPaddingHorizontal, physicalPos.y + labelPaddingVertical)
-            lastLabelEnd = labelStart + labelPaddingHorizontal * 2 + textWidth
-          }
+            ctx.lineWidth = lineWidth
+            ctx.strokeStyle = theme.bgPrimaryColor
+            ctx.fill()
+            ctx.stroke()
+            ctx.restore()
+            timingPhysicalAreas.push({
+              timing,
+              area: new Rect(new Vec2(physicalPos.x - 16, physicalPos.y - 32), new Vec2(32, 32)),
+            })
+          } else {
+            if (labelText) {
+              const textWidth = cachedMeasureTextWidth(ctx, labelText)
 
-          ctx.beginPath()
-          ctx.setLineDash(lineDash)
-          ctx.moveTo(physicalPos.x + lineWidth / 2, 0)
-          ctx.lineTo(physicalPos.x + lineWidth / 2, physicalSize.y)
-          ctx.lineWidth = lineWidth
-          ctx.strokeStyle = timing.color
-          ctx.stroke()
-          ctx.closePath()
+              const labelStart = Math.max(physicalPos.x, lastLabelEnd)
+
+              ctx.fillStyle = timing.color
+              ctx.fillRect(
+                labelStart,
+                physicalPos.y - labelPaddingVertical - physicalFontSize,
+                labelPaddingHorizontal * 2 + textWidth,
+                labelPaddingVertical * 2 + physicalFontSize,
+              )
+              ctx.fillStyle = '#fff'
+              ctx.fillText(labelText, labelStart + labelPaddingHorizontal, physicalPos.y - physicalFontSize)
+              lastLabelEnd = labelStart + labelPaddingHorizontal * 2 + textWidth
+              timingPhysicalAreas.push({
+                timing,
+                area: new Rect(
+                  new Vec2(labelStart, physicalPos.y - labelPaddingVertical - physicalFontSize),
+                  new Vec2(labelPaddingHorizontal * 2 + textWidth, labelPaddingVertical * 2 + physicalFontSize),
+                ),
+              })
+            }
+
+            ctx.beginPath()
+            ctx.setLineDash(lineDash)
+            ctx.moveTo(physicalPos.x + lineWidth / 2, 0)
+            ctx.lineTo(physicalPos.x + lineWidth / 2, physicalSize.y)
+            ctx.lineWidth = lineWidth
+            ctx.strokeStyle = timing.color
+            ctx.stroke()
+            ctx.closePath()
+          }
         }
         ctx.restore()
       }
@@ -403,6 +440,10 @@ export class FlamechartViewRenderer {
       }
 
       ctx.restore()
+    }
+
+    return {
+      timingPhysicalAreas,
     }
   }
 }
