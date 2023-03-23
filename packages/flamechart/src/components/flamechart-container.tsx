@@ -94,6 +94,10 @@ export interface FlamechartProps {
    */
   renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
   /**
+   * render custom tooltip for timings
+   */
+  renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme) => React.ReactNode
+  /**
    * on select frame
    */
   onSelectFrame?: (frame: FlamechartFrame | null) => void
@@ -134,6 +138,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           disableTimeIndicators,
           rootFilter,
           renderTooltip,
+          renderTimingTooltip,
           onSelectFrame,
         },
         ref,
@@ -224,6 +229,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 bottomPadding={bottomPadding}
                 hiddenFrameLabels={hiddenFrameLabels}
                 renderTooltip={renderTooltip}
+                renderTimingTooltip={renderTimingTooltip}
                 onSelectFrame={onSelectFrame}
               />
             )}

@@ -6,7 +6,7 @@ import { ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
 
 import { FlamechartBindingManager } from './flamechart-binding-manager'
-import { FlamechartViewRenderer, LOGICAL_FRAME_HEIGHT, RenderProps } from './flamechart-view-renderer'
+import { FlamechartViewRenderer, LOGICAL_FRAME_HEIGHT, RenderFeedback, RenderProps } from './flamechart-view-renderer'
 
 export interface ControllerProps {
   minLeft?: number
@@ -16,6 +16,7 @@ export interface ControllerProps {
   topPadding?: number
   bottomPadding?: number
   onNodeHover?: (hover: { frame: FlamechartFrame; event: MouseEvent } | null) => void
+  onTimingHover?: (hover: { timing: Timing; event: MouseEvent } | null) => void
   onNodeSelect?: (frame: FlamechartFrame | null) => void
 
   disableTimeIndicators?: boolean
@@ -37,6 +38,7 @@ export class FlamechartViewController {
   private matchedOutlineWidth = 0
   private timelineCursor: number | undefined = undefined
   private searchResults: ProfileSearchEngine | undefined = undefined
+  private renderFeedback: RenderFeedback | undefined = undefined
   private readonly resizeObserver: ResizeObserver
 
   constructor(
@@ -181,6 +183,7 @@ export class FlamechartViewController {
 
     this.hoverFrame = undefined
     this.props.onNodeHover?.(null)
+    this.props.onTimingHover?.(null)
 
     if (!configDelta) return
 
@@ -268,6 +271,15 @@ export class FlamechartViewController {
         }
 
         this.props.onNodeHover?.(this.hoverFrame ? { frame: this.hoverFrame, event: ev } : null)
+
+        let hoverTiming = undefined
+        for (const { area, timing } of this.renderFeedback?.timingPhysicalAreas || []) {
+          if (area.contains(physicalViewSpaceMouse)) {
+            hoverTiming = timing
+          }
+        }
+
+        this.props.onTimingHover?.(hoverTiming ? { timing: hoverTiming, event: ev } : null)
       }
     }
 
@@ -279,6 +291,7 @@ export class FlamechartViewController {
     this.hoverFrame = undefined
     this.timelineCursor = undefined
     this.props.onNodeHover?.(null)
+    this.props.onTimingHover?.(null)
     this.requestRender()
     this.notifyTimelineCursorBindingChanged()
   }
@@ -511,13 +524,23 @@ export class FlamechartViewController {
   private requestRender() {
     cancelAnimationFrame(this.animationFrameRequest)
     this.animationFrameRequest = requestAnimationFrame(() => {
-      this.renderer.render(this.physicalSize.x, this.physicalSize.y, this.viewport, this.renderProps())
+      this.renderFeedback = this.renderer.render(
+        this.physicalSize.x,
+        this.physicalSize.y,
+        this.viewport,
+        this.renderProps(),
+      )
     })
   }
 
   private syncRender() {
     cancelAnimationFrame(this.animationFrameRequest)
-    this.renderer.render(this.physicalSize.x, this.physicalSize.y, this.viewport, this.renderProps())
+    this.renderFeedback = this.renderer.render(
+      this.physicalSize.x,
+      this.physicalSize.y,
+      this.viewport,
+      this.renderProps(),
+    )
   }
 
   private notifyViewportBindingChanged() {

@@ -18,7 +18,7 @@ import { SharedColors } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { memo, useEffect, useMemo } from 'react'
 
-import { useWideScreen } from '@perfsee/components'
+import { ReactLogoIcon, useWideScreen } from '@perfsee/components'
 import {
   buildProfileFromFlameChartData,
   buildProfileFromNetworkRequests,
@@ -146,12 +146,14 @@ export const FlamechartView: React.FunctionComponent<{
           name: e.componentName ? `${e.componentName} ${e.type}` : e.type,
           value: e.timestamp * 1000 + reactTimeOffset,
           color: SharedColors.cyan10,
+          style: 'point' as const,
         }))
 
         const throwErrorEvents = data.thrownErrors.map((e) => ({
           name: e.componentName ? `${e.componentName} throw error during ${e.phase}` : `throw error during ${e.phase}`,
           value: e.timestamp * 1000 + reactTimeOffset,
           color: SharedColors.red10,
+          style: 'point' as const,
         }))
 
         return schedulingEvents.concat(throwErrorEvents)
@@ -173,7 +175,11 @@ export const FlamechartView: React.FunctionComponent<{
         profile &&
         ([
           ...(reactSchedulingEventsProfiles?.map((p) => ({
-            name: 'React',
+            name: (
+              <>
+                <ReactLogoIcon /> React
+              </>
+            ),
             profile: p,
             flamechartFactory: 'react-timeline',
             grow: 0.1,
