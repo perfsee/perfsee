@@ -24,6 +24,7 @@ import {
   Snapshot,
   User,
 } from '@perfsee/platform-server/db'
+import { isMatch } from '@perfsee/shared'
 
 export function shouldSendBundleJobMessage(setting: Setting, artifact: Artifact, hasWarning: boolean) {
   let sourceMatch = false
@@ -32,7 +33,7 @@ export function shouldSendBundleJobMessage(setting: Setting, artifact: Artifact,
       sourceMatch = true
       break
     case BundleMessageSource.Branch:
-      sourceMatch = setting.bundleMessageBranches.includes(artifact.branch)
+      sourceMatch = getSourceMatch(setting.bundleMessageBranches, artifact.branch)
       break
   }
   let filterPass = false
@@ -121,4 +122,16 @@ export const formatTime = (time: number) => {
     }
   }
   return `${Number.isInteger(time) ? time.toString() : time.toFixed(2)}${unit[unitIndex]}`
+}
+
+function getSourceMatch(settingBranches: string[], current: string) {
+  return settingBranches.some((branch) => {
+    if (current === branch) {
+      return true
+    }
+
+    if (branch.includes('*') || branch.includes('?')) {
+      return isMatch(branch, current)
+    }
+  })
 }

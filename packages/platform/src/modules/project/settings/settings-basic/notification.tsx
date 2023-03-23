@@ -203,6 +203,7 @@ function BundleNotificationBranches({ onChange, value }: SubSettingProps<string[
       if (typeof input !== 'string') {
         return
       }
+
       onChange('bundleMessageBranches', uniq(input.split(',').map((id) => id.trim())))
     },
     [onChange],
@@ -212,12 +213,25 @@ function BundleNotificationBranches({ onChange, value }: SubSettingProps<string[
     if (input.includes('，')) {
       return 'Please use english comma `,` to separate branches'
     }
+
     return ''
   }, [])
+
   return (
     <Field
       name="Branches"
-      note="Only jobs from given branches will emit notifications. You can set multiple branches by separating them with comma ','."
+      note={
+        <>
+          <p>
+            Only jobs from given branches will emit notifications. You can set multiple branches by separating them with
+            comma ','
+          </p>
+          <p>
+            We also support basic glob syntax <b>'*'</b> and <b>'?'</b>. For example, 'fix/*' would match 'fix/foo',
+            'version-?' would match 'version-x'
+          </p>
+        </>
+      }
     >
       <TextField
         styles={textInputStyles}

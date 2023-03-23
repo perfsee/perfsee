@@ -52,6 +52,13 @@ Bundle 分析时会将该分支作为基准分支与当前分支进行对比。
 - All: 监控所有分支并发送通知
 - Specific Branches: 仅监控指定分支并发送通知，勾选后更新表单，增加分支填写控件
 
+分支填写支持使用基础的通配符：
+
+- `*`: 匹配零个或多个任意字符
+- `?`: 匹配一个字符
+
+例如：`fix/*` 匹配 `fix/foo`, `version-?` 匹配 `version-x`.
+
 ![specific branch notification](/settings/specific-branch-notification.png)
 
 ### Lab Notification Filter (Lab 通知过滤设置)
