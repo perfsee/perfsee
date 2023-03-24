@@ -63,7 +63,7 @@ export const Footer = memo(({ isAdmin }: { isAdmin?: boolean }) => {
           <wbr />
         </Links>
       </Container>
-      <Copyright>Copyright © 2022 Perfsee</Copyright>
+      <Copyright>Copyright © {new Date().getFullYear()} Perfsee</Copyright>
     </StyledFooter>
   )
 })
