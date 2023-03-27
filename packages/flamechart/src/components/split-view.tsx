@@ -147,7 +147,7 @@ const SplitView: React.FunctionComponent<ISplitViewProps> = memo(
     const finalSize = useMemo(() => {
       const minSizeTotal = minSize.reduce((pre, value) => pre + value, 0)
       const targetSizeTotal = Math.max(direction === 'row' ? width : height, minSizeTotal)
-      const sizeOffsetTotal = targetSizeTotal - size.reduce((pre, value) => pre + value, 0)
+      const sizeOffsetTotal = targetSizeTotal - size.reduce((pre, value, i) => pre + Math.max(value, minSize[i]), 0)
       if (sizeOffsetTotal !== 0) {
         const growTotal = grow.reduce((pre, value) => pre + value, 0)
         const growOffset = grow.map((grow) => {
@@ -194,15 +194,20 @@ const SplitView: React.FunctionComponent<ISplitViewProps> = memo(
           const newSize = [...startSize]
 
           if (offset > 0) {
-            offset =
-              startSize[activeSashIndex + 1] -
-              Math.max(minSize[activeSashIndex + 1], startSize[activeSashIndex + 1] - offset)
+            for (let i = activeSashIndex + 1; i < newSize.length && Math.abs(offset) >= 1; i++) {
+              const calcOffset = newSize[i] - Math.max(minSize[i], newSize[i] - offset)
+              newSize[activeSashIndex] = newSize[activeSashIndex] + calcOffset
+              newSize[i] = newSize[i] - calcOffset
+              offset -= calcOffset
+            }
           } else {
-            offset =
-              Math.max(minSize[activeSashIndex], startSize[activeSashIndex] + offset) - startSize[activeSashIndex]
+            for (let i = activeSashIndex; i >= 0 && Math.abs(offset) >= 1; i--) {
+              const calcOffset = Math.max(minSize[i], newSize[i] + offset) - newSize[i]
+              newSize[i] = newSize[i] + calcOffset
+              newSize[activeSashIndex + 1] = newSize[activeSashIndex + 1] - calcOffset
+              offset += calcOffset
+            }
           }
-          newSize[activeSashIndex] = startSize[activeSashIndex] + offset
-          newSize[activeSashIndex + 1] = startSize[activeSashIndex + 1] - offset
 
           if (typeof onSizeChange === 'function') onSizeChange(newSize)
         }
