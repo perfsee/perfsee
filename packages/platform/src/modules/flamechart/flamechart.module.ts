@@ -18,7 +18,6 @@ interface State {
 export class FlamechartModule extends EffectModule<State> {
   readonly defaultState = {
     flamechart: null,
-    reactProfile: null,
     metrics: null,
     loadingFlamechart: true,
     loadingMetrics: true,

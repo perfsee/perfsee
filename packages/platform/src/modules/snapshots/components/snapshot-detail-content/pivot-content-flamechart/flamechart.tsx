@@ -95,10 +95,14 @@ export const FlamechartView: React.FunctionComponent<{
     const [{ reactProfile }, reactFlameDispatcher] = useModule(ReactFlameGraphModule)
 
     useEffect(() => {
-      dispatcher.fetchFlamechartData(flameChartLink)
       reactProfileLink && reactFlameDispatcher.fetchReactProfileData(reactProfileLink)
+      return reactFlameDispatcher.reset
+    }, [reactProfileLink, reactFlameDispatcher])
+
+    useEffect(() => {
+      dispatcher.fetchFlamechartData(flameChartLink)
       return dispatcher.reset
-    }, [dispatcher, flameChartLink, reactProfileLink, reactFlameDispatcher])
+    }, [dispatcher, flameChartLink])
 
     const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
     const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
