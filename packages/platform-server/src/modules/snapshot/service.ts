@@ -526,9 +526,14 @@ export class SnapshotService implements OnApplicationBootstrap {
       .where('snapshot.status = :status', {
         status: SnapshotStatus.Running,
       })
-      .andWhere('snapshot.created_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)')
+      .andWhere('snapshot.created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)')
+      .orderBy('snapshot.created_at', 'DESC')
       .take(30)
       .getMany()
+
+    if (!snapshots.length) {
+      return
+    }
 
     const completedSnapshots: Snapshot[] = []
 
@@ -550,7 +555,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     try {
       if (completedSnapshots.length) {
         await Snapshot.save(completedSnapshots)
-        this.logger.verbose('complete snapshot by cron', { completedSnapshots })
+        this.logger.verbose('complete snapshot by cron', completedSnapshots.length)
         this.metrics.snapshotCompleteByCron(completedSnapshots.length)
       }
 
@@ -558,7 +563,7 @@ export class SnapshotService implements OnApplicationBootstrap {
         await this.onSnapshotCompleted(snapshot.id)
       }
     } catch (error) {
-      this.logger.error('complete snapshot by cron failed', { completedSnapshots })
+      this.logger.error('complete snapshot by cron failed', error, completedSnapshots.length)
     }
   }
 
