@@ -150,7 +150,7 @@ export class RunnerService {
     //     updates.jobType = jobType
     //   }
     // }
-    return Runner.save(Runner.merge(runner, omitBy(updates, isNil)))
+    return Runner.save(Runner.merge(runner, omitBy(updates, isNil)), { reload: false })
   }
 
   private async getSuggestedRunnerJobType(info: RunnerInfo): Promise<JobType> {

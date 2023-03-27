@@ -155,7 +155,7 @@
     "coverage": "shx rm -rf coverage/tmp && cross-env NODE_V8_COVERAGE=coverage/tmp yarn test && yarn c8 report -r html",
     "example": "yarn cli example",
     "dev": "cross-env NODE_ENV=development yarn cli dev",
-    "typeorm": "yarn run:ts ./node_modules/typeorm/cli.js -d ./packages/platform-server/src/datasource.ts",
+    "typeorm": "NODE_ENV=development yarn run:ts ./node_modules/typeorm/cli.js -d ./packages/platform-server/src/datasource.ts",
     "lint": "cross-env NODE_OPTIONS=--max-old-space-size=8192 eslint . --cache --cache-location ./.eslint-cache",
     "circular": "madge --circular --ts-config ./tsconfig.json packages/**/src/index.ts packages/**/src/index.tsx",
     "postinstall": "husky install",

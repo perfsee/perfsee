@@ -5,4 +5,5 @@ fragment settings on ApplicationSettings {
   enableProjectDelete
   enableProjectImport
   oauthProviders
+  usePendingJobTable
 }

@@ -103,7 +103,13 @@ export class Job extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   extra!: Record<string, string> | null
 
+  payload: any
+
   canceled() {
     return this.status === JobStatus.Canceled
+  }
+
+  pending() {
+    return this.status === JobStatus.Pending
   }
 }

@@ -35,6 +35,10 @@ const settingsDesc: Partial<
     desc: 'Whether allow user import project from git hosts',
     type: 'boolean',
   },
+  usePendingJobTable: {
+    desc: 'Whether use pending job table to accelerate job fetching',
+    type: 'boolean',
+  },
 }
 
 interface RendererProps {
