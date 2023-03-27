@@ -54,3 +54,19 @@ sidebar_position: 3
 | 4G LTE                  | 70ms    | 3.00 MB/s   | 3.00 MB/s   | 80ms  |
 | WiFi                    | 10ms    | 3.93 MB/s   | 1.97 MB/s   | 40ms  |
 | Cable                   | 20ms    | 5.00 MB/s   | 5.00 MB/s   | 0ms   |
+
+### React Profiling
+
+:::caution 注意
+
+这是一个实验性的功能，可能存在不稳定的情况。如果没有按照预期工作，请向我们报告 Issue。
+
+这个功能可能会降低页面渲染速度。
+
+:::
+
+![](/settings/react-profiling.png)
+
+开启这个功能，会在 Lab 分析阶段收集 React 应用每个组件渲染时间等信息。分析报告中会展示组件火焰图，帮助我们分析 React 应用性能瓶颈。
+
+这个功能是基于 React Profiler API 实现的，但 Profier API 在生产环境是关闭的。我们通过拦截 `react-don` 对应资源的请求，并将其替换成 profiling build 来解决这个问题。

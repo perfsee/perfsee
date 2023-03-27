@@ -31,6 +31,7 @@ import {
   LocalStorageType,
   MetricKeyType,
   MetricType,
+  ReactDevtoolProfilingDataExport,
   RequestSchema,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
@@ -45,14 +46,16 @@ import {
   formatCookies,
 } from './helpers'
 import { computeMedianRun, getFCP, getNumericValue, getTTI, lighthouse, MetricsRecord } from './lighthouse-runtime'
+import { ReactProfiler } from './lighthouse-runtime/gatherers'
 
 export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected headers!: HostHeaders
   protected cookies!: CookieType[]
   protected localStorageContent!: LocalStorageType[]
+  protected reactProfiling!: boolean
 
   protected async before() {
-    this.warmupPageLoad()
+    await this.warmupPageLoad()
     return Promise.resolve()
   }
 
@@ -85,8 +88,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     const scripts = this.getScripts(artifacts)
-    const userTimings = this.getUserTimings(artifacts)
     const { requests, requestsBaseTimestamp } = this.getRequests(lhr)
+    const userTimings = this.getUserTimings(artifacts, requestsBaseTimestamp)
     const metrics = this.getMetrics(lhr)
     const { traceData, timings } = this.computeMainThreadTask(lhr, artifacts)
     // format overview render timeline data
@@ -95,12 +98,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const metricScores = getLighthouseMetricScores('navigation', lhr.audits, timings, timelines)
 
     const jsCoverage = artifacts.JsUsage ?? {}
+    const reactProfile = artifacts.ReactProfiler as ReactDevtoolProfilingDataExport | null
 
     // artifacts
     const lighthouseFile = `snapshots/${uuid()}.json`
     const jsCoverageFile = `js-coverage/${uuid()}.json`
+    const reactProfileFile = `react-profile/${uuid()}.json`
     let lighthouseStorageKey
     let jsCoverageStorageKey
+    let reactProfileStorageKey
 
     // delete useless lighthouse data
     // @ts-expect-error
@@ -150,6 +156,17 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
+    if (reactProfile?.dataForRoots) {
+      try {
+        reactProfileStorageKey = await this.client.uploadArtifact(
+          reactProfileFile,
+          Buffer.from(JSON.stringify(reactProfile)),
+        )
+      } catch (e) {
+        this.logger.error('Failed to upload react profile', { error: e })
+      }
+    }
+
     const traceEventsStorageKey = await this.uploadTraceEvents(artifacts)
 
     return {
@@ -157,6 +174,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       screencastStorageKey,
       jsCoverageStorageKey,
       traceEventsStorageKey,
+      reactProfileStorageKey,
       metrics,
     }
   }
@@ -177,24 +195,71 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private warmupPageLoad() {
+  private async warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
-    const { headers, cookies, localStorage } = this.payload
+    const { headers, cookies, localStorage, reactProfiling, url } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
     this.headers = hostHeaders
     this.cookies = cookies
     this.localStorageContent = localStorage
+    this.reactProfiling = reactProfiling
+
+    if (reactProfiling) {
+      try {
+        this.logger.info('React profiler enabled.')
+        const browser = await this.createBrowser()
+        await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser)
+        this.logger.info('`react-dom` script detected')
+        await browser.close()
+      } catch (e) {
+        this.logger.error('Failed to detect `react-dom` script', { error: e })
+      }
+    }
 
     this.logger.verbose('Warming up ended.')
   }
 
-  private async runLighthouse() {
-    const { cookies, headers, localStorageContent } = this
-    const { url, deviceId, throttle, runs } = this.payload
+  private async createBrowser() {
+    const { cookies, localStorageContent } = this
+    const { url, deviceId } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
+
+    const browser = await createBrowser()
+
+    browser.on('targetcreated', (e: puppeteer.Target) => {
+      const setup = async () => {
+        const page = await e.page()
+        if (!page) {
+          return
+        }
+        await page.setCookie(...formatCookies(cookies, domain))
+        await page.setViewport(device.viewport)
+
+        if (localStorageContent.length) {
+          await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
+            localStorage.clear()
+            localStorageContent.forEach(({ key, value }) => {
+              localStorage.setItem(key, value)
+            })
+          }, localStorageContent)
+        }
+      }
+
+      setup().catch((e) => {
+        this.logger.error('Failed to set cookies and viewport to page', e)
+      })
+    })
+
+    return browser
+  }
+
+  private async runLighthouse() {
+    const { cookies, headers, localStorageContent, reactProfiling } = this
+    const { url, deviceId, throttle, runs } = this.payload
+    const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
 
     this.logger.info(`Will load page: ${url}`, {
       device,
@@ -221,6 +286,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       },
       customFlags: {
         headers,
+        reactProfiling,
       },
     }
 
@@ -237,31 +303,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     for (let i = 0; i < runs; i++) {
       this.logger.info(`Running lighthouse auditing. Round #${i + 1}`)
-      const browser = await createBrowser()
-
-      browser.on('targetcreated', (e: puppeteer.Target) => {
-        const setup = async () => {
-          const page = await e.page()
-          if (!page) {
-            return
-          }
-          await page.setCookie(...formatCookies(cookies, domain))
-          await page.setViewport(device.viewport)
-
-          if (localStorageContent.length) {
-            await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
-              localStorage.clear()
-              localStorageContent.forEach(({ key, value }) => {
-                localStorage.setItem(key, value)
-              })
-            }, localStorageContent)
-          }
-        }
-
-        setup().catch((e) => {
-          this.logger.error('Failed to set cookies and viewport to page', e)
-        })
-      })
+      const browser = await this.createBrowser()
 
       try {
         const wsEndpoint = new URL(browser.wsEndpoint())
@@ -369,14 +411,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private getUserTimings(artifacts: LH.Artifacts) {
+  private getUserTimings(artifacts: LH.Artifacts, baseTimestamp: number) {
     const { traceEvents } = artifacts.traces['defaultPass']
-    const baseline = traceEvents.find((e) => e.name === 'navigationStart')
-
-    if (!baseline) return
     const userTimings = mapValues(
       groupBy(
-        traceEvents.filter((e: any) => e.scope === 'blink.user_timing'),
+        traceEvents.filter((e: any) => e.cat === 'blink.user_timing'),
         'name',
       ),
       (events) => {
@@ -385,7 +424,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
         return {
           name: start.name,
-          timestamp: start.ts - baseline.ts,
+          timestamp: start.ts - baseTimestamp,
           duration: end ? end.ts - start.ts : undefined,
         }
       },

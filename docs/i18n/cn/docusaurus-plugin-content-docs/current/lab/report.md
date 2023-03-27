@@ -105,3 +105,11 @@ Overview Tab 下主要展示该页面的性能指标，请求资源类型饼图�
 基于 lighthouse 提供了 Performance \ Accessibility \ Best Practices \ SEO \ Progressive 相关的分数以及有哪些性能规则通过/未通过测试，可以清楚地看到需要优化的地方。
 
 ![img](/lab/report-performance.png)
+
+## React Flamegraph
+
+> React Flamegraph 功能需要开启 React Profiling 能力才会开启. 查看: [Profile Setting](../settings/profile-setting#react-profiling).
+
+React 火焰图展示了 React 应用每次 commit 中组件渲染情况和耗时。与 React Devtools 中的火焰图能力基本一致。
+
+![react](/lab/report-react.png)

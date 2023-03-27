@@ -18,7 +18,7 @@ import { SharedColors } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { memo, useEffect, useMemo } from 'react'
 
-import { useWideScreen } from '@perfsee/components'
+import { ReactLogoIcon, useWideScreen } from '@perfsee/components'
 import {
   buildProfileFromFlameChartData,
   buildProfileFromNetworkRequests,
@@ -30,10 +30,13 @@ import {
   FlamechartGroupContainerProps,
   FlamechartContainer,
   buildProfileFromUserTimings,
+  buildTimelineProfilesFromReactDevtoolProfileData,
 } from '@perfsee/flamechart'
 import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/platform/modules/flamechart'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
+
+import { ReactFlameGraphModule } from '../pivot-content-react/module'
 
 function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing | null {
   value *= 1000
@@ -69,94 +72,155 @@ function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing 
 
 export const FlamechartView: React.FunctionComponent<{
   flameChartLink: string
+  reactProfileLink: string | null
   requests: RequestSchema[]
   requestsBaseTimestamp?: number
   tasks?: Task[]
   tasksBaseTimestamp?: number
   metrics?: MetricScoreSchema[]
   userTimings?: UserTimingSchema[]
-}> = memo(({ flameChartLink, requests, requestsBaseTimestamp, tasks, tasksBaseTimestamp, metrics, userTimings }) => {
-  useWideScreen()
-  const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
+}> = memo(
+  ({
+    flameChartLink,
+    reactProfileLink,
+    requests,
+    requestsBaseTimestamp,
+    tasks,
+    tasksBaseTimestamp,
+    metrics,
+    userTimings,
+  }) => {
+    useWideScreen()
+    const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
+    const [{ reactProfile }, reactFlameDispatcher] = useModule(ReactFlameGraphModule)
 
-  useEffect(() => {
-    dispatcher.fetchFlamechartData(flameChartLink)
-    return dispatcher.reset
-  }, [dispatcher, flameChartLink])
+    useEffect(() => {
+      dispatcher.fetchFlamechartData(flameChartLink)
+      reactProfileLink && reactFlameDispatcher.fetchReactProfileData(reactProfileLink)
+      return dispatcher.reset
+    }, [dispatcher, flameChartLink, reactProfileLink, reactFlameDispatcher])
 
-  const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
-  const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
-
-  const profile = useMemo(() => {
-    return flamechart && buildProfileFromFlameChartData(flamechart, -flamechartTimeOffset)
-  }, [flamechart, flamechartTimeOffset])
-
-  const tasksProfile = useMemo(() => {
-    return (
-      tasks &&
-      buildProfileFromTracehouse(
-        tasks,
-        -tasksTimeOffset,
-        (task) => task.kind !== 'other' && task.kind !== 'scriptEvaluation' && task.kind !== 'garbageCollection',
+    const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
+    const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
+    const reactTimeOffset = useMemo(() => {
+      return (
+        (userTimings
+          ? userTimings.find((timing) => timing.name.startsWith('--schedule-render'))?.timestamp ?? 10000
+          : 10000) - 10000
       )
-    )
-  }, [tasks, tasksTimeOffset])
+    }, [userTimings])
 
-  const networkProfile = useMemo(() => {
-    return requests && buildProfileFromNetworkRequests(requests as RequestSchema[])
-  }, [requests])
+    const profile = useMemo(() => {
+      return flamechart && buildProfileFromFlameChartData(flamechart, -flamechartTimeOffset)
+    }, [flamechart, flamechartTimeOffset])
 
-  const timings = useMemo<Timing[] | undefined>(() => {
-    if (!metrics) return
-    return metrics
-      .map((metric) => metric.value && getTimingsFromMetric(metric.id, metric.value))
-      .filter(Boolean) as Timing[]
-  }, [metrics])
+    const reactSchedulingEventsProfiles = useMemo(() => {
+      return reactProfile && buildTimelineProfilesFromReactDevtoolProfileData(reactProfile, reactTimeOffset)
+    }, [reactProfile, reactTimeOffset])
 
-  const userTimingsProfile = useMemo(() => {
-    if (!userTimings?.length) return
-    return buildProfileFromUserTimings(userTimings)
-  }, [userTimings])
+    const tasksProfile = useMemo(() => {
+      return (
+        tasks &&
+        buildProfileFromTracehouse(
+          tasks,
+          -tasksTimeOffset,
+          (task) => task.kind !== 'other' && task.kind !== 'scriptEvaluation' && task.kind !== 'garbageCollection',
+        )
+      )
+    }, [tasks, tasksTimeOffset])
 
-  const tti = useMemo(() => metrics?.find((score) => score.id === LighthouseScoreType.TTI)?.value, [metrics])
-  const initialRight = tti ? (tti + 500) * 1000 : undefined
+    const networkProfile = useMemo(() => {
+      return requests && buildProfileFromNetworkRequests(requests as RequestSchema[])
+    }, [requests])
 
-  const profiles = useMemo(() => {
+    const timings = useMemo<Timing[] | undefined>(() => {
+      if (!metrics) return
+      return metrics
+        .map((metric) => metric.value && getTimingsFromMetric(metric.id, metric.value))
+        .filter(Boolean) as Timing[]
+    }, [metrics])
+
+    const reactTimings = useMemo<Timing[] | undefined>(() => {
+      return reactProfile?.timelineData.flatMap((data) => {
+        const schedulingEvents = data.schedulingEvents.map((e) => ({
+          name: e.componentName ? `${e.componentName} ${e.type}` : e.type,
+          value: e.timestamp * 1000 + reactTimeOffset,
+          color: SharedColors.cyan10,
+          style: 'point' as const,
+        }))
+
+        const throwErrorEvents = data.thrownErrors.map((e) => ({
+          name: e.componentName ? `${e.componentName} throw error during ${e.phase}` : `throw error during ${e.phase}`,
+          value: e.timestamp * 1000 + reactTimeOffset,
+          color: SharedColors.red10,
+          style: 'point' as const,
+        }))
+
+        return schedulingEvents.concat(throwErrorEvents)
+      })
+    }, [reactProfile, reactTimeOffset])
+
+    const userTimingsProfile = useMemo(() => {
+      const userTimingsHasDuration = userTimings?.filter((timing) => timing.duration)
+      if (!userTimingsHasDuration?.length) return
+      return buildProfileFromUserTimings(userTimingsHasDuration)
+    }, [userTimings])
+
+    const tti = useMemo(() => metrics?.find((score) => score.id === LighthouseScoreType.TTI)?.value, [metrics])
+    const initialRight = tti ? (tti + 500) * 1000 : undefined
+
+    const profiles = useMemo(() => {
+      return (
+        // wait for async loading profile
+        profile &&
+        ([
+          ...(reactSchedulingEventsProfiles?.map((p) => ({
+            name: (
+              <>
+                <ReactLogoIcon /> React
+              </>
+            ),
+            profile: p,
+            flamechartFactory: 'react-timeline',
+            grow: 0.1,
+            theme: lightTheme,
+          })) || []),
+          userTimingsProfile && {
+            name: 'Timings',
+            profile: userTimingsProfile,
+            flamechartFactory: 'network' as const,
+            grow: 0.1,
+            theme: lightTheme,
+          },
+          networkProfile && {
+            name: 'Network',
+            profile: networkProfile,
+            flamechartFactory: 'network' as const,
+            grow: 0.1,
+            theme: lightGrayTheme,
+          },
+          tasksProfile && { name: 'Tasks', profile: tasksProfile, grow: 0.1 },
+          { name: 'Main', profile: profile, grow: 1 },
+        ].filter(Boolean) as FlamechartGroupContainerProps['profiles'])
+      )
+    }, [networkProfile, profile, tasksProfile, userTimingsProfile, reactSchedulingEventsProfiles])
+
+    if (!profiles) {
+      return <FlamechartPlaceholder>Loading</FlamechartPlaceholder>
+    }
+
+    if (profiles.length === 1) {
+      return <FlamechartContainer {...profiles[0]} timings={timings} initialRight={initialRight} />
+    }
+
     return (
-      // wait for async loading profile
-      profile &&
-      ([
-        userTimingsProfile && {
-          name: 'Timings',
-          profile: userTimingsProfile,
-          flamechartFactory: 'network' as const,
-          grow: 0.1,
-          theme: lightTheme,
-        },
-        networkProfile && {
-          name: 'Network',
-          profile: networkProfile,
-          flamechartFactory: 'network' as const,
-          grow: 0.1,
-          theme: lightGrayTheme,
-        },
-        tasksProfile && { name: 'Tasks', profile: tasksProfile, grow: 0.1 },
-        { name: 'Main', profile: profile, grow: 1 },
-      ].filter(Boolean) as FlamechartGroupContainerProps['profiles'])
+      <>
+        <FlamechartGroupContainer
+          profiles={profiles}
+          timings={timings?.concat(reactTimings || [])}
+          initialRight={initialRight}
+        />
+      </>
     )
-  }, [networkProfile, profile, tasksProfile, userTimingsProfile])
-
-  if (!profiles) {
-    return <FlamechartPlaceholder>Loading</FlamechartPlaceholder>
-  }
-
-  if (profiles.length === 1) {
-    return <FlamechartContainer {...profiles[0]} timings={timings} initialRight={initialRight} />
-  }
-
-  return (
-    <>
-      <FlamechartGroupContainer profiles={profiles} timings={timings} initialRight={initialRight} />
-    </>
-  )
-})
+  },
+)

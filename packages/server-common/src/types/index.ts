@@ -33,6 +33,7 @@ type PartialSnapshotReport = {
   screencastStorageKey?: string
   jsCoverageStorageKey?: string
   traceEventsStorageKey?: string
+  reactProfileStorageKey?: string
   performanceScore?: number | null
   metrics?: Record<MetricKeyType, number | null>
 }
@@ -46,6 +47,7 @@ export interface LabJobPayload {
   headers: HeaderType[]
   cookies: CookieType[]
   localStorage: LocalStorageType[]
+  reactProfiling: boolean
 }
 
 export type E2EJobPayload = LabJobPayload & {

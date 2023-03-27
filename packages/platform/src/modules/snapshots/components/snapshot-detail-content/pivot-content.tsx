@@ -32,6 +32,10 @@ export const SourceCoveragePivotContent = lazy(
   () => import(/* webpackChunkName: "pivot-content-source-coverage" */ './pivot-content-source-coverage'),
 )
 
+export const ReactPivotContent = lazy(
+  () => import(/* webpackChunkName: "pivot-content-react" */ './pivot-content-react'),
+)
+
 type PivotContentProps = {
   snapshot: SnapshotDetailType
   type: PerformanceTabType
@@ -53,6 +57,8 @@ export const PivotContent = (props: PivotContentProps) => {
       return <SourceCoveragePivotContent snapshot={snapshot} />
     case PerformanceTabType.Report:
       return <AnalysisReportContent snapshot={snapshot} />
+    case PerformanceTabType.React:
+      return <ReactPivotContent snapshot={snapshot} />
     default:
       return null
   }

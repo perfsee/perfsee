@@ -1,7 +1,6 @@
-import { NetworkRequest } from "../types"
-import { NonStackProfile } from "./non-stack-profile"
-import { Frame, FrameInfo } from "./profile"
-import { KeyedSet } from "./utils"
+import { NetworkRequest } from '../types'
+import { NonStackProfile } from './non-stack-profile'
+import { Frame, FrameInfo } from './profile'
 
 export interface NetworkFrameInfo extends FrameInfo {
   info?: NetworkRequest
@@ -13,10 +12,6 @@ export class NetworkFrame extends Frame {
   public constructor(info: NetworkFrameInfo) {
     super(info)
     this.info = info.info
-  }
-
-  static getOrInsert(set: KeyedSet<Frame>, info: NetworkFrameInfo) {
-    return set.getOrInsert(new NetworkFrame(info))
   }
 }
 
@@ -30,7 +25,7 @@ export class NetworkProfile extends NonStackProfile {
       key: url,
       name: url,
       file: url,
-      info
+      info,
     })
     frame.addToSelfWeight(endTime - startTime)
     frame.addToTotalWeight(endTime - startTime)

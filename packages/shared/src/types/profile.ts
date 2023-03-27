@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-import type { PerfseeFlameChartData, Frame } from '@perfsee/flamechart'
+import type { Frame } from '@perfsee/flamechart'
 
 export interface FlameChartDiagnostic {
   code: string
@@ -29,4 +28,4 @@ export interface FlameChartDiagnosticInfo {
   isSource?: boolean
 }
 
-export type FlameChartData = PerfseeFlameChartData
+export type { PerfseeFlameChartData as FlameChartData, ReactDevtoolProfilingDataExport } from '@perfsee/flamechart'

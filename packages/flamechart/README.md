@@ -108,6 +108,10 @@ interface FlamechartProps {
    * render custom tooltip
    */
   renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
+  /**
+   * render custom tooltip for timings
+   */
+  renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme) => React.ReactNode
 }
 ```
 

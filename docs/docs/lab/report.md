@@ -109,3 +109,11 @@ The visualization shows the JavaScript coverage on the page during runtime. The 
 Performance, SEO, Best Practices, Accessibility and PWA tabs provide information about passed and failed Lighthouse audits, highlighting opportunities for improvement.
 
 ![performance](/lab/report-performance.png)
+
+## React Flamegraph
+
+> The React Flamegraph feature requires React Rrofiling to be enabled. Check: [Profile Setting](../settings/profile-setting#react-profiling).
+
+The flame chart view represents the state of your React application for a particular commit. It's very similar to the React Devltools' flame chart.
+
+![react](/lab/report-react.png)
