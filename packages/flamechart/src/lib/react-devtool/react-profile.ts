@@ -73,7 +73,7 @@ export class ReactProfile extends CallTreeProfileBuilder {
     const renderPathNodes: Set<number> = new Set()
 
     // Generate flame graph structure using tree base durations.
-    const walkTree = (node: CommitTreeNode, leftOffset: number, rightLimit: number) => {
+    const walkTree = (node: CommitTreeNode, leftOffset: number, leftLimit: number, rightLimit: number) => {
       const { id, children, displayName, hocDisplayNames, key, treeBaseDuration } = node
 
       const actualDuration = fiberActualDurations.get(id) || 0
@@ -93,7 +93,7 @@ export class ReactProfile extends CallTreeProfileBuilder {
         label += ` (${formatDuration(selfDuration)}ms of ${formatDuration(actualDuration)}ms)`
       }
 
-      const start = Math.min(leftOffset, rightLimit)
+      const start = Math.max(Math.min(leftOffset, rightLimit), leftLimit)
       const end = Math.max(Math.min(start + treeBaseDuration, rightLimit), start)
 
       const info = {
@@ -106,7 +106,6 @@ export class ReactProfile extends CallTreeProfileBuilder {
         isRenderPath: renderPathNodes.has(id),
       }
 
-      console.log('start:', start)
       reactProfile.enterReactNode(info, start)
 
       const childNodes = children.map((childID) => {
@@ -124,7 +123,7 @@ export class ReactProfile extends CallTreeProfileBuilder {
         Number.EPSILON
 
       for (const child of childNodes) {
-        walkTree(child, leftOffset, end)
+        walkTree(child, leftOffset, start, end)
         leftOffset += child.treeBaseDuration
       }
 
@@ -166,7 +165,7 @@ export class ReactProfile extends CallTreeProfileBuilder {
         if (node == null) {
           throw Error(`Could not find node with id "${id}" in commit tree`)
         }
-        walkTree(node, baseDuration, baseDuration + node.treeBaseDuration)
+        walkTree(node, baseDuration, baseDuration, baseDuration + node.treeBaseDuration)
         baseDuration += node.treeBaseDuration
       }
     }
