@@ -207,14 +207,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.reactProfiling = reactProfiling
 
     if (reactProfiling) {
+      const browser = await this.createBrowser()
       try {
         this.logger.info('React profiler enabled.')
-        const browser = await this.createBrowser()
-        await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser)
+        await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser, this.logger)
         this.logger.info('`react-dom` script detected')
-        await browser.close()
       } catch (e) {
         this.logger.error('Failed to detect `react-dom` script', { error: e })
+      } finally {
+        await browser.close()
       }
     }
 
