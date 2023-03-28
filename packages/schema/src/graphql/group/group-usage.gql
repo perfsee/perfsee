@@ -7,10 +7,17 @@ query groupUsage($id: ID!, $from: DateTime!, $to: DateTime!) {
         maxScore
         averageScore
       }
-      labScores(from: $from, to: $to) {
-        minScore
-        maxScore
-        averageScore
+      labAvgMetrics(from: $from, to: $to) {
+        score
+        FCP
+        FMP
+        LCP
+        SI
+        TBT
+        TTI
+        MPFID
+        CLS
+        WS
       }
       usage {
         jobCount
@@ -35,6 +42,8 @@ query groupUsage($id: ID!, $from: DateTime!, $to: DateTime!) {
         }
       }
       snapshotRecords(from: $from, to: $to) {
+        createdAt
+        id
         snapshotReports {
           metrics
         }

@@ -35,7 +35,7 @@ import { PermissionGuard, Permission } from '../permission'
 import { UserWithPermission } from '../project/types'
 
 import { GroupService } from './service'
-import { CreateGroupInput, ScoreItem } from './types'
+import { CreateGroupInput, ScoreItem, AvgMetricType } from './types'
 
 @ObjectType()
 export class PaginatedGroups extends Paginated(Group) {}
@@ -164,13 +164,13 @@ export class GroupProjectResolver {
     return this.service.getBundleScores(from, to, project)
   }
 
-  @ResolveField(() => ScoreItem, { description: 'lab min,max,average score' })
-  labScores(
+  @ResolveField(() => AvgMetricType, { description: 'the metrics of snapshot report' })
+  labAvgMetrics(
     @Parent() project: Project,
     @Args({ name: 'from', type: () => GraphQLISODateTime }) from: Date,
     @Args({ name: 'to', type: () => GraphQLISODateTime }) to: Date,
   ) {
-    return this.service.getLabScores(from, to, project)
+    return this.service.getLabAvgMetrics(from, to, project)
   }
 
   @ResolveField(() => [Artifact], { nullable: true, description: 'the oldest & latest artifacts' })

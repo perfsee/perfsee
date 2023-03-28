@@ -27,6 +27,14 @@ const columns = [
     maxWidth: 160,
     onRender: (item) => <SnapshotStatusTag status={item.status} />,
   },
+  {
+    key: 'id',
+    name: 'Snapshot Id',
+    styles: tableHeaderStyles,
+    minWidth: 100,
+    maxWidth: 160,
+    onRender: (item) => item.snapshot.id,
+  },
   ...Object.keys(MetricType).map((key) => {
     return {
       key: key,

@@ -16,7 +16,7 @@ limitations under the License.
 
 import { LighthouseScoreType, MetricType } from '@perfsee/shared'
 
-import { ArtifactEntrypoints, SnapshotReports } from './module'
+import { ArtifactEntrypoints, SnapshotRecord } from './module'
 
 function getInitialSumSize(entryPoints?: ArtifactEntrypoints) {
   if (!entryPoints) {
@@ -78,7 +78,14 @@ export function getAverageBundleSize(entryPoints?: ArtifactEntrypoints) {
   }
 }
 
-export function getLabAverageMetricValue(reports: SnapshotReports, metricKey: MetricType | LighthouseScoreType) {
+export function getLabAverageMetricValue(
+  metricKey: MetricType | LighthouseScoreType,
+  reports?: SnapshotRecord['snapshotReports'],
+) {
+  if (!reports?.length) {
+    return undefined
+  }
+
   let count = 0
   const sum = reports.reduce((p, { metrics }) => {
     if (metrics[metricKey]) {

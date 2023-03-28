@@ -14,15 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import dayjs from 'dayjs'
 import { isInteger } from 'lodash'
 
 import { formatTime } from '@perfsee/platform/common'
 
 import { ColorSpan } from '../styled'
 
+import { SnapshotRecord } from './module'
+
 type Props = {
-  current?: number
-  baseline?: number
+  latest?: SnapshotRecord
+  oldest?: SnapshotRecord
+  latestValue?: number
+  oldestValue?: number
   type: string
 }
 
@@ -31,25 +36,46 @@ export const formatMetric = (key: string, v?: number) => {
     const { value, unit } = formatTime(v)
     return `${value}${unit}`
   }
-  return typeof v === 'number' && !isInteger(v) ? v.toFixed(3) : `${v}`
+  return typeof v === 'number' && !isInteger(v) ? v.toFixed(3) : v
 }
 
-export const MetricDiff = ({ type, current, baseline }: Props) => {
-  if (typeof current !== 'number') {
-    return <span>-</span>
-  }
-  if (typeof baseline !== 'number') {
-    return <span>{formatMetric(type, current)}</span>
+export function MetricDiff({ type, latest, oldest, latestValue, oldestValue }: Props) {
+  if (typeof latestValue === 'number' && typeof oldestValue === 'number') {
+    const diff = latestValue - oldestValue
+    return (
+      <div>
+        <div>
+          <p>
+            Latest Snapshot#{latest!.id} {dayjs(latest!.createdAt).format('YYYY-MM-DD HH:mm')}
+          </p>
+          <p>Average: {formatMetric(type, latestValue)}</p>
+        </div>
+        <div>
+          <p>
+            Oldest Snapshot#{oldest!.id} {dayjs(oldest!.createdAt).format('YYYY-MM-DD HH:mm')}
+          </p>
+          <p>Average: {formatMetric(type, oldestValue)}</p>
+        </div>
+        {diff !== 0 && (
+          <ColorSpan good={diff < 0}>
+            {diff > 0 ? '+' : '-'}
+            {formatMetric(type, Math.abs(diff))} {((diff / latestValue) * 100).toFixed(2) + '%'}
+          </ColorSpan>
+        )}
+      </div>
+    )
   }
 
-  const diff = current - baseline
-  return (
-    <div>
-      <p>{formatMetric(type, current)}</p>
-      <ColorSpan good={diff < 0}>
-        {diff > 0 ? '+' : '-'}
-        {formatMetric(type, Math.abs(diff))} {((diff / current) * 100).toFixed(2) + '%'}
-      </ColorSpan>
-    </div>
-  )
+  if (typeof oldestValue === 'number') {
+    return (
+      <div>
+        <p>
+          Snapshot#{oldest!.id} {dayjs(oldest!.createdAt).format('YYYY-MM-DD HH:mm')}
+        </p>
+        <p>Average: {formatMetric(type, oldestValue)}</p>
+      </div>
+    )
+  }
+
+  return null
 }

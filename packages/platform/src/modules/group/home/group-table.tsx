@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack, TooltipHostBase } from '@fluentui/react'
+import { Stack, TooltipHost, TooltipHostBase } from '@fluentui/react'
 import { SelectionMode } from '@fluentui/utilities'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
@@ -29,7 +29,7 @@ import { pathFactory } from '@perfsee/shared/routes'
 import { UnderlineText } from '../styled'
 
 import { onGroupTableRenderRow } from './group-table-row'
-import { MetricDiff } from './metric-diff'
+import { formatMetric, MetricDiff } from './metric-diff'
 import { GroupUsageModule, ProjectUsageInfo } from './module'
 import { getAverageBundleSize, getAverageInitialSize, getLabAverageMetricValue } from './utils'
 
@@ -80,27 +80,12 @@ const columns = [
         </Stack>
       )
     },
-    onRender: (item) => {
-      const { averageScore, minScore, maxScore } = item.labScores
-
-      const content = (
-        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 4 }}>
-          <div>
-            <p>min score: {typeof minScore === 'number' ? minScore : '-'}</p>
-            <p>max score: {typeof maxScore === 'number' ? maxScore : '-'}</p>
-          </div>
-        </Stack>
-      )
-
-      if (typeof averageScore !== 'number') {
+    onRender: ({ labAvgMetrics }) => {
+      if (typeof labAvgMetrics.score !== 'number') {
         return '-'
       }
 
-      return (
-        <TooltipHostBase content={content}>
-          <UnderlineText>{averageScore.toFixed(2)}</UnderlineText>
-        </TooltipHostBase>
-      )
+      return labAvgMetrics.score.toFixed(2)
     },
   },
   {
@@ -224,27 +209,49 @@ const columns = [
             {key}
             <IconWithTips
               marginLeft="4px"
-              content="The value displayed is the average value of the reports in latest snapshot. Compared with the oldest record. "
+              content="The value displayed is the average value of all reports during for that time period. "
             />
           </Stack>
         )
       },
-      onRender: ({ snapshotRecords }: ProjectUsageInfo) => {
-        if (!snapshotRecords?.length) {
+      onRender: ({ labAvgMetrics, snapshotRecords }: ProjectUsageInfo) => {
+        if (!labAvgMetrics) {
           return '-'
         }
 
-        if (snapshotRecords.length === 1) {
-          const value = getLabAverageMetricValue(snapshotRecords[0].snapshotReports, MetricType[key])
+        const avgValue = formatMetric(key, labAvgMetrics[key])
 
-          return <MetricDiff type={key} current={value} />
+        if (!avgValue) {
+          return '-'
         }
 
-        const [oldest, latest] = snapshotRecords
-        const latestValue = getLabAverageMetricValue(latest.snapshotReports, MetricType[key])
-        const oldestValue = getLabAverageMetricValue(oldest.snapshotReports, MetricType[key])
+        let content = null
 
-        return <MetricDiff type={key} current={latestValue} baseline={oldestValue} />
+        if (snapshotRecords?.length) {
+          const [oldest, latest] = snapshotRecords
+          const latestValue = getLabAverageMetricValue(MetricType[key], latest?.snapshotReports)
+          const oldestValue = getLabAverageMetricValue(MetricType[key], oldest?.snapshotReports)
+
+          content =
+            !oldestValue && !latestValue ? null : (
+              <MetricDiff
+                latestValue={latestValue}
+                oldestValue={oldestValue}
+                type={key}
+                latest={latest}
+                oldest={oldest}
+              />
+            )
+        }
+
+        if (content) {
+          return (
+            <TooltipHost content={content}>
+              <UnderlineText>{avgValue}</UnderlineText>
+            </TooltipHost>
+          )
+        }
+        return avgValue
       },
     }
   }),

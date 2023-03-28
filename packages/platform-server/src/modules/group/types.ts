@@ -36,3 +36,37 @@ export class ScoreItem {
   @Field(() => Float, { nullable: true })
   averageScore!: number
 }
+
+// there are keys of MetricType
+@ObjectType()
+export class AvgMetricType {
+  @Field(() => Float, { nullable: true, description: 'performance score' })
+  score!: number
+
+  @Field(() => Float, { nullable: true })
+  FCP!: number
+
+  @Field(() => Float, { nullable: true })
+  FMP!: number
+
+  @Field(() => Float, { nullable: true })
+  LCP!: number
+
+  @Field(() => Float, { nullable: true })
+  SI!: number
+
+  @Field(() => Float, { nullable: true })
+  TBT!: number
+
+  @Field(() => Float, { nullable: true })
+  TTI!: number
+
+  @Field(() => Float, { nullable: true })
+  MPFID!: number
+
+  @Field(() => Float, { nullable: true })
+  CLS!: number
+
+  @Field(() => Float, { nullable: true })
+  WS!: number
+}
