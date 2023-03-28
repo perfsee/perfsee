@@ -18,8 +18,9 @@ import { promisify } from 'util'
 
 import Protocol from 'devtools-protocol'
 import Gatherer from 'lighthouse/types/gatherer'
-import { Browser } from 'puppeteer-core'
+import { Browser, HTTPResponse } from 'puppeteer-core'
 
+import { AbstractJobLogger } from '@perfsee/job-runner-shared'
 import { ReactDevtoolProfilingDataExport } from '@perfsee/shared'
 
 import {
@@ -47,34 +48,35 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   static bundleToReplace = new Map<string, string>()
   static lastProcessedUrl?: string
 
-  static async findReactDOMScriptAndGenerateProfilingBundle(url: string, browser: Browser) {
+  static async findReactDOMScriptAndGenerateProfilingBundle(url: string, browser: Browser, logger: AbstractJobLogger) {
     if (this.lastProcessedUrl === url) {
       return
     }
     this.reset()
 
     const page = await browser.newPage()
-
-    page.on('response', (response) => {
+    const onResponse = async (response: HTTPResponse) => {
       const url = response.url()
       if (!url.endsWith('.js') || this.bundleToReplace.has(url)) {
         return
       }
-      void response.text().then((text) => {
-        if (url.endsWith('react-dom.production.min.js') || url.endsWith('react-dom.production.js')) {
-          void fetchReactDom(detectVersion(text), 'umd').then((profilingBuild) => {
-            this.bundleToReplace.set(url, profilingBuild)
-          })
-        } else if (detectReactDom(text)) {
-          if (isProfilingBuild(text)) {
-            return
-          }
+      const text = await response.text()
 
-          void generateProfilingBundle(text).then((generatedBundle) => {
-            generatedBundle && this.bundleToReplace.set(url, generatedBundle)
-          })
+      if (url.endsWith('react-dom.production.min.js') || url.endsWith('react-dom.production.js')) {
+        const profilingBuild = await fetchReactDom(detectVersion(text), 'umd')
+        this.bundleToReplace.set(url, profilingBuild)
+      } else if (detectReactDom(text)) {
+        if (isProfilingBuild(text)) {
+          return
         }
-      })
+
+        const generatedBundle = await generateProfilingBundle(text)
+        generatedBundle && this.bundleToReplace.set(url, generatedBundle)
+      }
+    }
+
+    page.on('response', (response) => {
+      onResponse(response).catch((e) => logger.error('Generating profiling build failed.', { error: e }))
     })
 
     await page.goto(url)
