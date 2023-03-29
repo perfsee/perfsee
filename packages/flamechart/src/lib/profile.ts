@@ -586,15 +586,8 @@ export class CallTreeProfileBuilder extends Profile {
 
     if (prevTop) {
       if (useAppendOrder) {
-        const delta = value - this.lastValue
-        if (delta > 0) {
-          this.samples.push(prevTop)
-          this.weights.push(value - this.lastValue)
-        } else if (delta < 0) {
-          throw new Error(
-            `Samples must be provided in increasing order of cumulative value. Last sample was ${this.lastValue}, this sample was ${value}`,
-          )
-        }
+        this.samples.push(prevTop)
+        this.weights.push(Math.max(value - this.lastValue, 0))
       }
 
       const last = useAppendOrder ? lastOf(prevTop.children) : prevTop.children.find((c) => c.frame === frame)
@@ -643,16 +636,8 @@ export class CallTreeProfileBuilder extends Profile {
         )
       }
 
-      const delta = value - this.lastValue
-      if (delta > 0) {
-        this.samples.push(leavingStackTop)
-        this.weights.push(value - this.lastValue)
-      } else if (delta < 0) {
-        throw new Error(
-          `Samples must be provided in increasing order of cumulative value. Last sample was ${this
-            .lastValue!}, this sample was ${value}`,
-        )
-      }
+      this.samples.push(leavingStackTop)
+      this.weights.push(Math.max(value - this.lastValue, 0))
     } else {
       this.groupedOrderStack.pop()
     }
