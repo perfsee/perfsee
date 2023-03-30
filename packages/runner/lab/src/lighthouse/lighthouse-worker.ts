@@ -239,14 +239,20 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         await page.setCookie(...formatCookies(cookies, domain))
         await page.setViewport(device.viewport)
 
-        if (localStorageContent.length) {
-          await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
-            localStorage.clear()
-            localStorageContent.forEach(({ key, value }) => {
-              localStorage.setItem(key, value)
-            })
-          }, localStorageContent)
-        }
+        page
+          .waitForFrame(url)
+          .then(async () => {
+            this.logger.info('Inject localStorage to page')
+            await page.evaluate((localStorageContent: LocalStorageType[]) => {
+              localStorage.clear()
+              localStorageContent.forEach(({ key, value }) => {
+                localStorage.setItem(key, value)
+              })
+            }, localStorageContent)
+          })
+          .catch((err) => {
+            this.logger.error('inject localStorage error, localStorage may not work, ' + err)
+          })
       }
 
       setup().catch((e) => {
