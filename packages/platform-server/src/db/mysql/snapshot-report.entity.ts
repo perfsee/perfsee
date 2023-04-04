@@ -45,6 +45,7 @@ export class SnapshotReport extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id!: number
 
+  @Index()
   @Field(() => Int, { name: 'id' })
   @Column({ type: 'int' })
   iid!: number

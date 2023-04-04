@@ -55,6 +55,7 @@ export class Snapshot extends BaseEntity {
   @Column()
   projectId!: number
 
+  @Index()
   @Field(() => Int, { name: 'id' })
   @Column({ type: 'int' })
   iid!: number
