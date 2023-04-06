@@ -40,6 +40,7 @@ import {
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
+import { AnalyzeUpdateType } from '@perfsee/platform-server/event/type'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -58,8 +59,6 @@ import {
 
 import { getLighthouseRunData, createDataLoader, getLabPingData } from '../../utils'
 import { AppVersionService } from '../app-version/service'
-import { CheckSuiteService } from '../checksuite/service'
-import { NotificationService } from '../notification/service'
 import { PageService } from '../page/service'
 import { ProjectUsageService } from '../project-usage/service'
 import { SourceService } from '../source/service'
@@ -82,8 +81,6 @@ export class SnapshotService implements OnApplicationBootstrap {
     private readonly internalIdService: InternalIdService,
     private readonly event: EventEmitter,
     private readonly source: SourceService,
-    private readonly checkSuite: CheckSuiteService,
-    private readonly notification: NotificationService,
     private readonly appVersion: AppVersionService,
     private readonly redis: Redis,
     private readonly projectUsage: ProjectUsageService,
@@ -274,9 +271,12 @@ export class SnapshotService implements OnApplicationBootstrap {
         projectId,
         hash,
       })
-
-      await this.checkSuite.startLabCheck(project, snapshot)
     }
+
+    this.event.emit(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Pending}`, {
+      project,
+      snapshot,
+    })
 
     return snapshot
   }
@@ -412,7 +412,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     await this.event.emitAsync('job.create', payloads)
   }
 
-  // Update report -> try completed snapshot -> if completed then send notification
+  // Update report -> try completed snapshot
   async updateLabReport(data: LabJobResult) {
     const { snapshotReport } = data
     const report = await this.updateSnapshotReport(snapshotReport)
@@ -434,26 +434,11 @@ export class SnapshotService implements OnApplicationBootstrap {
       .where('report.snapshot_id = :snapshotId', { snapshotId })
       .getMany()
     const project = await Project.findOneByOrFail({ id: snapshot.projectId })
-    await this.sendLabNotification(snapshot, reports)
-    await this.checkSuite.endLabCheck(project, snapshot, reports)
-    this.event.emit('webhook.deliver', project, {
-      eventType: 'lab:snapshot-completed',
-      projectSlug: project.slug,
-      snapshotIid: snapshot.iid,
+    this.event.emit(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Completed}`, {
+      project,
+      snapshot,
+      reports,
     })
-  }
-
-  async sendLabNotification(snapshot: Snapshot, reports: SnapshotReport[]) {
-    await this.notification
-      .sendLabJobNotification(snapshot, reports)
-      .then((targets) => {
-        if (targets) {
-          this.logger.verbose('Notification sent', { snapshotId: snapshot.id, targets })
-        }
-      })
-      .catch((e) => {
-        this.logger.error(e, { phase: 'notification' })
-      })
   }
 
   async updateSnapshotReport(payload: Partial<SnapshotReport> & { id: number }) {
@@ -462,14 +447,14 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     const report = await SnapshotReport.findOneByOrFail({ id: payload.id })
 
+    const project = await Project.findOneByOrFail({ id: report.projectId })
+    this.event.emit(`${AnalyzeUpdateType.SnapshotReportUpdate}.${report.status}`, {
+      project,
+      report,
+    })
+
     if (report.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
-      const project = await Project.findOneByOrFail({ id: report.projectId })
-      this.event.emit('webhook.deliver', project, {
-        eventType: 'lab:snapshot-report-completed',
-        projectSlug: project.slug,
-        snapshotReportIid: report.iid,
-      })
       this.source.startSourceIssueAnalyze([report]).catch((e) => {
         this.logger.error(e, { phase: 'source analyze' })
       })
@@ -489,7 +474,10 @@ export class SnapshotService implements OnApplicationBootstrap {
           })
 
           const project = await Project.findOneByOrFail({ id: snapshot.projectId })
-          await this.checkSuite.runLabCheck(project, snapshot)
+          this.event.emit(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Running}`, {
+            project,
+            snapshot,
+          })
         }
       } catch (e) {
         this.logger.error(e as Error, { phase: 'update snapshot status to running' })

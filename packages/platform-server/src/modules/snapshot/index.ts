@@ -20,9 +20,7 @@ import { DBModule } from '@perfsee/platform-server/db'
 import { StorageModule } from '@perfsee/platform-server/storage'
 
 import { AppVersionModule } from '../app-version'
-import { CheckSuiteModule } from '../checksuite'
 import { EnvironmentModule } from '../environment'
-import { NotificationModule } from '../notification'
 import { PageModule } from '../page'
 import { ProfileModule } from '../profile'
 import { ProjectModule } from '../project'
@@ -42,8 +40,6 @@ import { SnapshotReportModule } from './snapshot-report'
     SnapshotReportModule,
     StorageModule,
     SourceModule,
-    CheckSuiteModule,
-    NotificationModule,
     AppVersionModule,
     EnvironmentModule,
     ProfileModule,

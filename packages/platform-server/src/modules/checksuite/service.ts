@@ -16,10 +16,11 @@ limitations under the License.
 
 import { Injectable } from '@nestjs/common'
 
-import { Artifact, Project, Snapshot, SnapshotReport } from '@perfsee/platform-server/db'
+import { OnEvent } from '@perfsee/platform-server/event'
+import { AnalyzeUpdateType, BundleUpdatePayload, SnapshotUpdatePayload } from '@perfsee/platform-server/event/type'
 import { UrlService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
-import { BundleJobUpdate } from '@perfsee/server-common'
+import { BundleJobStatus, SnapshotStatus } from '@perfsee/server-common'
 import { GitHost } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
@@ -34,7 +35,8 @@ export class CheckSuiteService {
     private readonly url: UrlService,
   ) {}
 
-  async startBundleCheck(artifact: Artifact, project: Project) {
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Pending}`)
+  async startBundleCheck({ project, artifact }: Pick<BundleUpdatePayload, 'project' | 'artifact'>) {
     await this.createOrUpdateCheck({
       project,
       commitHash: artifact.hash,
@@ -49,7 +51,10 @@ export class CheckSuiteService {
     })
   }
 
-  async runBundleCheck(artifact: Artifact, project: Project) {
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Running}`)
+  async runBundleCheck(payload: BundleUpdatePayload) {
+    const { project, artifact } = payload
+
     await this.createOrUpdateCheck({
       project,
       commitHash: artifact.hash,
@@ -63,12 +68,19 @@ export class CheckSuiteService {
     })
   }
 
-  async endBundleCheck(
-    artifact: Artifact,
-    baselineArtifact: Artifact | undefined,
-    project: Project,
-    bundleResult: BundleJobUpdate,
-  ) {
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Passed}`)
+  async bundlePassedCheck(payload: BundleUpdatePayload) {
+    await this.endBundleCheck(payload)
+  }
+
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Failed}`)
+  async bundleFailedCheck(payload: BundleUpdatePayload) {
+    await this.endBundleCheck(payload)
+  }
+
+  async endBundleCheck(payload: BundleUpdatePayload) {
+    const { project, artifact, bundleJobResult, baselineArtifact } = payload
+
     await this.createOrUpdateCheck({
       project,
       commitHash: artifact.hash,
@@ -83,11 +95,12 @@ export class CheckSuiteService {
       }),
       artifact,
       baselineArtifact,
-      bundleJobResult: bundleResult,
+      bundleJobResult,
     })
   }
 
-  async startLabCheck(project: Project, snapshot: Snapshot) {
+  @OnEvent(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Pending}`)
+  async startLabCheck({ project, snapshot }: Omit<SnapshotUpdatePayload, 'reports'>) {
     if (!snapshot.hash) {
       return
     }
@@ -101,7 +114,10 @@ export class CheckSuiteService {
     })
   }
 
-  async runLabCheck(project: Project, snapshot: Snapshot) {
+  @OnEvent(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Running}`)
+  async runLabCheck(payload: SnapshotUpdatePayload) {
+    const { snapshot, project } = payload
+
     if (!snapshot.hash) {
       return
     }
@@ -115,7 +131,9 @@ export class CheckSuiteService {
     })
   }
 
-  async endLabCheck(project: Project, snapshot: Snapshot, reports: SnapshotReport[]) {
+  @OnEvent(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Completed}`)
+  async endLabCheck(payload: SnapshotUpdatePayload) {
+    const { project, snapshot, reports } = payload
     if (!snapshot.hash) {
       return
     }

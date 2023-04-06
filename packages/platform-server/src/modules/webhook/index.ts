@@ -18,13 +18,11 @@ import { Module } from '@nestjs/common'
 
 import { ProjectModule } from '../project'
 
-import { WebhookController } from './controller'
 import { ProjectWebhookResolver, ApplicationWebhookResolver, WebhookResolver } from './resolver'
 import { WebhookService } from './service'
 
 @Module({
   imports: [ProjectModule],
-  controllers: [WebhookController],
   providers: [WebhookResolver, ProjectWebhookResolver, ApplicationWebhookResolver, WebhookService],
   exports: [WebhookService],
 })

@@ -15,11 +15,11 @@ limitations under the License.
 */
 
 import { Environment, Project, Setting, Snapshot, SnapshotReport, User, Artifact } from '@perfsee/platform-server/db'
-import { BundleJobUpdate } from '@perfsee/server-common'
+import { BundleJobPassedUpdate } from '@perfsee/server-common'
 
 export interface BundleNotificationInfo {
   artifact: Artifact
-  result: BundleJobUpdate
+  result: BundleJobPassedUpdate
   project: Project
   projectSetting: Setting
   projectOwners: User[]

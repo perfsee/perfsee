@@ -24,11 +24,19 @@ import { v4 as uuid } from 'uuid'
 
 import { Project, Webhook } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
+import { OnEvent } from '@perfsee/platform-server/event'
+import {
+  AnalyzeUpdateType,
+  BundleUpdatePayload,
+  SnapshotUpdatePayload,
+  SourceUpdatePayload,
+} from '@perfsee/platform-server/event/type'
 import { WebhookEventPayloadFactories } from '@perfsee/platform-server/event/webhook-events'
 import { GqlService } from '@perfsee/platform-server/graphql.module'
 import { RxFetch } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Redis } from '@perfsee/platform-server/redis'
+import { BundleJobStatus, SnapshotStatus } from '@perfsee/server-common'
 import { parseWebhookEventTypeWildcardExpr } from '@perfsee/shared'
 
 import { ApplicationService } from '../application/service'
@@ -46,6 +54,46 @@ export class WebhookService {
     private readonly redis: Redis,
     private readonly gqlService: GqlService,
   ) {}
+
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Passed}`)
+  async bundlePassed(payload: BundleUpdatePayload) {
+    await this.bundleFinish(payload)
+  }
+  @OnEvent(`${AnalyzeUpdateType.ArtifactUpdate}.${BundleJobStatus.Failed}`)
+  async bundleFailed(payload: BundleUpdatePayload) {
+    await this.bundleFinish(payload)
+  }
+
+  async bundleFinish(payload: BundleUpdatePayload) {
+    await this.deliver(payload.project, 'bundle:finished', {
+      projectSlug: payload.project.slug,
+      artifactIid: payload.artifact.iid,
+    })
+  }
+
+  @OnEvent(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Completed}`)
+  async snapshotCompleted(payload: SnapshotUpdatePayload) {
+    await this.deliver(payload.project, 'lab:snapshot-completed', {
+      projectSlug: payload.project.slug,
+      snapshotIid: payload.snapshot.iid,
+    })
+  }
+
+  @OnEvent(`${AnalyzeUpdateType.SnapshotReportUpdate}.${SnapshotStatus.Completed}`)
+  async snapshotReportCompleted(payload: SnapshotUpdatePayload) {
+    await this.deliver(payload.project, 'lab:snapshot-report-completed', {
+      projectSlug: payload.project.slug,
+      snapshotReportIid: payload.snapshot.iid,
+    })
+  }
+
+  @OnEvent(`${AnalyzeUpdateType.SourceUpdate}.completed`)
+  async sourceFinish(payload: SourceUpdatePayload) {
+    await this.deliver(payload.project, 'source:finished', {
+      projectSlug: payload.project.slug,
+      snapshotReportIid: payload.report.iid,
+    })
+  }
 
   async deliver<EventType extends keyof typeof WebhookEventPayloadFactories>(
     project: Project,

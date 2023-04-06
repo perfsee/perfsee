@@ -17,7 +17,6 @@ limitations under the License.
 import { Injectable } from '@nestjs/common'
 
 import { Config } from '@perfsee/platform-server/config'
-import { isPassedBundleJobUpdate } from '@perfsee/server-common'
 
 import { EmailService } from '../../../email'
 import { getBundleJobMessageTargets, getCookieMessageTargets, getLabJobMessageTargets } from '../../shared'
@@ -33,9 +32,7 @@ export class EmailNotificationProvider implements NotificationProvider {
 
   async sendBundleNotification(info: BundleNotificationInfo) {
     const { projectSetting, artifact, result } = info
-    const hasWarning =
-      isPassedBundleJobUpdate(result) &&
-      Object.values(result.entryPoints ?? {}).some((entrypoint) => entrypoint.warnings.length > 0)
+    const hasWarning = Object.values(result.entryPoints ?? {}).some((entrypoint) => entrypoint.warnings.length > 0)
 
     const emails = getBundleJobMessageTargets(projectSetting, artifact, hasWarning).emails
 

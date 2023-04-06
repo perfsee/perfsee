@@ -17,42 +17,7 @@ limitations under the License.
 import { Global, Module, Provider } from '@nestjs/common'
 import { EventEmitter2, EventEmitterModule, OnEvent as RawOnEvent } from '@nestjs/event-emitter'
 
-import { JobType, CreateJobEvent } from '@perfsee/server-common'
-
-import { Project } from '../db'
-
-import { WebhookEventParameters } from './webhook-events'
-
-type KnownEvent =
-  | 'job.create'
-  | 'job.register_payload_getter'
-  | 'maintenance.enter'
-  | 'maintenance.leave'
-  | 'webhook.deliver'
-type DynamicEvent = JobType | `${JobType}.update` | `${JobType}.error` | `${JobType}.upload`
-export type Event = DynamicEvent | KnownEvent
-
-type EventPayload =
-  | {
-      type: 'job.create'
-      payload: [CreateJobEvent | CreateJobEvent[]]
-    }
-  | {
-      type: 'job.register_payload_getter'
-      payload: [JobType, (entityId: number, extra: { key: string }) => Promise<any>]
-    }
-  | {
-      type: `${JobType}.error`
-      payload: [number, string]
-    }
-  | {
-      type: 'webhook.deliver'
-      payload: [Project, WebhookEventParameters]
-    }
-
-type ExtractPayload<T extends Event> = Extract<EventPayload, { type: T }>['payload'] extends never
-  ? any[]
-  : Extract<EventPayload, { type: T }>['payload']
+import { Event, ExtractPayload } from './type'
 
 // we use this class to override the signature emit and emitAsync functions,
 // so we got typechecking for the events we use.
