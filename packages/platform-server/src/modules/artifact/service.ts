@@ -30,7 +30,6 @@ import { CheckSuiteService } from '../checksuite/service'
 import { NotificationService } from '../notification/service'
 import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
-import { SettingService } from '../setting/service'
 
 @Injectable()
 export class ArtifactService implements OnApplicationBootstrap {
@@ -48,7 +47,6 @@ export class ArtifactService implements OnApplicationBootstrap {
     private readonly metric: Metric,
     private readonly notification: NotificationService,
     private readonly scriptFile: ScriptFileService,
-    private readonly setting: SettingService,
     private readonly projectUsage: ProjectUsageService,
   ) {}
 
@@ -245,11 +243,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     })
 
     if (update.status === BundleJobStatus.Passed && update.scripts?.length) {
-      const settings = await this.setting.byProjectLoader.load(artifact.projectId)
-
-      if (settings?.autoDetectVersion) {
-        await this.scriptFile.recordScriptFile(artifact.projectId, artifact.id, artifact.name, update.scripts)
-      }
+      await this.scriptFile.recordScriptFile(artifact.projectId, artifact.id, artifact.name, update.scripts)
     }
 
     this.tapMetrics(artifact)

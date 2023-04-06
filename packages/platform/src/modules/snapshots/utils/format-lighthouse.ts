@@ -55,3 +55,8 @@ export const ReactTab = {
   id: PerformanceTabType.React,
   title: 'React',
 }
+
+export const SourceStatisticsTab = {
+  id: PerformanceTabType.SourceStatistics,
+  title: 'Source',
+}

@@ -18,7 +18,7 @@ import { Controller } from '@nestjs/common'
 
 import { OnEvent } from '@perfsee/platform-server/event'
 import { Logger } from '@perfsee/platform-server/logger'
-import { JobType, SourceAnalyzeJobResult } from '@perfsee/server-common'
+import { JobType, SourceAnalyzeJobResult, SourceStatus } from '@perfsee/server-common'
 
 import { SourceService } from './service'
 
@@ -29,7 +29,10 @@ export class SourceController {
   @OnEvent(`${JobType.SourceAnalyze}.update`)
   async onReceiveAnalyzeResult(jobResult: SourceAnalyzeJobResult) {
     this.logger.log('receive deployment analyze result')
-    await this.service.completeSource(jobResult)
+    await this.service.updateReportSourceStatus(jobResult.reportId, jobResult.status)
+    if (jobResult.status === SourceStatus.Completed) {
+      await this.service.completeSource(jobResult)
+    }
   }
 
   @OnEvent(`${JobType.SourceAnalyze}.upload`)

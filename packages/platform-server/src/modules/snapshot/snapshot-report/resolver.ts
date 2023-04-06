@@ -121,6 +121,11 @@ export class ReportResolver {
   reactProfileLink(@Parent() report: SnapshotReport) {
     return artifactLink(report.reactProfileStorageKey)
   }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to statistics from source analysis' })
+  sourceAnalyzeStatisticsLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.sourceAnalyzeStatisticsStorageKey)
+  }
 }
 
 @Resolver(() => Project)

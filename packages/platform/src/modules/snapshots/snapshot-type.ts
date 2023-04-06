@@ -52,6 +52,7 @@ export enum PerformanceTabType {
   Report = 'analysis-report',
   Flamechart = 'flamechart',
   SourceCoverage = 'source-coverage',
+  SourceStatistics = 'source-statistics',
   Breakdown = 'breakdown', // for multi reports
   React = 'react', // for react profile
 }

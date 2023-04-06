@@ -14,15 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { statSync } from 'fs'
 import { mkdir, rm, writeFile, readFile } from 'fs/promises'
-import { join, parse, relative } from 'path'
+import { basename, join, parse, relative } from 'path'
 
+import { uniq } from 'lodash'
 import { v4 as uuid } from 'uuid'
 
-import { BundleResult, extractBundleFromStream, ModuleMap, readJSONFile } from '@perfsee/bundle-analyzer'
+import {
+  addSize,
+  getDefaultSize,
+  BundleResult,
+  extractBundleFromStream,
+  ModuleMap,
+  readJSONFile,
+  Size,
+} from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
-import { JobType, SourceAnalyzeJob } from '@perfsee/server-common'
-import { FlameChartData, FlameChartDiagnostic } from '@perfsee/shared'
+import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult, SourceStatus } from '@perfsee/server-common'
+import { FlameChartData, FlameChartDiagnostic, SourceAnalyzeStatistics } from '@perfsee/shared'
 import { generateSourceCoverageTreemapData, GenerateSourceCoverageTreemapDataOptions } from '@perfsee/source-coverage'
 
 let analyseProfile: typeof import('@perfsee/ori')['analyseProfile'] | null
@@ -39,6 +49,10 @@ interface BundleMeta {
     fileName: string
     bundleId: string
     diskPath: string
+    entryPoints: string[]
+    async: boolean
+    size: Size
+    sourceMap: boolean
   }[]
   bundles: {
     [k: string]: {
@@ -55,14 +69,28 @@ const KEY_EVENT_NAMES = new Set(['Profile', 'thread_name', 'ProfileChunk'])
 interface ProfileAnalyzeResult {
   diagnostics: FlameChartDiagnostic[]
   profile: FlameChartData
+  artifacts: {
+    'time-using-by-script-file'?: Record<string, number>
+    'total-execution-time'?: number
+  }
 }
 
 export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private pwd!: string
+  private bundleMeta!: BundleMeta
   private bundleMetaPath!: string
   private tracePath: string | null = null
+  private result!: ProfileAnalyzeResult
 
   protected async before() {
+    this.updateJob({
+      type: JobType.SourceAnalyze,
+      payload: {
+        reportId: this.payload.reportId,
+        status: SourceStatus.Running,
+      },
+    })
+
     if (!analyseProfile) {
       this.fatal(new Error('@perfsee/ori module is not available.'))
     }
@@ -85,7 +113,8 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     const analyzeResultStr = await analyseProfile!(this.tracePath!, this.bundleMetaPath, false)
     this.logger.info(`Profile analysis finished, timeSpent=${Date.now() - startTime}ms].`)
 
-    const { diagnostics, profile } = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
+    this.result = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
+    const { diagnostics, profile } = this.result
     const flameChartStorageName = `flame-charts/${uuid()}.json`
     this.logger.info(`Uploading analysis flame chart data to artifacts. [name=${flameChartStorageName}]`)
     const flameChartStorageKey = await this.client.uploadArtifact(
@@ -94,14 +123,26 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     )
     this.logger.info(`Finished uploading. [key=${flameChartStorageKey}]`)
 
+    this.logger.info(`Start generate statistics information`)
+    let statisticsStorageKey
+    try {
+      statisticsStorageKey = await this.statisticsInformation()
+    } catch (err) {
+      this.logger.error(
+        'Failed to generate statistics information, ' + (err instanceof Error ? err.stack : String(err)),
+      )
+    }
+
     const result = {
+      status: SourceStatus.Completed as const,
       projectId: payload.projectId,
       reportId: payload.reportId,
-      artifactIds: payload.snapshotReport.artifactIds ?? [],
+      artifactIds: payload.artifacts.map((a) => a.id),
       diagnostics: diagnostics,
       flameChartStorageKey: flameChartStorageKey,
       sourceCoverageStorageKey: sourceCoverageStorageKey,
-    }
+      statisticsStorageKey: statisticsStorageKey,
+    } as SourceAnalyzeJobResult
 
     this.logger.info('Return source analysis result', { result })
 
@@ -117,6 +158,16 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
         this.logger.warn('Failed to remove working directory', e)
       })
     }
+  }
+
+  protected onError(_e: Error) {
+    this.updateJob({
+      type: JobType.SourceAnalyze,
+      payload: {
+        reportId: this.payload.reportId,
+        status: SourceStatus.Failed,
+      },
+    })
   }
 
   private async prepareArtifacts() {
@@ -163,12 +214,32 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     for (const { artifactId, hash, bundlePath, bundleReport, moduleMap } of bundleList) {
       const baseDir = parse(bundlePath).dir
 
-      bundleReport.assets?.forEach((asset) => {
+      bundleReport.assets.forEach((asset) => {
         if (asset.name.endsWith('.js')) {
+          const chunks = bundleReport.chunks.filter((c) => c.assetRefs.includes(asset.ref))
+          const entryChunks = chunks.filter((c) => c.entry)
+          const async = !(chunks.some((c) => !c.async) /* if all chunk is async */)
+          const entryPoints = bundleReport.entryPoints
+            .filter((entry) => entryChunks.some((c) => entry.chunkRefs.includes(c.ref)))
+            .map((entry) => entry.name)
+
+          const diskPath = join(baseDir, asset.path ?? asset.name)
+          let sourceMap = false
+          try {
+            const stats = statSync(diskPath)
+            sourceMap = stats.isFile()
+          } catch {
+            // ignore error
+          }
+
           files.push({
             fileName: asset.name,
             bundleId: artifactId.toString(),
             diskPath: join(baseDir, asset.path ?? asset.name),
+            entryPoints,
+            sourceMap,
+            async,
+            size: asset.size,
           })
         }
       })
@@ -197,8 +268,9 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       }
     }
 
+    this.bundleMeta = { files, bundles }
     const bundleMetaPath = join(pwd, 'bundle-meta.json')
-    await writeFile(bundleMetaPath, JSON.stringify({ files, bundles } as BundleMeta))
+    await writeFile(bundleMetaPath, JSON.stringify(this.bundleMeta))
     this.bundleMetaPath = bundleMetaPath
     this.logger.info('Finished downloading artifacts.')
   }
@@ -275,5 +347,75 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     const coverageData = await generateSourceCoverageTreemapData({ jsCoverageData, source, pageUrl })
     const storageName = `source-coverage/${uuid()}.json`
     return this.client.uploadArtifact(storageName, Buffer.from(JSON.stringify(coverageData), 'utf-8'))
+  }
+
+  private async statisticsInformation() {
+    const result: SourceAnalyzeStatistics = {}
+
+    // scriptCount
+    {
+      result.scriptCount = this.payload.snapshotReport.scripts?.length
+    }
+
+    // sourceMapCount
+    {
+      result.sourceMapCount = this.payload.snapshotReport.scripts?.filter((s) => {
+        return this.bundleMeta.files.find((f) => f.fileName.endsWith(s.fileName))?.sourceMap
+      }).length
+    }
+
+    // totalExecutionTimeMs
+    {
+      if (typeof this.result.artifacts['total-execution-time'] === 'number') {
+        result.totalExecutionTimeMs = this.result.artifacts['total-execution-time'] /* microseconds */ / 1000
+      }
+    }
+
+    // artifacts
+    {
+      const artifacts = this.payload.artifacts.map((a) => ({
+        id: a.iid,
+        rawId: a.id,
+        hash: a.hash,
+        branch: a.branch,
+        createdAt: a.createdAt,
+        entryPoints: [] as string[],
+        size: getDefaultSize(),
+        initialSize: getDefaultSize(),
+      }))
+
+      for (const script of this.payload.snapshotReport.scripts ?? []) {
+        const file = this.bundleMeta.files.find((f) => f.fileName.endsWith(script.fileName))
+        const artifact = file && artifacts.find((artifact) => String(artifact.rawId) === file.bundleId)
+        if (artifact && file) {
+          artifact.size = addSize(file.size, artifact.size)
+          if (!file.async) {
+            artifact.initialSize = addSize(file.size, artifact.initialSize)
+          }
+          if (file.entryPoints.length > 0) {
+            artifact.entryPoints = uniq([...artifact.entryPoints, ...file.entryPoints])
+          }
+        }
+      }
+
+      result.artifacts = artifacts
+    }
+
+    // thirdPartyScriptTimeUsingMs
+    {
+      const timeUsing = this.result.artifacts['time-using-by-script-file']
+      let thirdPartyScriptTimeUsingMs = 0
+
+      for (const scriptFile in timeUsing) {
+        const isThirdPartyScript = !this.bundleMeta.files.find((file) => scriptFile.endsWith(basename(file.fileName)))
+        if (isThirdPartyScript) {
+          thirdPartyScriptTimeUsingMs += timeUsing[scriptFile] /* microseconds */ / 1000
+        }
+      }
+      result.thirdPartyScriptTimeUsingMs = thirdPartyScriptTimeUsingMs
+    }
+
+    const storageName = `source-statistics/${uuid()}.json`
+    return this.client.uploadArtifact(storageName, Buffer.from(JSON.stringify(result), 'utf-8'))
   }
 }

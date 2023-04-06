@@ -5669,6 +5669,7 @@ __metadata:
     "@perfsee/server-common": "workspace:*"
     "@perfsee/shared": "workspace:*"
     "@perfsee/source-coverage": "workspace:*"
+    lodash: ^4.17.21
     ts-node: ^10.9.1
     uuid: ^9.0.0
   languageName: unknown

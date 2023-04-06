@@ -22,6 +22,7 @@ import { MultiContentOverview, MultiContentBreakdown } from './multi-report'
 import { AssetContent } from './pivot-content-asset'
 import { OverviewPivotContent } from './pivot-content-overview'
 import { AnalysisReportContent } from './pivot-content-performance'
+import { SourceStatisticsContent } from './pivot-content-source'
 import { UserFlowPivotContent } from './pivot-content-userflow'
 
 export const FlameChartPivotContent = lazy(
@@ -59,6 +60,8 @@ export const PivotContent = (props: PivotContentProps) => {
       return <AnalysisReportContent snapshot={snapshot} />
     case PerformanceTabType.React:
       return <ReactPivotContent snapshot={snapshot} />
+    case PerformanceTabType.SourceStatistics:
+      return <SourceStatisticsContent snapshot={snapshot} />
     default:
       return null
   }

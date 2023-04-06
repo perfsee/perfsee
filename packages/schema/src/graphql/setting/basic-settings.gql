@@ -6,7 +6,6 @@ query basicSettings($projectId: ID!) {
       bundleMessageSource
       bundleMessageBranches
       messageTargetType
-      autoDetectVersion
       messageTarget {
         userEmails
       }

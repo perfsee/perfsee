@@ -26,11 +26,15 @@ extern crate serde_json;
 use std::collections::HashMap;
 use std::mem;
 
+use analyzer::Artifact;
+use gatherers::get_all_gatherers;
 use napi::bindgen_prelude::*;
 use serde::Serialize;
 
+use crate::analyzer::{Analyzer, Diagnostic};
 use crate::profile::{Profile, SpeedScopeProfile, SpeedScopeProfileGroup};
-use crate::rules::{get_all_rules, Analyzer, Diagnostic};
+
+use crate::rules::get_all_rules;
 
 #[cfg(test)]
 #[macro_use]
@@ -38,6 +42,8 @@ mod test_util;
 
 #[macro_use]
 mod utils;
+pub mod analyzer;
+pub mod gatherers;
 pub mod parser;
 pub mod profile;
 pub mod rules;
@@ -52,12 +58,14 @@ static ALLOC: mimalloc_rust::GlobalMiMalloc = mimalloc_rust::GlobalMiMalloc;
 #[derive(Debug, Serialize)]
 pub struct AnalyseResult {
   diagnostics: Vec<Diagnostic>,
+  artifacts: HashMap<String, Artifact>,
   profile: Profile,
 }
 
 #[derive(Debug, Serialize)]
 struct DebugAnalyseResult {
   diagnostics: Vec<Diagnostic>,
+  artifacts: HashMap<String, Artifact>,
   profile: SpeedScopeProfileGroup,
 }
 
@@ -75,11 +83,12 @@ impl Task for AnalyzeTask {
   fn compute(&mut self) -> Result<Self::Output> {
     let profile = parser::parse(&self.profile_path, &self.bundle_meta_path)
       .map_err(|err| Error::new(Status::Unknown, format!("{err:?}")))?;
-    let mut analyzer = Analyzer::new(&profile, get_all_rules());
-    let diagnostics = analyzer.analyse();
+    let mut analyzer = Analyzer::new(&profile, get_all_rules(), get_all_gatherers());
+    let (diagnostics, artifacts) = analyzer.analyse();
 
     Ok(AnalyseResult {
       diagnostics,
+      artifacts,
       profile,
     })
   }
@@ -88,6 +97,7 @@ impl Task for AnalyzeTask {
     let out = if self.debug_mode {
       let dbg_result = DebugAnalyseResult {
         diagnostics: mem::take(&mut output.diagnostics),
+        artifacts: mem::take(&mut output.artifacts),
         profile: SpeedScopeProfile::from(output.profile).group(),
       };
 

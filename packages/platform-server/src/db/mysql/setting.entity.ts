@@ -94,7 +94,13 @@ export class Setting extends BaseEntity {
   })
   bundleMessageBranches!: string[]
 
-  @Field(() => Boolean, { description: 'Whether to enable the experimental feature of automatic source association' })
+  /**
+   * @deprecated
+   */
+  @Field(() => Boolean, {
+    description: 'deprecated',
+    deprecationReason: 'useless, enabled by default for all projects',
+  })
   @Column({
     type: 'boolean',
     default: false,
