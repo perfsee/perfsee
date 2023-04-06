@@ -31,7 +31,7 @@ import {
 
 export type ProjectUsageInfo = GroupUsageQuery['group']['projects'][0]
 export type ArtifactEntrypoints = NonNullable<ProjectUsageInfo['artifactRecords']>[0]['entrypoints']
-export type SnapshotReports = NonNullable<ProjectUsageInfo['snapshotRecords']>[0]['snapshotReports']
+export type SnapshotRecord = NonNullable<ProjectUsageInfo['snapshotRecords']>[0]
 export type LatestReport = NonNullable<LatestSnapshotReportsQuery['project']['latestSnapshot']>['snapshotReports'][0]
 
 interface State {

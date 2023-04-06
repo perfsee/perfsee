@@ -312,8 +312,8 @@ type Project {
   """bundle min,max,average score"""
   bundleScores(from: DateTime!, to: DateTime!): ScoreItem!
 
-  """lab min,max,average score"""
-  labScores(from: DateTime!, to: DateTime!): ScoreItem!
+  """the metrics of snapshot report"""
+  labAvgMetrics(from: DateTime!, to: DateTime!): AvgMetricType!
 
   """the oldest & latest artifacts"""
   artifactRecords(from: DateTime!, to: DateTime!, isBaseline: Boolean): [Artifact!]
@@ -1189,6 +1189,20 @@ type ScoreItem {
   minScore: Int
   maxScore: Int
   averageScore: Float
+}
+
+type AvgMetricType {
+  """performance score"""
+  score: Float
+  FCP: Float
+  FMP: Float
+  LCP: Float
+  SI: Float
+  TBT: Float
+  TTI: Float
+  MPFID: Float
+  CLS: Float
+  WS: Float
 }
 
 type GroupEdge {

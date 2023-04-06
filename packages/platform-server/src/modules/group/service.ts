@@ -34,6 +34,7 @@ import { Logger } from '@perfsee/platform-server/logger'
 import { Metric } from '@perfsee/platform-server/metrics'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { SnapshotStatus } from '@perfsee/server-common'
+import { MetricType } from '@perfsee/shared'
 
 import { PermissionProvider, Permission } from '../permission'
 import { UserService } from '../user'
@@ -251,17 +252,17 @@ export class GroupService {
     }
 
     const existed = await ProjectGroup.findOneBy({ groupId, projectId: project.id })
-    const projectGroups = await ProjectGroup.findBy({ groupId })
+    const projectGroupCount = await ProjectGroup.countBy({ groupId })
 
     if (!isAdd && existed) {
-      if (projectGroups.length > 1) {
+      if (projectGroupCount > 1) {
         await ProjectGroup.remove(existed)
       } else {
         throw new UserError('Need more than 1 project')
       }
     }
 
-    if (isAdd && projectGroups.length > 8) {
+    if (isAdd && projectGroupCount > 7) {
       throw new UserError('Need less than 8 projects')
     }
 
@@ -340,20 +341,23 @@ export class GroupService {
       .getRawOne<{ averageScore: number; maxScore: number; minScore: number }>()
   }
 
-  async getLabScores(from: Date, to: Date, project: Project) {
+  async getLabAvgMetrics(from: Date, to: Date, project: Project) {
     if (to < from) {
       throw Error('Invalid date range.')
     }
 
-    return SnapshotReport.createQueryBuilder('report')
-      .select('AVG(report.performance_score)', 'averageScore')
-      .addSelect('MAX(report.performance_score)', 'maxScore')
-      .addSelect('MIN(report.performance_score)', 'minScore')
-      .where('report.created_at between :from and :to', { from, to })
-      .andWhere('report.project_id = :projectId', { projectId: project.id })
+    const qb = SnapshotReport.createQueryBuilder('report')
+      .select('AVG(report.performance_score)', 'score')
+      .where('report.project_id = :projectId', { projectId: project.id })
+      .andWhere('report.created_at between :from and :to', { from, to })
       .andWhere('report.performance_score is not null')
       .andWhere('report.performance_score != 0')
-      .getRawOne<{ averageScore: number; maxScore: number; minScore: number }>()
+
+    Object.keys(MetricType).forEach((key) => {
+      qb.addSelect(`AVG(JSON_EXTRACT(report.metrics, '$."${MetricType[key]}"'))`, key)
+    })
+
+    return qb.getRawOne<{ [key in MetricType | 'score']: number }>()
   }
 
   private insertUserPermission(users: User[], permission: Permission) {
