@@ -54,6 +54,7 @@ export class Artifact extends BaseEntity {
 
   @Field(() => Int, { name: 'id' })
   @Column({ type: 'int' })
+  @Index()
   iid!: number
 
   @Field(() => String, { description: 'artifact name' })

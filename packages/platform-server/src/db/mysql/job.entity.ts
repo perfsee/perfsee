@@ -70,6 +70,7 @@ export class Job extends BaseEntity {
   @Column({ type: 'int' })
   entityId!: number
 
+  @Index()
   @Field(() => GraphQLISODateTime)
   @CreateDateColumn()
   createdAt!: Date
