@@ -55,12 +55,9 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
   return {
     name: 'perfsee-rollup-plugin',
     configResolved(resolvedConfig: any) {
-      publicPath = resolvedConfig.base
-
       // vite only hook
-      if (!userOptions.toolkit) {
-        options.toolkit = 'vite'
-      }
+      publicPath = resolvedConfig.base
+      options.toolkit = 'vite'
     },
     moduleParsed(moduleInfo) {
       const { id } = moduleInfo
