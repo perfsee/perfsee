@@ -28,6 +28,7 @@ import { OnEvent } from '@perfsee/platform-server/event'
 import {
   AnalyzeUpdateType,
   BundleUpdatePayload,
+  SnapshotReportUpdatePayload,
   SnapshotUpdatePayload,
   SourceUpdatePayload,
 } from '@perfsee/platform-server/event/type'
@@ -80,10 +81,10 @@ export class WebhookService {
   }
 
   @OnEvent(`${AnalyzeUpdateType.SnapshotReportUpdate}.${SnapshotStatus.Completed}`)
-  async snapshotReportCompleted(payload: SnapshotUpdatePayload) {
+  async snapshotReportCompleted(payload: SnapshotReportUpdatePayload) {
     await this.deliver(payload.project, 'lab:snapshot-report-completed', {
       projectSlug: payload.project.slug,
-      snapshotReportIid: payload.snapshot.iid,
+      snapshotReportIid: payload.report.iid,
     })
   }
 
