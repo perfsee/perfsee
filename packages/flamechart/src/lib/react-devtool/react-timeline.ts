@@ -59,6 +59,9 @@ export function buildTimelineProfilesFromReactDevtoolProfileData(
     const lanes = timelineData.laneToLabelMap
     for (const [laneId, measures] of timelineData.laneToReactMeasureMap.entries()) {
       const laneLabel = `${lanes.get(laneId)}(${laneId})`
+      if (measures.length === 0) {
+        continue
+      }
       for (const measure of measures) {
         const timestamp = measure.timestamp * 1000 + timeOffset
         const duration = measure.duration * 1000

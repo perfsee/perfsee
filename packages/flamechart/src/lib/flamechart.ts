@@ -1,9 +1,8 @@
-import {Frame, CallTreeNode} from './profile'
+import { Frame, CallTreeNode } from './profile'
 
 import { lastOf } from './utils'
 import { clamp, Rect, Vec2 } from './math'
 import { ProfileSearchEngine } from './profile-search'
-import { TimingFrame } from './timing-profile'
 
 export interface FlamechartFrame {
   node: CallTreeNode
@@ -33,75 +32,44 @@ interface FlamechartForeachDataSource {
 
 export type RootFilter = (node: CallTreeNode) => boolean
 
-export function buildFlamechart(source: FlamechartForeachDataSource, rootFilter?: RootFilter) {
-  const layers: StackLayer[] = []
-  const stack: FlamechartFrame[] = []
-  const openFrame = (node: CallTreeNode, value: number) => {
-    if (rootFilter && !rootFilter(node) && !stack.length) {
-      return
-    }
-    const parent = lastOf(stack)
-    const frame: FlamechartFrame = {
-      node,
-      parent,
-      children: [],
-      start: value,
-      end: value,
-      depth: stack.length
-    }
-    if (parent) {
-      parent.children.push(frame)
-    }
-    stack.push(frame)
-  }
+export type NodeProcessor = (node: CallTreeNode) => { level?: number }
 
-  let minFrameWidth = Infinity
-  const closeFrame = (_: CallTreeNode, value: number) => {
-    if (stack.length < 1) return
-    const stackTop = stack.pop()!
-    stackTop.end = value
-    if (stackTop.end - stackTop.start === 0) return
-    const layerIndex = stack.length
-    while (layers.length <= layerIndex) layers.push([])
-    layers[layerIndex].push(stackTop)
-    minFrameWidth = Math.min(minFrameWidth, stackTop.end - stackTop.start)
-  }
-
-  const maxValue = source.maxValue
-  const minValue = source.minValue
-  source.forEachCall(openFrame, closeFrame)
-
-  if (!isFinite(minFrameWidth)) minFrameWidth = 1
-
-  return new Flamechart(layers, minValue, maxValue, minFrameWidth, source.getColorBucketForFrame, source.formatValue)
-}
-
-export function buildNonStackFlamechart(source: FlamechartForeachDataSource, rootFilter?: RootFilter) {
+export function buildFlamechart(
+  source: FlamechartForeachDataSource,
+  processor: NodeProcessor = (_) => ({}),
+  rootFilter?: RootFilter,
+) {
   const layers: StackLayer[] = []
   const stack: FlamechartFrame[] = []
   const openFrame = (node: CallTreeNode, value: number) => {
     if (rootFilter && !rootFilter(node)) {
       return
     }
-    while (stack.length) {
-      const parent = lastOf(stack)!
-      if (parent.end < value) {
-        stack.pop()
-      } else {
-        break
-      }
-    }
 
-    const parent = lastOf(stack)
-    const frame: FlamechartFrame = {
-      node,
-      parent,
-      children: [],
-      start: value,
-      end: Infinity,
-      depth: stack.length
+    const { level } = processor(node)
+
+    if (typeof level !== 'number') {
+      const parent = lastOf(stack)
+      const frame: FlamechartFrame = {
+        node,
+        parent,
+        children: [],
+        start: value,
+        end: Infinity,
+        depth: parent ? parent.depth + 1 : 0,
+      }
+      stack.push(frame)
+    } else {
+      const frame: FlamechartFrame = {
+        node,
+        parent: null,
+        children: [],
+        start: value,
+        end: Infinity,
+        depth: level,
+      }
+      stack.push(frame)
     }
-    stack.push(frame)
   }
 
   let minFrameWidth = Infinity
@@ -111,98 +79,19 @@ export function buildNonStackFlamechart(source: FlamechartForeachDataSource, roo
     }
     console.assert(stack.length > 0)
 
-    const closeFrameIndex = stack.findIndex((frame) => frame.node === node);
-    console.assert(closeFrameIndex !== -1);
-
-    const closeFrame = stack[closeFrameIndex]
+    const closeFrameIndex = stack.findIndex((frame) => frame.node === node)
+    console.assert(closeFrameIndex !== -1)
+    const [closeFrame] = stack.splice(closeFrameIndex, 1)
     closeFrame.end = value
 
-    while (layers.length <= closeFrameIndex) layers.push([])
-    layers[closeFrameIndex].push(closeFrame)
+    while (layers.length <= closeFrame.depth) layers.push([])
+    layers[closeFrame.depth].push(closeFrame)
     minFrameWidth = Math.min(minFrameWidth, closeFrame.end - closeFrame.start)
   }
 
   const maxValue = source.maxValue
   const minValue = source.minValue
   source.forEachCall(openFrame, closeFrame)
-
-  if (!isFinite(minFrameWidth)) minFrameWidth = 1
-
-  return new Flamechart(layers, minValue, maxValue, minFrameWidth, source.getColorBucketForFrame, source.formatValue)
-}
-
-export function buildReactFlamechart(source: FlamechartForeachDataSource, rootFilter?: RootFilter) {
-  const layers: StackLayer[] = []
-  const openFrame = (node: CallTreeNode, value: number) => {
-    if (rootFilter && !rootFilter(node)) {
-      return
-    }
-
-    const reactInfo = (node.frame as TimingFrame).info
-    const lane = reactInfo?.laneNum || 0
-
-    const frame: FlamechartFrame = {
-      node,
-      parent: null,
-      children: [],
-      start: value,
-      end: Infinity,
-      depth: layers[lane]?.length || 0,
-    }
-
-    ;(layers[lane] ||= []).push(frame)
-  }
-
-  let minFrameWidth = Infinity
-  const closeFrame = (node: CallTreeNode, value: number) => {
-    if (rootFilter && !rootFilter(node)) {
-      return
-    }
-
-    const reactInfo = (node.frame as TimingFrame).info
-    const lane = reactInfo?.laneNum as number || 0
-    const closeFrameIndex = layers[lane].findIndex((frame) => frame.node === node);
-
-    const closeFrame = layers[lane][closeFrameIndex]
-    closeFrame.end = value
-
-    minFrameWidth = Math.min(minFrameWidth, closeFrame.end - closeFrame.start)
-  }
-
-  const maxValue = source.maxValue
-  const minValue = source.minValue
-  source.forEachCall(openFrame, closeFrame)
-
-  if (!isFinite(minFrameWidth)) minFrameWidth = 1
-
-  return new Flamechart(layers.filter(Boolean), minValue, maxValue, minFrameWidth, source.getColorBucketForFrame, source.formatValue)
-}
-
-export function buildFlamechartWithProcessor(source: FlamechartForeachDataSource, processor: (node: CallTreeNode) => {level: number, start: number, end: number}, rootFilter?: RootFilter) {
-  const layers: StackLayer[] = []
-  let minFrameWidth = Infinity
-  const openFrame = (node: CallTreeNode) => {
-    if (rootFilter && !rootFilter(node)) {
-      return
-    }
-    const info = processor(node)
-
-    const frame: FlamechartFrame = {
-      node,
-      parent: null,
-      children: [],
-      start: info.start,
-      end: info.end,
-      depth: info.level
-    }
-    while (layers.length <= info.level) layers.push([])
-    layers[info.level].push(frame)
-    minFrameWidth = Math.min(minFrameWidth, frame.end - frame.start)
-  }
-
-  const maxValue = source.maxValue
-  const minValue = source.minValue
-  source.forEachCall(openFrame, (_, __) => {})
 
   if (!isFinite(minFrameWidth)) minFrameWidth = 1
 
@@ -322,7 +211,7 @@ export class Flamechart {
 
     return {
       matchFrames,
-      highestScoreFrame
+      highestScoreFrame,
     }
   }
 
@@ -332,7 +221,6 @@ export class Flamechart {
     private maxValue: number = 0,
     private minFrameWidth: number = 1,
     public getColorBucketForFrame: (frame: Frame) => number,
-    public formatValue: (v: number) => string
-  ) {
-  }
+    public formatValue: (v: number) => string,
+  ) {}
 }
