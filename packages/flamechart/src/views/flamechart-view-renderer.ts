@@ -296,14 +296,15 @@ export class FlamechartViewRenderer {
 
           const labelText = timing.name
           if (timing.style === 'point') {
+            const size = 8 * devicePixelRatio
             ctx.save()
             ctx.setLineDash([])
             ctx.translate(physicalPos.x, physicalPos.y)
-            ctx.scale(0.8, 0.8)
+            ctx.scale(1, 1)
             ctx.beginPath()
             ctx.moveTo(0, 0)
-            ctx.bezierCurveTo(20, -20, 20, -40, 0, -40)
-            ctx.bezierCurveTo(-20, -40, -20, -20, 0, 0)
+            ctx.bezierCurveTo(size, -size, size, -(size * 2), 0, -(size * 2))
+            ctx.bezierCurveTo(-size, -(size * 2), -size, -size, 0, 0)
             ctx.fillStyle = timing.color
             ctx.lineWidth = lineWidth
             ctx.strokeStyle = theme.bgPrimaryColor
@@ -312,7 +313,7 @@ export class FlamechartViewRenderer {
             ctx.restore()
             timingPhysicalAreas.push({
               timing,
-              area: new Rect(new Vec2(physicalPos.x - 16, physicalPos.y - 32), new Vec2(32, 32)),
+              area: new Rect(new Vec2(physicalPos.x - size, physicalPos.y - size * 2), new Vec2(size * 2, size * 2)),
             })
           } else {
             if (labelText) {
