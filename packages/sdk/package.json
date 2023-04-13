@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/sdk",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "perfsee sdk",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",

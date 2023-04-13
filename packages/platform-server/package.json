@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/platform-server",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Perfsee server",
   "private": true,
   "repository": "https://github.com/perfsee/perfsee",
