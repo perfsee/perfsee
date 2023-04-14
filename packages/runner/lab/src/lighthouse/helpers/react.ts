@@ -34,6 +34,9 @@ interface State {
   exportsIdentifier?: string
   params?: string[]
   deps?: string[]
+
+  // react-dom verison < 16.13
+  isLegacy?: boolean
 }
 const visit = recursive as unknown as <TState>(
   ast: Node,
@@ -71,9 +74,9 @@ const wrapCjsScript = (text: string, state: State, schedulerTracingWrapper: stri
     })
     .replace('"use strict"', '')
   requires.push(variableIds.map((id, i) => `${id}=required${i}`).join(''))
-  return `function(${params.join(',')}){"use strict";var exports=${state.exportsIdentifier!};${requires.join(
-    '',
-  )};${moduleIdReplacedText}}`
+  return `function(${params.join(',')}){"use strict";var ${
+    state.isLegacy ? 'module' : 'exports'
+  }=${state.exportsIdentifier!};${requires.join('')};${moduleIdReplacedText}}`
 }
 
 const SCRIPT_CDN = 'https://unpkg.com'
@@ -119,9 +122,18 @@ export async function generateProfilingBundle(origin: string) {
     }
 
     const bodyText = origin.substring(...node.body.range!)
-    const match = /rendererPackageName:\s?"react-dom"[\s\S]*?(?<exports>\w+)\.version="(?<version>[\s\S]*?)"/.exec(
-      bodyText,
-    )
+    const reactDomRegex = /rendererPackageName:\s?"react-dom"[\s\S]*?(?<exports>\w+)\.version="(?<version>[\s\S]*?)"/
+    const legacyReactDomRegex =
+      /version:\s?"(?<version>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)",\s?rendererPackageName:\s?"react-dom"[\s\S]*?(?<exports>\w+)\.exports=/
+    let match = reactDomRegex.exec(bodyText)
+
+    if (!match) {
+      const legacyMatch = legacyReactDomRegex.exec(bodyText)
+      if (legacyMatch) {
+        state.isLegacy = true
+        match = legacyMatch
+      }
+    }
 
     if (match) {
       state.params = node.params.map((param) => origin.substring(...param.range!))
