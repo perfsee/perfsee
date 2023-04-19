@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@eyhn/msgpack-stream": "^2.8.4",
+    "@perfsee/jsonr": "workspace:*",
     "@perfsee/utils": "workspace:*",
     "acorn": "^8.7.1",
     "acorn-walk": "^8.2.0",

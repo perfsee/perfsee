@@ -32,6 +32,8 @@ import { createBrotliDecompress, createGunzip } from 'zlib'
 import { decode, decodeStream } from '@eyhn/msgpack-stream'
 import { extract } from 'tar'
 
+import JSONR from '@perfsee/jsonr'
+
 import { PerfseeReportStats } from './stats'
 import { readJSONFile } from './utils'
 
@@ -76,7 +78,7 @@ export async function extractBundleFromStream(stream: NodeJS.ReadableStream, pat
       })
   })
 
-  const statsFilePath = resolveStatsPath(path, new RegExp(`^webpack-stats-(.*)\\.mp\\.gz$`))
+  const statsFilePath = resolveStatsPath(path, new RegExp(`^webpack-stats-(.*)\\.(mp|jsonr)\\.gz$`))
 
   if (!statsFilePath) {
     throw new Error("Can't find stats file inside artifacts file list.")
@@ -137,6 +139,13 @@ async function decompressStatsFile(path: string): Promise<string> {
 export async function readStatsFile(path: string): Promise<PerfseeReportStats> {
   if (path.endsWith('.json')) {
     return readJSONFile(path)
+  } else if (path.endsWith('.jsonr')) {
+    const data = []
+    const readStream = createReadStream(path, { encoding: 'utf-8' })
+    for await (const chunk of readStream) {
+      data.push(chunk)
+    }
+    return JSONR.parseStream(data)
   } else if (path.endsWith('.mp')) {
     const stats = statSync(path)
     if (stats.size < 2 * 1024 * 1024 * 1024 /* 2GB */) {

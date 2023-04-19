@@ -9,16 +9,19 @@
       "path": "../packages/bundle-analyzer"
     },
     {
-      "path": "../packages/sdk"
-    },
-    {
-      "path": "../packages/utils"
-    },
-    {
       "path": "../packages/flamechart"
     },
     {
+      "path": "../packages/jsonr"
+    },
+    {
+      "path": "../packages/sdk"
+    },
+    {
       "path": "../packages/treemap"
+    },
+    {
+      "path": "../packages/utils"
     },
     {
       "path": "../packages/plugins/esbuild"

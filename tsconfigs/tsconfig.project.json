@@ -24,6 +24,9 @@
       "path": "../packages/flamechart"
     },
     {
+      "path": "../packages/jsonr"
+    },
+    {
       "path": "../packages/ori"
     },
     {

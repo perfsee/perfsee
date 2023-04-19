@@ -13,6 +13,9 @@
     },
     {
       "path": "../../utils"
+    },
+    {
+      "path": "../../jsonr"
     }
   ],
   "include": [
