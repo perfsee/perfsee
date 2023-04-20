@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/shared",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "shared stuff of perfsee",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
