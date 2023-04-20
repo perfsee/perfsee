@@ -443,9 +443,11 @@ export class SnapshotService implements OnApplicationBootstrap {
 
   async updateSnapshotReport(payload: Partial<SnapshotReport> & { id: number }) {
     this.logger.verbose('Receive snapshot report update message', payload)
-    await SnapshotReport.update(payload.id, payload)
 
-    const report = await SnapshotReport.findOneByOrFail({ id: payload.id })
+    const report = await this.db.transaction(async (manager) => {
+      await manager.update(SnapshotReport, payload.id, payload)
+      return manager.findOneByOrFail(SnapshotReport, { id: payload.id })
+    })
 
     const project = await Project.findOneByOrFail({ id: report.projectId })
     this.event.emit(`${AnalyzeUpdateType.SnapshotReportUpdate}.${report.status}`, {

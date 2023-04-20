@@ -1,8 +1,7 @@
 import { useCallback } from 'react'
 
-import { FlamechartFrame } from '@perfsee/flamechart/lib/flamechart'
-import { ReactFrame, ReactProfile } from '@perfsee/flamechart/lib/react-devtool/react-profile'
-
+import { FlamechartFrame } from '../../lib/flamechart'
+import { ReactFrame, ReactProfile } from '../../lib/react-devtool/react-profile'
 import { lightWeightTheme } from '../../themes/light-weight-theme'
 import { Theme } from '../../themes/theme'
 import { FlamechartContainer } from '../flamechart-container'

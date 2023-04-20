@@ -13,6 +13,9 @@
   "references": [
     {
       "path": "../utils"
+    },
+    {
+      "path": "../jsonr"
     }
   ]
 }

@@ -10,7 +10,7 @@ import { Logger } from '../stats-parser/types'
 import { getConsoleLogger } from '../utils'
 
 const extractTargetDir = resolve(__dirname, 'fixtures', 'temp')
-const statsRegex = /^webpack-stats-(.*)\.mp$/
+const statsRegex = /^webpack-stats-(.*)\.(jsonr|mp)$/
 const noLogger: Logger = Sinon.stub(getConsoleLogger())
 
 // NOTE: these test cases heavily depend on the ordering, do not change the order or run them separately.

@@ -1,17 +1,10 @@
-import {
-  buildFlamechart,
-  buildFlamechartWithProcessor,
-  buildNonStackFlamechart,
-  buildReactFlamechart,
-  Flamechart,
-  RootFilter,
-} from '../lib/flamechart'
+import { buildFlamechart, Flamechart, NodeProcessor, RootFilter } from '../lib/flamechart'
 import { NonStackTreeNode } from '../lib/non-stack-profile'
 import { Frame, Profile } from '../lib/profile'
 import { ReactFrame, ReactProfile } from '../lib/react-devtool/react-profile'
 import { TimingFrame } from '../lib/timing-profile'
 import { TracehouseGroupedFrame } from '../lib/tracehouse-profile'
-import { memoizeByReference, memoizeByShallowEquality } from '../lib/utils'
+import { memoizeByReference } from '../lib/utils'
 
 export const createGetColorBucketForFrame = memoizeByReference((frameToColorBucket: Map<number | string, number>) => {
   return (frame: Frame): number => {
@@ -37,144 +30,136 @@ export const getFrameToColorBucket = memoizeByReference((profile: Profile): Map<
   return frameToColorBucket
 })
 
-export const getLeftHeavyFlamechart = memoizeByReference((rootFilter?: RootFilter) =>
-  memoizeByShallowEquality((profile: Profile): Flamechart => {
-    return buildFlamechart(
-      {
-        minValue: 0,
-        maxValue: profile.getTotalNonIdleWeight(),
-        forEachCall: profile.forEachCallGrouped.bind(profile),
-        formatValue: profile.formatValue.bind(profile),
-        getColorBucketForFrame: createGetColorBucketForFrame(getFrameToColorBucket(profile)),
-      },
-      rootFilter,
-    )
-  }),
-)
+export const getLeftHeavyFlamechart = (
+  profile: Profile,
+  rootFilter?: RootFilter,
+  {
+    getColorBucketForFrame = createGetColorBucketForFrame(getFrameToColorBucket(profile)),
+    processor,
+  }: {
+    getColorBucketForFrame?: (frame: Frame) => number
+    processor?: NodeProcessor
+  } = {},
+): Flamechart => {
+  return buildFlamechart(
+    {
+      minValue: 0,
+      maxValue: profile.getTotalNonIdleWeight(),
+      forEachCall: profile.forEachCallGrouped.bind(profile),
+      formatValue: profile.formatValue.bind(profile),
+      getColorBucketForFrame,
+    },
+    processor,
+    rootFilter,
+  )
+}
 
-export const getChronoViewFlamechart = memoizeByReference((rootFilter?: RootFilter) =>
-  memoizeByShallowEquality((profile: Profile): Flamechart => {
-    return buildFlamechart(
-      {
-        minValue: profile.getMinValue(),
-        maxValue: profile.getMaxValue(),
-        forEachCall: profile.forEachCall.bind(profile),
-        formatValue: profile.formatValue.bind(profile),
-        getColorBucketForFrame: createGetColorBucketForFrame(getFrameToColorBucket(profile)),
-      },
-      rootFilter,
-    )
-  }),
-)
+export const getChronoViewFlamechart = (
+  profile: Profile,
+  rootFilter?: RootFilter,
+  {
+    getColorBucketForFrame = createGetColorBucketForFrame(getFrameToColorBucket(profile)),
+    processor,
+  }: {
+    getColorBucketForFrame?: (frame: Frame) => number
+    processor?: NodeProcessor
+  } = {},
+): Flamechart => {
+  return buildFlamechart(
+    {
+      minValue: profile.getMinValue(),
+      maxValue: profile.getMaxValue(),
+      forEachCall: profile.forEachCall.bind(profile),
+      formatValue: profile.formatValue.bind(profile),
+      getColorBucketForFrame,
+    },
+    processor,
+    rootFilter,
+  )
+}
 
-export const getNetworkFlamechart = memoizeByShallowEquality(
-  (profile: Profile, rootFilter?: RootFilter): Flamechart => {
-    return buildNonStackFlamechart(
-      {
-        minValue: profile.getMinValue(),
-        maxValue: profile.getMaxValue(),
-        forEachCall: profile.forEachCall.bind(profile),
-        formatValue: profile.formatValue.bind(profile),
-        getColorBucketForFrame: (_) => 1,
-      },
-      rootFilter,
-    )
-  },
-)
+export const getNetworkFlamechart = (profile: Profile, rootFilter?: RootFilter): Flamechart => {
+  return getChronoViewFlamechart(profile, rootFilter, {
+    getColorBucketForFrame: (_) => 1,
+  })
+}
 
-export const getReactTimelineFlamechart = memoizeByShallowEquality(
-  (profile: Profile, rootFilter?: RootFilter): Flamechart => {
-    return buildReactFlamechart(
-      {
-        minValue: profile.getMinValue(),
-        maxValue: profile.getMaxValue(),
-        forEachCall: profile.forEachCall.bind(profile),
-        formatValue: profile.formatValue.bind(profile),
-        getColorBucketForFrame: (frame: TimingFrame) => {
-          switch (frame.info?.type) {
-            case 'component render':
-              return 160
-            case 'react measure':
-              return 200
-            case 'native event':
-              return 50
-            case 'suspense event':
-              return 90
-            default:
-              return 0
-          }
-        },
-      },
-      rootFilter,
-    )
-  },
-)
-
-export const getReactProfilingFlamechart = memoizeByShallowEquality(
-  (profile: Profile, rootFilter?: RootFilter): Flamechart => {
-    if (!(profile instanceof ReactProfile)) {
-      throw new Error('need react profile')
-    }
-    return buildFlamechart(
-      {
-        minValue: profile.getMinValue(),
-        maxValue: profile.getMaxValue(),
-        forEachCall: profile.forEachCall.bind(profile),
-        formatValue: profile.formatValue.bind(profile),
-        getColorBucketForFrame: (frame: ReactFrame) => {
-          if (frame.info?.didRender) {
-            return Math.max(((frame.info?.selfDuration ?? 0) / profile.maxSelfDuration) * 255, 2)
-          } else if (frame.info?.isRenderPath) {
-            return 1
-          } else {
-            return 0
-          }
-        },
-      },
-      rootFilter,
-    )
-  },
-)
-
-export const getGroupedTracehouseFlamechart = memoizeByShallowEquality(
-  (profile: Profile, rootFilter?: RootFilter): Flamechart => {
-    return buildFlamechartWithProcessor(
-      {
-        minValue: profile.getMinValue(),
-        maxValue: profile.getMaxValue(),
-        forEachCall: profile.forEachCall.bind(profile),
-        formatValue: profile.formatValue.bind(profile),
-        getColorBucketForFrame: (n) => {
-          if (n instanceof TracehouseGroupedFrame) {
-            return n.level
-          }
+export const getReactTimelineFlamechart = (profile: Profile, rootFilter?: RootFilter): Flamechart => {
+  return getChronoViewFlamechart(profile, rootFilter, {
+    getColorBucketForFrame(frame: TimingFrame) {
+      switch (frame.info?.type) {
+        case 'component render':
+          return 160
+        case 'react measure':
+          return 200
+        case 'native event':
+          return 50
+        case 'suspense event':
+          return 90
+        default:
           return 0
-        },
-      },
-      (node) => {
-        if (node instanceof NonStackTreeNode && node.frame instanceof TracehouseGroupedFrame) {
-          return {
-            start: node.startTime,
-            end: node.endTime,
-            level: node.frame.level,
-          }
+      }
+    },
+    processor: (node) => {
+      if (!(node.frame instanceof TimingFrame)) {
+        return {}
+      }
+      const lane = node.frame.info?.laneNum || 0
+      return {
+        level: parseInt(lane as string),
+      }
+    },
+  })
+}
+
+export const getReactProfilingFlamechart = (profile: Profile, rootFilter?: RootFilter): Flamechart => {
+  if (!(profile instanceof ReactProfile)) {
+    throw new Error('need react profile')
+  }
+  return getChronoViewFlamechart(profile, rootFilter, {
+    getColorBucketForFrame(frame) {
+      if (!(frame instanceof ReactFrame)) {
+        return 0
+      }
+      if (frame.info?.didRender) {
+        return Math.max(((frame.info?.selfDuration ?? 0) / profile.maxSelfDuration) * 255, 2)
+      } else if (frame.info?.isRenderPath) {
+        return 1
+      } else {
+        return 0
+      }
+    },
+  })
+}
+
+export const getGroupedTracehouseFlamechart = (profile: Profile, rootFilter?: RootFilter): Flamechart => {
+  return getChronoViewFlamechart(profile, rootFilter, {
+    getColorBucketForFrame: (n) => {
+      if (n instanceof TracehouseGroupedFrame) {
+        return n.level
+      }
+      return 0
+    },
+    processor(node) {
+      if (node instanceof NonStackTreeNode && node.frame instanceof TracehouseGroupedFrame) {
+        return {
+          level: node.frame.level,
         }
-        throw new Error('Unexpected node type')
-      },
-      rootFilter,
-    )
-  },
-)
+      }
+      throw new Error('Unexpected node type')
+    },
+  })
+}
 
 export const FlamechartFactoryMap = {
   /**
    * Default flamechart
    */
-  default: (t: Profile, rootFilter?: RootFilter) => getChronoViewFlamechart(rootFilter)(t),
+  default: getChronoViewFlamechart,
   /**
    * left-heavy grouped view, more easy to find functions cost longer time.
    */
-  'left-heavy': (t: Profile, rootFilter?: RootFilter) => getLeftHeavyFlamechart(rootFilter)(t),
+  'left-heavy': getLeftHeavyFlamechart,
   /**
    * used for network flow chart
    */

@@ -156,7 +156,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    if (reactProfile?.dataForRoots) {
+    if (reactProfile?.dataForRoots?.length) {
       try {
         reactProfileStorageKey = await this.client.uploadArtifact(
           reactProfileFile,
@@ -165,6 +165,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       } catch (e) {
         this.logger.error('Failed to upload react profile', { error: e })
       }
+    } else if (this.reactProfiling) {
+      this.logger.error('Cannot get react profiling data.')
     }
 
     const traceEventsStorageKey = await this.uploadTraceEvents(artifacts)

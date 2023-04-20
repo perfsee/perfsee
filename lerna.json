@@ -5,7 +5,7 @@
     "packages/plugins/*",
     "packages/runner/*"
   ],
-  "version": "1.5.2",
+  "version": "1.6.0",
   "useWorkspaces": true,
   "npmClient": "yarn",
   "message": "chore: release"
