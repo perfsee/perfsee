@@ -46,10 +46,14 @@ export class GqlService {
         variables,
         operationName: query.operationName,
       },
-      { req: { session: { user: { isAdmin: true, isApp: true } as User } } },
+      { contextValue: { req: { session: { user: { isAdmin: true, isApp: true } as User } } } },
     )
 
-    const { data, errors } = response
+    if (response.body.kind !== 'single') {
+      throw new Error('only single query supported')
+    }
+
+    const { data, errors } = response.body.singleResult
     if (data) {
       return data as QueryResponse<Q>
     }

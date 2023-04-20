@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ApolloServerPlugin, GraphQLRequestListener, GraphQLRequestContext } from '@apollo/server'
 import { Plugin } from '@nestjs/apollo'
-import { ApolloServerPlugin, GraphQLRequestListener, GraphQLRequestContext } from 'apollo-server-plugin-base'
 
 import { isUserError } from '@perfsee/platform-server/error/user-error'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -25,7 +25,9 @@ import { Metric } from '@perfsee/platform-server/metrics'
 export class LogPlugin implements ApolloServerPlugin {
   constructor(private readonly metrics: Metric, private readonly logger: Logger) {}
 
-  requestDidStart(reqContext: GraphQLRequestContext<{ req: Express.Request }>): Promise<GraphQLRequestListener> {
+  requestDidStart(
+    reqContext: GraphQLRequestContext<{ req: Express.Request }>,
+  ): Promise<GraphQLRequestListener<GraphQLRequestContext<{ req: Express.Request }>>> {
     const operationName = reqContext.request.operationName
     const endTimer = this.metrics.gqlRequestTime({ operationName })
     this.metrics.gqlRequest(1, { operationName })
