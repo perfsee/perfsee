@@ -140,12 +140,18 @@ export async function readStatsFile(path: string): Promise<PerfseeReportStats> {
   if (path.endsWith('.json')) {
     return readJSONFile(path)
   } else if (path.endsWith('.jsonr')) {
-    const data = []
-    const readStream = createReadStream(path, { encoding: 'utf-8' })
-    for await (const chunk of readStream) {
-      data.push(chunk)
+    const stats = statSync(path)
+    if (stats.size < 2 * 1024 * 1024 * 1024 /* 2GB */) {
+      const buf = readFileSync(path, 'utf-8')
+      return JSONR.parse(buf)
+    } else {
+      const data = []
+      const readStream = createReadStream(path, { encoding: 'utf-8' })
+      for await (const chunk of readStream) {
+        data.push(chunk)
+      }
+      return JSONR.parseStream(data)
     }
-    return JSONR.parseStream(data)
   } else if (path.endsWith('.mp')) {
     const stats = statSync(path)
     if (stats.size < 2 * 1024 * 1024 * 1024 /* 2GB */) {
