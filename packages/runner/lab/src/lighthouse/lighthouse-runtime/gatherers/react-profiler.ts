@@ -26,6 +26,7 @@ import { ReactDevtoolProfilingDataExport } from '@perfsee/shared'
 import {
   detectReactDom,
   detectVersion,
+  DEVICE_DESCRIPTORS,
   Driver,
   fetchReactDom,
   generateProfilingBundle,
@@ -55,6 +56,9 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     this.reset()
 
     const page = await browser.newPage()
+
+    await page.setViewport(DEVICE_DESCRIPTORS['no'].viewport) // always use default view port
+
     const onResponse = async (response: HTTPResponse) => {
       const url = response.url()
       if (!url.endsWith('.js') || this.bundleToReplace.has(url)) {
