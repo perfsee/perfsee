@@ -53,7 +53,7 @@ export function rollupOutput2WebpackStats(this: PluginContext, outputBundle: Out
         {
           id: chunkId,
           children: [] as number[],
-          entry: bundle.isEntry || bundle.isDynamicEntry,
+          entry: bundle.isEntry || bundle.isDynamicEntry || bundle.isImplicitEntry,
           files: [bundle.fileName],
           initial: bundle.isEntry,
           parents: [] as number[],
@@ -68,7 +68,7 @@ export function rollupOutput2WebpackStats(this: PluginContext, outputBundle: Out
             })
             .map(([id, module]) => {
               const moduleInfo = this.getModuleInfo(id)
-              const newModule = modulesMap.has(id)
+              const newModule: BundleModule = modulesMap.has(id)
                 ? modulesMap.get(id)!
                 : {
                     errors: 0,
@@ -120,7 +120,7 @@ export function rollupOutput2WebpackStats(this: PluginContext, outputBundle: Out
   const recursivelySetInitialChunks = ([path, chunk]: [string, OutputChunk], found = [path]) => {
     const currentChunk = chunksMap.get(path)
     if (!currentChunk || chunk.isDynamicEntry) return
-    if (chunk.isEntry || currentChunk.initial) {
+    if (chunk.isEntry || chunk.isImplicitEntry || currentChunk.initial) {
       const nextFound = union(found, chunk.imports)
       chunk.imports
         .filter((importPath) => !found.includes(importPath))
@@ -157,7 +157,7 @@ export function rollupOutput2WebpackStats(this: PluginContext, outputBundle: Out
 
   const entrypoints = Object.fromEntries(
     chunksEntries
-      .filter(([, { isEntry }]) => isEntry)
+      .filter(([, { isEntry, isDynamicEntry, isImplicitEntry }]) => isEntry || isDynamicEntry || isImplicitEntry)
       .map(([id, { name }]) => {
         const chunks = recursivelyFindEntryChunks(id, outputBundle)
           .map((path) => chunksMap.get(path))
