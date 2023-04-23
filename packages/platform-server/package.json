@@ -37,7 +37,7 @@
     "ioredis": "^5.3.2",
     "json-bigint": "^1.0.0",
     "lodash": "^4.17.21",
-    "mysql2": "^2.3.3",
+    "mysql2": "^3.0.0",
     "nest-router": "^1.0.9",
     "node-abort-controller": "^3.0.1",
     "node-fetch": "^2.6.2",
