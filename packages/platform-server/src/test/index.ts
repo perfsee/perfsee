@@ -38,14 +38,14 @@ export interface DeepMockedModule extends TestingModule {
   get: <TInput = any, TResult = TInput>(
     typeOrToken: Type<TInput> | Abstract<TInput> | string | symbol,
     options?: {
-      strict: boolean
+      strict?: boolean
     },
   ) => DeepMocked<TResult>
   resolve: <TInput = any, TResult = TInput>(
     typeOrToken: Type<TInput> | Abstract<TInput> | string | symbol,
     contextId?: ContextId,
     options?: {
-      strict: boolean
+      strict?: boolean
     },
   ) => Promise<DeepMocked<TResult>>
 }
