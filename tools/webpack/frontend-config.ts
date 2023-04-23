@@ -42,7 +42,9 @@ export function getFrontendConfig() {
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': `"${process.env.NODE_ENV ?? 'production'}"`,
         LOCAL_REPORT: false,
-        PERFSEE_PLATFORM_HOST: `"${process.env.PERFSEE_PLATFORM_HOST ?? ''}"`,
+        PERFSEE_PLATFORM_HOST: `"${
+          process.env.PERFSEE_PLATFORM_HOST_FOR_FRONTEND ?? process.env.PERFSEE_PLATFORM_HOST ?? ''
+        }"`,
         __IS_SERVER__: process.env.__IS_SERVER__ === 'true',
       }),
       new PerfseePlugin({

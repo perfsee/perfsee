@@ -17,7 +17,7 @@ const obj = JSONR.parse(jsonrStr)
 const obj = { a: { hello: 'world', foooobar: 1 }, b: [] as any[] }
 obj.b.push(obj.a, obj.a, obj.a)
 
-const jsonrStr = JSONR.stringify({ hello: "world" })
+const jsonrStr = JSONR.stringify(obj)
 
 jsonrStr ->
 
