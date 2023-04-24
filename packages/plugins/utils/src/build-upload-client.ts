@@ -17,7 +17,7 @@ limitations under the License.
 import { createReadStream, createWriteStream, statSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { pipeline } from 'stream'
+import { Readable, pipeline } from 'stream'
 import { createGzip } from 'zlib'
 
 import chalk from 'chalk'
@@ -108,7 +108,7 @@ export class BuildUploadClient {
     const statsFile = join(this.outputPath, `webpack-stats-${uuid()}.jsonr.gz`)
 
     return new Promise<string>((resolve, reject) => {
-      pipeline(encodeStatsJson(stats), createGzip(), createWriteStream(statsFile), (err) => {
+      pipeline(Readable.from(encodeStatsJson(stats)), createGzip(), createWriteStream(statsFile), (err) => {
         if (err) {
           reject(err)
         } else {
