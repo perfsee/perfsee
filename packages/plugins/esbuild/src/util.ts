@@ -20,7 +20,7 @@ import { resolve, join, relative, dirname } from 'path'
 import { BuildOptions, Metafile } from 'esbuild'
 import { union } from 'lodash'
 
-import { BundleModule } from '@perfsee/bundle-analyzer'
+import { AssetTypeEnum, BundleModule, detectFileType } from '@perfsee/bundle-analyzer'
 
 import { Chunk, Output } from './type'
 
@@ -98,6 +98,19 @@ export const initModuleMap = (inputs: Metafile['inputs']) => {
       ]
     }),
   )
+}
+
+export const findAssets = ({ inputs }: Output, outputs: Metafile['outputs']): string[] => {
+  return Object.keys(inputs)
+    .filter((name) => detectFileType(name) !== AssetTypeEnum.Js)
+    .map(
+      (file) =>
+        Object.entries(outputs).find(
+          ([name, { inputs }]) =>
+            detectFileType(name) !== AssetTypeEnum.Js && Object.keys(inputs).slice(-1).includes(file),
+        )?.[0],
+    )
+    .filter(Boolean) as string[]
 }
 
 export const recursivelyFindEntryChunkIds = (

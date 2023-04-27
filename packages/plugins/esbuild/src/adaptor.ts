@@ -37,6 +37,7 @@ import {
   initChunkMap,
   initModuleMap,
   recursivelyFindEntryChunkIds,
+  findAssets,
 } from './util'
 
 const resolveModulesVersion = ({ inputs }: Metafile, rootPath: string, buildPath: string) => {
@@ -120,6 +121,8 @@ export const esbuildResult2Stats = (
         module.chunks.includes(chunk.id) || module.chunks.push(chunk.id)
       }
     })
+
+    chunk.files.push(...findAssets(outputValue, outputs).map((path) => pathToName(path, options)))
   })
 
   const entrypoints = Object.fromEntries(
