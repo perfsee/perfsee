@@ -57,13 +57,19 @@ const wrapCjsScript = (text: string, state: State, schedulerTracingWrapper: stri
   const params = state.params!
   const profilingBuildGetModuleCallRegexp = /((?:var \w+)|(?:,\s?\w+))=require\((\d+|(?:".*?"))\)/g
 
+  // if above react 18, deps are `react` and `scheduler`
+  // if under 18, deps are `react`, `object-assign` and `scheduler`
+  const depsLength = Number(state.version?.split('.')[0]) > 18 ? 2 : 3
+
   let index = 0
   const variableIds: string[] = []
   const requires: string[] = []
   const moduleIdReplacedText: string = text
     .replaceAll(profilingBuildGetModuleCallRegexp, (_match, variable) => {
       variableIds[index] = variable
-      const dep = state.deps?.[index]
+
+      // get deps from end
+      const dep = state.deps?.[state.deps.length - depsLength + index]
       if (dep) {
         requires.push(`var required${index}=${dep};`)
       } else {
