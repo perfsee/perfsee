@@ -41,7 +41,18 @@ const getPath = (path: string, absWorkingDir: string) => {
 }
 
 export const fileMatch = (fileA: string, fileB: string, absWorkingDir: string) => {
-  return getPath(fileA, absWorkingDir) === getPath(fileB, absWorkingDir)
+  if (fileA && fileA === fileB) {
+    return true
+  }
+
+  // path without schema
+  if (fileA && fileB && (fileA.split(':')[1] === fileB || fileA === fileB.split(':')[1])) {
+    return true
+  }
+  const pathA = getPath(fileA, absWorkingDir)
+  const pathB = getPath(fileB, absWorkingDir)
+
+  return pathA && pathA === pathB
 }
 
 let id = 1
