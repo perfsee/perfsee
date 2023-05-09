@@ -6972,7 +6972,7 @@ __metadata:
     acorn-walk: ^8.2.0
     fluent-ffmpeg: ^2.1.2
     jimp: ^0.22.0
-    lighthouse: ^9.6.3
+    lighthouse: ^10.0.0
     lighthouse-logger: ^1.3.0
     lodash: ^4.17.21
     node-fetch: ^2.6.2
@@ -7381,7 +7381,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/source-coverage@workspace:packages/source-coverage"
   dependencies:
-    lighthouse: ^9.6.3
+    lighthouse: ^10.0.0
   languageName: unknown
   linkType: soft
 
@@ -7389,7 +7389,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/tracehouse@workspace:packages/tracehouse"
   dependencies:
-    lighthouse: ^9.6.3
+    lighthouse: ^10.0.0
   languageName: unknown
   linkType: soft
 
@@ -7506,6 +7506,30 @@ __metadata:
   version: 1.1.0
   resolution: "@protobufjs/utf8@npm:1.1.0"
   checksum: f9bf3163d13aaa3b6f5e6fbf37a116e094ea021c0e1f2a7ccd0e12a29e2ce08dafba4e8b36e13f8ed7397e1591610ce880ed1289af4d66cf4ace8a36a9557278
+  languageName: node
+  linkType: hard
+
+"@puppeteer/browsers@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@puppeteer/browsers@npm:1.1.0"
+  dependencies:
+    debug: 4.3.4
+    extract-zip: 2.0.1
+    http-proxy-agent: 5.0.0
+    https-proxy-agent: 5.0.1
+    progress: 2.0.3
+    proxy-from-env: 1.1.0
+    tar-fs: 2.1.1
+    unbzip2-stream: 1.4.3
+    yargs: 17.7.1
+  peerDependencies:
+    typescript: ">= 4.7.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  bin:
+    browsers: lib/cjs/main-cli.js
+  checksum: 9f7497e5d38552a912444ed41fee0ce7fa2ebb33bbdd89f900e5dc103b01baf9a2d5aed568e7604c20574c90b1447714d8f409c980a32130d6498cf913e519bd
   languageName: node
   linkType: hard
 
@@ -10902,10 +10926,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axe-core@npm:4.4.1":
-  version: 4.4.1
-  resolution: "axe-core@npm:4.4.1"
-  checksum: ad14c5b71059dc3d24ef2519b8cd96e98b4a572379396201ce449d1c4262181821d6ca9550df65b22371faf06d28bbe94d391fe5675f2a08e6550f7b5da8416d
+"axe-core@npm:4.7.0":
+  version: 4.7.0
+  resolution: "axe-core@npm:4.7.0"
+  checksum: f086bcab42be1761ba2b0b127dec350087f4c3a853bba8dd58f69d898cefaac31a1561da23146f6f3c07954c76171d1f2ce460e555e052d2b02cd79af628fa4a
   languageName: node
   linkType: hard
 
@@ -12399,9 +12423,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chrome-launcher@npm:^0.15.0":
-  version: 0.15.1
-  resolution: "chrome-launcher@npm:0.15.1"
+"chrome-launcher@npm:^0.15.2":
+  version: 0.15.2
+  resolution: "chrome-launcher@npm:0.15.2"
   dependencies:
     "@types/node": "*"
     escape-string-regexp: ^4.0.0
@@ -12409,7 +12433,7 @@ __metadata:
     lighthouse-logger: ^1.0.0
   bin:
     print-chrome-path: bin/print-chrome-path.js
-  checksum: b534221b831afc59a0058a1f8406a77d7b4a592342785418e2ef97099b073609b0ca0e4be39d1ed842aa2b64b02ab5ccb45166eada9a37b775c757fb201d7fa5
+  checksum: e1f8131b9f7bd931248ea85f413c6cdb93a0d41440ff5bf0987f36afb081d2b2c7b60ba6062ee7ae2dd9b052143f6b275b38c9eb115d11b49c3ea8829bad7db0
   languageName: node
   linkType: hard
 
@@ -12417,6 +12441,17 @@ __metadata:
   version: 1.0.3
   resolution: "chrome-trace-event@npm:1.0.3"
   checksum: cb8b1fc7e881aaef973bd0c4a43cd353c2ad8323fb471a041e64f7c2dd849cde4aad15f8b753331a32dda45c973f032c8a03b8177fc85d60eaa75e91e08bfb97
+  languageName: node
+  linkType: hard
+
+"chromium-bidi@npm:0.4.7":
+  version: 0.4.7
+  resolution: "chromium-bidi@npm:0.4.7"
+  dependencies:
+    mitt: 3.0.0
+  peerDependencies:
+    devtools-protocol: "*"
+  checksum: eec7581e2eddd2c95014c6edc5aae0b036c79bbeadee05166436b16139b6932c902c5ce21d95ed919a592f58d3a47c5469dc5f3de2a300700b2748ab119ad65e
   languageName: node
   linkType: hard
 
@@ -13761,10 +13796,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csp_evaluator@npm:1.1.0":
-  version: 1.1.0
-  resolution: "csp_evaluator@npm:1.1.0"
-  checksum: d7f024dfa9d8418c95619ded8f3872339d39f7edd39b70bd095bedd40b06b9f1f8dd639c493090a0b1fafa1dc8d646fc3bd90268d844ed64f1f0874a59c95de5
+"csp_evaluator@npm:1.1.1":
+  version: 1.1.1
+  resolution: "csp_evaluator@npm:1.1.1"
+  checksum: 2db7806838385a1aa2715a86d07364cc2253bb18afa49d503094b8170e2bc94bc3ca312226eba4fe5041abab945a671696308a7d76755f9c3a2b9d58a121fb3f
   languageName: node
   linkType: hard
 
@@ -14126,22 +14161,6 @@ __metadata:
   dependencies:
     css-tree: ~2.2.0
   checksum: 0ad858d36bf5012ed243e9ec69962a867509061986d2ee07cc040a4b26e4d062c00d4c07e5ba8d430706ceb02dd87edd30a52b5937fd45b1b6f2119c4993d59a
-  languageName: node
-  linkType: hard
-
-"cssom@npm:0.3.x":
-  version: 0.3.8
-  resolution: "cssom@npm:0.3.8"
-  checksum: 24beb3087c76c0d52dd458be9ee1fbc80ac771478a9baef35dd258cdeb527c68eb43204dd439692bb2b1ae5272fa5f2946d10946edab0d04f1078f85e06bc7f6
-  languageName: node
-  linkType: hard
-
-"cssstyle@npm:1.2.1":
-  version: 1.2.1
-  resolution: "cssstyle@npm:1.2.1"
-  dependencies:
-    cssom: 0.3.x
-  checksum: 3e2a9dd0839af88834f1e32b361bfd829b42e914fcd4374a9b03665185781667b87815eb3225862a84484c1db6efaaa01651b7862ec1a4390bc05af92de7342a
   languageName: node
   linkType: hard
 
@@ -14755,6 +14774,20 @@ __metadata:
   bin:
     dev-ip: lib/dev-ip.js
   checksum: 274a6470c2143e4cdcb2b27e0bea137dbc2b42667eb59c890e703185054cb2bcaf2d8533e7ad2f532fe551a90542abc6b37053e8d73918a4fcfb7ffd76589620
+  languageName: node
+  linkType: hard
+
+"devtools-protocol@npm:0.0.1120988":
+  version: 0.0.1120988
+  resolution: "devtools-protocol@npm:0.0.1120988"
+  checksum: 68eb7aa6a2fe20f8321168f9381849296b203355a5c052461b7ed95e8787b34458029dd64c8d4a8640d9fd329138a6d82f41237f5331ea4267c090dcbf6581f7
+  languageName: node
+  linkType: hard
+
+"devtools-protocol@npm:0.0.1130274":
+  version: 0.0.1130274
+  resolution: "devtools-protocol@npm:0.0.1130274"
+  checksum: ccd5b01bc251d69e33aab5fcecce52049b9f2b50f92d55c7f966741ddf9b03b65f6dd2c1fcb620516c15b6eca5b48dffadd2b806b3b2fb7586558613850ecb33
   languageName: node
   linkType: hard
 
@@ -18742,10 +18775,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-link-header@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "http-link-header@npm:0.8.0"
-  checksum: 9c3844482f5fe4a290dcd6662905bcaf480c31bce49b58341a9683179fc8a2a4bfe0a6dd00abfe6353f419a11b6be4ec3e82740db6d4e73a74d93aa8415e0999
+"http-link-header@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "http-link-header@npm:1.1.1"
+  checksum: f9225b5500aefe34a74e82a21250758f6da17e472f21d8c3ea0b7c7e7c03bbc6cfafaf5d26d9cb5f860aa4936937e5fb94dbeee058b648d23dec2580d52b177b
   languageName: node
   linkType: hard
 
@@ -18756,7 +18789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-proxy-agent@npm:^5.0.0":
+"http-proxy-agent@npm:5.0.0, http-proxy-agent@npm:^5.0.0":
   version: 5.0.0
   resolution: "http-proxy-agent@npm:5.0.0"
   dependencies:
@@ -21027,10 +21060,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-library-detector@npm:^6.5.0":
-  version: 6.5.0
-  resolution: "js-library-detector@npm:6.5.0"
-  checksum: 2b9edce744509cb2d69dbeea9b6164954762e300c288d340e049808224efc2489dea37734fe8d52cd1ec3b398e33c3f5f924d0d65a9f702891687c369faacd59
+"js-library-detector@npm:^6.6.0":
+  version: 6.6.0
+  resolution: "js-library-detector@npm:6.6.0"
+  checksum: 7fb4d882cf3fbab70d0bebec1ca75edd62a46009e1caab17fb9914690bb53c257cf3ec08d907349b84ad67fdf2d08a925472996d1706bad03218bda7b842bc0c
   languageName: node
   linkType: hard
 
@@ -21618,49 +21651,49 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lighthouse-stack-packs@npm:^1.8.1":
-  version: 1.8.2
-  resolution: "lighthouse-stack-packs@npm:1.8.2"
-  checksum: 765ab8b4f9a572cc20f3796de601e1556488ac2964a99d13cdaa99605e9a251c47955b5b90624abc633059feffc4dbce7478b17b9b2b102d7f6c736fbda03219
+"lighthouse-stack-packs@npm:1.10.0":
+  version: 1.10.0
+  resolution: "lighthouse-stack-packs@npm:1.10.0"
+  checksum: 6bfa857a054939c09ba65452c8b0727c11b8bcd7bd90b9134b2e7e900c56303873f36e21902c3777eeba5c2ae5cc29ef72f71422a83f959488307edb9a40d7c1
   languageName: node
   linkType: hard
 
-"lighthouse@npm:^9.6.3":
-  version: 9.6.3
-  resolution: "lighthouse@npm:9.6.3"
+"lighthouse@npm:^10.0.0":
+  version: 10.2.0
+  resolution: "lighthouse@npm:10.2.0"
   dependencies:
     "@sentry/node": ^6.17.4
-    axe-core: 4.4.1
-    chrome-launcher: ^0.15.0
+    axe-core: 4.7.0
+    chrome-launcher: ^0.15.2
     configstore: ^5.0.1
-    csp_evaluator: 1.1.0
-    cssstyle: 1.2.1
+    csp_evaluator: 1.1.1
+    devtools-protocol: 0.0.1130274
     enquirer: ^2.3.6
-    http-link-header: ^0.8.0
+    http-link-header: ^1.1.1
     intl-messageformat: ^4.4.0
-    jpeg-js: ^0.4.3
-    js-library-detector: ^6.5.0
+    jpeg-js: ^0.4.4
+    js-library-detector: ^6.6.0
     lighthouse-logger: ^1.3.0
-    lighthouse-stack-packs: ^1.8.1
+    lighthouse-stack-packs: 1.10.0
     lodash: ^4.17.21
     lookup-closest-locale: 6.2.0
-    metaviewport-parser: 0.2.0
+    metaviewport-parser: 0.3.0
     open: ^8.4.0
     parse-cache-control: 1.0.1
     ps-list: ^8.0.0
-    puppeteer-core: ^13.7.0
+    puppeteer-core: ^20.1.0
     robots-parser: ^3.0.0
     semver: ^5.3.0
     speedline-core: ^1.4.3
-    third-party-web: ^0.17.1
+    third-party-web: ^0.20.2
     ws: ^7.0.0
     yargs: ^17.3.1
     yargs-parser: ^21.0.0
   bin:
-    chrome-debug: lighthouse-core/scripts/manual-chrome-launcher.js
-    lighthouse: lighthouse-cli/index.js
-    smokehouse: lighthouse-cli/test/smokehouse/frontends/smokehouse-bin.js
-  checksum: 31cb1ae8050437a282bbd5eb6fb66a820a7e1cd7b5b2e811310d9c7c8463cb57275d4a90027c237990289b08a9af05d543a5fdbfb7c66949d37c773cd1c47940
+    chrome-debug: core/scripts/manual-chrome-launcher.js
+    lighthouse: cli/index.js
+    smokehouse: cli/test/smokehouse/frontends/smokehouse-bin.js
+  checksum: 358d4549ebfe49e2b2f763837267c32776efeb16ccf8a30c5e4e92ad0ff06acfe24ef637707d2b0909a34c4eed99f823c195a2133d1bab67f6af4d6c773d626b
   languageName: node
   linkType: hard
 
@@ -22824,10 +22857,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"metaviewport-parser@npm:0.2.0":
-  version: 0.2.0
-  resolution: "metaviewport-parser@npm:0.2.0"
-  checksum: 26064768fd6a1ced615a223563a2bf2634fff0ce7353b8e64c8b4c5172d79750ef37a0c73bae71008a380000551c2875e342fc70ca7d9eb8458695dc82200860
+"metaviewport-parser@npm:0.3.0":
+  version: 0.3.0
+  resolution: "metaviewport-parser@npm:0.3.0"
+  checksum: f88e092d66e7eb01d409136b3efa11e9de0f5026ed945e9d8a089a4dd0fe10ddc28726e2648ea030fc44c248078b12a911100537e758d43aac150978ff3967cb
   languageName: node
   linkType: hard
 
@@ -23567,6 +23600,13 @@ __metadata:
     stream-each: ^1.1.0
     through2: ^2.0.0
   checksum: 84b3d9889621d293f9a596bafe60df863b330c88fc19215ced8f603c605fc7e1bf06f8e036edf301bd630a03fd5d9d7d23d5d6b9a4802c30ca864d800f0bd9f8
+  languageName: node
+  linkType: hard
+
+"mitt@npm:3.0.0":
+  version: 3.0.0
+  resolution: "mitt@npm:3.0.0"
+  checksum: f7be5049d27d18b1dbe9408452d66376fa60ae4a79fe9319869d1b90ae8cbaedadc7e9dab30b32d781411256d468be5538996bb7368941c09009ef6bbfa6bfc7
   languageName: node
   linkType: hard
 
@@ -27809,6 +27849,25 @@ __metadata:
     unbzip2-stream: 1.4.3
     ws: 8.5.0
   checksum: 652c4cfc9d228a8c5162227368a78a3a28ea6f287b4bfb359fa84cb83109e8203b4251103f8b0f7eca173a2a3f5d8cb8a7b664cc958a13d536ec91b5e729e731
+  languageName: node
+  linkType: hard
+
+"puppeteer-core@npm:^20.1.0":
+  version: 20.1.2
+  resolution: "puppeteer-core@npm:20.1.2"
+  dependencies:
+    "@puppeteer/browsers": 1.1.0
+    chromium-bidi: 0.4.7
+    cross-fetch: 3.1.5
+    debug: 4.3.4
+    devtools-protocol: 0.0.1120988
+    ws: 8.13.0
+  peerDependencies:
+    typescript: ">= 4.7.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: c9570721d54dadbd55138b94bc199dfccd9da6f6d7a0a58f0a7d0792af9099470f114b34274f73396001bdb6ca70f7db5b8aa186a3164b557f50328a47b6aa27
   languageName: node
   linkType: hard
 
@@ -32282,10 +32341,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"third-party-web@npm:^0.17.1":
-  version: 0.17.1
-  resolution: "third-party-web@npm:0.17.1"
-  checksum: 8d916f3aff258809e08918d70388e9b06daf1a983e21d924193caf83d1ee6422039ae7c588eaba353722cfd1583da047192650f23baa98f7a0464e77b140db3c
+"third-party-web@npm:^0.20.2":
+  version: 0.20.2
+  resolution: "third-party-web@npm:0.20.2"
+  checksum: 591cd651374081f895628eefb8f2aa6616e26428a4256f503e98136b7c4b14b64d01494d3149248330b7a3cfcb40d21485aeb52d173a3e9d17d8f9ccc88a9e30
   languageName: node
   linkType: hard
 
@@ -34823,6 +34882,21 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: b05a9467937172e01a4af7a7ad4361a22ee510cd12d1d5a3ad3b4c2e57eb8c35ca94ee22e4bdfbb40fe693fbf8000771e41824f77f6b224f1496c57f20f192b6
+  languageName: node
+  linkType: hard
+
+"yargs@npm:17.7.1":
+  version: 17.7.1
+  resolution: "yargs@npm:17.7.1"
+  dependencies:
+    cliui: ^8.0.1
+    escalade: ^3.1.1
+    get-caller-file: ^2.0.5
+    require-directory: ^2.1.1
+    string-width: ^4.2.3
+    y18n: ^5.0.5
+    yargs-parser: ^21.1.1
+  checksum: 3d8a43c336a4942bc68080768664aca85c7bd406f018bad362fd255c41c8f4e650277f42fd65d543fce99e084124ddafee7bbfc1a5c6a8fda4cec78609dcf8d4
   languageName: node
   linkType: hard
 
