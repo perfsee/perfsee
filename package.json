@@ -84,7 +84,7 @@
     "sinon": "^15.0.0",
     "supertest": "^6.3.3",
     "svgo": "^3.0.0",
-    "svgo-loader": "^3.0.1",
+    "svgo-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.3",
     "thread-loader": "^3.0.4",
     "ts-import-plugin": "^2.0.0",

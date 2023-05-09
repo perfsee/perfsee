@@ -21872,7 +21872,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loader-utils@npm:^1.1.0, loader-utils@npm:^1.2.3, loader-utils@npm:^1.4.0":
+"loader-utils@npm:^1.1.0, loader-utils@npm:^1.2.3":
   version: 1.4.2
   resolution: "loader-utils@npm:1.4.2"
   dependencies:
@@ -25928,7 +25928,7 @@ __metadata:
     sinon: ^15.0.0
     supertest: ^6.3.3
     svgo: ^3.0.0
-    svgo-loader: ^3.0.1
+    svgo-loader: ^4.0.0
     terser-webpack-plugin: ^5.3.3
     thread-loader: ^3.0.4
     ts-import-plugin: ^2.0.0
@@ -31822,13 +31822,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo-loader@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "svgo-loader@npm:3.0.1"
+"svgo-loader@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "svgo-loader@npm:4.0.0"
   dependencies:
-    loader-utils: ^1.4.0
-    svgo: ^2.8.0
-  checksum: f38e925fc9bb5a7d3ac2d701223cc37432003b156418d5bee688d062d4dc2bf55658bb7a2ca94286274252a8ec5c0d2d7fb383e2a02130cdaa37858ed90ff3c5
+    svgo: ^3.0.0
+  checksum: c5c86d7b8d302cbdce16a534576aee8c630c4a12323f46597a29b3e83befde30faadb63740273d873d32a805b0b1b0458c3ec5c3500344541e3677f7c51065c6
   languageName: node
   linkType: hard
 
