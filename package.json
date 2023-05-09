@@ -101,7 +101,7 @@
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
     "why-is-node-running": "^2.2.2",
-    "yup": "^0.32.11"
+    "yup": "^1.0.0"
   },
   "resolutions": {
     "jpeg-js": "0.4.4",
