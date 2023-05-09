@@ -27,6 +27,7 @@ import {
   Job,
   Profile,
   Project,
+  Package,
   UsagePack,
   Setting,
   User,
@@ -200,6 +201,11 @@ export class ProjectService {
         Permission.Read,
       ),
     ]
+  }
+
+  async hasPackages(project: Project) {
+    const pkg = await Package.findOneBy({ projectId: project.id })
+    return !!pkg
   }
 
   async checkPermission(payload: { user: User; slug: string; permission: Permission }) {

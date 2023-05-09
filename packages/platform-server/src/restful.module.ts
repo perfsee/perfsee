@@ -17,14 +17,30 @@ limitations under the License.
 import { Module } from '@nestjs/common'
 import { RouterModule } from 'nest-router'
 
-import { FileModule, ArtifactModule, SnapshotModule, JobModule, RunnerModule, RunnerScriptModule } from './modules'
+import {
+  FileModule,
+  ArtifactModule,
+  SnapshotModule,
+  JobModule,
+  RunnerModule,
+  RunnerScriptModule,
+  PackageModule,
+} from './modules'
 
 @Module({
   imports: [
     RouterModule.forRoutes([
       {
         path: '/api',
-        children: [FileModule, ArtifactModule, SnapshotModule, JobModule, RunnerModule, RunnerScriptModule],
+        children: [
+          FileModule,
+          ArtifactModule,
+          SnapshotModule,
+          JobModule,
+          RunnerModule,
+          RunnerScriptModule,
+          PackageModule,
+        ],
       },
     ]),
   ],

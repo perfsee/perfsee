@@ -9,10 +9,19 @@
       "path": "../packages/bundle-analyzer"
     },
     {
+      "path": "../packages/chrome-finder"
+    },
+    {
       "path": "../packages/flamechart"
     },
     {
       "path": "../packages/jsonr"
+    },
+    {
+      "path": "../packages/package-build-stats"
+    },
+    {
+      "path": "../packages/package"
     },
     {
       "path": "../packages/sdk"

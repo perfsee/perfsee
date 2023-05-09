@@ -39,6 +39,10 @@ export interface RouteTypes {
       detail: Params<'projectId' | 'bundleId'>
       jobBundleContent: Params<'projectId' | 'bundleId'>
     }
+    package: {
+      home: Params<'projectId'>
+      detail: Params<'projectId' | 'packageId'> & Partial<Params<'packageBundleId'>>
+    }
     lab: { home: Params<'projectId'>; report: Params<'projectId' | 'reportId'> & Partial<Params<'tabName'>> }
     competitor: { home: Params<'projectId'>; report: Params<'projectId' | 'tabName'> }
     source: Params<'projectId'>
@@ -100,6 +104,10 @@ export const staticPath = {
       home: '/projects/:projectId/bundle',
       detail: '/projects/:projectId/bundle/:bundleId',
       jobBundleContent: '/projects/:projectId/bundle/:bundleId/bundle-content',
+    },
+    package: {
+      home: '/projects/:projectId/packages',
+      detail: '/projects/:projectId/packages/:packageId/:packageBundleId?',
     },
     lab: { home: '/projects/:projectId/lab', report: '/projects/:projectId/lab/reports/:reportId/:tabName?' },
     competitor: { home: '/projects/:projectId/competitor', report: '/projects/:projectId/competitor/reports/:tabName' },
@@ -181,6 +189,12 @@ export const pathFactory = {
       ),
       jobBundleContent: makePathsFrom<FactoryParams<RouteTypes['project']['bundle']['jobBundleContent']>>(
         '/projects/:projectId/bundle/:bundleId/bundle-content',
+      ),
+    },
+    package: {
+      home: makePathsFrom<FactoryParams<RouteTypes['project']['package']['home']>>('/projects/:projectId/packages'),
+      detail: makePathsFrom<FactoryParams<RouteTypes['project']['package']['detail']>>(
+        '/projects/:projectId/packages/:packageId/:packageBundleId?',
       ),
     },
     lab: {
@@ -266,6 +280,10 @@ export const titleFactory = {
     makeTitlesFrom('Bundle #{bundleId} | Bundle | {projectId} | Perfsee', data),
   '/projects/:projectId/bundle/:bundleId/bundle-content': (data: Record<string, any>) =>
     makeTitlesFrom('Bundle content #{bundleId} | Bundle | {projectId} | Perfsee', data),
+  '/projects/:projectId/packages': (data: Record<string, any>) =>
+    makeTitlesFrom('Packages | {projectId} | Perfsee', data),
+  '/projects/:projectId/packages/:packageId/:packageBundleId?': (data: Record<string, any>) =>
+    makeTitlesFrom('Package #{packageId} | Packages | {projectId} | Perfsee', data),
   '/projects/:projectId/lab': (data: Record<string, any>) => makeTitlesFrom('Lab | {projectId} | Perfsee', data),
   '/projects/:projectId/lab/reports/:reportId/:tabName?': (data: Record<string, any>) =>
     makeTitlesFrom('Report #{reportId} | Lab | {projectId} | Perfsee', data),

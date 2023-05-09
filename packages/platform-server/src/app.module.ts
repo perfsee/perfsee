@@ -54,6 +54,7 @@ import {
   JobArtifactModule,
   WebhookModule,
   GroupModule,
+  PackageModule,
 } from './modules'
 import { CheckSuiteModule } from './modules/checksuite'
 import { RedisModule } from './redis'
@@ -90,6 +91,7 @@ const businessModules: ModuleMetadata['imports'] = [
   JobArtifactModule,
   ProjectModule,
   ArtifactModule,
+  PackageModule,
   SnapshotModule,
   EnvironmentModule,
   ProfileModule,

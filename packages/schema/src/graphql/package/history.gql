@@ -1,0 +1,19 @@
+query packageBundleHistory($packageId: ID!, $to: DateTime!, $branch: String, $limit: Int) {
+  packageBundleHistory(packageId: $packageId, to: $to, branch: $branch, limit: $limit) {
+    id
+    packageId
+    name
+    version
+    status
+    createdAt
+    failedReason
+    size {
+      raw
+      gzip
+    }
+    hasSideEffects
+    hasJSModule
+    hasJSNext
+    isModuleType
+  }
+}

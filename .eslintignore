@@ -35,3 +35,4 @@ tools/cli.generated.*.js
 assets
 db
 packages/runner/lab/src/lighthouse/lighthouse-runtime/gatherers/devtools-injection.js
+packages/package-build-stats/src/fixed/parseReference.js

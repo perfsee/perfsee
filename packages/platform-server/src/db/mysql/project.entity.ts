@@ -44,6 +44,7 @@ import type { SourceIssue } from './source-issue.entity'
 import type { Timer } from './timer.entity'
 import type { UserPermission } from './user-permission.entity'
 import type { Webhook } from './webhook.entity'
+import type { Package } from './package.entity'
 
 registerEnumType(GitHost, { name: 'GitHost' })
 
@@ -138,6 +139,9 @@ export class Project extends BaseEntity {
 
   @OneToMany('ProjectJobUsage', 'project')
   jobUsage!: ProjectJobUsage
+
+  @OneToMany('Package', 'project')
+  packages!: Package[]
 
   @OneToMany('Webhook', 'project')
   webhooks!: Webhook[]

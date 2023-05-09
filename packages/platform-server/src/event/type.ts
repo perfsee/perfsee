@@ -1,6 +1,13 @@
-import { BundleJobStatus, JobType, CreateJobEvent, SnapshotStatus, BundleJobUpdate } from '@perfsee/server-common'
+import {
+  BundleJobStatus,
+  JobType,
+  CreateJobEvent,
+  SnapshotStatus,
+  BundleJobUpdate,
+  PackageJobUpdate,
+} from '@perfsee/server-common'
 
-import { Artifact, Project, Snapshot, SnapshotReport } from '../db'
+import { Artifact, Package, PackageBundle, Project, Snapshot, SnapshotReport } from '../db'
 
 type KnownEvent = 'job.create' | 'job.register_payload_getter' | 'maintenance.enter' | 'maintenance.leave'
 
@@ -9,6 +16,7 @@ export enum AnalyzeUpdateType {
   SnapshotUpdate = 'snapshot_update',
   SnapshotReportUpdate = 'snapshot_report_update',
   SourceUpdate = 'source_update',
+  PackageUpdate = 'package_update',
 }
 
 type DynamicEvent =
@@ -20,6 +28,7 @@ type DynamicEvent =
   | `${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus}`
   | `${AnalyzeUpdateType.SnapshotReportUpdate}.${SnapshotStatus}`
   | `${AnalyzeUpdateType.SourceUpdate}.completed`
+  | `${AnalyzeUpdateType.PackageUpdate}.${BundleJobStatus}`
 
 export type Event = DynamicEvent | KnownEvent
 
@@ -42,6 +51,13 @@ export type BundleUpdatePayload = {
   artifact: Artifact
   bundleJobResult: BundleJobUpdate
   baselineArtifact: Artifact | undefined
+}
+
+export type PackageUpdatePayload = {
+  project: Project
+  package: Package
+  bundle: PackageBundle
+  packageJobResult: PackageJobUpdate
 }
 
 export type SnapshotUpdatePayload = {
@@ -92,6 +108,22 @@ type DynamicEventPayload =
   | {
       type: `${AnalyzeUpdateType.SourceUpdate}.completed`
       payload: [SourceUpdatePayload]
+    }
+  | {
+      type: `${AnalyzeUpdateType.PackageUpdate}.${BundleJobStatus.Pending}`
+      payload: [Pick<PackageUpdatePayload, 'package' | 'project'>]
+    }
+  | {
+      type: `${AnalyzeUpdateType.PackageUpdate}.${BundleJobStatus.Running}`
+      payload: [PackageUpdatePayload]
+    }
+  | {
+      type: `${AnalyzeUpdateType.PackageUpdate}.${BundleJobStatus.Passed}`
+      payload: [PackageUpdatePayload]
+    }
+  | {
+      type: `${AnalyzeUpdateType.PackageUpdate}.${BundleJobStatus.Failed}`
+      payload: [PackageUpdatePayload]
     }
 
 type EventPayload = KnownEventPayload | DynamicEventPayload

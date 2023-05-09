@@ -22,6 +22,7 @@
   "devDependencies": {
     "@perfsee/job-runner-bundle": "workspace:*",
     "@perfsee/job-runner-lab": "workspace:*",
+    "@perfsee/job-runner-package": "workspace:*",
     "@perfsee/job-runner-source": "workspace:*"
   }
 }

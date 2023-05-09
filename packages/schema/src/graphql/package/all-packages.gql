@@ -1,0 +1,18 @@
+query allPackages($input: PaginationInput!, $starred: Boolean!, $query: String, $permission: Permission) {
+  packages(pagination: $input, starred: $starred, query: $query, permission: $permission) {
+    edges {
+      node {
+        id
+        name
+        createdAt
+        updatedAt
+        description
+        keywords
+        projectId
+      }
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

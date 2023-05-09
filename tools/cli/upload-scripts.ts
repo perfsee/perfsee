@@ -28,6 +28,7 @@ const scripts: { [key in PackageName]?: string[] } = {
   '@perfsee/job-runner-bundle': ['job.BundleAnalyze'],
   '@perfsee/job-runner-lab': ['job.LabAnalyze', 'job.E2EAnalyze', 'job.LabPing'],
   '@perfsee/job-runner-source': ['job.SourceAnalyze'],
+  '@perfsee/job-runner-package': ['job.PackageAnalyze'],
 }
 export class UploadScriptsCommand extends Command {
   static paths = [['upload-scripts']]

@@ -31,7 +31,7 @@ import {
 } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { debounce } from 'lodash'
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useMemo } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 import {
@@ -51,6 +51,7 @@ import { Starring } from '../components'
 import { useSettings } from '../shared'
 
 import { ProjectsModule, ProjectNode, OrgNode } from './list.module'
+import { PackageList } from './package-list'
 import { CreateProjectAction } from './project-actions'
 import { TextImage, Cell } from './style'
 
@@ -120,7 +121,8 @@ const GroupItem = ({ org }: { org: OrgNode }) => {
 }
 
 enum ProjectsEnum {
-  All = 'all',
+  Project = 'project',
+  Package = 'package',
   Starred = 'starred',
   Group = 'group',
 }
@@ -171,9 +173,10 @@ const GithubButtonStyles = {
 }
 
 export const ProjectList = () => {
-  const [{ projects, loading, totalCount, groupTotalCount, groups }, dispatcher] = useModule(ProjectsModule)
+  const [{ projects, loading, totalCount, groupTotalCount, groups, packages, packageTotalCount }, dispatcher] =
+    useModule(ProjectsModule)
   const [pivotKey, setPivotKey] = useState<ProjectsEnum>(
-    () => localStorage[PROJECTS_LOCAL_STORAGE_KEY] ?? ProjectsEnum.All,
+    () => localStorage[PROJECTS_LOCAL_STORAGE_KEY] ?? ProjectsEnum.Project,
   )
   const history = useHistory()
   const settings = useSettings()
@@ -185,19 +188,30 @@ export const ProjectList = () => {
   }>()
 
   useEffect(() => {
-    if (pivotKey === ProjectsEnum.Group) {
-      dispatcher.getGroups({
-        page: Number(page),
-        pageSize: Number(pageSize),
-        query,
-      })
-    } else {
-      dispatcher.getProjects({
-        page: Number(page),
-        pageSize: Number(pageSize),
-        query: String(query),
-        starred: pivotKey === ProjectsEnum.Starred,
-      })
+    switch (pivotKey) {
+      case ProjectsEnum.Group:
+        dispatcher.getGroups({
+          page: Number(page),
+          pageSize: Number(pageSize),
+          query,
+        })
+        break
+      case ProjectsEnum.Project:
+      case ProjectsEnum.Starred:
+        dispatcher.getProjects({
+          page: Number(page),
+          pageSize: Number(pageSize),
+          query: String(query),
+          starred: pivotKey === ProjectsEnum.Starred,
+        })
+        break
+      case ProjectsEnum.Package:
+        dispatcher.getPackages({
+          page: Number(page),
+          pageSize: Number(pageSize),
+          query: String(query),
+          starred: false,
+        })
     }
   }, [dispatcher, page, pageSize, query, history.length, pivotKey])
 
@@ -223,7 +237,7 @@ export const ProjectList = () => {
       }
 
       setPivotKey(item.props.itemKey as ProjectsEnum)
-      localStorage.setItem(PROJECTS_LOCAL_STORAGE_KEY, item.props.itemKey ?? ProjectsEnum.All)
+      localStorage.setItem(PROJECTS_LOCAL_STORAGE_KEY, item.props.itemKey ?? ProjectsEnum.Project)
       dispatcher.setPage({ page: 1 })
     },
     [dispatcher],
@@ -236,29 +250,54 @@ export const ProjectList = () => {
       title={
         pivotKey === ProjectsEnum.Starred
           ? 'No Starred Projects'
-          : pivotKey === ProjectsEnum.All
+          : pivotKey === ProjectsEnum.Project
           ? 'No Projects'
+          : pivotKey === ProjectsEnum.Package
+          ? 'No Pacakges'
           : 'No Groups'
       }
     />
   )
 
-  const content = loading ? (
-    <Spinner
-      label={`Loading ${pivotKey === ProjectsEnum.Group ? 'Group' : 'Projects'}`}
-      styles={{ root: { maxWidth: 300, margin: 10 } }}
-    />
-  ) : pivotKey === ProjectsEnum.Group ? (
-    groups.length ? (
-      <List items={groups} onRenderCell={renderOrgItem} css={css({ minHeight: 700 })} />
+  const content = (() => {
+    if (loading) {
+      return (
+        <Spinner
+          label={`Loading ${
+            pivotKey === ProjectsEnum.Group ? 'Group' : pivotKey === ProjectsEnum.Package ? 'Pacakges' : 'Projects'
+          }`}
+          styles={{ root: { maxWidth: 300, margin: 10 } }}
+        />
+      )
+    }
+    if (pivotKey === ProjectsEnum.Group) {
+      return groups.length ? <List items={groups} onRenderCell={renderOrgItem} css={css({ minHeight: 700 })} /> : empty
+    }
+
+    if (pivotKey === ProjectsEnum.Package) {
+      return packages.length ? <PackageList packages={packages} /> : empty
+    }
+
+    return projects.length ? (
+      <List items={projects} onRenderCell={renderProjectItem} css={css({ minHeight: 700 })} />
     ) : (
       empty
     )
-  ) : projects.length ? (
-    <List items={projects} onRenderCell={renderProjectItem} css={css({ minHeight: 700 })} />
-  ) : (
-    empty
-  )
+  })()
+
+  const placeholder = useMemo(() => {
+    switch (pivotKey) {
+      case ProjectsEnum.Package:
+        return 'Search packages'
+      case ProjectsEnum.Starred:
+        return 'Search starred'
+      case ProjectsEnum.Group:
+        return 'Search groups'
+      case ProjectsEnum.Project:
+      default:
+        return 'Search projects'
+    }
+  }, [pivotKey])
 
   return (
     <BodyContainer>
@@ -266,7 +305,7 @@ export const ProjectList = () => {
         <Stack.Item grow>
           <Stack horizontal verticalAlign="center">
             <SearchBox
-              placeholder="Search projects"
+              placeholder={placeholder}
               styles={{ root: { maxWidth: 240, minWidth: 240 } }}
               defaultValue={query}
               onChange={onQueryChange}
@@ -281,14 +320,21 @@ export const ProjectList = () => {
         )}
       </Stack>
       <Pivot styles={{ root: { marginTop: 4 } }} defaultSelectedKey={pivotKey} onLinkClick={onPivotChange}>
-        <PivotItem headerText="All Projects" itemKey={ProjectsEnum.All} />
+        <PivotItem headerText="Projects" itemKey={ProjectsEnum.Project} />
+        <PivotItem headerText="Packages" itemKey={ProjectsEnum.Package} />
         <PivotItem headerText="Starred Projects" itemKey={ProjectsEnum.Starred} />
         <PivotItem headerText="Groups" itemKey={ProjectsEnum.Group} />
       </Pivot>
       {content}
       <Pagination
         key={pivotKey}
-        total={pivotKey === ProjectsEnum.Group ? groupTotalCount : totalCount}
+        total={
+          pivotKey === ProjectsEnum.Group
+            ? groupTotalCount
+            : pivotKey === ProjectsEnum.Package
+            ? packageTotalCount
+            : totalCount
+        }
         onChange={onPageChange}
         page={page}
         pageSize={pageSize}

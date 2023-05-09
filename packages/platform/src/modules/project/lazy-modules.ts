@@ -30,3 +30,4 @@ export const SnapshotStatistics = lazy(
 )
 export const SettingsPage = lazy(() => import(/* webpackChunkName: "project-settings" */ './settings'))
 export const JobTrace = lazy(() => import(/* webpackChunkName: "job-trace" */ '../job-trace'))
+export const PackagesRoutes = lazy(() => import(/* webpackChunkName: "packages-page" */ '../package'))

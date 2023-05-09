@@ -28,6 +28,7 @@ import { ProjectModule } from '../shared'
 
 export enum NavItem {
   Home = 'home',
+  Packages = 'packages',
   Bundle = 'bundle',
   Lab = 'lab',
   Source = 'source',
@@ -81,7 +82,8 @@ export const ProjectNav = () => {
         <Pivot onLinkClick={handleLinkClick} selectedKey={routeParams.feature} styles={{ root: { height: '100%' } }}>
           {Object.entries(NavItem).map(
             ([key, val]) =>
-              (val !== NavItem.Settings || isAdminUser) && (
+              (val !== NavItem.Settings || isAdminUser) &&
+              (val !== NavItem.Packages || project.hasPackages) && (
                 <PivotItem key={key} itemKey={val} headerText={key} itemIcon={val} />
               ),
           )}

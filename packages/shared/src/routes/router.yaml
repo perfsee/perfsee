@@ -90,6 +90,13 @@ paths:
           jobBundleContent:
             path: /:bundleId/bundle-content
             title: 'Bundle content #{bundleId}'
+      package:
+        base: /packages
+        title: Packages
+        paths:
+          detail:
+            path: /:packageId/:packageBundleId?
+            title: 'Package #{packageId}'
       lab:
         base: /lab
         title: Lab

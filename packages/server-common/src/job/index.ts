@@ -14,11 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BundleJobUpdate, E2EJobResult, LabJobResult, PingJobResult, SourceAnalyzeJobResult } from '../types'
+import {
+  BundleJobUpdate,
+  E2EJobResult,
+  LabJobResult,
+  PackageJobUpdate,
+  PingJobResult,
+  SourceAnalyzeJobResult,
+} from '../types'
 
 export enum JobType {
   All = '__all__',
   BundleAnalyze = 'job.BundleAnalyze',
+  PackageAnalyze = 'job.PackageAnalyze',
   LabAnalyze = 'job.LabAnalyze',
   E2EAnalyze = 'job.E2EAnalyze',
   SourceAnalyze = 'job.SourceAnalyze',
@@ -45,6 +53,10 @@ export type JobTypeWithPayload =
   | {
       type: JobType.LabPing
       payload: { entityId: number; projectId: number; extra: { key: string } }
+    }
+  | {
+      type: JobType.PackageAnalyze
+      payload: { entityId: number; projectId: number; packageId: number }
     }
 
 export type CreateJobPayload<T extends JobType> = Extract<JobTypeWithPayload, { type: T }>['payload']
@@ -75,6 +87,10 @@ export type JobTypeWithResult =
   | {
       type: JobType.LabPing
       payload: PingJobResult
+    }
+  | {
+      type: JobType.PackageAnalyze
+      payload: PackageJobUpdate
     }
 
 export type UpdateJobEvent = JobTypeWithResult
