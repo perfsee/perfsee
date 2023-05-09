@@ -59,7 +59,7 @@ const wrapCjsScript = (text: string, state: State, schedulerTracingWrapper: stri
 
   // if above react 18, deps are `react` and `scheduler`
   // if under 18, deps are `react`, `object-assign` and `scheduler`
-  const depsLength = Number(state.version?.split('.')[0]) > 18 ? 2 : 3
+  const depsLength = Number(state.version?.split('.')[0]) >= 18 ? 2 : 3
 
   let index = 0
   const variableIds: string[] = []
