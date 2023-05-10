@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { NotFoundException } from '@nestjs/common'
 import {
   Args,
   GraphQLISODateTime,
@@ -73,7 +74,7 @@ export class ProjectPackagesResolver {
 
 @Resolver(() => Package)
 export class PackageResolver {
-  constructor(private readonly service: PackageService) {}
+  constructor(private readonly service: PackageService, private readonly projectService: ProjectService) {}
 
   @ResolveField(() => PaginatedPackageBundles)
   async bundles(
@@ -117,6 +118,15 @@ export class PackageResolver {
   ) {
     const [packages, totalCount] = await this.service.getAllPackages(user, paginationInput, query, starred, permission)
     return paginate(packages, 'id', paginationInput, totalCount)
+  }
+
+  @ResolveField(() => ID)
+  async projectId(@Parent() pkg: Package) {
+    const project = await this.projectService.loader.load(pkg.projectId)
+    if (!project) {
+      throw new NotFoundException('project not found')
+    }
+    return project.slug
   }
 }
 

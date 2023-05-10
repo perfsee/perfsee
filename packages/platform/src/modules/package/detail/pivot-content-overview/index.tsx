@@ -44,13 +44,9 @@ const blockToken: IStackTokens = {
   childrenGap: 36,
 }
 
-const dataToken: IStackTokens = {
-  childrenGap: 100,
-}
-
 const questionCircle = <QuestionCircleOutlined size={12} style={{ cursor: 'pointer' }} />
 
-const historyLength = 20
+const historyLength = 22
 
 const downloadTimeText = [
   <div key="1">
@@ -180,7 +176,7 @@ export const PackageBundleReports: FC<{ packageId: string; packageBundleId: stri
   const bundleSizeBlock = (
     <BundleCard>
       <BundleCardTitle> Bundle Size </BundleCardTitle>
-      <Stack horizontal tokens={dataToken}>
+      <Stack horizontal horizontalAlign="space-between">
         {sizeDataBlocks}
       </Stack>
     </BundleCard>
@@ -189,7 +185,7 @@ export const PackageBundleReports: FC<{ packageId: string; packageBundleId: stri
   const downloadTimeBlock = (
     <BundleCard>
       <BundleCardTitle> Download Time </BundleCardTitle>
-      <Stack horizontal tokens={dataToken}>
+      <Stack horizontal horizontalAlign="space-between">
         {downloadTimeBlocks}
       </Stack>
     </BundleCard>

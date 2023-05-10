@@ -46,7 +46,6 @@ export class Package extends BaseEntity {
   @ManyToOne('Project', 'packages', { onDelete: 'CASCADE' })
   project!: Project
 
-  @Field(() => Int, { description: 'project id of package' })
   @Index()
   @RelationId('project')
   @Column()

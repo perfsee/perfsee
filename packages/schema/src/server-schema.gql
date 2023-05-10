@@ -945,9 +945,6 @@ type Group {
 type Package {
   id: Int!
 
-  """project id of package"""
-  projectId: Int!
-
   """package name"""
   name: String!
 
@@ -971,6 +968,7 @@ type Package {
     """hash filter"""
     hash: String
   ): PaginatedPackageBundles!
+  projectId: ID!
 }
 
 type PackageBundle {

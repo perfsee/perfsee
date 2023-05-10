@@ -47,6 +47,13 @@ export const analyze = async (packageString: string, options: GetPackageStatsOpt
 
   try {
     const packageExports = await getPackageExportSizes(packageString, options)
+    const { dependencySizes } = packageExports
+    if (dependencySizes && !dependencySizes.some((dep) => dep.name === result.name)) {
+      dependencySizes.push({
+        name: result.name,
+        approximateSize: result.size - dependencySizes.reduce((sum, val) => sum + val.approximateSize, 0),
+      })
+    }
     Object.assign(result, packageExports)
   } catch (e) {
     logger.error('Get package export sizes failed: ', { error: e })
