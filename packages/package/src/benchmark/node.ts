@@ -49,7 +49,7 @@ const runBenchmarks = async () => {
   }
 }
 
-require('@swc-node/register')
+require('ts-node/register/transpile-only')
 ${filePaths.map((path) => `require('${path}')`).join('\n')}
 
 session.post('Profiler.enable', () => {

@@ -14,12 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {
-  getPackageStats,
-  getPackageExportSizes,
-  getAllPackageExports,
-  GetPackageStatsOptions,
-} from '@perfsee/package-build-stats'
+import { getPackageStats, getAllPackageExports, GetPackageStatsOptions } from '@perfsee/package-build-stats'
 
 import { Logger, PackageJson } from './types'
 
@@ -42,21 +37,15 @@ export type PackageStats = (ReturnType<typeof getPackageStats> extends Promise<i
   packageJson: PackageJson
 }
 
-export const analyze = async (packageString: string, options: GetPackageStatsOptions, logger = getConsoleLogger()) => {
+export const analyze = async (packageString: string, options: GetPackageStatsOptions) => {
   const result = await getPackageStats(packageString, options)
 
-  try {
-    const packageExports = await getPackageExportSizes(packageString, options)
-    const { dependencySizes } = packageExports
-    if (dependencySizes && !dependencySizes.some((dep) => dep.name === result.name)) {
-      dependencySizes.push({
-        name: result.name,
-        approximateSize: result.size - dependencySizes.reduce((sum, val) => sum + val.approximateSize, 0),
-      })
-    }
-    Object.assign(result, packageExports)
-  } catch (e) {
-    logger.error('Get package export sizes failed: ', { error: e })
+  const { dependencySizes } = result
+  if (dependencySizes && !dependencySizes.some((dep) => dep.name === result.name)) {
+    dependencySizes.unshift({
+      name: result.name,
+      approximateSize: result.size - dependencySizes.reduce((sum, val) => sum + val.approximateSize, 0),
+    })
   }
 
   return result as PackageStats

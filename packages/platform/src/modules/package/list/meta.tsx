@@ -39,11 +39,9 @@ export const PackageMeta: FC<Props> = ({ pkg, branch }) => {
   const projectId = project?.id
   const historyRouter = useHistory()
 
-  const currentDateTime = pkg.updatedAt
-
   useEffect(() => {
-    currentDateTime && dispatcher.getHistory({ packageId, currentDateTime, branch })
-  }, [dispatcher, packageId, currentDateTime, branch])
+    dispatcher.getHistory({ packageId, currentDateTime: new Date().toString(), branch })
+  }, [dispatcher, packageId, branch])
 
   const onBarClick = useCallback(
     (reading: Reading) => {
