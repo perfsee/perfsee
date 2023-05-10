@@ -71,7 +71,7 @@ export class PackageWorker extends JobWorker<PackageJobPayload> {
     if (this.packageStatsPath) {
       packageStats = JSON.parse(await readFile(this.packageStatsPath, 'utf-8'))
     } else {
-      packageStats = await analyze(this.payload.packageString!, this.options, this.logger)
+      packageStats = await analyze(this.payload.packageString!, this.options)
     }
     const packageReportName = `package-stats/${uuid()}.json`
     const packageReportKey = await this.client.uploadArtifact(

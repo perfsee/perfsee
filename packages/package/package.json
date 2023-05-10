@@ -24,7 +24,6 @@
     "@perfsee/package-build-stats": "workspace:*",
     "@perfsee/plugin-utils": "workspace:*",
     "@perfsee/utils": "workspace:*",
-    "@swc-node/register": "^1.6.3",
     "benchmark": "^2.1.4",
     "chalk": "^4.1.2",
     "clipanion": "^3.1.0",
@@ -33,6 +32,7 @@
     "node-fetch": "^2.6.2",
     "puppeteer-core": "^13.7.0",
     "tar": "^6.1.13",
+    "ts-node": "^10.9.1",
     "tslib": "^2.5.0"
   },
   "devDependencies": {

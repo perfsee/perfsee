@@ -7156,7 +7156,6 @@ __metadata:
     "@perfsee/package-build-stats": "workspace:*"
     "@perfsee/plugin-utils": "workspace:*"
     "@perfsee/utils": "workspace:*"
-    "@swc-node/register": ^1.6.3
     "@types/benchmark": ^2.1.2
     benchmark: ^2.1.4
     chalk: ^4.1.2
@@ -7167,6 +7166,7 @@ __metadata:
     package-json-type: ^1.0.3
     puppeteer-core: ^13.7.0
     tar: ^6.1.13
+    ts-node: ^10.9.1
     tslib: ^2.5.0
   bin:
     package: ./bin/cli.js
@@ -8018,42 +8018,6 @@ __metadata:
     "@svgr/plugin-jsx": ^6.3.0
     "@svgr/plugin-svgo": ^6.3.0
   checksum: d401d84c08a19c46bb4375216a7df309719ed58caea7910df557bba1ffcca8f69410ceeff6467ce20bbc79d8965f49c4e71ec8b6cf3000e6c162073822b0545b
-  languageName: node
-  linkType: hard
-
-"@swc-node/core@npm:^1.10.2":
-  version: 1.10.2
-  resolution: "@swc-node/core@npm:1.10.2"
-  peerDependencies:
-    "@swc/core": ">= 1.3"
-  checksum: c36f92e965a856eac5d53124467f91fcf909178df55a75887f9fe399a54c4811a392a6e85bae3814a2e8252061ed2bbde2f3114730c7015107aa2b994b8f0ccf
-  languageName: node
-  linkType: hard
-
-"@swc-node/register@npm:^1.6.3":
-  version: 1.6.3
-  resolution: "@swc-node/register@npm:1.6.3"
-  dependencies:
-    "@swc-node/core": ^1.10.2
-    "@swc-node/sourcemap-support": ^0.3.0
-    colorette: ^2.0.19
-    debug: ^4.3.4
-    pirates: ^4.0.5
-    tslib: ^2.5.0
-  peerDependencies:
-    "@swc/core": ">= 1.3"
-    typescript: ">= 4.3"
-  checksum: fd282726e06e19ade7787b7c86c9e3d202fd611671f3abaacc217213ba1ac43ead77d6475947bfe814ac2d34ee5ac5f162d94fd2c901096b3174c5e399d19bf9
-  languageName: node
-  linkType: hard
-
-"@swc-node/sourcemap-support@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@swc-node/sourcemap-support@npm:0.3.0"
-  dependencies:
-    source-map-support: ^0.5.21
-    tslib: ^2.5.0
-  checksum: a3c837ed790238ef88682eb342b75d756eba5eb3b6cfe6cf14a597bd78dfc9a9797f1e54a4977c1297e5324fba2e33bd76ab8aa9c396ad463693de2001180c9e
   languageName: node
   linkType: hard
 
@@ -12889,7 +12853,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:^2.0.10, colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.17, colorette@npm:^2.0.19":
+"colorette@npm:^2.0.10, colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.17":
   version: 2.0.19
   resolution: "colorette@npm:2.0.19"
   checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
@@ -26033,7 +25997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pirates@npm:^4.0.4, pirates@npm:^4.0.5":
+"pirates@npm:^4.0.4":
   version: 4.0.5
   resolution: "pirates@npm:4.0.5"
   checksum: c9994e61b85260bec6c4fc0307016340d9b0c4f4b6550a957afaaff0c9b1ad58fbbea5cfcf083860a25cb27a375442e2b0edf52e2e1e40e69934e08dcc52d227
@@ -30829,7 +30793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.12, source-map-support@npm:^0.5.21, source-map-support@npm:~0.5.12, source-map-support@npm:~0.5.20":
+"source-map-support@npm:^0.5.12, source-map-support@npm:~0.5.12, source-map-support@npm:~0.5.20":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
