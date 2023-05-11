@@ -95,5 +95,6 @@ jobs:
           options: -v ${{ github.workspace }}:/build -w /build -e PERFSEE_REGISTRATION_TOKEN
           run: |
             yarn tsc -b ./tsconfigs/tsconfig.runner.json --verbose
+            yarn lerna run postbuild
             yarn build:rs
             yarn cli upload-scripts
