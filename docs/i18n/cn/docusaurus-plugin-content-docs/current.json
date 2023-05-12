@@ -11,6 +11,10 @@
     "message": "运行时分析",
     "description": "运行时分析功能导航"
   },
+  "sidebar.documentsSidebar.category.Package Analysis": {
+    "message": "Package 分析",
+    "description": "Package 分析功能导航"
+  },
   "sidebar.documentsSidebar.category.Source Analysis": {
     "message": "源码分析",
     "description": "源码分析功能导航"

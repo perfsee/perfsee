@@ -55,9 +55,18 @@ export const uploadPack = async (
   packPath: string,
   projectId: string,
   packageJson: Required<PackageJson>,
+  options: PackOptions = {},
   platform = getBuildEnv().platform,
 ) => {
-  const git = await getBuildEnv().git
+  const buildEnv = getBuildEnv()
+
+  if (!buildEnv.upload || options.local) {
+    console.info(chalk.yellow('[perfsee] found no upload flag, skip uploading build.'))
+    return
+  }
+
+  const git = await buildEnv.git
+
   if (!git?.host) {
     console.error(chalk.red('[perfsee] Did not find relative codebase host for current project.'))
     return

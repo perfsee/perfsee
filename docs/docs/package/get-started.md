@@ -41,7 +41,7 @@ Benchmark('bar', [
 ])
 ```
 
-## Step 3: Analyze and upload
+## Step 3: Analyze and upload (ONLY on CI)
 
 Before analysis, it's necessary to create a perfsee project and apply API Token on the [Token Management](https://perfsee.com/me/access-token) page.
 
@@ -50,6 +50,8 @@ PERFSEE_TOKEN=<your-token> npx @perfsee/package <path-to-package> --project=<per
 ```
 
 If there are benchmark files named `xxx.{bench,benchmark}.{js,ts}`(by default), this command will run benchmarks before uploading.
+
+On CI environment, the result will be uploaded to the platform.
 
 ### Cli Options
 
@@ -65,7 +67,7 @@ If target is `browser`, benchmarks will be bundled and run in headless chrome on
 
 ### local: boolean
 
-If `--local` is set, benchmarks will always run locally.
+If `--local` is set, benchmarks will always run locally and result will not be uploaded to platform.
 
 ### benchmarkPattern
 

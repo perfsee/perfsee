@@ -41,7 +41,7 @@ Benchmark('bar', [
 ])
 ```
 
-## Step 3: 分析 Package 并上传结果
+## Step 3: 在 CI 环境分析 Package 并上传结果
 
 在分析之前，必须先在 Perfsee 平台上创建项目，并在 [Token Management](https://perfsee.com/me/access-token) 页面申请 API Token。
 
@@ -50,6 +50,8 @@ PERFSEE_TOKEN=<your-token> npx @perfsee/package <path-to-package> --project=<per
 ```
 
 运行这个命令时，如果项目中有 `xxx.{bench,benchmark}.{js,ts}` 命名（默认配置可更改）的文件，则会将这些文件识别为 benchmarks 运行并将结果上传。
+
+注意：只有在 CI 环境，结果才会上传至 Perfsee 平台。
 
 ### Cli Options
 

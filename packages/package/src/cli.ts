@@ -46,7 +46,7 @@ class PackageAnalyzeCommand extends Command {
 
   local = Option.Boolean('--local', {
     required: false,
-    description: 'If true, benchmarks will always run in local.',
+    description: 'If true, benchmarks will run in local and result will not be uploaded to platform.',
   })
 
   minifier = Option.String('--minifier', {
@@ -101,7 +101,7 @@ class PackageAnalyzeCommand extends Command {
         benchmarkTimeout: this.benchmarkTimeout,
       }
       const packPath = await anaylizeAndPack(resolvedPath, packageJson, options)
-      await uploadPack(packPath, this.project, packageJson as Required<PackageJson>, this.platform)
+      await uploadPack(packPath, this.project, packageJson as Required<PackageJson>, options, this.platform)
     } else {
       console.error(chalk.red('[perfsee] path not valid.'))
     }
