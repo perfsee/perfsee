@@ -79,10 +79,10 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
 
   await mkdir(outputDir, { recursive: true })
 
-  console.info('[perfsee] start analyzing.')
+  console.info('[perfsee] start package analyzing.')
   const packageStats = await analyze(path, options)
   await writeFile(`${outputDir}/package-stats.json`, JSON.stringify(packageStats))
-  console.info('[perfsee] analyze success.')
+  console.info('[perfsee] package analysis success.')
 
   // if target is browser, we run benchmark on job runner
   // otherwise we run locally
