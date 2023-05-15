@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/package",
-  "version": "1.3.0",
+  "version": "1.7.0",
   "description": "package analyzer sdk by perfsee",
   "sideEffect": false,
   "main": "dist/index.js",
