@@ -48,6 +48,7 @@ const JOB_GROUPS: Record<JobType, JobType[]> = {
   [JobType.BundleAnalyze]: [JobType.BundleAnalyze],
   [JobType.LabAnalyze]: [JobType.LabAnalyze, JobType.E2EAnalyze, JobType.LabPing],
   [JobType.SourceAnalyze]: [JobType.SourceAnalyze],
+  [JobType.PackageAnalyze]: [JobType.PackageAnalyze],
 }
 
 const JOB_GROUPS_REVERSE = Object.entries(JOB_GROUPS).reduce((result, [groupType, groupMembers]) => {
@@ -62,6 +63,7 @@ const JOB_RECOMMENDED_CONCURRENCY = {
   [JobType.BundleAnalyze]: 3,
   [JobType.LabAnalyze]: 1,
   [JobType.SourceAnalyze]: 3,
+  [JobType.PackageAnalyze]: 1,
 }
 
 export function getJobTypeConcurrency(type: JobType): number {
