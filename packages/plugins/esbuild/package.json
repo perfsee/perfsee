@@ -29,6 +29,10 @@
     "esbuild": "> 0.10"
   },
   "devDependencies": {
+    "@perfsee/package": "workspace:*",
     "esbuild": "~0.16.0"
+  },
+  "scripts": {
+    "analyze": "npx @perfsee/package ./ --project=perfsee"
   }
 }

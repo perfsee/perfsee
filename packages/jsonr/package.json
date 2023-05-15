@@ -13,5 +13,11 @@
   },
   "dependencies": {
     "tslib": "^2.4.0"
+  },
+  "devDependencies": {
+    "@perfsee/package": "workspace:*"
+  },
+  "scripts": {
+    "analyze": "npx @perfsee/package ./ --project=perfsee"
   }
 }

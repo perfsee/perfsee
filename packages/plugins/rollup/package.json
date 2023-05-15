@@ -30,6 +30,10 @@
     "rollup": ">2"
   },
   "devDependencies": {
+    "@perfsee/package": "workspace:*",
     "rollup": "^2.77.0"
+  },
+  "scripts": {
+    "analyze": "npx @perfsee/package ./ --project=perfsee"
   }
 }

@@ -161,7 +161,8 @@
     "circular": "madge --circular --ts-config ./tsconfig.json packages/**/src/index.ts packages/**/src/index.tsx",
     "postinstall": "husky install",
     "release": "lerna version --sign-git-tag --exact --allow-branch main",
-    "docs": "cd docs && yarn"
+    "docs": "cd docs && yarn",
+    "analyze": "lerna run analyze"
   },
   "packageManager": "yarn@3.4.1"
 }

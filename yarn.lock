@@ -6922,6 +6922,7 @@ __metadata:
   resolution: "@perfsee/esbuild@workspace:packages/plugins/esbuild"
   dependencies:
     "@perfsee/bundle-analyzer": "workspace:*"
+    "@perfsee/package": "workspace:*"
     "@perfsee/plugin-utils": "workspace:*"
     chalk: ^4.1.2
     esbuild: ~0.16.0
@@ -7055,6 +7056,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/jsonr@workspace:packages/jsonr"
   dependencies:
+    "@perfsee/package": "workspace:*"
     tslib: ^2.4.0
   languageName: unknown
   linkType: soft
@@ -7322,6 +7324,7 @@ __metadata:
   resolution: "@perfsee/rollup@workspace:packages/plugins/rollup"
   dependencies:
     "@perfsee/bundle-analyzer": "workspace:*"
+    "@perfsee/package": "workspace:*"
     "@perfsee/plugin-utils": "workspace:*"
     chalk: ^4.1.2
     lodash: ^4.17.21
@@ -7417,6 +7420,7 @@ __metadata:
   resolution: "@perfsee/webpack@workspace:packages/plugins/webpack"
   dependencies:
     "@perfsee/bundle-analyzer": "workspace:*"
+    "@perfsee/package": "workspace:*"
     "@perfsee/plugin-utils": "workspace:*"
     chalk: ^4.1.2
     tslib: ^2.4.0
