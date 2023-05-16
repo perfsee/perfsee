@@ -32,7 +32,12 @@ import {
 } from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
 import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult, SourceStatus } from '@perfsee/server-common'
-import { FlameChartData, FlameChartDiagnostic, SourceAnalyzeStatistics } from '@perfsee/shared'
+import {
+  FlameChartData,
+  FlameChartDiagnostic,
+  ReactDevtoolProfilingDataExport,
+  SourceAnalyzeStatistics,
+} from '@perfsee/shared'
 import { generateSourceCoverageTreemapData, GenerateSourceCoverageTreemapDataOptions } from '@perfsee/source-coverage'
 
 let analyseProfile: typeof import('@perfsee/ori')['analyseProfile'] | null
@@ -73,6 +78,15 @@ interface ProfileAnalyzeResult {
     'time-using-by-script-file'?: Record<string, number>
     'total-execution-time'?: number
   }
+  reactLocations?: ReadonlyArray<
+    | {
+        name: string
+        file: string
+        line: number
+        col: number
+      }
+    | undefined
+  >
 }
 
 export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
@@ -80,6 +94,8 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private bundleMeta!: BundleMeta
   private bundleMetaPath!: string
   private tracePath: string | null = null
+  private reactPath: string | null = null
+  private reactProfile?: ReactDevtoolProfilingDataExport
   private result!: ProfileAnalyzeResult
 
   protected async before() {
@@ -100,7 +116,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     this.pwd = join(process.cwd(), 'tmp', payload.projectId.toString(), uuid())
     await mkdir(this.pwd, { recursive: true })
 
-    await Promise.all([this.prepareArtifacts(), this.prepareTraces()])
+    await Promise.all([this.prepareArtifacts(), this.prepareTraces(), this.prepareReactProfile()])
   }
 
   protected async work() {
@@ -110,11 +126,11 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
 
     const startTime = Date.now()
     this.logger.info(`Start analyze profile of snapshot report.`)
-    const analyzeResultStr = await analyseProfile!(this.tracePath!, this.bundleMetaPath, false)
+    const analyzeResultStr = await analyseProfile!(this.tracePath!, this.bundleMetaPath, this.reactPath, false)
     this.logger.info(`Profile analysis finished, timeSpent=${Date.now() - startTime}ms].`)
 
     this.result = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
-    const { diagnostics, profile } = this.result
+    const { diagnostics, profile, reactLocations } = this.result
     const flameChartStorageName = `flame-charts/${uuid()}.json`
     this.logger.info(`Uploading analysis flame chart data to artifacts. [name=${flameChartStorageName}]`)
     const flameChartStorageKey = await this.client.uploadArtifact(
@@ -133,6 +149,26 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       )
     }
 
+    let reactProfileStorageKey = this.payload.snapshotReport.reactProfileStorageKey
+    if (this.reactProfile && reactLocations) {
+      this.logger.info(`Start uploading parsed react locations`)
+      try {
+        const reactProfileStorageName = `react-profile/${uuid()}.json`
+        reactProfileStorageKey = await this.client.uploadArtifact(
+          reactProfileStorageName,
+          Buffer.from(
+            JSON.stringify({
+              ...this.reactProfile!,
+              parsedLocations: reactLocations,
+            }),
+            'utf-8',
+          ),
+        )
+      } catch (e) {
+        this.logger.error('Failed to uploading parsed react locations', { error: e })
+      }
+    }
+
     const result = {
       status: SourceStatus.Completed as const,
       projectId: payload.projectId,
@@ -142,6 +178,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       flameChartStorageKey: flameChartStorageKey,
       sourceCoverageStorageKey: sourceCoverageStorageKey,
       statisticsStorageKey: statisticsStorageKey,
+      reactProfileStorageKey,
     } as SourceAnalyzeJobResult
 
     this.logger.info('Return source analysis result', { result })
@@ -296,6 +333,37 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     }
 
     this.logger.info('Finished downloading runtime trace profiles.')
+  }
+
+  private async prepareReactProfile() {
+    const { reactProfileStorageKey } = this.payload.snapshotReport
+
+    if (!reactProfileStorageKey) {
+      return
+    }
+
+    this.logger.info('Downloading react profile.')
+
+    try {
+      const buf = await this.client.getArtifact(reactProfileStorageKey)
+      const reactProfile = JSON.parse(buf.toString('utf-8')) as ReactDevtoolProfilingDataExport
+      this.reactProfile = reactProfile
+      this.logger.verbose(`Downloading react profile ${reactProfileStorageKey} finished`)
+      if (!reactProfile.fiberLocations) {
+        this.reactPath = null
+        this.logger.info(`No locations found. Skip analyzing react profile source.`)
+        return
+      }
+      const reactPath = join(this.pwd, `react-locations.json`)
+      await writeFile(reactPath, JSON.stringify(reactProfile.fiberLocations))
+      this.reactPath = reactPath
+    } catch (e) {
+      this.reactPath = null
+      this.logger.error(`Failed to download react profile ${reactProfileStorageKey}`, { error: e })
+      throw e
+    }
+
+    this.logger.info('Finished downloading react profile.')
   }
 
   private async SourceCoverage() {

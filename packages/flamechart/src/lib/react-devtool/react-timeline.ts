@@ -1,9 +1,10 @@
-import { ProfilingDataFrontend, ReactComponentMeasure, SuspenseEvent } from 'react-devtools-inline'
+import { ReactComponentMeasure, SuspenseEvent } from 'react-devtools-inline'
 import { TimingProfile } from '../timing-profile'
 import { TimeFormatter } from '../value-formatters'
+import { ReactDevtoolProfilingDataFrontend } from './types'
 
 export function buildTimelineProfilesFromReactDevtoolProfileData(
-  profilingData: ProfilingDataFrontend,
+  profilingData: ReactDevtoolProfilingDataFrontend,
   timeOffset: number,
 ) {
   const { timelineData } = profilingData
@@ -16,13 +17,14 @@ export function buildTimelineProfilesFromReactDevtoolProfileData(
     for (const measure of timelineData.componentMeasures) {
       const timestamp = measure.timestamp * 1000 + timeOffset
       const duration = measure.duration * 1000
-      const name = formatMeasureName(measure)
+      const name = formatMeasureName(measure, profilingData)
       profile.appendTiming(name, timestamp, timestamp + duration, {
         name,
         timestamp,
         duration,
         type: 'component render',
         laneNum,
+        file: getFileLocation(measure, profilingData),
       })
     }
     laneNum++
@@ -38,6 +40,7 @@ export function buildTimelineProfilesFromReactDevtoolProfileData(
         status: suspense.resolution,
         type: 'suspense event',
         laneNum,
+        file: getFileLocation(suspense, profilingData),
       })
     }
     laneNum++
@@ -88,17 +91,32 @@ function formatSuspenseName(suspense: SuspenseEvent) {
   return `${name}suspended${phase}`
 }
 
-function formatMeasureName(measure: ReactComponentMeasure) {
+function formatMeasureName(measure: ReactComponentMeasure, profilingData: ReactDevtoolProfilingDataFrontend) {
+  const [name, locationId] = measure.componentName.split('@locationId:')
+  const parsedLocation = (locationId && profilingData.parsedLocations?.[Number(locationId)]) || null
+  const componentName = parsedLocation?.name || name
+
   switch (measure.type) {
     case 'render':
-      return `${measure.componentName} rendered`
+      return `${componentName} rendered`
     case 'passive-effect-mount':
-      return `${measure.componentName} mounted passive effect`
+      return `${componentName} mounted passive effect`
     case 'layout-effect-mount':
-      return `${measure.componentName} mounted layout effect`
+      return `${componentName} mounted layout effect`
     case 'passive-effect-unmount':
-      return `${measure.componentName} unmounted passive effect`
+      return `${componentName} unmounted passive effect`
     case 'layout-effect-unmount':
-      return `${measure.componentName} unmounted layout effect`
+      return `${componentName} unmounted layout effect`
   }
+}
+
+function getFileLocation(
+  { componentName }: { componentName?: string },
+  profilingData: ReactDevtoolProfilingDataFrontend,
+) {
+  const locationId = componentName?.split('@locationId:')[1]
+  const parsedLocation = typeof locationId === 'string' && profilingData.parsedLocations?.[Number(locationId)]
+  return parsedLocation
+    ? `${parsedLocation.file}:${parsedLocation.line}:${parsedLocation.col}`
+    : (typeof locationId === 'string' && profilingData.fiberLocations?.[Number(locationId)]) || ''
 }

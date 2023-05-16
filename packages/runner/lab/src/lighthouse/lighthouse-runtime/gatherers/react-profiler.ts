@@ -39,6 +39,9 @@ import { DEVTOOLS_INJECTION } from './devtools-injection'
 
 export class ReactProfiler implements LH.PerfseeGathererInstance {
   static SEND = 'reactDevltoolsBridgeWallSend'
+  static RESOLVE_LOCATION = 'reactDevtoolsResolveLocation'
+  static FUNCTION_MAP = 'reactDevltoolsFunctionMap'
+
   static SAVED_PREFERENCE = {
     appendComponentStack: false,
     breakOnConsoleErrors: false,
@@ -99,6 +102,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   private readonly renderQueue = new Set<number>()
   private readonly rendererIdsThatReportedProfilingData = new Set<number>()
   private readonly inProgressOperationsByRootID = new Map<number, number[][]>()
+
   private driver?: Driver
 
   private readonly profilingDataPromise: Promise<ReactDevtoolProfilingDataExport | null>
@@ -125,6 +129,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     this.teardowns.push(
       await this.interceptRequest(),
       await this.injectSendFunction(),
+      await this.injectResolveFiberLocationFunction(),
       await this.injectDevtoolsBackendRuntime(),
     )
   }
@@ -134,7 +139,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   }
 
   async afterPass() {
-    await Promise.all(this.teardowns)
+    await Promise.all(this.teardowns.map((t) => t()))
     return Promise.resolve(this.result || null)
   }
 
@@ -244,6 +249,56 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
       await driver.sendCommand('Runtime.removeBinding', { name: ReactProfiler.SEND })
       await driver.sendCommand('Page.removeScriptToEvaluateOnNewDocument', { identifier })
       driver.off('Runtime.bindingCalled', onBindingCalled)
+    }
+  }
+
+  private async injectResolveFiberLocationFunction() {
+    const driver = this.driver!
+    const fiberLocations: string[] = []
+    const { identifier } = await driver.sendCommand('Page.addScriptToEvaluateOnNewDocument', {
+      source: `
+      window.${ReactProfiler.FUNCTION_MAP} = [];
+      let resolveLocationId = 0
+      Object.assign(window, {
+        ${ReactProfiler.RESOLVE_LOCATION}(func) {
+          window.${ReactProfiler.FUNCTION_MAP}.push(func);
+          return resolveLocationId++;
+        },
+      });
+    `,
+    })
+
+    const scriptCollection: Record<string, string> = {}
+    const onScriptParsed = (e: Protocol.Debugger.ScriptParsedEvent) => {
+      scriptCollection[e.scriptId] = e.url
+    }
+    driver.on('Debugger.scriptParsed', onScriptParsed)
+
+    return async () => {
+      // collecting function locations
+      // this is ran in afterpass phase
+      const {
+        result: { value: length },
+      } = await driver.sendCommand('Runtime.evaluate', {
+        expression: `window.${ReactProfiler.FUNCTION_MAP}.length`,
+      })
+      for (const functionId of Array.from({ length }, (_v, i) => i)) {
+        const { result } = await driver.sendCommand('Runtime.evaluate', {
+          expression: `window.${ReactProfiler.FUNCTION_MAP}[${functionId}]`,
+        })
+        const { internalProperties } = await driver.sendCommand('Runtime.getProperties', {
+          objectId: result.objectId!,
+        })
+        const location = internalProperties?.find(({ name }) => name === '[[FunctionLocation]]')?.value?.value
+        fiberLocations[functionId] = `${scriptCollection[location.scriptId]}:${location.lineNumber + 1}:${
+          location.columnNumber + 1
+        }`
+      }
+
+      this.result!.fiberLocations = fiberLocations
+
+      await driver.sendCommand('Page.removeScriptToEvaluateOnNewDocument', { identifier })
+      driver.off('Debugger.scriptParsed', onScriptParsed)
     }
   }
 

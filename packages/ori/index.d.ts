@@ -6,6 +6,7 @@
 export function analyseProfile(
   profilePath: string,
   bundleMetaPath: string,
+  reactLocationsPath?: string | undefined | null,
   debugMode?: boolean | undefined | null,
 ): Promise<string>
 export function generateDocs(): Record<string, string>

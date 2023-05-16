@@ -7160,7 +7160,7 @@ export const DEVTOOLS_INJECTION = `"use strict";
               if (typeof type.displayName === "string") {
                 displayName = type.displayName;
               } else if (typeof type.name === "string" && type.name !== "") {
-                displayName = type.name;
+                displayName = type.name + '@locationId:' + reactDevtoolsResolveLocation(type);
               }
               cachedDisplayNames.set(type, displayName);
               return displayName;

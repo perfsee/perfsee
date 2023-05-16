@@ -22,10 +22,10 @@ import type {
   ElementType,
   ProfilingDataBackend,
   ProfilingDataForRootFrontend,
-  ProfilingDataFrontend,
   TimelineData,
 } from 'react-devtools-inline'
 
+import { ReactDevtoolProfilingDataFrontend } from '@perfsee/flamechart'
 import { ReactDevtoolProfilingDataExport } from '@perfsee/shared'
 
 interface State {
@@ -258,7 +258,7 @@ export function isProfilingBuild(text: string) {
 export function prepareProfilingDataFrontendFromBackendAndStore(
   dataBackends: Array<ProfilingDataBackend>,
   operationsByRootID: Map<number, Array<Array<number>>>,
-): ProfilingDataFrontend {
+): ReactDevtoolProfilingDataFrontend {
   const dataForRoots: Map<number, ProfilingDataForRootFrontend> = new Map()
 
   const timelineDataArray: TimelineData[] = []
@@ -337,7 +337,7 @@ export function prepareProfilingDataFrontendFromBackendAndStore(
 
 // Converts a Store Profiling data into a format that can be safely (JSON) serialized for export.
 export function prepareReactDevtoolProfilingDataExport(
-  profilingDataFrontend: ProfilingDataFrontend,
+  profilingDataFrontend: ReactDevtoolProfilingDataFrontend,
 ): ReactDevtoolProfilingDataExport {
   const timelineData = profilingDataFrontend.timelineData.map(
     ({
