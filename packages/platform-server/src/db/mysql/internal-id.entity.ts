@@ -30,6 +30,7 @@ export enum InternalIdUsage {
   Job = 8,
   SnapshotReport = 9,
   Package = 10,
+  PackageBundle = 11,
 }
 
 @Entity()
