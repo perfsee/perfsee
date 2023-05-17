@@ -130,3 +130,10 @@ export class UnexpectedBuildError extends CustomError {
     Object.setPrototypeOf(this, UnexpectedBuildError.prototype)
   }
 }
+
+export class WrongWebpackVersionError extends CustomError {
+  constructor(originalError: any, extra?: any) {
+    super('WrongWebpackVersionError', originalError, extra)
+    Object.setPrototypeOf(this, WrongWebpackVersionError.prototype)
+  }
+}
