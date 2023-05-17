@@ -78,9 +78,13 @@ export class Package extends BaseEntity {
 @ObjectType()
 @Entity()
 export class PackageBundle extends BaseEntity {
-  @Field(() => Int, { name: 'id' })
   @PrimaryGeneratedColumn('increment')
   id!: number
+
+  @Field(() => Int, { name: 'id' })
+  @Index()
+  @Column({ type: 'int' })
+  iid!: number
 
   @ManyToOne('Package', 'bundles', { onDelete: 'CASCADE' })
   package!: Package

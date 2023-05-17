@@ -176,7 +176,7 @@ export class PackageService implements OnApplicationBootstrap {
   }
 
   async getPackageBundleById(packageId: number, id: number) {
-    return PackageBundle.findOneBy({ packageId, id })
+    return PackageBundle.findOneBy({ packageId, iid: id })
   }
 
   async getPackageBundles(
@@ -237,6 +237,7 @@ export class PackageService implements OnApplicationBootstrap {
     const bundle = await PackageBundle.create<PackageBundle>({
       ...input,
       baselineId: (await this.getLastAvailableBaseline(pkg.id, input.name!))?.id,
+      iid: await this.internalId.generate(project.id, InternalIdUsage.PackageBundle),
       packageId: pkg.id,
     }).save()
 
