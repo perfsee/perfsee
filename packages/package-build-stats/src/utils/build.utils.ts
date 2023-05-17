@@ -65,6 +65,7 @@ import {
   EntryPointError,
   MissingDependencyError,
   UnexpectedBuildError,
+  WrongWebpackVersionError,
 } from '../errors/custom-error'
 import getDependencySizes from '../get-dependency-size-tree'
 import getParseTime from '../get-parse-time'
@@ -204,6 +205,10 @@ const BuildUtils = {
 
   async buildPackage({ name, installPath, externals, options }: BuildPackageArgs) {
     const entry: Entry = {}
+
+    if (webpack.version && !webpack.version.startsWith('4')) {
+      throw new WrongWebpackVersionError(`Webpack 4.44 is required, current version is ${webpack.version}.`)
+    }
 
     if (options.splitCustomImports) {
       if (!options.customImports || !options.customImports.length) {
