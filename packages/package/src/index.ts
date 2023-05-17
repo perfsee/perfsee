@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import Benchmark from './benchmark'
-
 export * from './types'
 export * from './upload'
 export * from './benchmark/internal/common-types'
@@ -25,5 +23,3 @@ export * from './benchmark/node'
 export * from './benchmark/browser'
 export * from './benchmark'
 export * from './utils'
-
-export default Benchmark

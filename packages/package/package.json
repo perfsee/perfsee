@@ -3,8 +3,8 @@
   "version": "1.7.1",
   "description": "package analyzer sdk by perfsee",
   "sideEffect": false,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/benchmark/index.js",
+  "types": "dist/benchmark/index.d.ts",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
   "files": [

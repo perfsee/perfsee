@@ -61,7 +61,9 @@ export const uploadPack = async (
   const buildEnv = getBuildEnv()
 
   if (!buildEnv.upload || options.local) {
-    console.info(chalk.yellow('[perfsee] found no upload flag, skip uploading build.'))
+    console.info(
+      chalk.yellow(`[perfsee] found no upload flag, skip uploading build. Result can be found in ${packPath}`),
+    )
     return
   }
 
