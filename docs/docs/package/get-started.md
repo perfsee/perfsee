@@ -63,11 +63,7 @@ Id of your perfsee project on the platform.
 
 #### default: `'node'`
 
-If target is `browser`, benchmarks will be bundled and run in headless chrome on server (if `--local` is not set).
-
-### local: boolean
-
-If `--local` is set, benchmarks will always run locally and result will not be uploaded to platform.
+If target is `browser`, benchmarks will be bundled and run in headless chrome (on server if in CI environment).
 
 ### benchmarkPattern
 

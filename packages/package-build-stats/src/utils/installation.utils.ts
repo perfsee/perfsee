@@ -88,16 +88,23 @@ const InstallationUtils = {
     return path.join(packageString, sanitize(`build-${id}`))
   },
 
-  async prepareLocalPath(packageString: string) {
+  async prepareLocalPath(packageString: string, packageName: string) {
     const localPath = InstallationUtils.getLocalPath(packageString)
     await fs.mkdir(localPath, { recursive: true })
+    try {
+      const symlinkPath = path.join(localPath, 'node_modules', packageName)
+      await fs.mkdir(path.dirname(symlinkPath), { recursive: true })
+      await fs.symlink(packageString, symlinkPath)
+    } catch (e: any) {
+      console.error('create symlink failed: \n', e)
+    }
 
     return localPath
   },
 
   async preparePath(packageString: string, packageName: string, isLocal?: boolean) {
     if (isLocal) {
-      return InstallationUtils.prepareLocalPath(packageString)
+      return InstallationUtils.prepareLocalPath(packageString, packageName)
     }
 
     const installPath = InstallationUtils.getInstallPath(packageName)
@@ -210,13 +217,20 @@ const InstallationUtils = {
     }
   },
 
-  cleanupPath(installPath: string) {
-    const noop = () => {}
-    try {
-      rimraf(installPath, noop)
-    } catch (err) {
-      console.error('cleaning up path ', installPath, ' failed due to ', err)
-    }
+  async cleanupPath(installPath: string) {
+    return new Promise<void>((resolve) => {
+      try {
+        rimraf(installPath, (err) => {
+          if (err) {
+            console.error('cleaning up path ', installPath, ' failed due to ', err)
+          }
+          resolve()
+        })
+      } catch (err) {
+        console.error('cleaning up path ', installPath, ' failed due to ', err)
+        resolve()
+      }
+    })
   },
 }
 

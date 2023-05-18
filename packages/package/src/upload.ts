@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { createReadStream, createWriteStream, statSync } from 'fs'
+import { dirname } from 'path'
 
 import chalk from 'chalk'
 import fetch from 'node-fetch'
@@ -55,14 +56,15 @@ export const uploadPack = async (
   packPath: string,
   projectId: string,
   packageJson: Required<PackageJson>,
-  options: PackOptions = {},
   platform = getBuildEnv().platform,
 ) => {
   const buildEnv = getBuildEnv()
 
-  if (!buildEnv.upload || options.local) {
+  if (!buildEnv.upload) {
     console.info(
-      chalk.yellow(`[perfsee] found no upload flag, skip uploading build. Result can be found in ${packPath}`),
+      chalk.yellow(
+        `[perfsee] found no upload flag, skip uploading to platform. The results can be found in ${dirname(packPath)}`,
+      ),
     )
     return
   }
