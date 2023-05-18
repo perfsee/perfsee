@@ -22,6 +22,8 @@ import chalk from 'chalk'
 import esbuild from 'esbuild'
 import { glob } from 'glob'
 
+import { getBuildEnv } from '@perfsee/plugin-utils'
+
 import { analyze } from './analyzer'
 import { runBrowser } from './benchmark/browser'
 import { runNode } from './benchmark/node'
@@ -36,7 +38,7 @@ const bundlingBenchmark = async (path: string, outfile: string, options: PackOpt
   if (!files.length) {
     return false
   }
-  !options.local && console.info('[perfsee] Target is browser. Benchmarks will run in server.')
+  getBuildEnv().upload && console.info('[perfsee] Target is browser. Benchmarks will run in server.')
   try {
     const injectionDir = `${tmpdir()}/perfsee-package`
     const injectionPath = `${injectionDir}/injection.js`
@@ -90,9 +92,9 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
     const benchmarkFilePath = `${outputDir}/benchmark.js`
     const hasBenchmark = await bundlingBenchmark(path, benchmarkFilePath, options)
 
-    // if `--local` was set, we run in local
-    if (hasBenchmark && options.local) {
-      console.info('[perfsee] Benchmark will run in local because --local flag was set.')
+    // we run in local if not on ci.
+    if (hasBenchmark && !getBuildEnv().upload) {
+      console.info('[perfsee] Benchmark will run in local because no upload flag is found.')
       try {
         const benchmarkResult = await runBrowser(benchmarkFilePath, {
           timeout: Number(options.benchmarkTimeout),

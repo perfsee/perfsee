@@ -51,7 +51,6 @@ export type PackOptions = GetPackageStatsOptions & {
   benchmarkPattern?: string | string[]
   benchmarkTimeout?: string
   target?: 'node' | 'browser'
-  local?: boolean
 }
 
 export type PackageJson = IPackageJson

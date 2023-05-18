@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { getPackageStats, getAllPackageExports, GetPackageStatsOptions } from '@perfsee/package-build-stats'
+import { getPackageStats, GetPackageStatsOptions } from '@perfsee/package-build-stats'
 
 import { Logger, PackageJson } from './types'
 
@@ -30,7 +30,6 @@ export function getConsoleLogger(): Logger {
 export type PackageStats = (ReturnType<typeof getPackageStats> extends Promise<infer T> ? T : never) & {
   version: string
 } & {
-  exports: ReturnType<typeof getAllPackageExports> extends Promise<infer T> ? T : never
   ignoredMissingDependencies: string[]
   name: string
   version: string

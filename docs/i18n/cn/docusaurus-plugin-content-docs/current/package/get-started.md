@@ -63,11 +63,7 @@ Perfsee 平台项目 id。
 
 #### default: `'node'`
 
-如果 target 为 `browser`，benchmarks 文件会被打包上传至服务端在无头浏览器中运行，除非设置了 `--local`。
-
-### local: boolean
-
-如果设置了 `--local`，benchmarks 会在本地运行。
+如果 target 为 `browser`，benchmarks 文件会被打包在无头浏览器中运行，在 CI 环境中会上传至服务端运行。
 
 ### benchmarkPattern
 

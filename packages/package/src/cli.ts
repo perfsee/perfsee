@@ -41,13 +41,8 @@ class PackageAnalyzeCommand extends Command {
 
   target = Option.String('--target', {
     required: false,
-    description: 'When target is `browser`, benchmarks will run in headless chrome on server.',
+    description: 'When target is `browser`, benchmarks will run in headless chrome.',
   }) as 'node' | 'browser'
-
-  local = Option.Boolean('--local', {
-    required: false,
-    description: 'If true, benchmarks will run in local and result will not be uploaded to platform.',
-  })
 
   minifier = Option.String('--minifier', {
     required: false,
@@ -93,7 +88,6 @@ class PackageAnalyzeCommand extends Command {
         platform: this.platform,
         target: this.target,
         project: this.project,
-        local: this.local,
         minifier: this.minifier,
         customImports: this.customImports,
         client: this.client,
@@ -101,7 +95,7 @@ class PackageAnalyzeCommand extends Command {
         benchmarkTimeout: this.benchmarkTimeout,
       }
       const packPath = await anaylizeAndPack(resolvedPath, packageJson, options)
-      await uploadPack(packPath, this.project, packageJson as Required<PackageJson>, options, this.platform)
+      await uploadPack(packPath, this.project, packageJson as Required<PackageJson>, this.platform)
     } else {
       console.error(chalk.red('[perfsee] path not valid.'))
     }

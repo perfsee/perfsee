@@ -51,6 +51,5 @@ and are licensed under the Apache License, Version 2.0.
 export { default as getPackageStats } from './get-package-stats'
 export * from './errors/custom-error'
 export { default as getParseTime } from './get-parse-time'
-export * from './get-package-export-sizes'
 export { emitter as eventQueue } from './utils/telemetry.utils'
 export * from './common.types'
