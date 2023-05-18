@@ -141,7 +141,12 @@ export const SnapshotHeader = memo(function SnapshotHeader(props: Props) {
           </SnapshotHeaderTime>
         </div>
       </Stack>
-      <Stack styles={{ root: { '> *': { maxWidth: '360px' } } }} horizontal tokens={{ childrenGap: 12 }}>
+      <Stack
+        styles={{ root: { '> *': { maxWidth: '360px' } } }}
+        horizontal
+        tokens={{ childrenGap: 12 }}
+        horizontalAlign="space-between"
+      >
         <Stack horizontal tokens={{ childrenGap: 12 }}>
           <Select
             onClick={fetchReports}
