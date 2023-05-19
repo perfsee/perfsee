@@ -31,7 +31,7 @@ import { DetailHeaderDescription, DetailKey } from './styles'
 export const PackageDetail = memo<
   RouteComponentProps<{ packageId: string; packageBundleId: string; projectId: string }>
 >(({ match }) => {
-  const { packageBundleId, packageId } = match.params
+  const { packageBundleId, packageId, projectId } = match.params
 
   const [{ current }, dispatcher] = useModule(PackageBundleDetailModule)
   const history = useHistory()
@@ -48,9 +48,9 @@ export const PackageDetail = memo<
   }, [current, packageBundleId, history, match.params])
 
   useEffect(() => {
-    dispatcher.getBundleDetail({ packageBundleId, packageId })
+    dispatcher.getBundleDetail({ packageBundleId, packageId, projectId })
     return dispatcher.reset
-  }, [dispatcher, packageBundleId, packageId])
+  }, [dispatcher, packageBundleId, packageId, projectId])
 
   const onRenderHeader = useCallback(() => {
     if (!current?.report) {

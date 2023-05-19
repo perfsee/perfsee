@@ -154,8 +154,8 @@ export class PackageService implements OnApplicationBootstrap {
     return true
   }
 
-  async resolveRawPackageIdByIid(iid: number) {
-    const pkg = await Package.findOneByOrFail({ iid })
+  async resolveRawPackageIdByIid(projectId: number, iid: number) {
+    const pkg = await Package.findOneByOrFail({ iid, projectId })
     return pkg.id
   }
 
@@ -175,8 +175,8 @@ export class PackageService implements OnApplicationBootstrap {
       .getOne()
   }
 
-  async getPackageBundleById(packageId: number, id: number) {
-    return PackageBundle.findOneBy({ packageId, iid: id })
+  async getPackageBundleByIid(packageId: number, iid: number) {
+    return PackageBundle.findOneBy({ packageId, iid })
   }
 
   async getPackageBundles(

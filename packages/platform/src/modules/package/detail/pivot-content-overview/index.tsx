@@ -92,8 +92,8 @@ export const PackageBundleReports: FC<{ packageId: string; packageBundleId: stri
   const currentDateTime = current?.createdAt
 
   useEffect(() => {
-    currentDateTime && dispatcher.getHistory({ packageId, currentDateTime, limit: historyLength })
-  }, [dispatcher, packageId, currentDateTime])
+    currentDateTime && dispatcher.getHistory({ projectId, packageId, currentDateTime, limit: historyLength })
+  }, [dispatcher, packageId, currentDateTime, projectId])
 
   const historyRouter = useHistory()
 

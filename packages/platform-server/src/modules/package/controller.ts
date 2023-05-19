@@ -132,7 +132,7 @@ export class PackageController {
         url: this.url.platformUrl(pathFactory.project.package.detail, {
           projectId: project.slug,
           packageId: pkg.iid,
-          packageBundleId: bundle.id,
+          packageBundleId: bundle.iid,
         }),
       }
     } catch (e) {
