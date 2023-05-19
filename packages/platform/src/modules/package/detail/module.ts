@@ -78,13 +78,14 @@ export class PackageBundleDetailModule extends EffectModule<State> {
   }
 
   @Effect()
-  getBundleDetail(payload$: Observable<{ packageId: string; packageBundleId: string }>) {
+  getBundleDetail(payload$: Observable<{ projectId: string; packageId: string; packageBundleId: string }>) {
     return payload$.pipe(
-      switchMap(({ packageBundleId, packageId }) => {
+      switchMap(({ packageBundleId, packageId, projectId }) => {
         return this.client
           .query({
             query: packageBundleDetailQuery,
             variables: {
+              projectId,
               packageId,
               id: packageBundleId,
             },
@@ -100,14 +101,15 @@ export class PackageBundleDetailModule extends EffectModule<State> {
   }
 
   @Effect()
-  getHistory(payload$: Observable<{ packageId: string; currentDateTime: string; limit?: number }>) {
+  getHistory(payload$: Observable<{ projectId: string; packageId: string; currentDateTime: string; limit?: number }>) {
     return payload$.pipe(
-      switchMap(({ packageId, currentDateTime, limit }) => {
+      switchMap(({ packageId, currentDateTime, limit, projectId }) => {
         const to = new Date(new Date(currentDateTime).valueOf() + 1000).toString()
         return this.client
           .query({
             query: packageBundleHistoryQuery,
             variables: {
+              projectId,
               packageId,
               to,
               limit,

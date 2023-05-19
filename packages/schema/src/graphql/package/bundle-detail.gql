@@ -1,7 +1,7 @@
 #import './fragments/bundle.gql'
 
-query packageBundleDetail($packageId: ID!, $id: ID) {
-  packageBundle(packageId: $packageId, id: $id) {
+query packageBundleDetail($projectId: ID!, $packageId: ID!, $id: ID) {
+  packageBundle(projectId: $projectId, packageId: $packageId, id: $id) {
     ...packageBundle
     reportLink
     benchmarkLink

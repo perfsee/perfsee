@@ -1,5 +1,5 @@
-query packageBundleHistory($packageId: ID!, $to: DateTime!, $branch: String, $limit: Int) {
-  packageBundleHistory(packageId: $packageId, to: $to, branch: $branch, limit: $limit) {
+query packageBundleHistory($projectId: ID!, $packageId: ID!, $to: DateTime!, $branch: String, $limit: Int) {
+  packageBundleHistory(projectId: $projectId, packageId: $packageId, to: $to, branch: $branch, limit: $limit) {
     id
     packageId
     name

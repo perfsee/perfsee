@@ -163,25 +163,29 @@ export class PackageBundleResolver {
 
   @Query(() => PackageBundle, { description: 'get package bundle by id' })
   async packageBundle(
+    @Args({ name: 'projectId', type: () => ID, description: 'project id' }) projectId: string,
     @Args({ name: 'packageId', type: () => ID, description: 'package id' }) packageId: number,
     @Args({ name: 'id', type: () => ID, description: 'package bundle id', nullable: true }) id?: number,
   ) {
-    const pkgRawId = await this.service.resolveRawPackageIdByIid(packageId)
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+    const pkgRawId = await this.service.resolveRawPackageIdByIid(projectRawId, packageId)
 
     if (!id) {
       return this.service.getLatestPackageBundle(pkgRawId)
     }
-    return this.service.getPackageBundleById(pkgRawId, id)
+    return this.service.getPackageBundleByIid(pkgRawId, id)
   }
 
   @Query(() => [PackageBundle], { description: 'get package bundle history' })
   async packageBundleHistory(
+    @Args({ name: 'projectId', type: () => ID, description: 'project id' }) projectId: string,
     @Args({ name: 'packageId', type: () => ID }) packageId: number,
     @Args({ name: 'to', type: () => GraphQLISODateTime }) to: Date,
     @Args({ name: 'limit', type: () => Int, nullable: true }) limit: number,
     @Args({ name: 'branch', nullable: true, type: () => String }) branch?: string,
   ) {
-    const pkgRawId = await this.service.resolveRawPackageIdByIid(packageId)
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+    const pkgRawId = await this.service.resolveRawPackageIdByIid(projectRawId, packageId)
     return this.service.getHistory(pkgRawId, to, limit, branch)
   }
 
@@ -192,9 +196,9 @@ export class PackageBundleResolver {
     @Args({ name: 'packageId', type: () => Int }) packageId: number,
     @Args({ name: 'id', type: () => Int, description: 'pakcage bundle id' }) id: number,
   ) {
-    const rawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
-    const pkgRawId = await this.service.resolveRawPackageIdByIid(packageId)
-    return this.service.deleteBundleById(rawId, pkgRawId, id)
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+    const pkgRawId = await this.service.resolveRawPackageIdByIid(projectRawId, packageId)
+    return this.service.deleteBundleById(projectRawId, pkgRawId, id)
   }
 
   @PermissionGuard(Permission.Read, 'projectId')
@@ -205,8 +209,8 @@ export class PackageBundleResolver {
     @Args({ name: 'id', type: () => Int, description: 'package bundle id' }) id: number,
   ) {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
-    const packageRawId = await this.service.resolveRawPackageIdByIid(packageId)
-    const packageBundle = await this.service.getPackageBundleById(packageRawId, id)
+    const packageRawId = await this.service.resolveRawPackageIdByIid(projectRawId, packageId)
+    const packageBundle = await this.service.getPackageBundleByIid(packageRawId, id)
 
     if (!packageBundle) {
       throw new UserError(`Artifact with id ${id} not found.`)

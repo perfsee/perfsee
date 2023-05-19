@@ -1436,6 +1436,9 @@ type Query {
 
   """get package bundle by id"""
   packageBundle(
+    """project id"""
+    projectId: ID!
+
     """package id"""
     packageId: ID!
 
@@ -1444,7 +1447,14 @@ type Query {
   ): PackageBundle!
 
   """get package bundle history"""
-  packageBundleHistory(packageId: ID!, to: DateTime!, limit: Int, branch: String): [PackageBundle!]!
+  packageBundleHistory(
+    """project id"""
+    projectId: ID!
+    packageId: ID!
+    to: DateTime!
+    limit: Int
+    branch: String
+  ): [PackageBundle!]!
   connections: [ConnectionType!]!
   devices: [DeviceType!]!
   availableOAuthProviders: [ExternalAccount!]!

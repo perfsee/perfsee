@@ -189,17 +189,18 @@ export class PackageListModule extends EffectModule<State> {
   }
 
   @Effect()
-  getHistory(payload$: Observable<{ packageId: string; currentDateTime: string; branch?: string }>) {
+  getHistory(payload$: Observable<{ projectId: string; packageId: string; currentDateTime: string; branch?: string }>) {
     return payload$.pipe(
       groupBy(({ packageId }) => packageId),
       mergeMap((group) => {
         return group.pipe(
-          switchMap(({ packageId, currentDateTime, branch }) => {
+          switchMap(({ packageId, currentDateTime, branch, projectId }) => {
             const to = new Date(new Date(currentDateTime).valueOf() + 1000).toString()
             return this.client
               .query({
                 query: packageBundleHistoryQuery,
                 variables: {
+                  projectId,
                   packageId,
                   to,
                   branch,
