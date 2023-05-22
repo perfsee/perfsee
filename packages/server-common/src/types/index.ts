@@ -171,6 +171,7 @@ export interface SourceAnalyzeJob {
   artifacts: {
     id: number
     iid: number
+    name: string
     createdAt: string
     branch?: string
     hash: string

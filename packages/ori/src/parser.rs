@@ -58,6 +58,7 @@ pub struct FileMeta {
 #[derive(Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 struct Bundle {
+  name: Option<String>,
   module_map: HashMap<String, String>,
   repo_path: Option<String>,
   build_path: Option<String>,
@@ -244,6 +245,7 @@ fn parse_frame(
   let source_map = &source_map.unwrap().2;
 
   frame.bundle_hash = bundle_meta.bundles.get(bundle_id).unwrap().hash.to_owned();
+  frame.bundle_name = bundle_meta.bundles.get(bundle_id).unwrap().name.to_owned();
 
   if let Some(token) = source_map.lookup_token(line - 1, col - 1) {
     if let Some(source) = token.get_source() {
@@ -322,6 +324,7 @@ pub fn parse(
                   key: String::default(),
                   name: String::default(),
                   bundle_hash: None,
+                  bundle_name: None,
                   origin_script_file: String::default(),
                   node_module: None,
                 };

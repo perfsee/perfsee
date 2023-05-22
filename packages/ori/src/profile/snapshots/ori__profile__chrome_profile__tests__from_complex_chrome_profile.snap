@@ -1,7 +1,7 @@
 ---
 source: packages/ori/src/profile/chrome_profile.rs
+assertion_line: 548
 expression: profiles
-
 ---
 [
   {
@@ -13,455 +13,585 @@ expression: profiles
         "name": "(root)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):native dummy.js:1:1",
         "name": "(anonymous)",
         "file": "native dummy.js",
         "line": 1,
-        "col": 1
+        "col": 1,
+        "bundleName": null,
+        "origin": "native dummy.js"
       },
       {
         "key": "(anonymous):extensions::SafeBuiltins:1:1",
         "name": "(anonymous)",
         "file": "extensions::SafeBuiltins",
         "line": 1,
-        "col": 1
+        "col": 1,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "(anonymous):extensions::SafeBuiltins:1:10",
         "name": "(anonymous)",
         "file": "extensions::SafeBuiltins",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "saveBuiltin:extensions::SafeBuiltins:25:21",
         "name": "saveBuiltin",
         "file": "extensions::SafeBuiltins",
         "line": 25,
-        "col": 21
+        "col": 21,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "makeCallable:extensions::SafeBuiltins:7:22",
         "name": "makeCallable",
         "file": "extensions::SafeBuiltins",
         "line": 7,
-        "col": 22
+        "col": 22,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "(anonymous):extensions::SafeBuiltins:8:33",
         "name": "(anonymous)",
         "file": "extensions::SafeBuiltins",
         "line": 8,
-        "col": 33
+        "col": 33,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "(program)::0:0",
         "name": "(program)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(idle)::0:0",
         "name": "(idle)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(garbage collector)::0:0",
         "name": "(garbage collector)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:1:1",
         "name": "(anonymous)",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 1,
-        "col": 1
+        "col": 1,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "La:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:35:467",
         "name": "La",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 35,
-        "col": 467
+        "col": 467,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "get webstore::0:0",
         "name": "get webstore",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):extensions::runtime:1:10",
         "name": "(anonymous)",
         "file": "extensions::runtime",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::runtime"
       },
       {
         "key": "privates::0:0",
         "name": "privates",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):extensions::binding:1:10",
         "name": "(anonymous)",
         "file": "extensions::binding",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "(anonymous):extensions::event_bindings:1:10",
         "name": "(anonymous)",
         "file": "extensions::event_bindings",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::event_bindings"
       },
       {
         "key": "(anonymous):extensions::sendRequest:1:10",
         "name": "(anonymous)",
         "file": "extensions::sendRequest",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::sendRequest"
       },
       {
         "key": "(anonymous):extensions::schemaUtils:1:10",
         "name": "(anonymous)",
         "file": "extensions::schemaUtils",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::schemaUtils"
       },
       {
         "key": "(anonymous):extensions::json_schema:1:10",
         "name": "(anonymous)",
         "file": "extensions::json_schema",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::json_schema"
       },
       {
         "key": "expose:extensions::utils:98:16",
         "name": "expose",
         "file": "extensions::utils",
         "line": 98,
-        "col": 16
+        "col": 16,
+        "bundleName": null,
+        "origin": "extensions::utils"
       },
       {
         "key": "target.(anonymous function):extensions::SafeBuiltins:10:36",
         "name": "target.(anonymous function)",
         "file": "extensions::SafeBuiltins",
         "line": 10,
-        "col": 36
+        "col": 36,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "Apply::0:0",
         "name": "Apply",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):extensions::messaging:1:10",
         "name": "(anonymous)",
         "file": "extensions::messaging",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::messaging"
       },
       {
         "key": "generate:extensions::binding:199:21",
         "name": "generate",
         "file": "extensions::binding",
         "line": 199,
-        "col": 21
+        "col": 21,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "shouldCheckUnprivileged:extensions::binding:209:37",
         "name": "shouldCheckUnprivileged",
         "file": "extensions::binding",
         "line": 209,
-        "col": 37
+        "col": 37,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "(anonymous):extensions::binding:253:44",
         "name": "(anonymous)",
         "file": "extensions::binding",
         "line": 253,
-        "col": 44
+        "col": 44,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "JSONSchemaValidator.addTypes:extensions::json_schema:174:50",
         "name": "JSONSchemaValidator.addTypes",
         "file": "extensions::json_schema",
         "line": 174,
-        "col": 50
+        "col": 50,
+        "bundleName": null,
+        "origin": "extensions::json_schema"
       },
       {
         "key": "(anonymous):extensions::binding:271:46",
         "name": "(anonymous)",
         "file": "extensions::binding",
         "line": 271,
-        "col": 46
+        "col": 46,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "(anonymous):extensions::binding:323:48",
         "name": "(anonymous)",
         "file": "extensions::binding",
         "line": 323,
-        "col": 48
+        "col": 48,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "(anonymous):extensions::binding:397:45",
         "name": "(anonymous)",
         "file": "extensions::binding",
         "line": 397,
-        "col": 45
+        "col": 45,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "Event:extensions::event_bindings:513:17",
         "name": "Event",
         "file": "extensions::event_bindings",
         "line": 513,
-        "col": 17
+        "col": 17,
+        "bundleName": null,
+        "origin": "extensions::event_bindings"
       },
       {
         "key": "privates.constructPrivate:extensions::utils:102:52",
         "name": "privates.constructPrivate",
         "file": "extensions::utils",
         "line": 102,
-        "col": 52
+        "col": 52,
+        "bundleName": null,
+        "origin": "extensions::utils"
       },
       {
         "key": "EventImpl:extensions::event_bindings:213:21",
         "name": "EventImpl",
         "file": "extensions::event_bindings",
         "line": 213,
-        "col": 21
+        "col": 21,
+        "bundleName": null,
+        "origin": "extensions::event_bindings"
       },
       {
         "key": "addProperties:extensions::binding:425:27",
         "name": "addProperties",
         "file": "extensions::binding",
         "line": 425,
-        "col": 27
+        "col": 27,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "forEach:extensions::utils:27:17",
         "name": "forEach",
         "file": "extensions::utils",
         "line": 27,
-        "col": 17
+        "col": 17,
+        "bundleName": null,
+        "origin": "extensions::utils"
       },
       {
         "key": "runHooks_:extensions::binding:180:22",
         "name": "runHooks_",
         "file": "extensions::binding",
         "line": 180,
-        "col": 22
+        "col": 22,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "(anonymous):extensions::binding:181:47",
         "name": "(anonymous)",
         "file": "extensions::binding",
         "line": 181,
-        "col": 47
+        "col": 47,
+        "bundleName": null,
+        "origin": "extensions::binding"
       },
       {
         "key": "(anonymous):extensions::runtime:17:36",
         "name": "(anonymous)",
         "file": "extensions::runtime",
         "line": 17,
-        "col": 36
+        "col": 36,
+        "bundleName": null,
+        "origin": "extensions::runtime"
       },
       {
         "key": "l:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:38:261",
         "name": "l",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 38,
-        "col": 261
+        "col": 261,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "publicClassPrototype.(anonymous function):extensions::utils:136:44",
         "name": "publicClassPrototype.(anonymous function)",
         "file": "extensions::utils",
         "line": 136,
-        "col": 44
+        "col": 44,
+        "bundleName": null,
+        "origin": "extensions::utils"
       },
       {
         "key": "EventImpl.addListener:extensions::event_bindings:273:45",
         "name": "EventImpl.addListener",
         "file": "extensions::event_bindings",
         "line": 273,
-        "col": 45
+        "col": 45,
+        "bundleName": null,
+        "origin": "extensions::event_bindings"
       },
       {
         "key": "bb:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:58:162",
         "name": "bb",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 58,
-        "col": 162
+        "col": 162,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:65:10",
         "name": "(anonymous)",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 65,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "(anonymous):extensions::SafeBuiltins:66:47",
         "name": "(anonymous)",
         "file": "extensions::SafeBuiltins",
         "line": 66,
-        "col": 47
+        "col": 47,
+        "bundleName": null,
+        "origin": "extensions::SafeBuiltins"
       },
       {
         "key": "(anonymous):chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:1:1",
         "name": "(anonymous)",
         "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
         "line": 1,
-        "col": 1
+        "col": 1,
+        "bundleName": null,
+        "origin": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js"
       },
       {
         "key": "insertTextScript:chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:31:26",
         "name": "insertTextScript",
         "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
         "line": 31,
-        "col": 26
+        "col": 26,
+        "bundleName": null,
+        "origin": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js"
       },
       {
         "key": "insertHeaderNode:chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:58:26",
         "name": "insertHeaderNode",
         "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
         "line": 58,
-        "col": 26
+        "col": 26,
+        "bundleName": null,
+        "origin": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js"
       },
       {
         "key": "appendChild::0:0",
         "name": "appendChild",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous)::1:1",
         "name": "(anonymous)",
         "file": "",
         "line": 1,
-        "col": 1
+        "col": 1,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous)::7:14",
         "name": "(anonymous)",
         "file": "",
         "line": 7,
-        "col": 14
+        "col": 14,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "listenForMessage:chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js:25:26",
         "name": "listenForMessage",
         "file": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js",
         "line": 25,
-        "col": 26
+        "col": 26,
+        "bundleName": null,
+        "origin": "chrome-extension://denbgaamihkadbghdceggmchnflmhpmk/contentScript.js"
       },
       {
         "key": "(anonymous):extensions::uncaught_exception_handler:1:10",
         "name": "(anonymous)",
         "file": "extensions::uncaught_exception_handler",
         "line": 1,
-        "col": 10
+        "col": 10,
+        "bundleName": null,
+        "origin": "extensions::uncaught_exception_handler"
       },
       {
         "key": "(anonymous)::0:0",
         "name": "(anonymous)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):http://127.0.0.1:8081/worker.html:1:9",
         "name": "(anonymous)",
         "file": "http://127.0.0.1:8081/worker.html",
         "line": 1,
-        "col": 9
+        "col": 9,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.html"
       },
       {
         "key": "Worker::0:0",
         "name": "Worker",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "cb:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:50:12",
         "name": "cb",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 50,
-        "col": 12
+        "col": 12,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "$a:chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:47:315",
         "name": "$a",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 47,
-        "col": 315
+        "col": 315,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:51:52",
         "name": "(anonymous)",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 51,
-        "col": 52
+        "col": 52,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "setTimeout::0:0",
         "name": "setTimeout",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "(anonymous):chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js:51:145",
         "name": "(anonymous)",
         "file": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js",
         "line": 51,
-        "col": 145
+        "col": 145,
+        "bundleName": null,
+        "origin": "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk/injected.min.js"
       },
       {
         "key": "worker.onmessage:http://127.0.0.1:8081/worker.html:20:30",
         "name": "worker.onmessage",
         "file": "http://127.0.0.1:8081/worker.html",
         "line": 20,
-        "col": 30
+        "col": 30,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.html"
       },
       {
         "key": "apple:http://127.0.0.1:8081/worker.html:10:17",
         "name": "apple",
         "file": "http://127.0.0.1:8081/worker.html",
         "line": 10,
-        "col": 17
+        "col": 17,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.html"
       },
       {
         "key": "banana:http://127.0.0.1:8081/worker.html:2:18",
         "name": "banana",
         "file": "http://127.0.0.1:8081/worker.html",
         "line": 2,
-        "col": 18
+        "col": 18,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.html"
       },
       {
         "key": "postMessage::0:0",
         "name": "postMessage",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       }
     ],
     "samples": [
@@ -1824,42 +1954,54 @@ expression: profiles
         "name": "(root)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "onmessage:http://127.0.0.1:8081/worker.js:15:21",
         "name": "onmessage",
         "file": "http://127.0.0.1:8081/worker.js",
         "line": 15,
-        "col": 21
+        "col": 21,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.js"
       },
       {
         "key": "alpha:http://127.0.0.1:8081/worker.js:9:15",
         "name": "alpha",
         "file": "http://127.0.0.1:8081/worker.js",
         "line": 9,
-        "col": 15
+        "col": 15,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.js"
       },
       {
         "key": "gamma:http://127.0.0.1:8081/worker.js:1:15",
         "name": "gamma",
         "file": "http://127.0.0.1:8081/worker.js",
         "line": 1,
-        "col": 15
+        "col": 15,
+        "bundleName": null,
+        "origin": "http://127.0.0.1:8081/worker.js"
       },
       {
         "key": "(program)::0:0",
         "name": "(program)",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       },
       {
         "key": "postMessage::0:0",
         "name": "postMessage",
         "file": "",
         "line": null,
-        "col": null
+        "col": null,
+        "bundleName": null,
+        "origin": ""
       }
     ],
     "samples": [

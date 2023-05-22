@@ -38,6 +38,7 @@ impl From<&str> for Frame {
       sourced: false,
       node_module: None,
       origin_script_file: String::from(""),
+      bundle_name: None,
     };
 
     if s.is_empty() {

@@ -61,6 +61,7 @@ interface BundleMeta {
   }[]
   bundles: {
     [k: string]: {
+      name: string
       moduleMap: Record<string, string>
       dir: string
       hash: string
@@ -212,26 +213,28 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     const pwd = this.pwd
 
     const bundleList = await Promise.allSettled(
-      this.payload.artifacts.map(async ({ id: artifactId, buildKey, reportKey, moduleMapKey, hash }) => {
-        if (!reportKey) {
-          throw new Error(`Skip artifact ${artifactId} missing reportKey`)
-        }
-        const readStream = await this.client.getArtifactStream(buildKey)
-        this.logger.verbose(`Downloading ${[artifactId, buildKey]} now.`)
-        const bundlePath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
-        this.logger.verbose(`Downloading ${[artifactId, buildKey]} finished.`)
+      this.payload.artifacts.map(
+        async ({ id: artifactId, iid: artifactIid, name: artifactName, buildKey, reportKey, moduleMapKey, hash }) => {
+          if (!reportKey) {
+            throw new Error(`Skip artifact ${artifactId} missing reportKey`)
+          }
+          const readStream = await this.client.getArtifactStream(buildKey)
+          this.logger.verbose(`Downloading ${[artifactId, buildKey]} now.`)
+          const bundlePath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
+          this.logger.verbose(`Downloading ${[artifactId, buildKey]} finished.`)
 
-        this.logger.verbose(`Downloading ${[artifactId, reportKey]} now.`)
-        const bundleReport = JSON.parse((await this.client.getArtifact(reportKey)).toString('utf-8')) as BundleResult
-        this.logger.verbose(`Downloading ${[artifactId, reportKey]} finished.`)
+          this.logger.verbose(`Downloading ${[artifactId, reportKey]} now.`)
+          const bundleReport = JSON.parse((await this.client.getArtifact(reportKey)).toString('utf-8')) as BundleResult
+          this.logger.verbose(`Downloading ${[artifactId, reportKey]} finished.`)
 
-        this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} now.`)
-        const moduleMap =
-          moduleMapKey && (JSON.parse((await this.client.getArtifact(moduleMapKey)).toString('utf-8')) as ModuleMap)
-        this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} finished.`)
+          this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} now.`)
+          const moduleMap =
+            moduleMapKey && (JSON.parse((await this.client.getArtifact(moduleMapKey)).toString('utf-8')) as ModuleMap)
+          this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} finished.`)
 
-        return { artifactId, hash, bundlePath, bundleReport, moduleMap }
-      }),
+          return { artifactId, artifactIid, artifactName, hash, bundlePath, bundleReport, moduleMap }
+        },
+      ),
     ).then((list) => {
       const result = []
       for (let i = 0; i < list.length; i++) {
@@ -248,7 +251,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     const files: BundleMeta['files'] = []
     const bundles: BundleMeta['bundles'] = {}
 
-    for (const { artifactId, hash, bundlePath, bundleReport, moduleMap } of bundleList) {
+    for (const { artifactId, artifactIid, artifactName, hash, bundlePath, bundleReport, moduleMap } of bundleList) {
       const baseDir = parse(bundlePath).dir
 
       bundleReport.assets.forEach((asset) => {
@@ -294,6 +297,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       }
 
       bundles[artifactId] = {
+        name: `${artifactName} #${artifactIid}`,
         moduleMap: bundleModuleMap,
         dir: baseDir,
         repoPath: bundleReport.repoPath,
