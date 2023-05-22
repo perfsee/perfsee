@@ -1,7 +1,7 @@
 ---
 source: packages/ori/src/profile/chrome_profile.rs
+assertion_line: 538
 expression: profile
-
 ---
 {
   "startTime": 163140599286,
@@ -12,42 +12,54 @@ expression: profile
       "name": "(root)",
       "file": "",
       "line": 1,
-      "col": 1
+      "col": 1,
+      "bundleName": null,
+      "origin": ""
     },
     {
       "key": "(anonymous)::1:1",
       "name": "(anonymous)",
       "file": "",
       "line": 1,
-      "col": 1
+      "col": 1,
+      "bundleName": null,
+      "origin": ""
     },
     {
       "key": "a::1:11",
       "name": "a",
       "file": "",
       "line": 1,
-      "col": 11
+      "col": 11,
+      "bundleName": null,
+      "origin": ""
     },
     {
       "key": "b::6:11",
       "name": "b",
       "file": "",
       "line": 6,
-      "col": 11
+      "col": 11,
+      "bundleName": null,
+      "origin": ""
     },
     {
       "key": "d::14:11",
       "name": "d",
       "file": "",
       "line": 14,
-      "col": 11
+      "col": 11,
+      "bundleName": null,
+      "origin": ""
     },
     {
       "key": "c::10:11",
       "name": "c",
       "file": "",
       "line": 10,
-      "col": 11
+      "col": 11,
+      "bundleName": null,
+      "origin": ""
     }
   ],
   "samples": [

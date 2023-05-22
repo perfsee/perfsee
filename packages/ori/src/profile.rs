@@ -34,9 +34,11 @@ pub struct Frame {
   pub col: Option<u32>,
   #[serde(skip)]
   pub bundle_hash: Option<String>,
+  #[serde(rename = "bundleName")]
+  pub bundle_name: Option<String>,
   #[serde(skip)]
   pub sourced: bool,
-  #[serde(skip)]
+  #[serde(rename = "origin")]
   pub origin_script_file: String,
   #[serde(skip)]
   pub node_module: Option<String>,

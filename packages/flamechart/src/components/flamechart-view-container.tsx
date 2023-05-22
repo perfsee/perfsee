@@ -3,6 +3,7 @@ import { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHa
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
 import { Vec2 } from '../lib/math'
 import { NetworkFrame } from '../lib/network-profile'
+import { PerfseeFrame } from '../lib/perfsee-profile'
 import { CallTreeNode, Frame } from '../lib/profile'
 import { Timing } from '../lib/timing'
 import { TimingFrame } from '../lib/timing-profile'
@@ -15,6 +16,7 @@ import { Hovertip } from './hovertip'
 import SplitView from './split-view'
 import { CallTreeNodeTooltip } from './tooltip/calltreenode-tooltip'
 import { NetworkTreeNodeTooltip } from './tooltip/networktreenode-tooltip'
+import { PerfseeFlamechartTooltip } from './tooltip/perfsee-flamechart-tooltip'
 import { renderTimingNameTooltip } from './tooltip/timing-tooltip'
 import { TimingTreeNodeTooltip } from './tooltip/timingnode-tooltip'
 
@@ -113,6 +115,8 @@ export const FlamechartViewContainer = memo(
             <TimingTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
           ) : hoverFrame.frame.node.frame instanceof NetworkFrame ? (
             <NetworkTreeNodeTooltip frame={hoverFrame.frame.node.frame} />
+          ) : hoverFrame.frame.node.frame instanceof PerfseeFrame ? (
+            <PerfseeFlamechartTooltip node={hoverFrame.frame.node} theme={theme} formatValue={flamechart.formatValue} />
           ) : (
             <CallTreeNodeTooltip node={hoverFrame.frame.node} theme={theme} formatValue={flamechart.formatValue} />
           )

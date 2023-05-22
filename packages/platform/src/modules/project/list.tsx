@@ -172,12 +172,17 @@ const GithubButtonStyles = {
   },
 }
 
+function readProjectsLocalStorageCache() {
+  const cache = localStorage[PROJECTS_LOCAL_STORAGE_KEY]
+  if (Object.values(ProjectsEnum).includes(cache)) {
+    return cache
+  }
+}
+
 export const ProjectList = () => {
   const [{ projects, loading, totalCount, groupTotalCount, groups, packages, packageTotalCount }, dispatcher] =
     useModule(ProjectsModule)
-  const [pivotKey, setPivotKey] = useState<ProjectsEnum>(
-    () => localStorage[PROJECTS_LOCAL_STORAGE_KEY] ?? ProjectsEnum.Project,
-  )
+  const [pivotKey, setPivotKey] = useState<ProjectsEnum>(() => readProjectsLocalStorageCache() ?? ProjectsEnum.Project)
   const history = useHistory()
   const settings = useSettings()
 

@@ -1,5 +1,6 @@
 import { NetworkProfile } from './lib/network-profile'
-import { CallTreeNodeAttribute, Frame, Profile, StackListProfileBuilder } from './lib/profile'
+import { PerfseeFrame, PerfseeProfile } from './lib/perfsee-profile'
+import { CallTreeNodeAttribute, Frame, Profile } from './lib/profile'
 import { TimingProfile } from './lib/timing-profile'
 import { TracehouseProfile } from './lib/tracehouse-profile'
 import { TimeFormatter } from './lib/value-formatters'
@@ -8,7 +9,7 @@ import { PerfseeFlameChartData, NetworkRequest, TracehouseTask, TimingSchema } f
 export function buildProfileFromFlameChartData(data: PerfseeFlameChartData, timeOffset = 0): Profile {
   const duration = data.endTime - data.startTime
 
-  const profile = new StackListProfileBuilder(duration, duration + timeOffset, 0 + timeOffset, (node) => {
+  const profile = new PerfseeProfile(duration, duration + timeOffset, 0 + timeOffset, (node) => {
     if (node.parent?.isRoot() && node.getTotalWeight() > 50000) {
       return CallTreeNodeAttribute.LONG_TASK
     }
@@ -18,9 +19,9 @@ export function buildProfileFromFlameChartData(data: PerfseeFlameChartData, time
 
   profile.setValueFormatter(new TimeFormatter('microseconds'))
 
-  profile.appendSampleWithWeight([], timeOffset)
+  profile.appendSample([], timeOffset)
 
-  const frames = data.frames.map((info) => new Frame(info))
+  const frames = data.frames.map((info) => new PerfseeFrame(info))
 
   for (let i = 0; i < data.samples.length; i++) {
     const sample = data.samples[i]
@@ -33,7 +34,7 @@ export function buildProfileFromFlameChartData(data: PerfseeFlameChartData, time
 
     const sampleDuration = data.weights[i]
 
-    profile.appendSampleWithWeight(stack, sampleDuration)
+    profile.appendSample(stack, sampleDuration)
   }
 
   return profile.build()

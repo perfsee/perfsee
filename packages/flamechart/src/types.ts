@@ -1,9 +1,14 @@
 import { FrameInfo } from './lib/profile'
 
+export interface PerfseeFlameChartFrameInfo extends FrameInfo {
+  bundleName?: string
+  origin?: string
+}
+
 export interface PerfseeFlameChartData {
   startTime: number
   endTime: number
-  frames: FrameInfo[]
+  frames: PerfseeFlameChartFrameInfo[]
   samples: number[][]
   weights: number[]
 }
