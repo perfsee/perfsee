@@ -1,9 +1,5 @@
-import type {
-  ProfilingDataForRootFrontend,
-  ProfilingDataFrontend,
-  TimelineData,
-  TimelineDataExport,
-} from 'react-devtools-inline'
+import type { ProfilingDataForRootFrontend, TimelineData, TimelineDataExport } from 'react-devtools-inline'
+import { ReactDevtoolProfilingDataFrontend } from './types'
 
 const PROFILER_EXPORT_VERSION = 5
 
@@ -17,12 +13,21 @@ export type ProfilingDataExport = {
   // Timeline data is per renderer.
   // Note that old exported profiles won't contain this key.
   timelineData?: TimelineDataExport[]
+
+  fiberLocations?: string[]
+
+  parsedLocations?: {
+    name: string
+    file: string
+    line: number
+    col: number
+  }[]
 }
 
 // Converts a Profiling data export into the format required by the Store.
 export function prepareProfilingDataFrontendFromExport(
   profilingDataExport: ProfilingDataExport,
-): ProfilingDataFrontend {
+): ReactDevtoolProfilingDataFrontend {
   const { version } = profilingDataExport
 
   if (version !== PROFILER_EXPORT_VERSION) {
@@ -113,5 +118,7 @@ export function prepareProfilingDataFrontendFromExport(
     dataForRoots,
     imported: true,
     timelineData,
+    fiberLocations: profilingDataExport.fiberLocations,
+    parsedLocations: profilingDataExport.parsedLocations,
   }
 }

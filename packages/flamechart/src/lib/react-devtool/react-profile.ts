@@ -1,7 +1,8 @@
-import type { CommitTree, CommitTreeNode, ProfilingDataFrontend } from 'react-devtools-inline'
+import type { CommitTree } from 'react-devtools-inline'
 import { CallTreeProfileBuilder, Frame, FrameInfo } from '../profile'
 import { TimeFormatter } from '../value-formatters'
 import { getCommitTrees } from './replayer'
+import { ReactDevtoolProfilingDataFrontend, CommitTreeNode } from './types'
 
 export interface ReactNodeInfo {
   actualDuration: number
@@ -60,7 +61,7 @@ export class ReactProfile extends CallTreeProfileBuilder {
   }: {
     commitIndex: number
     commitTree: CommitTree
-    profilingData: ProfilingDataFrontend
+    profilingData: ReactDevtoolProfilingDataFrontend
     rootID: number
   }): ReactProfile {
     const reactProfile = new ReactProfile()
@@ -79,8 +80,10 @@ export class ReactProfile extends CallTreeProfileBuilder {
       const actualDuration = fiberActualDurations.get(id) || 0
       const selfDuration = fiberSelfDurations.get(id) || 0
       const didRender = !!fiberActualDurations.get(id)
+      const parsedLocation =
+        (typeof node.locationId === 'string' && profilingData.parsedLocations?.[Number(node.locationId)]) || null
 
-      const name = displayName || 'Anonymous'
+      const name = parsedLocation?.name || displayName || 'Anonymous'
       const maybeKey = key !== null ? ` key="${key}"` : ''
 
       let maybeBadge = ''
@@ -104,6 +107,11 @@ export class ReactProfile extends CallTreeProfileBuilder {
         name,
         selfDuration,
         isRenderPath: renderPathNodes.has(id),
+        file: parsedLocation
+          ? `${parsedLocation.file}:${parsedLocation.line}:${parsedLocation.col}`
+          : typeof node.locationId === 'string' && profilingData.fiberLocations
+          ? profilingData.fiberLocations[Number(node.locationId)] ?? ''
+          : '',
       }
 
       reactProfile.enterReactNode(info, start)
@@ -176,7 +184,7 @@ export class ReactProfile extends CallTreeProfileBuilder {
 
 const formatDuration = (duration: number): number | string => Math.round(duration * 10) / 10 || '<0.1'
 
-export function buildProfilesFromReactDevtoolExportProfileData(profilingData: ProfilingDataFrontend) {
+export function buildProfilesFromReactDevtoolExportProfileData(profilingData: ReactDevtoolProfilingDataFrontend) {
   const profiles: Record<number, ReactProfile[]> = {}
   for (const [_, dataForRoot] of profilingData.dataForRoots) {
     const rootID = dataForRoot.rootID

@@ -146,19 +146,45 @@ export const FlamechartView: React.FunctionComponent<{
 
     const reactTimings = useMemo<Timing[] | undefined>(() => {
       return reactProfile?.timelineData.flatMap((data) => {
-        const schedulingEvents = data.schedulingEvents.map((e) => ({
-          name: e.componentName ? `${e.componentName} ${e.type}` : e.type,
-          value: e.timestamp * 1000 + reactTimeOffset,
-          color: SharedColors.cyan10,
-          style: 'point' as const,
-        }))
+        const schedulingEvents = data.schedulingEvents.map((e) => {
+          const [componentName, locationId] = e.componentName?.split('@locationId:') ?? []
 
-        const throwErrorEvents = data.thrownErrors.map((e) => ({
-          name: e.componentName ? `${e.componentName} throw error during ${e.phase}` : `throw error during ${e.phase}`,
-          value: e.timestamp * 1000 + reactTimeOffset,
-          color: SharedColors.red10,
-          style: 'point' as const,
-        }))
+          const parsedLocation =
+            (typeof locationId === 'string' && reactProfile.parsedLocations?.[Number(locationId)]) || null
+          const name = parsedLocation?.name || componentName
+
+          return {
+            name: name ? `${name} ${e.type}` : e.type,
+            value: e.timestamp * 1000 + reactTimeOffset,
+            color: SharedColors.cyan10,
+            style: 'point' as const,
+            file: parsedLocation
+              ? `${parsedLocation.file}:${parsedLocation.line}:${parsedLocation.col}`
+              : typeof locationId === 'string' && reactProfile.fiberLocations
+              ? reactProfile.fiberLocations[locationId]
+              : '',
+          }
+        })
+
+        const throwErrorEvents = data.thrownErrors.map((e) => {
+          const [componentName, locationId] = e.componentName?.split('@locationId:') ?? []
+
+          const parsedLocation =
+            (typeof locationId === 'string' && reactProfile.parsedLocations?.[Number(locationId)]) || null
+          const name = parsedLocation?.name || componentName
+
+          return {
+            name: name ? `${name} throw error during ${e.phase}` : `throw error during ${e.phase}`,
+            value: e.timestamp * 1000 + reactTimeOffset,
+            color: SharedColors.red10,
+            style: 'point' as const,
+            file: parsedLocation
+              ? `${parsedLocation.file}:${parsedLocation.line}:${parsedLocation.col}`
+              : typeof locationId === 'string' && reactProfile.fiberLocations
+              ? reactProfile.fiberLocations[locationId]
+              : '',
+          }
+        })
 
         return schedulingEvents.concat(throwErrorEvents)
       })

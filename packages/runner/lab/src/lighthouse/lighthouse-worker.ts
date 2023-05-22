@@ -98,7 +98,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const metricScores = getLighthouseMetricScores('navigation', lhr.audits, timings, timelines)
 
     const jsCoverage = artifacts.JsUsage ?? {}
-    const reactProfile = artifacts.ReactProfiler as ReactDevtoolProfilingDataExport | null
+    const reactProfile = artifacts.ReactProfiler as
+      | (ReactDevtoolProfilingDataExport & {
+          fiberLocations?: string[]
+        })
+      | null
 
     // artifacts
     const lighthouseFile = `snapshots/${uuid()}.json`

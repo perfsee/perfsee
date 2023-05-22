@@ -41,7 +41,11 @@ export class GenerateReactCommand extends Command {
       `export const DEVTOOLS_INJECTION = \`${result.outputFiles[0].text
         .replaceAll(/\\/g, '\\\\')
         .replaceAll(/`/g, '\\`')
-        .replaceAll(/\$\{/g, '\\${')}\``,
+        .replaceAll(/\$\{/g, '\\${')
+        .replace(
+          'displayName = type.name;',
+          `displayName = type.name + '@locationId:' + reactDevtoolsResolveLocation(type);`,
+        )}\``,
     )
   }
 }

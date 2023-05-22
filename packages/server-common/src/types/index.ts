@@ -182,6 +182,7 @@ export interface SourceAnalyzeJob {
     pageUrl: string
     traceEventsStorageKey: string
     jsCoverageStorageKey: string
+    reactProfileStorageKey?: string | null
     scripts?: { fileName: string }[]
   }
 }
@@ -198,4 +199,5 @@ export type SourceAnalyzeJobResult =
       flameChartStorageKey: string
       sourceCoverageStorageKey?: string
       statisticsStorageKey?: string
+      reactProfileStorageKey?: string
     }

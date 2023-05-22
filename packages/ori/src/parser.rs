@@ -14,11 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+use crate::profile::Frame;
+
 use super::profile::{load_chrome_main_thread_profile, Profile};
 use anyhow::Result;
 use rayon::prelude::*;
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sourcemap::SourceMap as RawSourceMap;
 use std::collections::HashMap;
 use std::fs::File;
@@ -34,6 +36,15 @@ impl Deref for SourceMap {
   fn deref(&self) -> &Self::Target {
     &self.0
   }
+}
+
+#[derive(Default, Debug, Serialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
+pub struct ReactLocation {
+  pub name: String,
+  pub file: String,
+  pub line: u32,
+  pub col: u32,
 }
 
 #[derive(Deserialize)]
@@ -208,70 +219,132 @@ pub fn get_node_module(path: &str) -> &str {
   ""
 }
 
-pub fn parse(profile_path: &str, bundle_meta_path: &str) -> Result<Profile> {
+fn parse_frame(
+  frame: &mut Frame,
+  source_maps: &[(&str, &str, SourceMap)],
+  bundle_meta: &BundleMeta,
+  source_regex: &Regex,
+) {
+  if frame.line.is_none() || frame.col.is_none() {
+    return;
+  }
+
+  let source_map = source_maps
+    .iter()
+    .find(|(_, asset, _)| frame.file.ends_with(*asset));
+
+  if source_map.is_none() {
+    return;
+  }
+
+  let line = frame.line.unwrap();
+  let col = frame.col.unwrap();
+
+  let bundle_id = source_map.unwrap().0;
+  let source_map = &source_map.unwrap().2;
+
+  frame.bundle_hash = bundle_meta.bundles.get(bundle_id).unwrap().hash.to_owned();
+
+  if let Some(token) = source_map.lookup_token(line - 1, col - 1) {
+    if let Some(source) = token.get_source() {
+      let (src_line, src_col) = token.get_src();
+      frame.line = Some(src_line + 1);
+      frame.col = Some(src_col + 1);
+      if let Some(name) = token.get_name() {
+        frame.name = name.to_string();
+      }
+
+      if !source.starts_with("http") {
+        frame.sourced = true;
+        let source_path = strip_source_path_prefix(source, source_regex);
+
+        if source_path.starts_with("webpack/") {
+          frame.node_module = Some("(webpack)".to_string());
+          frame.file = source_path.to_string();
+        } else {
+          frame.file = bundle_meta.to_relative_path(bundle_id, source_path);
+          if frame.file.is_empty() {
+            frame.node_module = Some("(unknown)".to_string());
+          } else {
+            let node_module = get_node_module(&frame.file);
+            frame.node_module = if node_module.is_empty() {
+              None
+            } else {
+              Some(node_module.to_owned())
+            }
+          }
+        }
+      }
+
+      frame.key = frame.latest_key();
+    }
+  }
+}
+
+const REACT_LOCATION_REGEX: &str = r"(?P<file>.*):(?P<line>\d+):(?P<col>\d+)$";
+pub fn parse(
+  profile_path: &str,
+  bundle_meta_path: &str,
+  react_locations_path: Option<&str>,
+) -> Result<(Profile, Option<Vec<Option<ReactLocation>>>)> {
   let bundle_meta: BundleMeta = serde_json::from_reader(File::open(bundle_meta_path)?)?;
   let source_maps = bundle_meta.generate_source_maps();
+  let mut locations = None;
 
   let source_regex = Regex::new(SOURCE_REGEXP).unwrap();
 
   let mut profile = load_chrome_main_thread_profile(profile_path)?;
   if !source_maps.is_empty() {
-    profile.frames.par_iter_mut().for_each(|frame| {
-      if frame.line.is_none() || frame.col.is_none() {
-        return;
-      }
+    if let Some(react_locations_path) = react_locations_path {
+      let react_locations: Vec<String> =
+        serde_json::from_reader(File::open(react_locations_path)?)?;
+      let location_regex = Regex::new(REACT_LOCATION_REGEX)?;
 
-      let source_map = source_maps
-        .iter()
-        .find(|(_, asset, _)| frame.file.ends_with(*asset));
+      locations.replace(
+        react_locations
+          .into_iter()
+          .map(|location| {
+            if let Some(caps) = location_regex.captures(&location) {
+              let file = caps.name("file").map(|m| m.as_str());
+              let line = caps
+                .name("line")
+                .and_then(|l| l.as_str().parse::<u32>().ok());
+              let col = caps
+                .name("col")
+                .and_then(|l| l.as_str().parse::<u32>().ok());
 
-      if source_map.is_none() {
-        return;
-      }
+              if let Some(file) = file {
+                let mut frame = Frame {
+                  file: file.to_string(),
+                  line,
+                  col,
+                  sourced: false,
+                  key: String::default(),
+                  name: String::default(),
+                  bundle_hash: None,
+                  origin_script_file: String::default(),
+                  node_module: None,
+                };
 
-      let line = frame.line.unwrap();
-      let col = frame.col.unwrap();
-
-      let bundle_id = source_map.unwrap().0;
-      let source_map = &source_map.unwrap().2;
-
-      frame.bundle_hash = bundle_meta.bundles.get(bundle_id).unwrap().hash.to_owned();
-
-      if let Some(token) = source_map.lookup_token(line - 1, col - 1) {
-        if let Some(source) = token.get_source() {
-          let (src_line, src_col) = token.get_src();
-          frame.line = Some(src_line + 1);
-          frame.col = Some(src_col + 1);
-          if let Some(name) = token.get_name() {
-            frame.name = name.to_string();
-          }
-
-          if !source.starts_with("http") {
-            frame.sourced = true;
-            let source_path = strip_source_path_prefix(source, &source_regex);
-
-            if source_path.starts_with("webpack/") {
-              frame.node_module = Some("(webpack)".to_string());
-              frame.file = source_path.to_string();
-            } else {
-              frame.file = bundle_meta.to_relative_path(bundle_id, source_path);
-              if frame.file.is_empty() {
-                frame.node_module = Some("(unknown)".to_string());
-              } else {
-                let node_module = get_node_module(&frame.file);
-                frame.node_module = if node_module.is_empty() {
-                  None
-                } else {
-                  Some(node_module.to_owned())
-                }
+                parse_frame(&mut frame, &source_maps, &bundle_meta, &source_regex);
+                return Some(ReactLocation {
+                  file: frame.file,
+                  name: frame.name,
+                  line: frame.line.unwrap_or_default(),
+                  col: frame.col.unwrap_or_default(),
+                });
               }
             }
-          }
+            None
+          })
+          .collect(),
+      );
+    }
 
-          frame.key = frame.latest_key();
-        }
-      }
-    });
+    profile
+      .frames
+      .par_iter_mut()
+      .for_each(|frame| parse_frame(frame, &source_maps, &bundle_meta, &source_regex));
 
     let webpack_require_frame_idx = profile
       .frames
@@ -303,7 +376,7 @@ pub fn parse(profile_path: &str, bundle_meta_path: &str) -> Result<Profile> {
       });
     }
   }
-  Ok(profile)
+  Ok((profile, locations))
 }
 
 #[cfg(test)]

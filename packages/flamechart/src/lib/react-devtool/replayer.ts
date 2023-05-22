@@ -1,10 +1,5 @@
-import type {
-  CommitTree,
-  CommitTreeNode,
-  ElementType,
-  ProfilingDataForRootFrontend,
-  ProfilingDataFrontend,
-} from 'react-devtools-inline'
+import type { CommitTree, ElementType, ProfilingDataForRootFrontend } from 'react-devtools-inline'
+import { ReactDevtoolProfilingDataFrontend, CommitTreeNode } from './types'
 
 const TREE_OPERATION_ADD = 1
 const TREE_OPERATION_REMOVE = 2
@@ -27,8 +22,9 @@ function recursivelyInitializeTree(
     nodes.set(id, {
       id,
       children: node.children,
-      displayName: node.displayName,
+      displayName: node.displayName?.split('@locationId:')[0] || null,
       hocDisplayNames: node.hocDisplayNames,
+      locationId: node.displayName?.split('@locationId:')[1] || null,
       key: node.key,
       parentID,
       treeBaseDuration: dataForRoot.initialTreeBaseDurations.get(id)!,
@@ -100,6 +96,7 @@ function updateTree(commitTree: CommitTree, operations: Array<number>): CommitTr
             hocDisplayNames: null,
             id,
             key: null,
+            locationId: null,
             parentID: 0,
             treeBaseDuration: 0, // This will be updated by a subsequent operation
             type,
@@ -113,7 +110,7 @@ function updateTree(commitTree: CommitTree, operations: Array<number>): CommitTr
           i++ // ownerID
 
           const displayNameStringID = operations[i]
-          const displayName = stringTable[displayNameStringID]
+          const [displayName, locationId] = stringTable[displayNameStringID]?.split('@locationId:') ?? []
           i++
 
           const keyStringID = operations[i]
@@ -126,6 +123,7 @@ function updateTree(commitTree: CommitTree, operations: Array<number>): CommitTr
           const node: CommitTreeNode = {
             children: [],
             displayName,
+            locationId,
             hocDisplayNames: null,
             id,
             key,
@@ -216,7 +214,7 @@ export function getCommitTrees({
   profilingData,
   rootID,
 }: {
-  profilingData: ProfilingDataFrontend
+  profilingData: ReactDevtoolProfilingDataFrontend
   rootID: number
 }): CommitTree[] {
   const commitTrees: CommitTree[] = []
