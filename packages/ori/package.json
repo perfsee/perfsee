@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/ori",
-  "version": "1.5.3",
+  "version": "1.7.2",
   "description": "Profile parsing service",
   "private": true,
   "repository": "https://github.com/perfsee/perfsee",
