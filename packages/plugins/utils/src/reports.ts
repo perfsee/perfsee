@@ -24,10 +24,19 @@ import { CommonPluginOptions } from './options'
 import { saveReport } from './viewer'
 
 export async function generateReports(stats: PerfseeReportStats, outputPath: string, options: CommonPluginOptions) {
-  const { enableAudit, shouldPassAudit = (score) => score >= 80, failIfNotPass = false } = options
+  const { enableAudit, shouldPassAudit = (score) => score >= 80, failIfNotPass = false, processStats } = options
 
   if (!enableAudit) {
     return
+  }
+
+  if (processStats) {
+    const processedStats = processStats(stats)
+    if (processedStats) {
+      stats = processedStats
+    } else {
+      return
+    }
   }
 
   try {
