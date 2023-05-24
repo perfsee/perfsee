@@ -103,6 +103,13 @@ export interface CommonPluginOptions {
    * @environment `PERFSEE_TOKEN`
    */
   token?: string
+
+  /**
+   * Used to modify the webpack stats file prcessed by perfsee plugin before uploading.
+   *
+   * Return undefined means skipping uploading.
+   */
+  processStats?: (stats: PerfseeReportStats) => undefined | PerfseeReportStats
 }
 
 export function getDefaultOptions(): Required<

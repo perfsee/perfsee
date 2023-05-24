@@ -85,6 +85,16 @@ export class BuildUploadClient {
       console.info(chalk.yellow('[perfsee] no project id provided, skip uploading build.'))
     }
 
+    if (this.options.processStats) {
+      const processedStats = this.options.processStats(stats)
+      if (processedStats) {
+        stats = processedStats
+      } else {
+        console.info(chalk.yellow('[perfsee] skip uploading since stats json is empty after process.'))
+        return
+      }
+    }
+
     try {
       // firstly write stats json down to disk in output path.
       const statsPath = await this.writeStats(stats)
