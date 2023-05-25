@@ -36,7 +36,7 @@ As E2E is still in the experimental stage, the entrance is not open, you can ent
 
 ![e2e](/settings/e2e.png)
 
-E2E page configuration is the same as the normal page, refer to [Pages Configuration](https://) for more details.
+E2E page configuration is the same as the normal page, refer to [Pages Configuration](../settings/page-setting) for more details.
 
 ![create e2e](/settings/create-e2e.png)
 

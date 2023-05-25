@@ -36,7 +36,7 @@ sidebar_position: 5
 
 ![img](/settings/e2e.png)
 
-E2E 页面配置与普通 Pages 保持一致，参考 [Pages 配置](https://)查看更多细节。
+E2E 页面配置与普通 Pages 保持一致，参考 [Pages 配置](../settings/page-setting)查看更多细节。
 
 ![img](/settings/create-e2e.png)
 
