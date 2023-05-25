@@ -87,8 +87,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    const scripts = this.getScripts(artifacts)
     const { requests, requestsBaseTimestamp } = this.getRequests(lhr)
+    const scripts = this.getScripts(requests)
     const userTimings = this.getUserTimings(artifacts, requestsBaseTimestamp)
     const metrics = this.getMetrics(lhr)
     const { traceData, timings } = this.computeMainThreadTask(lhr, artifacts)
@@ -248,7 +248,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         page
           .waitForFrame(url)
           .then(async () => {
-            this.logger.info('Inject localStorage to page')
+            this.logger.verbose('Inject localStorage to page')
             await page.evaluate((localStorageContent: LocalStorageType[]) => {
               localStorage.clear()
               localStorageContent.forEach(({ key, value }) => {
@@ -446,17 +446,17 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return Object.values(userTimings)
   }
 
-  private getScripts(artifacts: LH.Artifacts) {
+  private getScripts(requests: RequestSchema[]) {
     this.logger.info('Calculate scripts hash...')
-
-    const scripts = artifacts.ScriptElements
 
     const results = []
 
     try {
-      for (const script of scripts) {
-        if (script.src) {
-          const url = new URL(script.src)
+      for (const request of requests) {
+        const [_, contentType] =
+          Object.entries(request.responseHeader).find(([key]) => key.toLowerCase() === 'content-type') ?? []
+        if (contentType?.toString().toLowerCase().includes('application/javascript')) {
+          const url = new URL(request.url)
           const fileName = basename(url.pathname)
           if ((url.protocol === 'https:' || url.protocol === 'http:') && fileName) {
             results.push({
