@@ -51,3 +51,11 @@ test('should parse async modules var a=(webpack > v4)', (t) => {
 
   t.deepEqual(Array.from(anonymousFunctionModules.keys()), fixtureModules)
 })
+
+test('should parse async modules (rspack)', (t) => {
+  const anonymousFunctionModules = parseAssetModules(
+    `;(() => { var a = 3;(globalThis.webpackChunkunion_admin = globalThis.webpackChunkunion_admin || []).push([[1], {1:function(){},'2':function(){},'abc':function(){}}])})()`,
+  )
+
+  t.deepEqual(Array.from(anonymousFunctionModules.keys()), fixtureModules)
+})

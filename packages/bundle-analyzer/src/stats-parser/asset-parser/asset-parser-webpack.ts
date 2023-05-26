@@ -188,6 +188,10 @@ export function parseAssetModules(content: string): Map<string | number, string>
         return
       }
 
+      // Walking into callee because rspack wraps async chunk push expression into IIFE body.
+      // ;(() => { ..., ;(globalThis.webpackChunkunion_admin = globalThis.webpackChunkunion_admin || []).push([ ... ]) })()
+      callback(node.callee, state)
+
       // Walking into arguments because some of plugins (e.g. `DedupePlugin`) or some Webpack
       // features (e.g. `umd` library output) can wrap modules list into additional IIFE.
       args.forEach((arg) => {
@@ -328,6 +332,7 @@ function getModulesLocations(node: Node | null) {
       const moduleId = node.key.name || node.key.value
       locations.set(moduleId, getModuleLocation(node.value))
     })
+    return locations
   }
 
   if (node?.type === 'ArrayExpression' || node?.type === 'CallExpression') {
@@ -353,9 +358,10 @@ function getModulesLocations(node: Node | null) {
 
       locations.set(i + minId, getModuleLocation(node))
     })
+    return locations
   }
 
-  return locations
+  return null
 }
 
 function getModuleLocation(node: any) {
