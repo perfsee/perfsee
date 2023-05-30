@@ -27,35 +27,34 @@ test('should match snapshot', async (t) => {
         },
       ],
       jsCoverageData: {
-        'https://example.com/index.js': [
-          {
-            scriptId: 'FakeId',
-            functions: [
-              {
-                functionName: 'FakeFunctionName1',
-                isBlockCoverage: false,
-                ranges: [
-                  {
-                    startOffset: 80,
-                    endOffset: 90,
-                    count: 0,
-                  },
-                ],
-              },
-              {
-                functionName: 'FakeFunctionName2',
-                isBlockCoverage: false,
-                ranges: [
-                  {
-                    startOffset: 90,
-                    endOffset: 100,
-                    count: 1,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        'https://example.com/index.js': {
+          scriptId: 'FakeId',
+          url: 'https://example.com/index.js',
+          functions: [
+            {
+              functionName: 'FakeFunctionName1',
+              isBlockCoverage: false,
+              ranges: [
+                {
+                  startOffset: 80,
+                  endOffset: 90,
+                  count: 0,
+                },
+              ],
+            },
+            {
+              functionName: 'FakeFunctionName2',
+              isBlockCoverage: false,
+              ranges: [
+                {
+                  startOffset: 90,
+                  endOffset: 100,
+                  count: 1,
+                },
+              ],
+            },
+          ],
+        },
       },
     }),
   )

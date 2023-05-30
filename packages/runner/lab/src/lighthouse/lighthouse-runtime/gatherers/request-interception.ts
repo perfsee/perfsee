@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { onRequestFactory, Driver } from '../../helpers'
+import { onRequestFactory } from '../../helpers'
 
 export class RequestInterception implements LH.PerfseeGathererInstance {
   name = 'RequestInterception' as const
@@ -23,7 +23,7 @@ export class RequestInterception implements LH.PerfseeGathererInstance {
   constructor(private readonly headersWithHost?: Record<string, Record<string, string>>) {}
 
   async beforePass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+    const driver = ctx.driver
 
     const onRequest = onRequestFactory(ctx.url, this.headersWithHost, driver)
 
@@ -36,7 +36,7 @@ export class RequestInterception implements LH.PerfseeGathererInstance {
 
   async afterPass(ctx: LH.Gatherer.PassContext) {
     await ctx.driver.sendCommand('Fetch.disable')
-    await ctx.driver.off('Fetch.requestPaused', this.requestHandler)
+    ctx.driver.off('Fetch.requestPaused', this.requestHandler!)
     this.requestHandler = undefined
     return null
   }

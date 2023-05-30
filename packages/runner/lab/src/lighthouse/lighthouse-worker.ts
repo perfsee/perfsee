@@ -26,7 +26,6 @@ import { JobWorker, clearProxyCache, startProxyServer } from '@perfsee/job-runne
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
-  LHStoredSchema,
   LighthouseScoreMetric,
   LocalStorageType,
   MetricKeyType,
@@ -79,11 +78,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.wrapLighthouseLogger()
     const lhResult = await this.runLighthouse()
 
-    const { lhr, artifacts } = lhResult
+    const { artifacts, lhr } = lhResult
 
     this.logger.info(`Actual benchmark index: ${lhr.environment.benchmarkIndex}`)
 
-    const screencastStorageKey = await this.uploadScreencast(artifacts.Screencast)
+    const screencastStorageKey = await this.uploadScreencast(artifacts.Screencast || null)
 
     let failedReason = artifacts.PageLoadError?.friendlyMessage?.formattedDefault
 
@@ -109,7 +108,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const scripts = this.getScripts(requests)
     const userTimings = this.getUserTimings(artifacts, requestsBaseTimestamp)
     const metrics = this.getMetrics(lhr)
-    const { traceData, timings } = this.computeMainThreadTask(lhr, artifacts)
+    const { traceData, timings } = await this.computeMainThreadTask(lhr, artifacts)
     // format overview render timeline data
     // @ts-expect-error
     const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
@@ -161,7 +160,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             metricScores,
             userTimings,
             scripts,
-          } as LHStoredSchema),
+          }),
         ),
       )
     } catch (e) {
@@ -470,7 +469,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             const inputFile = join(tmpDir, `${i}-artifacts.json`)
             await writeFile(inputFile, JSON.stringify(lhResult))
           } else {
-            result = lhResult
+            result = lhResult as LH.PerfseeRunnerResult
           }
         }
 
@@ -590,11 +589,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   private getRequests(lhResult: LH.Result) {
-    // @ts-expect-error
-    const networkRequestsAuditsResult = (lhResult.audits['network-requests']?.details?.items ?? []).filter(
-      // requests with status code < 0 are blocked by browser
-      (req: RequestSchema) => req.statusCode > 0,
-    )
+    const networkRequestsAuditsResult =
+      // @ts-expect-error
+      (lhResult.audits['network-requests']?.details?.items ?? []).filter(
+        // requests with status code < 0 are blocked by browser
+        (req: RequestSchema) => req.statusCode > 0,
+      )
     const requestsBaseTimestamp = networkRequestsAuditsResult[0].baseTimestamp
     const requests = networkRequestsAuditsResult.map((item: any) => {
       delete item.baseTimestamp
@@ -654,10 +654,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return results
   }
 
-  private computeMainThreadTask(lhResult: LH.Result, artifacts: LH.Artifacts) {
+  private async computeMainThreadTask(lhResult: LH.Result, artifacts: LH.Artifacts) {
     // format execution timeline data
     const trace = artifacts['traces']['defaultPass']
-    const { tasks, timings } = computeMainThreadTasksWithTimings(trace)
+    const { tasks, timings } = await computeMainThreadTasksWithTimings(trace)
     const tti = getTTI(lhResult)
     const traceData = slimTraceData(tasks, Number.isFinite(tti) ? tti + 5000 : 1000 * 20)
     return {

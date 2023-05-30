@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import run from 'lighthouse'
-// @ts-expect-error
-import defaultConfig from 'lighthouse/lighthouse-core/config/default-config'
+import { Config } from 'lighthouse'
+
+import { dynamicImport } from '@perfsee/job-runner-shared'
 
 import { CauseForLCP, NetworkRequests, WhiteScreen } from './audits'
 import { ConsoleLogger, ReactProfiler, RequestInterception, Screencast } from './gatherers'
@@ -94,6 +94,11 @@ export function computeMedianRun(runs: MetricsRecord[]) {
 }
 
 export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Flags = {}) {
+  const { legacyNavigation: run } = (await dynamicImport('lighthouse')) as typeof import('lighthouse')
+  const { default: defaultConfig } = (await dynamicImport(
+    'lighthouse/core/legacy/config/legacy-default-config.js',
+  )) as typeof import('lighthouse/core/legacy/config/legacy-default-config')
+
   return run(
     url,
     {
@@ -105,7 +110,7 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
     },
     {
       ...defaultConfig,
-      passes: defaultConfig.passes.map((pass: LH.PerfseePassJson) => {
+      passes: defaultConfig.passes!.map((pass: LH.PerfseePassJson) => {
         pass = {
           ...pass,
           gatherers: customFlags?.dryRun
@@ -120,13 +125,15 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
           }
         }
 
-        return pass
+        return pass as Config.PassJson
       }),
-      audits: customFlags?.dryRun ? [] : [...defaultConfig.audits, NetworkRequests, WhiteScreen, CauseForLCP],
+      audits: customFlags?.dryRun
+        ? []
+        : [...(defaultConfig.audits ?? []), await NetworkRequests(), await WhiteScreen(), await CauseForLCP()],
       settings: {
         additionalTraceCategories: 'disabled-by-default-v8.cpu_profiler',
       },
-      categories: customFlags?.dryRun ? [] : defaultConfig.categories,
+      categories: customFlags?.dryRun ? {} : defaultConfig.categories,
     },
   )
 }

@@ -17,11 +17,10 @@ limitations under the License.
 import { promises as fs } from 'fs'
 import { dirname, join } from 'path'
 
-// @ts-expect-error
-import defaultConfig from 'lighthouse/lighthouse-core/fraggle-rock/config/default-config'
+import { Driver } from 'lighthouse/core/legacy/gather/driver'
 import { v4 as uuid } from 'uuid'
 
-import { JobWorker } from '@perfsee/job-runner-shared'
+import { JobWorker, dynamicImport } from '@perfsee/job-runner-shared'
 import { E2EJobPayload } from '@perfsee/server-common'
 import { CookieType, LighthouseScoreMetric, MetricKeyType, MetricType, RequestSchema } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
@@ -38,7 +37,6 @@ import {
   DEVICE_DESCRIPTORS,
   slimTraceData,
   getLighthouseMetricScores,
-  Driver,
   getNetworkRecords,
   NetworkRecord,
   formatCookies,
@@ -54,6 +52,9 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
   }
 
   protected async audit() {
+    const { default: defaultConfig } = (await dynamicImport(
+      'lighthouse/core/config/default-config.js',
+    )) as typeof import('lighthouse/core/config/default-config')
     const { deviceId, throttle, url } = this.payload
     const domain = new URL(url).host
 
@@ -77,7 +78,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
     screenRecorder.record(page)
 
-    const flow = new LighthouseFlow(page, {
+    const flow = new LighthouseFlow(page as any as LH.Puppeteer.Page, {
       name: 'e2e flow',
       config: {
         ...defaultConfig,
@@ -108,6 +109,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
           method: type as any,
           params: e ?? [],
           sessionId: '',
+          targetType: 'page',
         })
       }
     }) as any)
@@ -117,6 +119,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
       on: client.on.bind(client) as any,
       once: client.once.bind(client) as any,
       off: client.off.bind(client) as any,
+      // @ts-expect-error
       sendCommand: client.send.bind(client),
       evaluate: () => {
         throw new Error('not support')
@@ -195,7 +198,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
       this.logger.error('Failed to close browser', { error: err })
     }
 
-    const { requests, requestsBaseTimestamp } = this.getRequests(getNetworkRecords(networkLogs))
+    const { requests, requestsBaseTimestamp } = this.getRequests(await getNetworkRecords(networkLogs))
 
     if (failedReason) {
       return {
@@ -216,29 +219,32 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
         return this.getMetrics(lhr)
       }),
     )
-    userFlowResult = userFlowResult.map(({ lhr, artifacts, stepName }) => {
-      // format overview render timeline data
-      // @ts-expect-error
-      const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
+    userFlowResult = await Promise.all([
+      userFlowResult.map(async ({ lhr, artifacts, stepName }) => {
+        // format overview render timeline data
+        // @ts-expect-error
+        const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
 
-      const timings = lhr.gatherMode === 'navigation' ? this.computeMainThreadTask(artifacts).timings : undefined
-      const metricScores = getLighthouseMetricScores(lhr.gatherMode, lhr.audits, timings, timelines)
+        const timings =
+          lhr.gatherMode === 'navigation' ? (await this.computeMainThreadTask(artifacts)).timings : undefined
+        const metricScores = getLighthouseMetricScores(lhr.gatherMode, lhr.audits, timings, timelines)
 
-      // hiding network-requests
-      // @ts-expect-error
-      lhr.audits['network-requests'] = {}
+        // hiding network-requests
+        // @ts-expect-error
+        lhr.audits['network-requests'] = {}
 
-      return {
-        stepName,
-        stepUrl: lhr.requestedUrl,
-        stepMode: lhr.gatherMode,
-        lhrAudit: lhr.audits,
-        lhrCategories: lhr.categories,
-        timings,
-        timelines,
-        metricScores,
-      }
-    })
+        return {
+          stepName,
+          stepUrl: lhr.requestedUrl,
+          stepMode: lhr.gatherMode,
+          lhrAudit: lhr.audits,
+          lhrCategories: lhr.categories,
+          timings,
+          timelines,
+          metricScores,
+        }
+      }),
+    ])
 
     const metricScores = [
       {
@@ -305,10 +311,10 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     }
   }
 
-  private computeMainThreadTask(artifacts: LH.Artifacts) {
+  private async computeMainThreadTask(artifacts: LH.Artifacts) {
     // format execution timeline data
     const trace = artifacts['traces']['defaultPass']
-    const { tasks, timings } = computeMainThreadTasksWithTimings(trace)
+    const { tasks, timings } = await computeMainThreadTasksWithTimings(trace)
     const traceData = slimTraceData(tasks, Infinity)
     return {
       traceData,

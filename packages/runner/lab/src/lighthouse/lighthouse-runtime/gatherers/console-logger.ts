@@ -19,8 +19,6 @@ import { Protocol } from 'puppeteer-core'
 
 import { logger } from '@perfsee/job-runner-shared'
 
-import { Driver } from '../../helpers'
-
 export class ConsoleLogger implements LH.PerfseeGathererInstance {
   name = 'ConsoleLogger' as const
   private messageHandler?: (...params: any) => any
@@ -28,7 +26,7 @@ export class ConsoleLogger implements LH.PerfseeGathererInstance {
   constructor() {}
 
   async beforePass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+    const driver = ctx.driver
 
     const onMessage = (event: Protocol.Log.EntryAddedEvent) => {
       logger.verbose(
@@ -48,7 +46,7 @@ export class ConsoleLogger implements LH.PerfseeGathererInstance {
 
   async afterPass(ctx: LH.Gatherer.PassContext) {
     await ctx.driver.sendCommand('Log.disable')
-    await ctx.driver.off('Log.entryAdded', this.messageHandler)
+    ctx.driver.off('Log.entryAdded', this.messageHandler!)
     this.messageHandler = undefined
     return null
   }

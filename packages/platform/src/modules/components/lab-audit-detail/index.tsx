@@ -41,6 +41,7 @@ const nonListDetailTypes: Array<NonNullable<DetailProps['details']>['type']> = [
   'criticalrequestchain',
   'debugdata',
   'screenshot',
+  // @ts-expect-error
   'full-page-screenshot',
 ]
 

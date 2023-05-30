@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import type { Driver } from 'lighthouse/core/legacy/gather/driver'
 import { ContinueRequestOverrides, ResponseForRequest, HTTPRequest } from 'puppeteer-core'
 
 import { logger } from '@perfsee/job-runner-shared'
 import { HeaderHostType } from '@perfsee/shared'
-
-import { Driver } from './driver'
 
 interface HeaderEntry {
   name: string
@@ -39,7 +38,7 @@ class CDPRequest {
     return this.driver.sendCommand('Fetch.continueRequest', {
       ...data,
       requestId: this.rawRequest.requestId,
-      headers: Object.entries(data?.headers ?? {}).map(([name, value]) => ({ name, value })),
+      headers: Object.entries(data?.headers ?? {}).map(([name, value]) => ({ name, value: value as string })),
     })
   }
 

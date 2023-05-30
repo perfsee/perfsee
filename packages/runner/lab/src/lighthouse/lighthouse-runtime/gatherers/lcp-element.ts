@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Driver } from '../../helpers'
-
 export class LcpElement implements LH.PerfseeGathererInstance {
   name = 'LcpElement' as const
 
@@ -24,7 +22,7 @@ export class LcpElement implements LH.PerfseeGathererInstance {
   pass() {}
 
   async afterPass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+    const driver = ctx.driver
     const traceEvents = ctx.baseArtifacts.traces['defaultPass'].traceEvents
 
     const lcpCandidate = traceEvents

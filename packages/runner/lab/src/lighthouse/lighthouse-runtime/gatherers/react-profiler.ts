@@ -17,6 +17,7 @@ limitations under the License.
 import { promisify } from 'util'
 
 import Protocol from 'devtools-protocol'
+import { Driver } from 'lighthouse/core/legacy/gather/driver'
 import Gatherer from 'lighthouse/types/gatherer'
 import { Browser, HTTPResponse } from 'puppeteer-core'
 
@@ -27,7 +28,6 @@ import {
   detectReactDom,
   detectVersion,
   DEVICE_DESCRIPTORS,
-  Driver,
   fetchReactDom,
   generateProfilingBundle,
   isProfilingBuild,
@@ -122,7 +122,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   }
 
   async beforePass(ctx: Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+    const driver = ctx.driver
     if (!ReactProfiler.bundleToReplace) {
       this.resolveProfilngData(null)
       return
@@ -148,6 +148,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   }
 
   private send(event: string, payload?: any) {
+    // @ts-expect-error
     void this.driver?.evaluateAsync(`window.postMessage(${JSON.stringify({ event, payload })})`)
   }
 
@@ -188,7 +189,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   private async interceptRequest() {
     const driver = this.driver!
 
-    const onRequestIntercepted = ({ interceptionId, request }: Protocol.Network.RequestInterceptedEvent) => {
+    const onRequestIntercepted = ({ interceptionId, request }: LH.CrdpEvents['Network.requestIntercepted'][0]) => {
       if (ReactProfiler.bundleToReplace.has(request.url)) {
         const responseBody = ReactProfiler.bundleToReplace.get(request.url)!
 

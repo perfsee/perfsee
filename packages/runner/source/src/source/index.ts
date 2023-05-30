@@ -487,8 +487,8 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       return
     }
     const buf = await this.client.getArtifact(jsCoverageStorageKey)
-    const jsCoverageData = JSON.parse(buf.toString('utf8')) as LH.Artifacts['JsUsage']
-    const scriptUrls = Object.keys(jsCoverageData)
+    const jsCoverageData = JSON.parse(buf.toString('utf8')) as Record<string, LH.Crdp.Profiler.ScriptCoverage>
+    const scriptUrls = Object.values(jsCoverageData).map((s) => s.url)
 
     const source: GenerateSourceCoverageTreemapDataOptions['source'] = []
 

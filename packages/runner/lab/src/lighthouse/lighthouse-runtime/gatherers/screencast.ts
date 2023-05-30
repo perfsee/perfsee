@@ -23,8 +23,6 @@ import { noop } from 'lodash'
 
 import { logger } from '@perfsee/job-runner-shared'
 
-import { Driver } from '../../helpers'
-
 let available = false
 
 try {
@@ -64,7 +62,7 @@ export class Screencast implements LH.PerfseeGathererInstance {
     }
 
     const startTime = Date.now()
-    const driver = ctx.driver as Driver
+    const driver = ctx.driver
 
     driver.on('Page.screencastFrame', (e) => {
       this.frames.push({
@@ -87,7 +85,7 @@ export class Screencast implements LH.PerfseeGathererInstance {
   }
 
   async pass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+    const driver = ctx.driver
     await driver.sendCommand('Page.stopScreencast')
   }
 
@@ -99,7 +97,8 @@ export class Screencast implements LH.PerfseeGathererInstance {
     let frames = this.frames
 
     try {
-      const driver = ctx.driver as Driver
+      const driver = ctx.driver
+      // @ts-expect-error
       const startTime /* in seconds */ = await driver.evaluate(getStartTime, { args: [] })
       frames = frames.filter(({ timestamp }) => timestamp > startTime)
       const { width, height } = ctx.settings.screenEmulation

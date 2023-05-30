@@ -66,7 +66,7 @@ export type EntryPointSchema = NonNullable<Artifact['entrypoints']>[0]
 
 export type VersionLHContent = {
   audits?: AuditsSchema
-  categories?: Record<string, LH.Result.Category>
+  categories?: LHStoredSchema['lhrCategories']
   metricScores: MetricScoreSchema[]
   loading: boolean
 }
