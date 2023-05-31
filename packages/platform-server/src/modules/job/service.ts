@@ -156,6 +156,7 @@ export class JobService {
 
         if (!payload) {
           this.event.emit(`${pendingJob.jobType}.error`, pendingJob.entityId, 'Fail to fetch job payload.')
+          this.metrics.jobFail(1, { jobType: pendingJob.jobType })
           continue
         }
 
