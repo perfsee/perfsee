@@ -35,14 +35,17 @@ export class LogPlugin implements ApolloServerPlugin {
     return Promise.resolve({
       willSendResponse: () => {
         endTimer()
+        this.metrics.gqlRequestSuccess(1, { operationName })
         return Promise.resolve()
       },
       didEncounterErrors: (ctx) => {
+        endTimer()
         ctx.errors.forEach((err) => {
           if (!isUserError(err)) {
             this.logger.error(err.originalError ?? err, { operationName })
           }
         })
+        this.metrics.gqlRequestFail(1, { operationName })
         return Promise.resolve()
       },
     })
