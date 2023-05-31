@@ -268,7 +268,7 @@ export class JobService {
     }
   }
 
-  async updateJobTrace({ jobId, trace, done, duration }: UpdateJobTraceParams, runner: Runner) {
+  async updateJobTrace({ jobId, trace, done, duration, failedReason }: UpdateJobTraceParams, runner: Runner) {
     const job = await this.idLoader.load(jobId)
     if (!job) {
       throw new NotFoundException(`job with id ${jobId} not found`)
@@ -288,7 +288,7 @@ export class JobService {
       this.logger.error(e as Error, { phase: 'write logs' })
     }
     if (done) {
-      await this.jobDone(jobId, duration!)
+      await this.jobDone(jobId, duration!, !!failedReason)
     }
 
     return job
