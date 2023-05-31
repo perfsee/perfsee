@@ -23,6 +23,8 @@ export class Metric {
   readonly visit = this.metricsProvider.meter('website.visit', ['source'])
   readonly gqlRequest = this.metricsProvider.counter('graphql.requests', ['operationName'])
   readonly gqlRequestTime = this.metricsProvider.timer('graphql.requests.time', ['operationName'])
+  readonly gqlRequestSuccess = this.metricsProvider.counter('graphql.requests.success', ['operationName'])
+  readonly gqlRequestFail = this.metricsProvider.counter('graphql.requests.fail', ['operationName'])
   readonly openApiCall = this.metricsProvider.meter('api.open.call')
   readonly openApiCallThrottled = this.metricsProvider.counter('api.open.call.throttled')
 
