@@ -68,7 +68,7 @@ export const Hovertip: FC<PropsWithChildren<HovertipProps>> = ({ offset, childre
         userSelect: 'none',
         fontSize: FONT_SIZE_LABEL,
         fontFamily: theme.fontFamily,
-        zIndex: 2,
+        zIndex: 99999999,
         boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px',
       }}
     >
