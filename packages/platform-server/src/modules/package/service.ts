@@ -85,36 +85,40 @@ export class PackageService implements OnApplicationBootstrap {
     starOnly = false,
     permission = Permission.Read,
   ) {
-    const projectQueryBuilder = Project.createQueryBuilder('project')
-    // only allow to query projects that the user can see
-    const allowProjectIds = await this.permissionProvider.userAllowList(user, permission)
-    if (allowProjectIds.length) {
-      projectQueryBuilder.andWhere(
-        new Brackets((builder) => {
-          if (permission === Permission.Read) {
-            // read permission include public
-            builder.andWhereInIds(allowProjectIds).orWhere('is_public is true')
-          } else {
-            builder.andWhereInIds(allowProjectIds)
-          }
-        }),
-      )
-    } else {
-      if (permission === Permission.Read) {
-        // read permission include public
-        projectQueryBuilder.andWhere('is_public is true')
+    const queryBuilder = Package.createQueryBuilder('package')
+
+    if (!user.isAdmin) {
+      const projectQueryBuilder = Project.createQueryBuilder('project')
+      // only allow to query projects that the user can see
+      const allowProjectIds = await this.permissionProvider.userAllowList(user, permission)
+      if (allowProjectIds.length) {
+        projectQueryBuilder.andWhere(
+          new Brackets((builder) => {
+            if (permission === Permission.Read) {
+              // read permission include public
+              builder.andWhereInIds(allowProjectIds).orWhere('is_public is true')
+            } else {
+              builder.andWhereInIds(allowProjectIds)
+            }
+          }),
+        )
+      } else {
+        if (permission === Permission.Read) {
+          // read permission include public
+          projectQueryBuilder.andWhere('is_public is true')
+        }
       }
+
+      const projects = await projectQueryBuilder.getMany()
+
+      if (!projects.length) {
+        return []
+      }
+
+      queryBuilder.where('package.project_id in (:...ids)', {
+        ids: projects.map((p) => p.id),
+      })
     }
-
-    const projects = await projectQueryBuilder.getMany()
-
-    if (!projects.length) {
-      return []
-    }
-
-    const queryBuilder = Package.createQueryBuilder('package').where('package.project_id in (:...ids)', {
-      ids: projects.map((p) => p.id),
-    })
 
     // only allow to query projects that the user starred
     if (starOnly) {
