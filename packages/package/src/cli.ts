@@ -20,6 +20,9 @@ import { resolve } from 'path'
 import chalk from 'chalk'
 import { Cli, Command, Option } from 'clipanion'
 
+import { getBuildEnv } from '@perfsee/plugin-utils'
+
+import { saveReport } from './report'
 import { Minifier, PackageJson } from './types'
 import { anaylizeAndPack, uploadPack } from './upload'
 
@@ -94,8 +97,19 @@ class PackageAnalyzeCommand extends Command {
         benchmarkPattern: this.benchmarkPattern,
         benchmarkTimeout: this.benchmarkTimeout,
       }
-      const packPath = await anaylizeAndPack(resolvedPath, packageJson, options)
-      await uploadPack(packPath, this.project, packageJson as Required<PackageJson>, this.platform)
+      const { packPath, packageStats, benchmarkResult } = await anaylizeAndPack(resolvedPath, packageJson, options)
+      if (getBuildEnv().isCi) {
+        await uploadPack(packPath, this.project, packageJson as Required<PackageJson>, this.platform)
+      } else {
+        await saveReport({
+          report: packageStats,
+          benchmarkResult,
+          project: this.project,
+          platform: this.platform,
+          token: process.env.PERFSEE_TOKEN!,
+          name: packageStats.name,
+        })
+      }
     } else {
       console.error(chalk.red('[perfsee] path not valid.'))
     }

@@ -45,10 +45,11 @@ export async function runBrowser(
 
   const page = await browser.newPage()
 
-  browser.on('disconnected', () => {
+  const onDisconnected = () => {
     logger.error('Browser has disconnected.')
     process.exit(-1)
-  })
+  }
+  browser.on('disconnected', onDisconnected)
 
   const benchmark: BenchmarkResult = {
     results: [] as any[],
@@ -113,9 +114,13 @@ export async function runBrowser(
   await Promise.race([timeout, runBenchmarks()])
   logger.info('Benchark recording profile...')
   const { profile } = await cdp.send('Profiler.stop')
-  benchmark.profile = profile
+  benchmark.profiles = [profile]
 
   await page.close()
+
+  browser.off('disconnected', onDisconnected)
+
+  await browser.close()
 
   return benchmark
 }

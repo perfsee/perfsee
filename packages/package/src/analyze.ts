@@ -15,8 +15,9 @@ limitations under the License.
 */
 
 import { existsSync } from 'fs'
-import { mkdir, writeFile } from 'fs/promises'
+import { mkdir, readdir, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
+import { basename, join } from 'path'
 
 import chalk from 'chalk'
 import esbuild from 'esbuild'
@@ -27,9 +28,9 @@ import { getBuildEnv } from '@perfsee/plugin-utils'
 import { analyze } from './analyzer'
 import { runBrowser } from './benchmark/browser'
 import { runNode } from './benchmark/node'
-import { PackageJson, PackOptions } from './types'
+import { BenchmarkResult, PackageJson, PackOptions } from './types'
 
-const bundlingBenchmark = async (path: string, outfile: string, options: PackOptions = {}) => {
+const bundlingAndRunBenchmark = async (path: string, outdir: string, options: PackOptions = {}) => {
   const files = await glob(options.benchmarkPattern ?? ['**/*.benchmark.{ts,js}', '**/*.bench.{ts,js}'], {
     ignore: 'node_modules/**',
     root: path,
@@ -55,18 +56,22 @@ const bundlingBenchmark = async (path: string, outfile: string, options: PackOpt
       `,
       )
     }
-    await esbuild.build({
-      stdin: {
-        contents: files.map((f) => `require("${f}")`).join('\n'),
-        resolveDir: '.',
-      },
-      bundle: true,
-      sourcemap: true,
-      outfile,
-      target: 'esnext',
-      platform: 'browser',
-      inject: [injectionPath],
-    })
+
+    for (const f of files) {
+      await esbuild.build({
+        stdin: {
+          contents: `require("${f}")`,
+          resolveDir: '.',
+          sourcefile: basename(f),
+        },
+        bundle: true,
+        sourcemap: false,
+        outfile: join(outdir, basename(f)),
+        target: 'esnext',
+        platform: 'browser',
+        inject: [injectionPath],
+      })
+    }
   } catch (e) {
     console.error(chalk.red('[perfsee] error occured when bundling benchmark.'))
   }
@@ -86,21 +91,31 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
   await writeFile(`${outputDir}/package-stats.json`, JSON.stringify(packageStats))
   console.info('[perfsee] package analysis success.')
 
+  let benchmarkResult: BenchmarkResult | undefined
   // if target is browser, we run benchmark on job runner
   // otherwise we run locally
   if (options.target === 'browser') {
-    const benchmarkFilePath = `${outputDir}/benchmark.js`
-    const hasBenchmark = await bundlingBenchmark(path, benchmarkFilePath, options)
+    const benchmarkOutDir = `${outputDir}/benchmark/`
+    await mkdir(benchmarkOutDir, { recursive: true })
+    const hasBenchmark = await bundlingAndRunBenchmark(path, benchmarkOutDir, options)
 
     // we run in local if not on ci.
     if (hasBenchmark && !getBuildEnv().upload) {
       console.info('[perfsee] Benchmark will run in local because no upload flag is found.')
+
       try {
-        const benchmarkResult = await runBrowser(benchmarkFilePath, {
-          timeout: Number(options.benchmarkTimeout),
-          open: true,
-          devtools: true,
-        })
+        const files = await readdir(benchmarkOutDir)
+        for (const benchmarkFilePath of files) {
+          const { results, profiles } = await runBrowser(join(benchmarkOutDir, benchmarkFilePath), {
+            timeout: Number(options.benchmarkTimeout),
+            open: true,
+            devtools: true,
+          })
+          benchmarkResult ||= { results: [], profiles: [] }
+          benchmarkResult.results.push(...results)
+          profiles && benchmarkResult.profiles?.push(...profiles)
+        }
+
         await writeFile(`${outputDir}/benchmark.json`, JSON.stringify(benchmarkResult))
       } catch (e: any) {
         console.error('[perfsee] Benchmark running error.', e?.message ?? String(e))
@@ -115,7 +130,7 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
     if (files.length) {
       console.info('[perfsee] Running benchmarks...')
       try {
-        const benchmarkResult = await runNode(files, { timeout: Number(options.benchmarkTimeout) })
+        benchmarkResult = await runNode(files, { timeout: Number(options.benchmarkTimeout) })
         await writeFile(`${outputDir}/benchmark.json`, JSON.stringify(benchmarkResult))
       } catch (e: any) {
         console.error('[perfsee] Benchmark running error.', e?.message ?? String(e))
@@ -125,5 +140,9 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
 
   await writeFile(`${outputDir}/options.json`, JSON.stringify(options))
 
-  return outputDir
+  return {
+    outputDir,
+    packageStats,
+    benchmarkResult,
+  }
 }

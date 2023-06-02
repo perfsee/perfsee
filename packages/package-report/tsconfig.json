@@ -9,21 +9,14 @@
   },
   "include": [
     "./src/**/*",
-    "./global.d.ts",
-    "./react-patch.d.ts"
+    "global.d.ts"
   ],
   "references": [
     {
-      "path": "../bundle-report"
-    },
-    {
-      "path": "../tracehouse"
+      "path": "../components"
     },
     {
       "path": "../dls"
-    },
-    {
-      "path": "../package-report"
     },
     {
       "path": "../schema"
@@ -32,10 +25,7 @@
       "path": "../shared"
     },
     {
-      "path": "../flamechart"
-    },
-    {
-      "path": "../treemap"
+      "path": "../utils"
     }
   ]
 }

@@ -16,15 +16,14 @@ limitations under the License.
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { DirectionalHint, IStackTokens, Spinner, SpinnerSize, Stack, TooltipHost } from '@fluentui/react'
-import { useModule } from '@sigi/react'
-import { FC, useCallback, useEffect, useMemo } from 'react'
+import { FC, useCallback, useContext, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
 import { BundleJobStatus } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { PackageBundleDetailModule } from '../module'
+import { PackageResultContext } from '../context'
 
 import BarGraph, { PLACE_HOLDER_PACKAGE_ID, Reading } from './bar-graph/bar-graph'
 import ExportAnalysisSection from './export-analysis/export-analysis-section'
@@ -81,29 +80,35 @@ export function arrayToSentence(arr: string[]) {
   return arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1]
 }
 
-export const PackageBundleReports: FC<{ packageId: string; packageBundleId: string; projectId: string }> = ({
-  packageId,
-  projectId,
-}) => {
-  const [{ current, loading, history, historyLoading }, dispatcher] = useModule(PackageBundleDetailModule)
+export const PackageBundleReports: FC<{
+  packageId: string
+  packageBundleId: string
+  projectId: string
+}> = ({ projectId }) => {
+  const { current, loading, historyLoading, history, isLocal } = useContext(PackageResultContext)
   const report = current?.report
 
   const sizeValues = useMemo(() => ({ raw: report?.size ?? 0, gzip: report?.gzip ?? 0 }), [report])
-  const currentDateTime = current?.createdAt
-
-  useEffect(() => {
-    currentDateTime && dispatcher.getHistory({ projectId, packageId, currentDateTime, limit: historyLength })
-  }, [dispatcher, packageId, currentDateTime, projectId])
 
   const historyRouter = useHistory()
 
   const onBarClick = useCallback(
     (reading: Reading) => {
-      historyRouter.push(
-        pathFactory.project.package.detail({ packageId: reading.packageId, packageBundleId: reading.id, projectId }),
-      )
+      if (isLocal) {
+        window.open(
+          `${window.PERFSEE_PLATFORM_HOST}${pathFactory.project.package.detail({
+            packageId: reading.packageId,
+            packageBundleId: reading.id,
+            projectId,
+          })}`,
+        )
+      } else {
+        historyRouter.push(
+          pathFactory.project.package.detail({ packageId: reading.packageId, packageBundleId: reading.id, projectId }),
+        )
+      }
     },
-    [historyRouter, projectId],
+    [historyRouter, projectId, isLocal],
   )
 
   const { raw, gzip } = sizeValues

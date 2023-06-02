@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { existsSync } from 'fs'
-import { readFile, rm } from 'fs/promises'
+import { readFile, readdir, rm } from 'fs/promises'
 import { join, parse } from 'path'
 
 import { v4 as uuid } from 'uuid'
@@ -28,7 +28,7 @@ import { PackOptions } from '@perfsee/shared'
 export class PackageWorker extends JobWorker<PackageJobPayload> {
   private pwd!: string
   private packageStatsPath!: string
-  private benchmarkFilePath!: string
+  private benchmarkOutDir!: string
   private benchmarkResultPath!: string
   private options!: PackOptions
 
@@ -48,12 +48,12 @@ export class PackageWorker extends JobWorker<PackageJobPayload> {
 
       // download builds
       this.logger.info(`Start downloading package: ${this.payload.buildKey}.`)
-      const { packageStatsPath, benchmarkFilePath, benchmarkResultPath, options } = await extractBundleFromStream(
+      const { packageStatsPath, benchmarkOutDir, benchmarkResultPath, options } = await extractBundleFromStream(
         await this.client.getArtifactStream(this.payload.buildKey),
         this.pwd,
       )
       this.packageStatsPath = packageStatsPath
-      this.benchmarkFilePath = benchmarkFilePath
+      this.benchmarkOutDir = benchmarkOutDir
       this.benchmarkResultPath = benchmarkResultPath
       this.options = options
       this.options.debug = process.env.NODE_ENV === 'development'
@@ -87,7 +87,7 @@ export class PackageWorker extends JobWorker<PackageJobPayload> {
       } catch (e) {
         this.logger.error('Benchmark result parsing failed: ', { error: e })
       }
-    } else if (existsSync(this.benchmarkFilePath)) {
+    } else if (existsSync(this.benchmarkOutDir)) {
       this.logger.info(
         `Becnhmark file found. Start running benchmark. Target: ${
           this.options.target === 'browser' ? 'browser' : 'node'
@@ -95,15 +95,21 @@ export class PackageWorker extends JobWorker<PackageJobPayload> {
       )
 
       try {
-        benchmarkResult = await runBrowser(
-          this.benchmarkFilePath,
-          {
-            timeout: this.options.benchmarkTimeout ? Number(this.options.benchmarkTimeout) : 30000,
-            open: process.env.NODE_ENV === 'development',
-            devtools: process.env.NODE_ENV === 'development',
-          },
-          this.logger,
-        )
+        for (const file of await readdir(this.benchmarkOutDir)) {
+          const { results, profiles } = await runBrowser(
+            join(this.benchmarkOutDir, file),
+            {
+              timeout: this.options.benchmarkTimeout ? Number(this.options.benchmarkTimeout) : 30000,
+              open: process.env.NODE_ENV === 'development',
+              devtools: process.env.NODE_ENV === 'development',
+            },
+            this.logger,
+          )
+
+          benchmarkResult ||= { results: [], profiles: [] }
+          benchmarkResult.results.push(...results)
+          profiles && benchmarkResult.profiles?.push(...profiles)
+        }
       } catch (e) {
         this.logger.error('Benchmark running failed: ', { error: e })
       }

@@ -36,6 +36,8 @@ type AllOptions = {
 export type Minifier = 'esbuild' | 'terser'
 
 export interface BenchmarkResult {
+  profiles?: any[]
+  /** @deprecated */
   profile?: any
   results: Summary[]
 }

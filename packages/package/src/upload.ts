@@ -36,10 +36,10 @@ try {
 }
 
 export const anaylizeAndPack = async (path: string, packageJson: PackageJson, options: PackOptions = {}) => {
-  const outputDir = await anaylize(path, packageJson, options)
+  const { outputDir, packageStats, benchmarkResult } = await anaylize(path, packageJson, options)
 
   const packPath = `${outputDir}.tar`
-  return new Promise<string>((resolve, reject) => {
+  const resultPath = await new Promise<string>((resolve, reject) => {
     create(
       {
         cwd: outputDir,
@@ -50,6 +50,12 @@ export const anaylizeAndPack = async (path: string, packageJson: PackageJson, op
       .on('finish', () => resolve(packPath))
       .on('error', (err) => reject(err))
   })
+
+  return {
+    packPath: resultPath,
+    packageStats,
+    benchmarkResult,
+  }
 }
 
 export const uploadPack = async (

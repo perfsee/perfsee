@@ -65,6 +65,21 @@ const webpackConfigs: { [index: string]: webpack.Configuration } = {
       runtimeChunk: false,
     },
   },
+  '@perfsee/package-report': {
+    entry: {
+      main: packagePath('@perfsee/package-report', 'src', 'report.tsx'),
+    },
+    devtool: 'inline-cheap-module-source-map',
+    output: {
+      path: packagePath('@perfsee/package', 'public'),
+      filename: 'report.js',
+      asyncChunks: false,
+    },
+    optimization: {
+      splitChunks: false,
+      runtimeChunk: false,
+    },
+  },
 }
 
 /**

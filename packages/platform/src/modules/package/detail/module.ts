@@ -141,6 +141,22 @@ export class PackageBundleDetailModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  getBenchmark() {
+    return this.state$.pipe(
+      map(({ current: bundle }) => bundle?.benchmarkLink),
+      distinctUntilChanged(),
+      filter(Boolean),
+      switchMap((key) =>
+        this.fetch.get<BenchmarkResult>(key).pipe(
+          map((benchmark) => this.getActions().setBenchmark(benchmark)),
+          createErrorCatcher('Failed to fetch bundle report.', false),
+          catchError(() => EMPTY),
+        ),
+      ),
+    )
+  }
+
   @ImmerReducer()
   setHistory(state: Draft<State>, history: PackageBundleHistory | null) {
     state.history = history

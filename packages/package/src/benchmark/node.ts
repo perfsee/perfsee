@@ -86,7 +86,7 @@ session.post('Profiler.enable', () => {
         const profile = JSON.parse(json)
         resolve({
           results,
-          profile,
+          profiles: [profile],
         })
       })
     })

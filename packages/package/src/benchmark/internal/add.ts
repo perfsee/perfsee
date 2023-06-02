@@ -36,7 +36,7 @@ const wrapFunctionName = <T extends Function>(fn: T, name: string): T =>
   new Function('rawTest', `return function ${name}(){return rawTest.apply(this, arguments);}`)(fn)
 
 const prepareCaseFn = async (test: Test) => {
-  const fnUid = uid++
+  const fnUid = uid()
   const setupName = `benchmark_case_${fnUid}_setup`
   const fnName = `benchmark_case_${fnUid}`
   const theReturn = wrapFunctionName(test, setupName)()
@@ -102,7 +102,7 @@ type Add = {
   skip: (...args: any[]) => Promise<SkipResult>
 }
 
-let uid = 0
+const uid = () => new Date().getTime().toString(36) + Math.random().toString(36).slice(2)
 
 /**
  * Adds a benchmark case

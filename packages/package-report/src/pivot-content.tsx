@@ -15,15 +15,14 @@ limitations under the License.
 */
 
 import { Pivot, PivotItem, MessageBarType, Stack, Shimmer } from '@fluentui/react'
-import { useModule } from '@sigi/react'
 import { parse, stringify } from 'query-string'
-import { useCallback, FC, memo } from 'react'
+import { useCallback, FC, memo, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import { MessageBar } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
 
-import { PackageBundleDetailModule } from './module'
+import { PackageResultContext } from './context'
 import { BenchmarkDetail } from './pivot-content-benchmark'
 import { DependenciesDetail } from './pivot-content-dependencies'
 import { PackageBundleReports } from './pivot-content-overview'
@@ -63,7 +62,7 @@ export const PivotContent = (props: PivotContentProps) => {
     case 'overview':
       return <PackageBundleReports {...props} />
     case 'benchmark':
-      return <BenchmarkDetail {...props} />
+      return <BenchmarkDetail />
     case 'dependencies':
       return <DependenciesDetail />
     default:
@@ -116,24 +115,21 @@ const benchmarkPivot = <PivotItem itemKey={BenchmarkTab.id} key={BenchmarkTab.id
 
 export const ReportContent: FC<ReportContentProps> = (props) => {
   const { tabName, onLinkClick } = props
+  const { current, loading } = useContext(PackageResultContext)
 
-  const [state] = useModule(PackageBundleDetailModule)
-
-  if (state.loading || !state.current) {
+  if (loading || !current) {
     return <Shimmer />
   }
 
-  if (state.current.status !== BundleJobStatus.Passed) {
-    return (
-      <Stack horizontalAlign="center">{renderMessageBar(state.current.status, state.current.failedReason ?? '')}</Stack>
-    )
+  if (current.status !== BundleJobStatus.Passed) {
+    return <Stack horizontalAlign="center">{renderMessageBar(current.status, current.failedReason ?? '')}</Stack>
   }
 
-  const dependenciesPivot = state.current.report?.packageJson.dependencies ? (
+  const dependenciesPivot = current.report?.packageJson.dependencies ? (
     <PivotItem
       itemKey={DependenciesTab.id}
       key={DependenciesTab.id}
-      headerText={`${Object.keys(state.current.report.packageJson.dependencies).length} ` + DependenciesTab.title}
+      headerText={`${Object.keys(current.report.packageJson.dependencies).length} ` + DependenciesTab.title}
     />
   ) : null
 
@@ -141,7 +137,7 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
     <div>
       <Pivot styles={{ root: { marginBottom: '16px' } }} selectedKey={tabName} onLinkClick={onLinkClick}>
         {overviewPivot}
-        {state.current.benchmarkLink ? benchmarkPivot : undefined}
+        {current.benchmarkLink || current.benchmarkResult ? benchmarkPivot : undefined}
         {dependenciesPivot}
       </Pivot>
       <PivotContent {...props} type={tabName} />

@@ -41,13 +41,13 @@ export async function extractBundleFromStream(stream: NodeJS.ReadableStream, pat
   })
 
   const packageStatsPath = join(path, 'package-stats.json')
-  const benchmarkFilePath = join(path, 'benchmark.js')
+  const benchmarkOutDir = join(path, 'benchmark')
   const benchmarkResultPath = join(path, 'benchmark.json')
   const options: PackOptions = JSON.parse(await readFile(join(path, 'options.json'), 'utf-8'))
 
   return {
     packageStatsPath,
-    benchmarkFilePath,
+    benchmarkOutDir,
     benchmarkResultPath,
     options,
   }
