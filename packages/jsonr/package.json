@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/jsonr",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "JSON with references",
   "sideEffect": false,
   "repository": "https://github.com/perfsee/perfsee",
