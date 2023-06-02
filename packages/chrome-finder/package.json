@@ -6,6 +6,10 @@
   "repository": "https://github.com/perfsee/perfsee",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "sideEffects": false,
   "files": [
     "dist"
