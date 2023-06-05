@@ -370,6 +370,26 @@ export class Profile {
     return ret
   }
 
+  getNonIdleProfile(): Profile {
+    const totalWeight = this.getTotalNonIdleWeight()
+    const builder = new StackListProfileBuilder(totalWeight, totalWeight, 0)
+
+    this.samples.forEach((node, i) => {
+      const stack: Frame[] = []
+      for (let n: CallTreeNode | null = node; n != null && n.frame !== Frame.root; n = n.parent) {
+        stack.push(n.frame)
+      }
+      if (stack.length > 0) {
+        builder.appendSampleWithWeight(stack, this.weights[i])
+      }
+    })
+
+    const ret = builder.build()
+    ret.name = this.name
+    ret.valueFormatter = this.valueFormatter
+    return ret
+  }
+
   getProfileForCalleesOf(focalFrame: Frame): Profile {
     focalFrame = Frame.getOrInsert(this.frames, focalFrame)
     const builder = new StackListProfileBuilder()
