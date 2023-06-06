@@ -21,7 +21,7 @@ import { join, parse } from 'path'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker } from '@perfsee/job-runner-shared'
-import { analyze, extractBundleFromStream, runBrowser, BenchmarkResult, PackageStats } from '@perfsee/package'
+import { analyze, extractBundleFromStream, runBrowser, BenchmarkResult, PackageStats } from '@perfsee/package/index'
 import { BundleJobStatus, JobType, PackageJobPayload, PackageJobUpdate } from '@perfsee/server-common'
 import { PackOptions } from '@perfsee/shared'
 
@@ -88,14 +88,18 @@ export class PackageWorker extends JobWorker<PackageJobPayload> {
         this.logger.error('Benchmark result parsing failed: ', { error: e })
       }
     } else if (existsSync(this.benchmarkOutDir)) {
-      this.logger.info(
-        `Becnhmark file found. Start running benchmark. Target: ${
-          this.options.target === 'browser' ? 'browser' : 'node'
-        }`,
-      )
+      const files = await readdir(this.benchmarkOutDir)
+
+      if (files.length) {
+        this.logger.info(
+          `Becnhmark file found. Start running benchmark. Target: ${
+            this.options.target === 'browser' ? 'browser' : 'node'
+          }`,
+        )
+      }
 
       try {
-        for (const file of await readdir(this.benchmarkOutDir)) {
+        for (const file of files) {
           const { results, profiles } = await runBrowser(
             join(this.benchmarkOutDir, file),
             {

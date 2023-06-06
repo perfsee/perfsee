@@ -13,6 +13,21 @@
     "bin",
     "public"
   ],
+  "exports": {
+    ".": "./dist/benchmark/index.js",
+    "./index": "./dist/index.js",
+    "./benchmark": "./dist/benchmark/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "index": [
+        "./dist/index.d.ts"
+      ],
+      "benchmark": [
+        "./dist/benchmark/index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"

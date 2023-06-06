@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises'
 import path from 'path'
 
-import Test from '@perfsee/package'
+import Test from '@perfsee/package/benchmark'
 
 import JSONR from '..'
 
