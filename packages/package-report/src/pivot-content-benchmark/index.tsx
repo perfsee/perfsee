@@ -32,7 +32,7 @@ import { PackageResultContext } from '../context'
 import { BenchmarkTitle } from './style'
 import { BenchmarkTable } from './table'
 
-const showCaseOnlyFilter = (node: CallTreeNode) => /^(benchmark_case|case)_\d+/.test(node.frame.name)
+const showCaseOnlyFilter = (node: CallTreeNode) => /^(benchmark_case|case)_\w+/.test(node.frame.name)
 
 export const BenchmarkDetail: FC = memo(() => {
   const { current } = useContext(PackageResultContext)
