@@ -63,6 +63,12 @@
       "@perfsee/package-build-stats/*": [
         "packages/package-build-stats/src/*"
       ],
+      "@perfsee/package-report": [
+        "packages/package-report/src"
+      ],
+      "@perfsee/package-report/*": [
+        "packages/package-report/src/*"
+      ],
       "@perfsee/package": [
         "packages/package/src"
       ],

@@ -51,7 +51,7 @@ PERFSEE_TOKEN=<your-token> npx @perfsee/package <path-to-package> --project=<per
 
 运行这个命令时，如果项目中有 `xxx.{bench,benchmark}.{js,ts}` 命名（默认配置可更改）的文件，则会将这些文件识别为 benchmarks 运行并将结果上传。
 
-注意：只有在 CI 环境，结果才会上传至 Perfsee 平台。
+注意：只有在 CI 环境，结果才会上传至 Perfsee 平台。其他情况下会打开一个本地页面展示结果。
 
 ### Cli Options
 

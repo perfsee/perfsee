@@ -10,7 +10,8 @@
   "files": [
     "dist",
     "CHANGELOG.md",
-    "bin"
+    "bin",
+    "public"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
@@ -28,8 +29,10 @@
     "chalk": "^4.1.2",
     "clipanion": "^3.1.0",
     "esbuild": "^0.17.11",
+    "find-cache-dir": "^3.3.2",
     "glob": "^9.2.1",
     "node-fetch": "^2.6.2",
+    "open": "^8.4.2",
     "puppeteer-core": "^13.7.0",
     "tar": "^6.1.13",
     "ts-node": "^10.9.1",

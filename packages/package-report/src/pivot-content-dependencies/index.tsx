@@ -15,11 +15,11 @@ limitations under the License.
 */
 
 import { HoverCard, HoverCardType, Shimmer, Stack, Text } from '@fluentui/react'
-import { useModuleState } from '@sigi/react'
+import { useContext } from 'react'
 
 import { Empty } from '@perfsee/components'
 
-import { PackageBundleDetailModule } from '../module'
+import { PackageResultContext } from '../context'
 
 import { PackageCard } from './package-card'
 
@@ -55,8 +55,7 @@ const renderDependenciesList = (depList: Record<string, string>) => {
 }
 
 export const DependenciesDetail = () => {
-  const { current, loading } = useModuleState(PackageBundleDetailModule)
-
+  const { current, loading } = useContext(PackageResultContext)
   if (loading || !current) {
     return <Shimmer />
   }

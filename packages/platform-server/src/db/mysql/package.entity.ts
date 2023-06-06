@@ -73,6 +73,15 @@ export class Package extends BaseEntity {
 
   @OneToMany('PackageBundle', 'package')
   bundles!: PackageBundle[]
+
+  static findOneByIidName(iidOrName: string | number, projectId: number) {
+    return this.findOne({
+      where:
+        typeof iidOrName === 'number' || iidOrName.match(/^\d+$/)
+          ? { iid: Number(iidOrName), projectId }
+          : { name: iidOrName, projectId },
+    })
+  }
 }
 
 @ObjectType()

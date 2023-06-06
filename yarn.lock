@@ -7148,6 +7148,33 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@perfsee/package-report@workspace:*, @perfsee/package-report@workspace:packages/package-report":
+  version: 0.0.0-use.local
+  resolution: "@perfsee/package-report@workspace:packages/package-report"
+  dependencies:
+    "@abraham/reflection": ^0.12.0
+    "@ant-design/icons": ^5.0.0
+    "@emotion/react": ^11.9.3
+    "@emotion/styled": ^11.9.3
+    "@fluentui/react": ^8.105.5
+    "@fluentui/theme": ^2.6.22
+    "@mdx-js/react": ^2.1.2
+    "@perfsee/components": "workspace:*"
+    "@perfsee/dls": "workspace:*"
+    "@perfsee/schema": "workspace:*"
+    "@perfsee/shared": "workspace:*"
+    "@perfsee/utils": "workspace:*"
+    "@types/mdx-js__react": ^1.5.5
+    dayjs: ^1.11.3
+    lodash: ^4.17.21
+    query-string: ^7.1.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    react-router: ^5.2.1
+    react-router-dom: ^5.3.0
+  languageName: unknown
+  linkType: soft
+
 "@perfsee/package@workspace:*, @perfsee/package@workspace:packages/package":
   version: 0.0.0-use.local
   resolution: "@perfsee/package@workspace:packages/package"
@@ -7163,8 +7190,10 @@ __metadata:
     chalk: ^4.1.2
     clipanion: ^3.1.0
     esbuild: ^0.17.11
+    find-cache-dir: ^3.3.2
     glob: ^9.2.1
     node-fetch: ^2.6.2
+    open: ^8.4.2
     package-json-type: ^1.0.3
     puppeteer-core: ^13.7.0
     tar: ^6.1.13
@@ -7255,6 +7284,7 @@ __metadata:
     "@perfsee/bundle-report": "workspace:*"
     "@perfsee/dls": "workspace:*"
     "@perfsee/flamechart": "workspace:*"
+    "@perfsee/package-report": "workspace:*"
     "@perfsee/schema": "workspace:*"
     "@perfsee/shared": "workspace:*"
     "@perfsee/tracehouse": "workspace:*"

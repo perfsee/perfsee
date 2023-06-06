@@ -19,11 +19,11 @@ import { useModule, useModuleState } from '@sigi/react'
 import { FC, useCallback, useEffect } from 'react'
 import { useHistory } from 'react-router'
 
+import { BarGraph, Reading } from '@perfsee/package-report'
 import { BundleJobStatus } from '@perfsee/schema'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { ProjectModule } from '../../shared'
-import BarGraph, { Reading } from '../detail/pivot-content-overview/bar-graph/bar-graph'
 
 import { Package, PackageListModule } from './module'
 import { InfoTitle, InfoText } from './styles'

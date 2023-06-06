@@ -14,88 +14,52 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { FC, memo, useCallback, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { RouteComponentProps, useHistory } from 'react-router'
 
-import { ContentCard } from '@perfsee/components'
+import { PackageResultContext, PackageDetail as PackageReport } from '@perfsee/package-report'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { InfoText, InfoTitle } from '../list/styles'
+import { PackageBundleDetailModule } from './module'
 
-import { PackageBundleDetailModule, PackageBundleResult } from './module'
-import { ReportContentWithRoute } from './pivot-content'
-import { DetailHeaderDescription, DetailKey } from './styles'
+const HISTORY_LENGTH = 22
 
 export const PackageDetail = memo<
   RouteComponentProps<{ packageId: string; packageBundleId: string; projectId: string }>
 >(({ match }) => {
   const { packageBundleId, packageId, projectId } = match.params
 
-  const [{ current }, dispatcher] = useModule(PackageBundleDetailModule)
-  const history = useHistory()
+  const [{ current, history, loading, historyLoading }, dispatcher] = useModule(PackageBundleDetailModule)
+  const historyRouter = useHistory()
 
   useEffect(() => {
     if (!packageBundleId && current) {
-      history.replace(
+      historyRouter.replace(
         pathFactory.project.package.detail({
           ...match.params,
           packageBundleId: current.id,
         }),
       )
     }
-  }, [current, packageBundleId, history, match.params])
+  }, [current, packageBundleId, historyRouter, match.params])
 
   useEffect(() => {
     dispatcher.getBundleDetail({ packageBundleId, packageId, projectId })
+    dispatcher.getHistory({ projectId, packageId, currentDateTime: new Date().toString(), limit: HISTORY_LENGTH })
     return dispatcher.reset
   }, [dispatcher, packageBundleId, packageId, projectId])
 
-  const onRenderHeader = useCallback(() => {
-    if (!current?.report) {
-      return null
-    }
-
-    return <PackageDetailHeader packageBundleResult={current} />
-  }, [current])
-
   return (
-    <ContentCard onRenderHeader={onRenderHeader}>
-      <ReportContentWithRoute {...match.params} />
-    </ContentCard>
-  )
-})
-
-interface DetailHeaderProps {
-  packageBundleResult: PackageBundleResult
-}
-
-const PackageDetailHeader: FC<DetailHeaderProps> = memo(({ packageBundleResult }) => {
-  const { packageJson } = packageBundleResult.report!
-  return (
-    <Stack>
-      <Stack
-        styles={{ root: { marginBottom: '12px' } }}
-        horizontal
-        verticalAlign="center"
-        horizontalAlign="space-between"
-      >
-        <div>
-          <DetailKey>{packageJson.name}</DetailKey>
-          <DetailHeaderDescription>{packageJson.description}</DetailHeaderDescription>
-        </div>
-      </Stack>
-      <Stack tokens={{ padding: '0 0 0 6px' }}>
-        <div>
-          <InfoTitle>Version: </InfoTitle>
-          <InfoText>{packageBundleResult.version}</InfoText>
-        </div>
-        <div>
-          <InfoTitle>Created at: </InfoTitle>
-          <InfoText>{new Date(packageBundleResult.createdAt).toLocaleString()}</InfoText>
-        </div>
-      </Stack>
-    </Stack>
+    <PackageResultContext.Provider
+      value={{
+        current,
+        history,
+        loading,
+        historyLoading,
+      }}
+    >
+      <PackageReport {...match.params} />
+    </PackageResultContext.Provider>
   )
 })

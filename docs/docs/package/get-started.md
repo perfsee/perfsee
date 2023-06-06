@@ -51,7 +51,7 @@ PERFSEE_TOKEN=<your-token> npx @perfsee/package <path-to-package> --project=<per
 
 If there are benchmark files named `xxx.{bench,benchmark}.{js,ts}`(by default), this command will run benchmarks before uploading.
 
-On CI environment, the result will be uploaded to the platform.
+On CI environment, the result will be uploaded to the platform. Otherwise, results will be shown in a html page.
 
 ### Cli Options
 

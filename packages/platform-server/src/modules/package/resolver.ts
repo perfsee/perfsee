@@ -179,13 +179,16 @@ export class PackageBundleResolver {
   @Query(() => [PackageBundle], { description: 'get package bundle history' })
   async packageBundleHistory(
     @Args({ name: 'projectId', type: () => ID, description: 'project id' }) projectId: string,
-    @Args({ name: 'packageId', type: () => ID }) packageId: number,
+    @Args({ name: 'packageId', type: () => ID }) packageId: number | string,
     @Args({ name: 'to', type: () => GraphQLISODateTime }) to: Date,
     @Args({ name: 'limit', type: () => Int, nullable: true }) limit: number,
     @Args({ name: 'branch', nullable: true, type: () => String }) branch?: string,
   ) {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
-    const pkgRawId = await this.service.resolveRawPackageIdByIid(projectRawId, packageId)
+    const pkgRawId = (await Package.findOneByIidName(packageId, projectRawId))?.id
+    if (!pkgRawId) {
+      throw new NotFoundException(`Package with id or name ${packageId} not found`)
+    }
     return this.service.getHistory(pkgRawId, to, limit, branch)
   }
 

@@ -15,8 +15,7 @@ limitations under the License.
 */
 
 import { Spinner, Stack, Toggle } from '@fluentui/react'
-import { useInstance, useModule } from '@sigi/react'
-import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FC, memo, useCallback, useContext, useMemo, useRef, useState } from 'react'
 
 import { useWideScreen } from '@perfsee/components'
 import {
@@ -27,77 +26,70 @@ import {
   CPUProfile,
   CallTreeNode,
 } from '@perfsee/flamechart'
-import { RxFetch } from '@perfsee/platform/common'
-import { BenchmarkResult } from '@perfsee/shared'
 
-import { PackageBundleDetailModule } from '../module'
+import { PackageResultContext } from '../context'
 
 import { BenchmarkTitle } from './style'
 import { BenchmarkTable } from './table'
 
 const showCaseOnlyFilter = (node: CallTreeNode) => /^(benchmark_case|case)_\d+/.test(node.frame.name)
 
-export const BenchmarkDetail: FC<{ packageId: string; packageBundleId: string; projectId: string }> = memo(() => {
+export const BenchmarkDetail: FC = memo(() => {
+  const { current } = useContext(PackageResultContext)
   useWideScreen()
 
   const [focusedCase, setFocused] = useState<string | undefined>()
   const flameChartRef = useRef<HTMLDivElement>(null)
   const [flameChartMode, setFlamechartMode] = useState<keyof typeof FlamechartFactoryMap>('default')
   const [showCaseOnly, setShowCaseOnly] = useState(true)
-  const fetchClient = useInstance(RxFetch)
-  const [result, setResult] = useState<BenchmarkResult | null>(null)
-  const [state] = useModule(PackageBundleDetailModule)
-  const [loading, setLoading] = useState(false)
-
-  const link = state.current?.benchmarkLink
-
-  const benchmarkResults = result?.results
-
-  useEffect(() => {
-    setLoading(true)
-    const subscription = link
-      ? fetchClient.get<BenchmarkResult>(link).subscribe((res) => {
-          setResult(res)
-          setLoading(false)
-        })
-      : undefined
-
-    return () => subscription?.unsubscribe()
-  }, [fetchClient, link])
 
   const onTableRowClick = useCallback(
     (item: { name: string; suiteName: string }) => {
-      setFocused(benchmarkResults?.find((r) => r.name === item.suiteName)?.rawTestMap?.[item.name])
+      setFocused(current?.benchmarkResult?.results?.find((r) => r.name === item.suiteName)?.rawTestMap?.[item.name])
       flameChartRef.current?.scrollIntoView({ behavior: 'smooth' })
     },
-    [benchmarkResults],
+    [current],
   )
 
   const onFlameChartDbClick = useCallback(() => {
     setFocused(undefined)
   }, [])
 
-  const benchTables = benchmarkResults?.map((data) => (
+  const benchTables = current?.benchmarkResult?.results?.map((data) => (
     <BenchmarkTable summary={data} key={data.date.toString()} onRowClick={onTableRowClick} />
   ))
 
-  const profile = useMemo(() => result?.profile && importFromChromeCPUProfile(result.profile as CPUProfile), [result])
+  const profiles = useMemo(() => {
+    if (Array.isArray(current?.benchmarkResult?.profiles)) {
+      return current?.benchmarkResult?.profiles?.map((profile) => importFromChromeCPUProfile(profile as CPUProfile))
+    } else {
+      return current?.benchmarkResult?.profile
+        ? [importFromChromeCPUProfile(current.benchmarkResult.profile as CPUProfile)]
+        : undefined
+    }
+  }, [current])
 
-  const focusedFrame = useMemo(() => {
-    return (
-      profile && focusedCase && new ProfileNameSearchEngine(focusedCase).getMatches(profile).entries().next().value?.[0]
-    )
-  }, [profile, focusedCase])
-  const flameChart = profile ? (
-    <FlamechartContainer
-      profile={profile}
-      focusedFrame={focusedFrame}
-      ref={flameChartRef}
-      flamechartFactory={flameChartMode}
-      onDblclick={onFlameChartDbClick}
-      rootFilter={showCaseOnly ? showCaseOnlyFilter : undefined}
-    />
-  ) : null
+  const flameCharts = profiles
+    ? profiles.map((profile, i) => {
+        const focusedFrame =
+          profile &&
+          focusedCase &&
+          new ProfileNameSearchEngine(focusedCase).getMatches(profile).entries().next().value?.[0]
+
+        return (
+          <div style={{ height: '700px' }} key={i}>
+            <FlamechartContainer
+              profile={profile}
+              focusedFrame={focusedFrame}
+              ref={flameChartRef}
+              flamechartFactory={flameChartMode}
+              onDblclick={onFlameChartDbClick}
+              rootFilter={showCaseOnly ? showCaseOnlyFilter : undefined}
+            />
+          </div>
+        )
+      })
+    : null
 
   const handleLeftHeavyModeToggle = useCallback((_: React.MouseEvent<HTMLElement>, checked?: boolean) => {
     if (checked) {
@@ -111,7 +103,7 @@ export const BenchmarkDetail: FC<{ packageId: string; packageBundleId: string; p
     setShowCaseOnly(!!checked)
   }, [])
 
-  if (loading) {
+  if (!current?.benchmarkResult) {
     return (
       <>
         <Spinner>Loading</Spinner>
@@ -149,8 +141,7 @@ export const BenchmarkDetail: FC<{ packageId: string; packageBundleId: string; p
             />
           </Stack>
         </Stack>
-        {/* flamechart requires a fixed height parent element */}
-        <div style={{ height: '700px' }}>{flameChart}</div>
+        {flameCharts}
       </>
     </>
   )
