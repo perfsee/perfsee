@@ -16,7 +16,8 @@
   "exports": {
     ".": "./dist/benchmark/index.js",
     "./index": "./dist/index.js",
-    "./benchmark": "./dist/benchmark/index.js"
+    "./benchmark": "./dist/benchmark/index.js",
+    "./public/report.js": "./public/report.js"
   },
   "typesVersions": {
     "*": {
