@@ -41,6 +41,8 @@ Benchmark('bar', [
 ])
 ```
 
+详细用法请参考 [Benchmark API](./benchmark-api)。
+
 ## Step 3: 在 CI 环境分析 Package 并上传结果
 
 在分析之前，必须先在 Perfsee 平台上创建项目，并在 [Token Management](https://perfsee.com/me/access-token) 页面申请 API Token。
