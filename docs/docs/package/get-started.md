@@ -41,6 +41,8 @@ Benchmark('bar', [
 ])
 ```
 
+More about benchmark api, please refer to [Benchmark API](./benchmark-api).
+
 ## Step 3: Analyze and upload (ONLY on CI)
 
 Before analysis, it's necessary to create a perfsee project and apply API Token on the [Token Management](https://perfsee.com/me/access-token) page.
@@ -59,6 +61,16 @@ On CI environment, the result will be uploaded to the platform. Otherwise, resul
 
 Id of your perfsee project on the platform.
 
+### customImports
+
+By default, the default export is used for calculating sizes. Setting this option allows calculation of package stats based on more granular top-level exports.
+
+### minifier: `'esbuild'` | `'terser'`
+
+### default: `'esbuild'`
+
+ESbuild is faster, albeit with marginally larger file sizes.
+
 ### target: `'browser'` | `'node'`
 
 #### default: `'node'`
@@ -70,6 +82,10 @@ If target is `browser`, benchmarks will be bundled and run in headless chrome (o
 #### default: `'*.{bench|benchmark}.{js|ts}'`
 
 Glob pattern to find benchmark files.
+
+### benchmarkTimeout
+
+Timeout for benchmark running. Unit: ms.
 
 ## Step 4: View the report
 
