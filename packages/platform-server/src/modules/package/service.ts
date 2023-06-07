@@ -17,7 +17,7 @@ limitations under the License.
 import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common'
 import { Brackets, In } from 'typeorm'
 
-import { AppVersion, InternalIdUsage, Package, PackageBundle, Project, User } from '@perfsee/platform-server/db'
+import { InternalIdUsage, Package, PackageBundle, Project, User } from '@perfsee/platform-server/db'
 import { EventEmitter } from '@perfsee/platform-server/event'
 import { AnalyzeUpdateType } from '@perfsee/platform-server/event/type'
 import { PaginationInput } from '@perfsee/platform-server/graphql'
@@ -211,7 +211,6 @@ export class PackageService implements OnApplicationBootstrap {
     }
 
     return query
-      .leftJoinAndMapOne('package_bundle.appversion', AppVersion, 'version', 'version.hash = package_bundle.hash')
       .orderBy('package_bundle.id', 'DESC')
       .skip(skip)
       .take(first ?? 10)
