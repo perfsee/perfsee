@@ -59,6 +59,16 @@ PERFSEE_TOKEN=<your-token> npx @perfsee/package <path-to-package> --project=<per
 
 Perfsee 平台项目 id。
 
+### customImports
+
+默认使用 package 主入口的所有 export 对象来计算体积。配置这个选项可以自定义哪些 export 对象用于计算体积。
+
+### minifier: `'esbuild'` | `'terser'`
+
+### default: `'esbuild'`
+
+ESbuild 更快，但压缩后的文件更大。
+
 ### target: `'browser'` | `'node'`
 
 #### default: `'node'`
@@ -70,6 +80,10 @@ Perfsee 平台项目 id。
 #### default: `'*.{bench|benchmark}.{js|ts}'`
 
 Benchmarks 文件的 glob pattern。
+
+### benchmarkTimeout
+
+Benchmark 运行超时时间。单位毫秒。
 
 ## Step 4: View the report
 
