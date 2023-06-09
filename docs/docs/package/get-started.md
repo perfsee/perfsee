@@ -85,7 +85,7 @@ Glob pattern to find benchmark files.
 
 ### benchmarkTimeout
 
-Timeout for benchmark running. Unit: ms.
+Timeout for benchmark running. Unit: sec.
 
 ## Step 4: View the report
 

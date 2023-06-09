@@ -85,7 +85,7 @@ Benchmarks 文件的 glob pattern。
 
 ### benchmarkTimeout
 
-Benchmark 运行超时时间。单位毫秒。
+Benchmark 运行超时时间。单位秒。
 
 ## Step 4: View the report
 
