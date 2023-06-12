@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/job-runner-shared",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Perfsee job runner common module",
   "main": "./dist/index.js",
   "private": true,

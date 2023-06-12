@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/flamechart",
-  "version": "1.7.2",
+  "version": "1.8.2",
   "description": "Web-based viewer for performance profiles",
   "sideEffect": false,
   "repository": "https://github.com/perfsee/perfsee",
