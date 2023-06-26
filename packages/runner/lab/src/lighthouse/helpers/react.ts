@@ -98,15 +98,35 @@ const fetchSchedulerTracing = async () => {
   return schedulerTracingScript
 }
 
-export const fetchReactDom = async (version?: string, moduleType = 'cjs') => {
+export const fetchReactDom = async (version?: string, moduleType = 'cjs'): Promise<string> => {
   const resp = await fetch(
     `${SCRIPT_CDN}/react-dom${version ? `@${version}` : ''}/${moduleType}/react-dom.profiling.min.js`,
   )
+
+  // not found
+  if (resp.headers.get('Content-Type') === 'application/json') {
+    if (version?.includes('-')) {
+      return fetchReactDom(version.split('-')[0], moduleType)
+    } else {
+      throw new Error(`\`react-dom\` of version ${version} not found.`)
+    }
+  }
+
   return resp.text()
 }
 
-export const fetchReact = async (version?: string, moduleType = 'cjs') => {
+export const fetchReact = async (version?: string, moduleType = 'cjs'): Promise<string> => {
   const resp = await fetch(`${SCRIPT_CDN}/react${version ? `@${version}` : ''}/${moduleType}/react.profiling.min.js`)
+
+  // not found
+  if (resp.headers.get('Content-Type') === 'application/json') {
+    if (version?.includes('-')) {
+      return fetchReact(version.split('-')[0], moduleType)
+    } else {
+      throw new Error(`\`react\` of version ${version} not found.`)
+    }
+  }
+
   return resp.text()
 }
 
@@ -186,8 +206,8 @@ export async function generateProfilingBundle(origin: string) {
     const end = matchComments.index + matched.length
     if (text.startsWith('(function()')) {
       // it's umd
-      const reactDomProflingBuild = await fetchReactDom(version.split('-')[0], 'umd')
-      const reactProfilingBuild = await fetchReact(version.split('-')[0], 'umd')
+      const reactDomProflingBuild = await fetchReactDom(version, 'umd')
+      const reactProfilingBuild = await fetchReact(version, 'umd')
       return origin.slice(0, start) + reactProfilingBuild + reactDomProflingBuild + origin.slice(end)
     }
   }
@@ -230,7 +250,7 @@ export async function generateProfilingBundle(origin: string) {
     return
   }
 
-  const reactDomProfilingBuild = await fetchReactDom(state.version.split('-')[0])
+  const reactDomProfilingBuild = await fetchReactDom(state.version)
   const schedulerTracingWrapper = `(function(exports){${await fetchSchedulerTracing()}return exports;})({})`
 
   const [start, end] = state.replaceRange
