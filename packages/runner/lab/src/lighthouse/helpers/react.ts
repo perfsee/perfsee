@@ -53,9 +53,15 @@ const visit = recursive as unknown as <TState>(
 const REACT_DOM_WITH_LICENSE_COMMENTS_REGEXP =
   /\/\*\*.*?@license React.*?\s.*?react-dom\.production\.min\.js[\s|\S]*?\*\/\s*([\s\S]*rendererPackageName:"react-dom"[\s\S]*\w+\.version="(?<version>.*?)"[\s\S]*?)((\/\*\*.*?@license)|\s$)/
 
-const wrapCjsScript = (text: string, state: State, schedulerTracingWrapper: string) => {
+const wrapCjsScript = async (
+  text: string,
+  state: State,
+  schedulerTracingWrapper: string,
+  developmentBuild?: boolean,
+) => {
   const params = state.params!
-  const profilingBuildGetModuleCallRegexp = /((?:var \w+)|(?:,\s?\w+))=require\((\d+|(?:".*?"))\)/g
+  const profilingBuildGetModuleCallRegexp =
+    /((?:var (?<a>\w+))|(?:,\s?(?<b>\w+)))\s?=\s?require\((\d+|(?:["'].*?["']))\)/g
 
   // if above react 18, deps are `react` and `scheduler`
   // if under 18, deps are `react`, `object-assign` and `scheduler`
@@ -65,8 +71,9 @@ const wrapCjsScript = (text: string, state: State, schedulerTracingWrapper: stri
   const variableIds: string[] = []
   const requires: string[] = []
   const moduleIdReplacedText: string = text
-    .replaceAll(profilingBuildGetModuleCallRegexp, (_match, variable) => {
-      variableIds[index] = variable
+    .replaceAll(profilingBuildGetModuleCallRegexp, (_match, ...args) => {
+      const group = args[args.length - 1]
+      variableIds[index] = group.a || group.b
 
       // get deps from end
       const dep = state.deps?.[state.deps.length - depsLength + index]
@@ -79,10 +86,23 @@ const wrapCjsScript = (text: string, state: State, schedulerTracingWrapper: stri
       return ''
     })
     .replace('"use strict"', '')
-  requires.push(variableIds.map((id, i) => `${id}=required${i}`).join(''))
+    .replace('process.env.NODE_ENV', '"development"')
+    .replace('usingClientEntryPoint: false', 'usingClientEntryPoint: true')
+  requires.push(variableIds.map((id, i) => `var ${id}=required${i}`).join(';'))
+
+  const overrideReact = developmentBuild ? `Object.assign(React, ${await getWrapCjsReactDev(state.version)});` : ''
+
   return `function(${params.join(',')}){"use strict";var ${
     state.isLegacy ? 'module' : 'exports'
-  }=${state.exportsIdentifier!};${requires.join('')};${moduleIdReplacedText}}`
+  }=${state.exportsIdentifier!};${requires.join('')};${overrideReact}${moduleIdReplacedText}}`
+}
+
+const getWrapCjsReactDev = async (version?: string) => {
+  const reactText = await fetchReact(version, 'cjs', 'development')
+  return `(function(exports){
+      ${reactText.replace('process.env.NODE_ENV', '"development"')};
+      return exports
+    })({})`
 }
 
 const SCRIPT_CDN = 'https://unpkg.com'
@@ -98,15 +118,13 @@ const fetchSchedulerTracing = async () => {
   return schedulerTracingScript
 }
 
-export const fetchReactDom = async (version?: string, moduleType = 'cjs'): Promise<string> => {
-  const resp = await fetch(
-    `${SCRIPT_CDN}/react-dom${version ? `@${version}` : ''}/${moduleType}/react-dom.profiling.min.js`,
-  )
+export const fetchReactDom = async (version?: string, moduleType = 'cjs', build = 'profiling.min'): Promise<string> => {
+  const resp = await fetch(`${SCRIPT_CDN}/react-dom${version ? `@${version}` : ''}/${moduleType}/react-dom.${build}.js`)
 
   // not found
-  if (resp.headers.get('Content-Type') === 'application/json') {
+  if (!resp.headers.get('Content-Type')?.includes('application/javascript')) {
     if (version?.includes('-')) {
-      return fetchReactDom(version.split('-')[0], moduleType)
+      return fetchReactDom(version.split('-')[0], moduleType, build)
     } else {
       throw new Error(`\`react-dom\` of version ${version} not found.`)
     }
@@ -115,13 +133,13 @@ export const fetchReactDom = async (version?: string, moduleType = 'cjs'): Promi
   return resp.text()
 }
 
-export const fetchReact = async (version?: string, moduleType = 'cjs'): Promise<string> => {
-  const resp = await fetch(`${SCRIPT_CDN}/react${version ? `@${version}` : ''}/${moduleType}/react.profiling.min.js`)
+export const fetchReact = async (version?: string, moduleType = 'cjs', build = 'profiling.min'): Promise<string> => {
+  const resp = await fetch(`${SCRIPT_CDN}/react${version ? `@${version}` : ''}/${moduleType}/react.${build}.js`)
 
   // not found
-  if (resp.headers.get('Content-Type') === 'application/json') {
+  if (!resp.headers.get('Content-Type')?.includes('application/javascript')) {
     if (version?.includes('-')) {
-      return fetchReact(version.split('-')[0], moduleType)
+      return fetchReact(version.split('-')[0], moduleType, build)
     } else {
       throw new Error(`\`react\` of version ${version} not found.`)
     }
@@ -130,7 +148,7 @@ export const fetchReact = async (version?: string, moduleType = 'cjs'): Promise<
   return resp.text()
 }
 
-export async function generateProfilingBundle(origin: string) {
+export async function generateProfilingBundle(origin: string, build?: 'profiling.min' | 'development') {
   const matchComments = REACT_DOM_WITH_LICENSE_COMMENTS_REGEXP.exec(origin)
   const state: State = {}
 
@@ -206,8 +224,8 @@ export async function generateProfilingBundle(origin: string) {
     const end = matchComments.index + matched.length
     if (text.startsWith('(function()')) {
       // it's umd
-      const reactDomProflingBuild = await fetchReactDom(version, 'umd')
-      const reactProfilingBuild = await fetchReact(version, 'umd')
+      const reactDomProflingBuild = await fetchReactDom(version, 'umd', build)
+      const reactProfilingBuild = await fetchReact(version, 'umd', build)
       return origin.slice(0, start) + reactProfilingBuild + reactDomProflingBuild + origin.slice(end)
     }
   }
@@ -250,12 +268,17 @@ export async function generateProfilingBundle(origin: string) {
     return
   }
 
-  const reactDomProfilingBuild = await fetchReactDom(state.version)
+  const reactDomProfilingBuild = await fetchReactDom(state.version, 'cjs', build)
   const schedulerTracingWrapper = `(function(exports){${await fetchSchedulerTracing()}return exports;})({})`
 
   const [start, end] = state.replaceRange
 
-  const resultText = wrapCjsScript(reactDomProfilingBuild, state, schedulerTracingWrapper)
+  const resultText = await wrapCjsScript(
+    reactDomProfilingBuild,
+    state,
+    schedulerTracingWrapper,
+    build === 'development',
+  )
 
   return `${origin.slice(0, start)}${resultText}${origin.slice(end)}`
 }
