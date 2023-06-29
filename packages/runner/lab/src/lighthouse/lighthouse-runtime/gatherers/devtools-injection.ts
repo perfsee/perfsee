@@ -487,19 +487,19 @@ export const DEVTOOLS_INJECTION = `"use strict";
             {
               element._store = {};
               Object.defineProperty(element._store, "validated", {
-                configurable: false,
+                configurable: true,
                 enumerable: false,
                 writable: true,
                 value: false
               });
               Object.defineProperty(element, "_self", {
-                configurable: false,
+                configurable: true,
                 enumerable: false,
                 writable: false,
                 value: self2
               });
               Object.defineProperty(element, "_source", {
-                configurable: false,
+                configurable: true,
                 enumerable: false,
                 writable: false,
                 value: source
@@ -6510,7 +6510,7 @@ export const DEVTOOLS_INJECTION = `"use strict";
               Object.defineProperty(target, "__REACT_DEVTOOLS_GLOBAL_HOOK__", {
                 // This property needs to be configurable for the test environment,
                 // else we won't be able to delete and recreate it between tests.
-                configurable: false,
+                configurable: true,
                 enumerable: false,
                 get() {
                   return hook;

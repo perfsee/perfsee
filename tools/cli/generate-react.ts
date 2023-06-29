@@ -42,6 +42,7 @@ export class GenerateReactCommand extends Command {
         .replaceAll(/\\/g, '\\\\')
         .replaceAll(/`/g, '\\`')
         .replaceAll(/\$\{/g, '\\${')
+        .replaceAll('configurable: false', 'configurable: true')
         .replace(
           'displayName = type.name;',
           `displayName = type.name + '@locationId:' + reactDevtoolsResolveLocation(type);`,
