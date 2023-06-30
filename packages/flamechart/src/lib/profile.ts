@@ -379,6 +379,7 @@ export class Profile {
       for (let n: CallTreeNode | null = node; n != null && n.frame !== Frame.root; n = n.parent) {
         stack.push(n.frame)
       }
+      stack.reverse()
       if (stack.length > 0) {
         builder.appendSampleWithWeight(stack, this.weights[i])
       }
