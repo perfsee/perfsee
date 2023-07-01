@@ -42,7 +42,7 @@
     "node-abort-controller": "^3.0.1",
     "node-fetch": "^2.6.2",
     "nodemailer": "^6.7.7",
-    "prom-client": "14.1.1",
+    "prom-client": "14.2.0",
     "query-string": "^7.1.1",
     "redlock": "^4.2.0",
     "rxjs": "^7.5.6",

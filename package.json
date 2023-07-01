@@ -13,7 +13,7 @@
     "@commitlint/config-conventional": "^17.0.3",
     "@commitlint/config-lerna-scopes": "^17.0.2",
     "@graphql-codegen/add": "^4.0.0",
-    "@graphql-codegen/cli": "3.0.0",
+    "@graphql-codegen/cli": "3.3.1",
     "@graphql-codegen/typescript": "^3.0.0",
     "@graphql-codegen/typescript-operations": "^3.0.0",
     "@mdx-js/loader": "^2.1.3",
@@ -48,7 +48,7 @@
     "css-loader": "^6.7.1",
     "cssnano": "^5.1.12",
     "emotion-ts-plugin": "^2.0.1",
-    "esbuild": "~0.16.0",
+    "esbuild": "~0.18.0",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
@@ -164,5 +164,5 @@
     "docs": "cd docs && yarn",
     "analyze": "lerna run analyze"
   },
-  "packageManager": "yarn@3.4.1"
+  "packageManager": "yarn@3.6.1"
 }
