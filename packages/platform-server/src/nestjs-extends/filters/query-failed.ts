@@ -14,15 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common'
 import { GqlContextType } from '@nestjs/graphql'
+import { Response } from 'express'
 import { QueryFailedError } from 'typeorm'
 
 @Catch(QueryFailedError)
 export class QueryErrorFilter implements ExceptionFilter {
   catch(exception: QueryFailedError, host: ArgumentsHost) {
     if (host.getType() === 'http') {
-      throw new HttpException({}, HttpStatus.INTERNAL_SERVER_ERROR)
+      const res = host.switchToHttp().getResponse<Response>()
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: exception.message,
+      })
     } else if (host.getType<GqlContextType>() === 'graphql') {
       const error = new Error('DB query execution meets error')
       error.stack = exception.stack
