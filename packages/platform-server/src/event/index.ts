@@ -41,7 +41,24 @@ const eventProvider: Provider = {
 }
 
 export const OnEvent = (event: Event) => {
-  return RawOnEvent(event)
+  const descriptorFactory = RawOnEvent(event)
+  return ((target: any, key: any, descriptor: any) => {
+    const original = descriptor.value
+    if (typeof original === 'function') {
+      descriptor.value = function (...args: any[]) {
+        const result = original.apply(this, args)
+
+        // if is a promise
+        if (result && 'catch' in result && typeof result.catch === 'function') {
+          result.catch((e: any) => {
+            console.error(`On event error from ${event}: ${e}`)
+          })
+        }
+        return result
+      }
+    }
+    return descriptorFactory(target, key, descriptor)
+  }) as typeof descriptorFactory
 }
 
 @Global()
