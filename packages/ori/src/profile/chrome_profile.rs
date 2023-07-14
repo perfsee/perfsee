@@ -341,7 +341,7 @@ pub fn load_chrome_profile<P: AsRef<Path>>(file: P) -> Result<Vec<ChromeProfile>
           pid_tid_by_id.insert(id.clone(), pid_tid);
         }
 
-        let mut cpu_profile = profile_by_id.entry(id).or_insert_with(Default::default);
+        let cpu_profile = profile_by_id.entry(id).or_insert_with(Default::default);
 
         if let Some(raw_cpu_profile) = data.cpu_profile {
           cpu_profile
