@@ -73,6 +73,11 @@ class PackageAnalyzeCommand extends Command {
     description: 'Timeout for benchmark running.',
   })
 
+  webpackConfigPath = Option.String('--webpackConfig', {
+    required: false,
+    description: 'Custom webpack config path.',
+  })
+
   async execute() {
     const resolvedPath = resolve(this.packageString)
     if (isDir(resolvedPath)) {
@@ -96,6 +101,7 @@ class PackageAnalyzeCommand extends Command {
         client: this.client,
         benchmarkPattern: this.benchmarkPattern,
         benchmarkTimeout: this.benchmarkTimeout,
+        webpackConfigPath: this.webpackConfigPath,
       }
       const { packPath, packageStats, benchmarkResult } = await anaylizeAndPack(resolvedPath, packageJson, options)
       if (getBuildEnv().isCi) {

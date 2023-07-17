@@ -129,6 +129,7 @@ export default async function getPackageStats(packageString: string, optionsRaw:
           customImports: options.customImports,
           minifier: options.minifier,
           includeDependencySizes: true,
+          webpackConfig: options.webpackConfig,
         },
       }),
     ])

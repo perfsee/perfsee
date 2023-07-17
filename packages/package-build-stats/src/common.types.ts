@@ -48,6 +48,8 @@ The modifications to the original software were made by ByteDance,
 and are licensed under the Apache License, Version 2.0.
 */
 
+import webpack from 'webpack'
+
 type Minifier = 'esbuild' | 'terser'
 
 type AllOptions = {
@@ -68,6 +70,7 @@ type AllOptions = {
 export type BuildPackageOptions = Pick<AllOptions, 'customImports' | 'splitCustomImports' | 'debug' | 'calcParse'> & {
   includeDependencySizes: boolean
   minifier: Minifier
+  webpackConfig?: webpack.Configuration
 }
 
 export type CreateEntryPointOptions = Pick<AllOptions, 'esm' | 'customImports' | 'entryFilename'>
@@ -81,6 +84,7 @@ export type GetPackageStatsOptions = Pick<
   'client' | 'limitConcurrency' | 'networkConcurrency' | 'debug' | 'customImports' | 'installTimeout'
 > & {
   minifier?: Minifier
+  webpackConfig?: webpack.Configuration
 }
 
 export type Externals = {

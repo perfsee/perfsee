@@ -47,6 +47,7 @@ export type GetPackageStatsOptions = Pick<
   'client' | 'limitConcurrency' | 'networkConcurrency' | 'debug' | 'customImports' | 'installTimeout'
 > & {
   minifier?: Minifier
+  webpackConfigPath?: string
 }
 
 export type PackOptions = GetPackageStatsOptions & {

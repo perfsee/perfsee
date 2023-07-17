@@ -86,8 +86,17 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
 
   await mkdir(outputDir, { recursive: true })
 
+  let webpackConfig: any
+  if (options.webpackConfigPath) {
+    try {
+      webpackConfig = require(join(process.cwd(), options.webpackConfigPath))
+    } catch (e) {
+      console.error('[perfsee] get webpack config error.', e)
+    }
+  }
+
   console.info('[perfsee] start package analyzing.')
-  const packageStats = await analyze(path, options)
+  const packageStats = await analyze(path, { ...options, webpackConfig })
   await writeFile(`${outputDir}/package-stats.json`, JSON.stringify(packageStats))
   console.info('[perfsee] package analysis success.')
 
