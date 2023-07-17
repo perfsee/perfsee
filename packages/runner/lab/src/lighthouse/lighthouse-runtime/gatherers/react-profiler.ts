@@ -209,7 +209,6 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
       patterns: [...ReactProfiler.bundleToReplace.keys()].map(
         (url): Protocol.Network.RequestPattern => ({
           urlPattern: url,
-          resourceType: 'Script',
           interceptionStage: 'HeadersReceived',
         }),
       ),

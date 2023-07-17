@@ -123,6 +123,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     // @ts-expect-error
     lhr.audits['network-requests'] = {}
 
+    // hide user timings
+    // @ts-expect-error
+    lhr.audits['user-timings'] = {}
+
     try {
       lighthouseStorageKey = await this.client.uploadArtifact(
         lighthouseFile,
