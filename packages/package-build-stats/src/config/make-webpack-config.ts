@@ -55,6 +55,7 @@ import escapeRegex from 'escape-string-regexp'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 import webpack, { Entry } from 'webpack'
+import { merge } from 'webpack-merge'
 import WriteFilePlugin from 'write-file-webpack-plugin'
 
 import { Externals } from '../common.types'
@@ -68,6 +69,7 @@ type MakeWebpackConfigOptions = {
   debug?: boolean
   entry: string | string[] | Entry
   minifier: 'esbuild' | 'terser'
+  webpackConfig?: webpack.Configuration
 }
 
 type NodeBuiltIn = {
@@ -80,6 +82,7 @@ export default function makeWebpackConfig({
   externals,
   debug,
   minifier,
+  webpackConfig,
 }: MakeWebpackConfigOptions): webpack.Configuration {
   const externalsRegex = makeExternalsRegex(externals.externalPackages)
   const isExternalRequest = (request: string) => {
@@ -107,7 +110,7 @@ export default function makeWebpackConfig({
     builtInNode[packageName] = false
   }
 
-  return {
+  const config: webpack.Configuration = {
     entry: entry,
     mode: 'production',
     // bail: true,
@@ -275,6 +278,12 @@ export default function makeWebpackConfig({
     externals: (_context, request, callback) =>
       isExternalRequest(request) ? callback(null, 'commonjs ' + request) : callback(),
   }
+
+  if (webpackConfig) {
+    return merge(config, webpackConfig)
+  }
+
+  return config
 }
 
 function makeExternalsRegex(externals: string[]) {

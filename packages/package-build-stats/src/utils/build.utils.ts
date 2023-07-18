@@ -80,6 +80,7 @@ type CompilePackageArgs = {
   entry: Entry
   debug?: boolean
   minifier: 'terser' | 'esbuild'
+  webpackConfig?: webpack.Configuration
 }
 
 type CompilePackageReturn = {
@@ -131,7 +132,7 @@ const BuildUtils = {
     }
   },
 
-  compilePackage({ name, entry, externals, debug, minifier }: CompilePackageArgs) {
+  compilePackage({ name, entry, externals, debug, minifier, webpackConfig }: CompilePackageArgs) {
     const startTime = performance.now()
     const compiler = webpack(
       makeWebpackConfig({
@@ -140,6 +141,7 @@ const BuildUtils = {
         externals,
         debug,
         minifier,
+        webpackConfig,
       }),
     )
     const memoryFileSystem = new MemoryFS()
@@ -235,6 +237,7 @@ const BuildUtils = {
       externals,
       debug: options.debug,
       minifier: options.minifier,
+      webpackConfig: options.webpackConfig,
     })
 
     log('build end %s', name)
