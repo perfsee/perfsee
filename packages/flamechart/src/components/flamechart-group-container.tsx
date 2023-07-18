@@ -39,6 +39,7 @@ export interface FlamechartGroupContainerProps {
     profileIndex: number,
   ) => React.ReactNode
   renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme, profileIndex: number) => React.ReactNode
+  onSelectFrame?: (frame: FlamechartFrame | null) => void
 }
 
 const CollapseButton = memo<{ collapsed: boolean }>(({ collapsed }) => {
@@ -111,6 +112,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       renderTooltip,
       renderTimingTooltip,
       timings = [],
+      onSelectFrame,
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
       const bindingManager = useMemo(() => {
@@ -120,7 +122,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       const { width: containerWidth, height: containerHeight } = useElementSize(containerRef)
       const [searchEngine, setSearchEngine] = useState<ProfileSearchEngine | null>()
       const [searchBoxVisibility, setSearchBoxVisibility] = useState<boolean>()
-      const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame>()
+      const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame | null>()
 
       const [splitCollapsed, setSplitCollapsed] = useState<boolean[]>([])
       let firstVisibleSplit = -1
@@ -205,9 +207,13 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         })
       }, [profiles.length])
 
-      const handleSelectFlamechart = useCallback((frame: FlamechartFrame | null) => {
-        if (frame) setSelectedFrame(frame)
-      }, [])
+      const handleSelectFlamechart = useCallback(
+        (frame: FlamechartFrame | null) => {
+          onSelectFrame?.(frame)
+          setSelectedFrame(frame)
+        },
+        [onSelectFrame],
+      )
 
       const profilesRenderTooltip = useMemo(() => {
         if (typeof renderTooltip !== 'function') {
