@@ -31,6 +31,7 @@ import {
   FlamechartContainer,
   buildProfileFromUserTimings,
   buildTimelineProfilesFromReactDevtoolProfileData,
+  FlamechartFrame,
 } from '@perfsee/flamechart'
 import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/platform/modules/flamechart'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
@@ -79,6 +80,7 @@ export const FlamechartView: React.FunctionComponent<{
   tasksBaseTimestamp?: number
   metrics?: MetricScoreSchema[]
   userTimings?: UserTimingSchema[]
+  onSelectFrame?: (frame: FlamechartFrame | null) => void
 }> = memo(
   ({
     flameChartLink,
@@ -89,6 +91,7 @@ export const FlamechartView: React.FunctionComponent<{
     tasksBaseTimestamp,
     metrics,
     userTimings,
+    onSelectFrame,
   }) => {
     useWideScreen()
     const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
@@ -240,7 +243,14 @@ export const FlamechartView: React.FunctionComponent<{
     }
 
     if (profiles.length === 1) {
-      return <FlamechartContainer {...profiles[0]} timings={timings} initialRight={initialRight} />
+      return (
+        <FlamechartContainer
+          {...profiles[0]}
+          timings={timings}
+          initialRight={initialRight}
+          onSelectFrame={onSelectFrame}
+        />
+      )
     }
 
     return (
@@ -249,6 +259,7 @@ export const FlamechartView: React.FunctionComponent<{
           profiles={profiles}
           timings={timings?.concat(reactTimings || [])}
           initialRight={initialRight}
+          onSelectFrame={onSelectFrame}
         />
       </>
     )
