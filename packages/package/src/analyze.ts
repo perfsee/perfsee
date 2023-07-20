@@ -17,7 +17,7 @@ limitations under the License.
 import { existsSync } from 'fs'
 import { mkdir, readdir, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
-import { basename, join } from 'path'
+import { basename, join, resolve } from 'path'
 
 import chalk from 'chalk'
 import esbuild from 'esbuild'
@@ -89,7 +89,7 @@ export const anaylize = async (path: string, packageJson: PackageJson, options: 
   let webpackConfig: any
   if (options.webpackConfigPath) {
     try {
-      webpackConfig = require(join(process.cwd(), options.webpackConfigPath))
+      webpackConfig = require(resolve(process.cwd(), options.webpackConfigPath))
     } catch (e) {
       console.error('[perfsee] get webpack config error.', e)
     }
