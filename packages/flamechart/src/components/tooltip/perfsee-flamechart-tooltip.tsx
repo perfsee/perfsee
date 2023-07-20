@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 
+import { FlamechartImage } from '@perfsee/flamechart/lib/flamechart-image'
 import { PerfseeFrame } from '@perfsee/flamechart/lib/perfsee-profile'
 
 import { CallTreeNode, CallTreeNodeAttribute } from '../../lib/profile'
@@ -15,7 +16,7 @@ export const PerfseeFlamechartTooltip: React.FC<{
   const frame = node.frame as PerfseeFrame
 
   const tipData = {
-    Name: frame.name,
+    Name: FlamechartImage.parseStrWithImageLabel(frame.name).str,
     'Self time': formatValue(node.getSelfWeight()),
     'Total time': formatValue(node.getTotalWeight()),
     File: (frame.file ?? frame.key) + (showLineNum ? `:${frame.line}:${frame.col}` : ''),

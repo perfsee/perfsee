@@ -116,6 +116,7 @@ export {
   CPUProfile,
 } from './lib/chrome'
 export * from './themes/theme'
+export * from './lib/flamechart-image'
 export { Timing } from './lib/timing'
 export * from './lib/profile-search'
 export * from './types'

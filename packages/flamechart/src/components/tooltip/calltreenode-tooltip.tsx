@@ -1,5 +1,7 @@
 import { Fragment } from 'react'
 
+import { FlamechartImage } from '@perfsee/flamechart/lib/flamechart-image'
+
 import { CallTreeNode, CallTreeNodeAttribute } from '../../lib/profile'
 import { Theme } from '../../themes/theme'
 
@@ -11,7 +13,7 @@ export const CallTreeNodeTooltip: React.FC<{
   const showLineNum = !!node.frame.file && !!node.frame.line && !!node.frame.col
 
   const tipData = {
-    Name: node.frame.name,
+    Name: FlamechartImage.parseStrWithImageLabel(node.frame.name).str,
     'Self time': formatValue(node.getSelfWeight()),
     'Total time': formatValue(node.getTotalWeight()),
     File: (node.frame.file ?? node.frame.key) + (showLineNum ? `:${node.frame.line}:${node.frame.col}` : ''),

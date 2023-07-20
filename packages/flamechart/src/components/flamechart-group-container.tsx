@@ -2,6 +2,7 @@ import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } fro
 
 import { Color } from '../lib/color'
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
+import { FlamechartImage } from '../lib/flamechart-image'
 import { Rect } from '../lib/math'
 import { Profile } from '../lib/profile'
 import { ProfileSearchEngine } from '../lib/profile-search'
@@ -20,11 +21,13 @@ export interface FlamechartGroupContainerProps {
   profiles: {
     name: React.ReactNode
     profile: Profile
+    timings?: Timing[]
     flamechartFactory?: FlamechartFactory | keyof typeof FlamechartFactoryMap
     grow?: number
     theme?: Theme
   }[]
   timings?: Timing[]
+  images?: FlamechartImage[]
   initialLeft?: number
   initialRight?: number
   minLeft?: number
@@ -113,6 +116,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       renderTimingTooltip,
       timings = [],
       onSelectFrame,
+      images = [],
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
       const bindingManager = useMemo(() => {
@@ -241,6 +245,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         const isFirstVisible = index === firstVisibleSplit
         const collapsed = !!splitCollapsed[index]
         const theme = item.theme ?? lightTheme
+        const hasOwnedTiming = !!item.timings
         return (width: number, height: number) => (
           <Fragment key={index}>
             <div onClick={handleClickSash[index]} style={sashStyle}>
@@ -262,8 +267,9 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               disableTooltip={disableTooltip}
               width={width}
               height={isFirstVisible ? height - 24 : height}
-              topPadding={isFirstVisible ? undefined : 1}
-              timings={isFirstVisible ? timings : timingsOnlyLine}
+              topPadding={isFirstVisible || hasOwnedTiming ? undefined : 1}
+              timings={(isFirstVisible ? timings : timingsOnlyLine).concat(item.timings ?? [])}
+              images={images}
               style={{ top: !isFirstVisible ? '-24px' : 0 }}
               onSelectFrame={handleSelectFlamechart}
               renderTooltip={profilesRenderTooltip?.[index]}

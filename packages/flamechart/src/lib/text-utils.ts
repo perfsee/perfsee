@@ -1,4 +1,4 @@
-import {findValueBisect} from './utils'
+import { findValueBisect } from './utils'
 
 export const ELLIPSIS = '\u2026'
 
@@ -6,7 +6,11 @@ export const ELLIPSIS = '\u2026'
 const measureTextCache = new Map<string, number>()
 
 let lastDevicePixelRatio = -1
-export function cachedMeasureTextWidth(ctx: CanvasRenderingContext2D, text: string, devicePixelRatio: number = window.devicePixelRatio): number {
+export function cachedMeasureTextWidth(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  devicePixelRatio: number = window.devicePixelRatio,
+): number {
   if (devicePixelRatio !== lastDevicePixelRatio) {
     // This cache is no longer valid!
     measureTextCache.clear()
@@ -44,7 +48,7 @@ export function buildTrimmedText(text: string, length: number): TrimmedTextResul
   let prefixLength = Math.floor(length / 2)
   const suffixLength = length - prefixLength - 1
   const prefix = text.substr(0, prefixLength)
-  const suffix = text.substr(text.length - suffixLength, suffixLength)
+  const suffix = text.substr(text.length - suffixLength, suffixLength + 1)
   const trimmedString = prefix + ELLIPSIS + suffix
   return {
     trimmedString,
@@ -57,18 +61,14 @@ export function buildTrimmedText(text: string, length: number): TrimmedTextResul
 }
 
 // Trim text to fit within the given number of pixels on the canvas
-export function trimTextMid(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number,
-): TrimmedTextResult {
+export function trimTextMid(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): TrimmedTextResult {
   if (cachedMeasureTextWidth(ctx, text) <= maxWidth) {
     return buildTrimmedText(text, text.length)
   }
   const [lo] = findValueBisect(
     0,
     text.length,
-    n => {
+    (n) => {
       return cachedMeasureTextWidth(ctx, buildTrimmedText(text, n).trimmedString)
     },
     maxWidth,
@@ -153,10 +153,7 @@ export function remapRangesToTrimmedText(
           case IndexTypeInTrimmed.ELIDED: {
             // The match starts & ends within the elided section.
             if (!highlightedEllipsis) {
-              rangesToHighlightInTrimmedText.push([
-                trimmedText.prefixLength,
-                trimmedText.prefixLength + 1,
-              ])
+              rangesToHighlightInTrimmedText.push([trimmedText.prefixLength, trimmedText.prefixLength + 1])
               highlightedEllipsis = true
             }
             break

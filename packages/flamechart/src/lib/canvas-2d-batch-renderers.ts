@@ -6,6 +6,8 @@
 //
 // See FlamechartPanZoomView.renderOverlays for an example of how this is used.
 
+import { FlamechartImage } from './flamechart-image'
+
 export interface TextArgs {
   text: string
   x: number
@@ -24,6 +26,30 @@ export class BatchCanvasTextRenderer {
     ctx.fillStyle = color
     for (let args of this.argsBatch) {
       ctx.fillText(args.text, args.x, args.y)
+    }
+    this.argsBatch = []
+  }
+}
+
+export interface ImageArgs {
+  image: FlamechartImage
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+export class BatchCanvasImageRenderer {
+  private argsBatch: ImageArgs[] = []
+
+  image(args: ImageArgs) {
+    this.argsBatch.push(args)
+  }
+
+  fill(ctx: CanvasRenderingContext2D) {
+    if (this.argsBatch.length === 0) return
+    for (let args of this.argsBatch) {
+      args.image.drawFitInRect(ctx, args.x, args.y, args.w, args.h)
     }
     this.argsBatch = []
   }
@@ -73,10 +99,10 @@ export class BatchCanvasRectRenderer {
     for (const args of this.argsBatch) {
       if (args.w < size) continue
       if (args.h < size) continue
-      ctx.moveTo(args.x + args.w - size, args.y);
-      ctx.lineTo(args.x + args.w, args.y);
-      ctx.lineTo(args.x + args.w, args.y + size);
-      ctx.closePath();
+      ctx.moveTo(args.x + args.w - size, args.y)
+      ctx.lineTo(args.x + args.w, args.y)
+      ctx.lineTo(args.x + args.w, args.y + size)
+      ctx.closePath()
     }
     ctx.fillStyle = color
     ctx.fill()

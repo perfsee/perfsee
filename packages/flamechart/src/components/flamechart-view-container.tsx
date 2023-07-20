@@ -1,6 +1,7 @@
 import { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
+import { FlamechartImage } from '../lib/flamechart-image'
 import { Vec2 } from '../lib/math'
 import { NetworkFrame } from '../lib/network-profile'
 import { PerfseeFrame } from '../lib/perfsee-profile'
@@ -42,6 +43,7 @@ export interface FlamechartViewProps {
   onOpenFile?: (frame: Frame) => void
   onSelectFrame?: (frame: FlamechartFrame | null) => void
   timings?: Timing[]
+  images?: FlamechartImage[]
   initialLeft?: number
   initialRight?: number
   disableDetailView?: boolean
@@ -73,6 +75,7 @@ export const FlamechartViewContainer = memo(
         onOpenFile,
         onSelectFrame,
         timings,
+        images,
         initialLeft,
         initialRight,
         width,
@@ -199,21 +202,29 @@ export const FlamechartViewContainer = memo(
 
       useEffect(() => {
         if (flamechartContainer) {
-          const newView = new FlamechartView(flamechartContainer, flamechart, timings ?? [], theme, bindingManager, {
-            initialLeft,
-            initialRight,
-            minLeft,
-            maxRight,
-            topPadding,
-            disableTimeIndicators,
-            bottomTimingLabels,
-            bottomPadding,
-            hiddenFrameLabels,
-            disableTimelineCursor,
-            onNodeSelect: handleSelectFlamechart,
-            onNodeHover: onFrameHover,
-            onTimingHover: onTimingHover,
-          })
+          const newView = new FlamechartView(
+            flamechartContainer,
+            flamechart,
+            timings ?? [],
+            images ?? [],
+            theme,
+            bindingManager,
+            {
+              initialLeft,
+              initialRight,
+              minLeft,
+              maxRight,
+              topPadding,
+              disableTimeIndicators,
+              bottomTimingLabels,
+              bottomPadding,
+              hiddenFrameLabels,
+              disableTimelineCursor,
+              onNodeSelect: handleSelectFlamechart,
+              onNodeHover: onFrameHover,
+              onTimingHover: onTimingHover,
+            },
+          )
 
           setView(newView)
           return () => {
@@ -235,6 +246,7 @@ export const FlamechartViewContainer = memo(
         minLeft,
         theme,
         timings,
+        images,
         topPadding,
         hiddenFrameLabels,
       ])

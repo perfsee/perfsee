@@ -1,6 +1,7 @@
-import {Frame, CallTreeNode, Profile} from './profile'
-import {FuzzyMatch, fuzzyMatchStrings} from './fuzzy-find'
-import {Rect} from './math'
+import { Frame, CallTreeNode, Profile } from './profile'
+import { FuzzyMatch, fuzzyMatchStrings } from './fuzzy-find'
+import { Rect } from './math'
+import { FlamechartImage } from './flamechart-image'
 
 export enum FlamechartType {
   CHRONO_FLAME_CHART,
@@ -18,19 +19,19 @@ export class ProfileNameSearchEngine implements ProfileSearchEngine {
 
   getMatchForNode(node: CallTreeNode): FuzzyMatch | null {
     const frame = node.frame
-    const cachedMatch = this.cache.get(frame);
+    const cachedMatch = this.cache.get(frame)
     if (cachedMatch !== undefined) {
       return cachedMatch
     }
-    const match = fuzzyMatchStrings(frame.name, this.searchQuery)
+    const match = fuzzyMatchStrings(FlamechartImage.parseStrWithImageLabel(frame.name).str, this.searchQuery)
     this.cache.set(frame, match)
     return match
   }
 
   getMatches(profile: Profile): Map<Frame, FuzzyMatch> {
     const matches = new Map()
-    profile.forEachFrame(frame => {
-      const match = fuzzyMatchStrings(frame.name, this.searchQuery)
+    profile.forEachFrame((frame) => {
+      const match = fuzzyMatchStrings(FlamechartImage.parseStrWithImageLabel(frame.name).str, this.searchQuery)
       if (match == null) return
       matches!.set(frame, match)
     })
@@ -45,7 +46,7 @@ export class ProfileFileSearchEngine implements ProfileSearchEngine {
 
   getMatchForNode(node: CallTreeNode): FuzzyMatch | null {
     const frame = node.frame
-    const cachedMatch = this.cache.get(frame);
+    const cachedMatch = this.cache.get(frame)
     if (cachedMatch !== undefined) {
       return cachedMatch
     }
@@ -65,7 +66,7 @@ export class ProfileFrameKeySearch implements ProfileSearchEngine {
     if (node.frame.key === this.frameKey) {
       return {
         matchedRanges: [],
-        score: node.getTotalWeight()
+        score: node.getTotalWeight(),
       }
     }
     return null
