@@ -338,6 +338,29 @@ export class Profile {
     return flattenedProfile
   }
 
+  getProfileWithMappedFrame(mapper: (frame: Frame) => Frame): Profile {
+    const builder = new CallTreeProfileBuilder()
+
+    const stack: Frame[] = []
+
+    function openFrame(node: CallTreeNode, value: number) {
+      const frame = mapper(node.frame)
+      stack.push(frame)
+      builder.enterFrame(frame, value)
+    }
+    function closeFrame(_: CallTreeNode, value: number) {
+      const stackTop = stack.pop()
+      builder.leaveFrame(stackTop!, value)
+    }
+
+    this.forEachCall(openFrame, closeFrame)
+    const ret = builder.build()
+    ret.name = this.name
+    ret.valueFormatter = this.valueFormatter
+
+    return ret
+  }
+
   getInvertedProfileForCallersOf(focalFrame: Frame): Profile {
     focalFrame = Frame.getOrInsert(this.frames, focalFrame)
     const builder = new StackListProfileBuilder()

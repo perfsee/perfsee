@@ -241,6 +241,12 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
           })
       }, [profiles.length, renderTimingTooltip])
 
+      const profilesTiming = useMemo(() => {
+        return profiles.map((item, index) => {
+          return (index === firstVisibleSplit ? timings : timingsOnlyLine).concat(item.timings ?? [])
+        })
+      }, [firstVisibleSplit, profiles, timings, timingsOnlyLine])
+
       const views = profiles.map((item, index) => {
         const isFirstVisible = index === firstVisibleSplit
         const collapsed = !!splitCollapsed[index]
@@ -268,7 +274,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               width={width}
               height={isFirstVisible ? height - 24 : height}
               topPadding={isFirstVisible || hasOwnedTiming ? undefined : 1}
-              timings={(isFirstVisible ? timings : timingsOnlyLine).concat(item.timings ?? [])}
+              timings={profilesTiming[index]}
               images={images}
               style={{ top: !isFirstVisible ? '-24px' : 0 }}
               onSelectFrame={handleSelectFlamechart}

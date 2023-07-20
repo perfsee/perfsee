@@ -84,6 +84,8 @@ const reactLogoImage = FlamechartImage.createFromSvgStr(
 </g></svg>`,
 )
 
+const images = [reactLogoImage]
+
 export const FlamechartView: React.FunctionComponent<{
   flameChartLink: string
   reactProfileLink: string | null
@@ -275,7 +277,7 @@ export const FlamechartView: React.FunctionComponent<{
           timings={timings?.concat(reactTimings || [])}
           initialRight={initialRight}
           onSelectFrame={onSelectFrame}
-          images={[reactLogoImage]}
+          images={images}
         />
       </>
     )
