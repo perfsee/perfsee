@@ -15,7 +15,7 @@
     "@nestjs/event-emitter": "^1.4.1",
     "@nestjs/graphql": "^11.0.5",
     "@nestjs/platform-express": "^9.4.0",
-    "@nestjs/schedule": "^2.2.1",
+    "@nestjs/schedule": "^3.0.0",
     "@nestjs/serve-static": "^3.0.1",
     "@nestjs/terminus": "^9.2.2",
     "@nestjs/testing": "^9.4.0",
