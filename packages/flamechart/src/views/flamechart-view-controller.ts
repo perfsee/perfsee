@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import { easeInOutCubic, easeInOutQuad } from '../lib/easing'
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
+import { FlamechartImage } from '../lib/flamechart-image'
 import { AffineTransform, clamp, Rect, Vec2 } from '../lib/math'
 import { ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
@@ -48,6 +49,7 @@ export class FlamechartViewController {
     private readonly flamechart: Flamechart,
     private readonly renderer: FlamechartViewRenderer,
     private readonly timings: Timing[],
+    private readonly images: FlamechartImage[],
     private readonly bindingManager: FlamechartBindingManager | undefined,
     private readonly props: ControllerProps,
   ) {
@@ -60,6 +62,10 @@ export class FlamechartViewController {
     this.resizeObserver = new ResizeObserver(() => requestAnimationFrame(() => this.onResize()))
     this.resizeObserver.observe(this.container)
     this.bindingManager?.addListener(this.onBindingChanged)
+
+    for (const image of images) {
+      image.addEventListener('update', this.onUpdateImage)
+    }
 
     const viewSize = this.viewSize()
     const defaultTopPadding = timings.length > 0 && !this.props.bottomTimingLabels ? -2.5 : -1
@@ -149,6 +155,9 @@ export class FlamechartViewController {
     this.container.removeEventListener('click', this.onClick)
     this.container.removeEventListener('dblclick', this.onDblClick)
     this.container.removeEventListener('wheel', this.onWheel)
+    for (const image of this.images) {
+      image.removeEventListener('update', this.onUpdateImage)
+    }
     this.resizeObserver.disconnect()
     this.bindingManager?.removeListener(this.onBindingChanged)
     this.stopAnimationMatchedOutline()
@@ -334,6 +343,10 @@ export class FlamechartViewController {
     this.requestRender()
     this.notifyViewportBindingChanged()
     this.notifyTimelineCursorBindingChanged()
+  }
+
+  private readonly onUpdateImage = () => {
+    this.requestRender()
   }
 
   private readonly onResize = () => {

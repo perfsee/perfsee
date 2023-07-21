@@ -1,4 +1,5 @@
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
+import { FlamechartImage } from '../lib/flamechart-image'
 import { Rect } from '../lib/math'
 import { ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
@@ -18,6 +19,7 @@ export class FlamechartView {
     container: HTMLElement,
     flamechart: Flamechart,
     timings: Timing[],
+    images: FlamechartImage[],
     theme: Theme,
     bindingManager: FlamechartBindingManager | undefined,
     props: Props,
@@ -45,7 +47,7 @@ export class FlamechartView {
     this.innerContainer.appendChild(overlayCanvas)
     container.appendChild(this.innerContainer)
 
-    this.renderer = new FlamechartViewRenderer(overlayCanvas, glCanvas, flamechart, timings, theme)
+    this.renderer = new FlamechartViewRenderer(overlayCanvas, glCanvas, flamechart, timings, images, theme)
     this.controller = new FlamechartViewController(
       this.innerContainer,
       overlayCanvas,
@@ -53,6 +55,7 @@ export class FlamechartView {
       flamechart,
       this.renderer,
       timings,
+      images,
       bindingManager,
       props,
     )

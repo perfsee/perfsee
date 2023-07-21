@@ -1,9 +1,14 @@
 import { CanvasContext } from '../gl/canvas-context'
 import { FlamechartRenderer, FlamechartRowAtlasKey } from '../gl/flamechart-renderer'
 import { RowAtlas } from '../gl/row-atlas'
-import { BatchCanvasRectRenderer, BatchCanvasTextRenderer } from '../lib/canvas-2d-batch-renderers'
+import {
+  BatchCanvasImageRenderer,
+  BatchCanvasRectRenderer,
+  BatchCanvasTextRenderer,
+} from '../lib/canvas-2d-batch-renderers'
 import { Color } from '../lib/color'
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
+import { FlamechartImage } from '../lib/flamechart-image'
 import { AffineTransform, Rect, Vec2 } from '../lib/math'
 import { CallTreeNodeAttribute } from '../lib/profile'
 import { ProfileSearchEngine } from '../lib/profile-search'
@@ -25,6 +30,7 @@ export interface RenderProps {
   searchResults?: ProfileSearchEngine
   selectedFrame?: FlamechartFrame
   hoverFrame?: FlamechartFrame
+  images?: FlamechartImage[]
 
   disableTimeIndicators?: boolean
   bottomTimingLabels?: boolean
@@ -47,6 +53,7 @@ export class FlamechartViewRenderer {
     private readonly glCanvas: HTMLCanvasElement,
     private readonly flamechart: Flamechart,
     private readonly timings: Timing[],
+    private readonly images: FlamechartImage[],
     private readonly theme: Theme,
   ) {
     this.glCtx = new CanvasContext(this.glCanvas, theme)
@@ -64,6 +71,10 @@ export class FlamechartViewRenderer {
       this.glCtx.flamechartColorPassRenderer,
       { inverted: false },
     )
+  }
+
+  findImage(id: string) {
+    return this.images.find((i) => i.id === id)
   }
 
   render(width: number, height: number, viewport: Rect, props: RenderProps): RenderFeedback | undefined {
@@ -112,6 +123,7 @@ export class FlamechartViewRenderer {
       const LABEL_PADDING_PX = 5 * props.devicePixelRatio
 
       const labelBatch = new BatchCanvasTextRenderer()
+      const labelImageBatch = new BatchCanvasImageRenderer()
       const fadedLabelBatch = new BatchCanvasTextRenderer()
       const matchedTextHighlightBatch = new BatchCanvasRectRenderer()
       const directlySelectedOutlineBatch = new BatchCanvasRectRenderer()
@@ -135,54 +147,74 @@ export class FlamechartViewRenderer {
         }
 
         if (physicalLabelBounds.width() > minWidthToRender) {
-          const match = props.searchResults?.getMatchForNode(frame.node)
-
-          const trimmedText = trimTextMid(
-            ctx,
+          const { str: labelText, imageId: labelImageId } = FlamechartImage.parseStrWithImageLabel(
             frame.node.frame.name,
-            physicalLabelBounds.width() - 2 * LABEL_PADDING_PX,
           )
+          const labelImage = labelImageId ? this.findImage(labelImageId) : undefined
 
-          if (match) {
-            const rangesToHighlightInTrimmedText = remapRangesToTrimmedText(trimmedText, match.matchedRanges)
+          const textLeft = labelImage
+            ? physicalLabelBounds.left() + LABEL_PADDING_PX + physicalFontSize * 1.5
+            : physicalLabelBounds.left() + LABEL_PADDING_PX
+          const textWidth = labelImage
+            ? physicalLabelBounds.width() - 2 * LABEL_PADDING_PX - physicalFontSize * 1.5
+            : physicalLabelBounds.width() - 2 * LABEL_PADDING_PX
+          const padding = (physicalFrameHeight - physicalFontSize) / 2
 
-            // Once we have the character ranges to highlight, we need to
-            // actually do the highlighting.
-            let lastEndIndex = 0
-            let left = physicalLabelBounds.left() + LABEL_PADDING_PX
-
-            const padding = (physicalFrameHeight - physicalFontSize) / 2 - 2
-            for (const [startIndex, endIndex] of rangesToHighlightInTrimmedText) {
-              left += cachedMeasureTextWidth(
-                ctx,
-                trimmedText.trimmedString.substring(lastEndIndex, startIndex),
-                props.devicePixelRatio,
-              )
-              const highlightWidth = cachedMeasureTextWidth(
-                ctx,
-                trimmedText.trimmedString.substring(startIndex, endIndex),
-                props.devicePixelRatio,
-              )
-              matchedTextHighlightBatch.rect({
-                x: left,
-                y: physicalLabelBounds.top() + padding,
-                w: highlightWidth,
-                h: physicalFrameHeight - 2 * padding,
-              })
-
-              left += highlightWidth
-              lastEndIndex = endIndex
-            }
+          if (labelImage) {
+            labelImageBatch.image({
+              image: labelImage,
+              x: physicalLabelBounds.left() + LABEL_PADDING_PX,
+              y: physicalLabelBounds.top() + padding,
+              w: physicalFontSize,
+              h: physicalFontSize,
+            })
           }
 
-          const batch = props.searchResults != null && !match ? fadedLabelBatch : labelBatch
-          batch.text({
-            text: trimmedText.trimmedString,
+          if (textWidth > minWidthToRender) {
+            const match = props.searchResults?.getMatchForNode(frame.node)
 
-            // This is specifying the position of the starting text baseline.
-            x: physicalLabelBounds.left() + LABEL_PADDING_PX,
-            y: Math.round(physicalLabelBounds.bottom() - (physicalFrameHeight - physicalFontSize) / 2),
-          })
+            const trimmedText = trimTextMid(ctx, labelText, textWidth)
+
+            if (match) {
+              const rangesToHighlightInTrimmedText = remapRangesToTrimmedText(trimmedText, match.matchedRanges)
+
+              // Once we have the character ranges to highlight, we need to
+              // actually do the highlighting.
+              let lastEndIndex = 0
+              let left = textLeft
+
+              for (const [startIndex, endIndex] of rangesToHighlightInTrimmedText) {
+                left += cachedMeasureTextWidth(
+                  ctx,
+                  trimmedText.trimmedString.substring(lastEndIndex, startIndex),
+                  props.devicePixelRatio,
+                )
+                const highlightWidth = cachedMeasureTextWidth(
+                  ctx,
+                  trimmedText.trimmedString.substring(startIndex, endIndex),
+                  props.devicePixelRatio,
+                )
+                matchedTextHighlightBatch.rect({
+                  x: left,
+                  y: physicalLabelBounds.top() + (padding - 2),
+                  w: highlightWidth,
+                  h: physicalFrameHeight - 2 * (padding - 2),
+                })
+
+                left += highlightWidth
+                lastEndIndex = endIndex
+              }
+            }
+
+            const batch = props.searchResults != null && !match ? fadedLabelBatch : labelBatch
+            batch.text({
+              text: trimmedText.trimmedString,
+
+              // This is specifying the position of the starting text baseline.
+              x: textLeft,
+              y: Math.round(physicalLabelBounds.bottom() - padding),
+            })
+          }
         }
       }
 
@@ -269,6 +301,7 @@ export class FlamechartViewRenderer {
       matchedTextHighlightBatch.fill(ctx, theme.searchMatchPrimaryColor)
       fadedLabelBatch.fill(ctx, theme.fgSecondaryColor)
       labelBatch.fill(ctx, props.searchResults != null ? theme.searchMatchTextColor : theme.fgPrimaryColor)
+      labelImageBatch.fill(ctx)
       hoveredFrameBatch.stroke(ctx, theme.fgPrimaryColor, props.frameOutlineWidth)
 
       // render timing
@@ -294,7 +327,10 @@ export class FlamechartViewRenderer {
           )
           const physicalPos = viewportToPhysical.transformPosition(pos)
 
-          const labelText = timing.name
+          const { str: labelText, imageId: labelImageId } = timing.name
+            ? FlamechartImage.parseStrWithImageLabel(timing.name)
+            : { str: undefined, imageId: undefined }
+          const labelImage = labelImageId ? this.findImage(labelImageId) : undefined
           if (timing.style === 'point') {
             const size = 8 * devicePixelRatio
             ctx.save()
@@ -310,6 +346,7 @@ export class FlamechartViewRenderer {
             ctx.strokeStyle = theme.bgPrimaryColor
             ctx.fill()
             ctx.stroke()
+            labelImage?.drawFitInRect(ctx, -size * 0.5, -size * 1.75, size, size)
             ctx.restore()
             timingPhysicalAreas.push({
               timing,
@@ -317,25 +354,38 @@ export class FlamechartViewRenderer {
             })
           } else {
             if (labelText) {
-              const textWidth = cachedMeasureTextWidth(ctx, labelText)
+              let labelWidth = cachedMeasureTextWidth(ctx, labelText)
 
               const labelStart = Math.max(physicalPos.x, lastLabelEnd)
+              let labelTextStart = labelStart
+
+              if (labelImage) {
+                labelWidth += physicalFontSize * 1.5
+                labelTextStart += physicalFontSize * 1.5
+              }
 
               ctx.fillStyle = timing.color
               ctx.fillRect(
                 labelStart,
                 physicalPos.y - labelPaddingVertical - physicalFontSize,
-                labelPaddingHorizontal * 2 + textWidth,
+                labelPaddingHorizontal * 2 + labelWidth,
                 labelPaddingVertical * 2 + physicalFontSize,
               )
               ctx.fillStyle = '#fff'
-              ctx.fillText(labelText, labelStart + labelPaddingHorizontal, physicalPos.y - physicalFontSize)
-              lastLabelEnd = labelStart + labelPaddingHorizontal * 2 + textWidth
+              ctx.fillText(labelText, labelTextStart + labelPaddingHorizontal, physicalPos.y - physicalFontSize)
+              labelImage?.drawFitInRect(
+                ctx,
+                labelStart + labelPaddingHorizontal,
+                physicalPos.y - physicalFontSize,
+                physicalFontSize * 1,
+                physicalFontSize * 1,
+              )
+              lastLabelEnd = labelStart + labelPaddingHorizontal * 2 + labelWidth
               timingPhysicalAreas.push({
                 timing,
                 area: new Rect(
                   new Vec2(labelStart, physicalPos.y - labelPaddingVertical - physicalFontSize),
-                  new Vec2(labelPaddingHorizontal * 2 + textWidth, labelPaddingVertical * 2 + physicalFontSize),
+                  new Vec2(labelPaddingHorizontal * 2 + labelWidth, labelPaddingVertical * 2 + physicalFontSize),
                 ),
               })
             }

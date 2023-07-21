@@ -32,6 +32,7 @@ import {
   buildProfileFromUserTimings,
   buildTimelineProfilesFromReactDevtoolProfileData,
   FlamechartFrame,
+  FlamechartImage,
 } from '@perfsee/flamechart'
 import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/platform/modules/flamechart'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
@@ -70,6 +71,20 @@ function getTimingsFromMetric(name: LighthouseScoreType, value: number): Timing 
       return null
   }
 }
+
+const reactLogoImage = FlamechartImage.createFromSvgStr(
+  'react-logo',
+  `<svg xmlns="http://www.w3.org/2000/svg" width="649px" height="577px" viewBox="-11.5 -10.23174 23 20.46348">
+<title>React Logo</title>
+<circle cx="0" cy="0" r="2.05" fill="#ffffff"/>
+<g stroke="#ffffff" stroke-width="1" fill="none">
+  <ellipse rx="11" ry="4.2"/>
+  <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+  <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+</g></svg>`,
+)
+
+const images = [reactLogoImage]
 
 export const FlamechartView: React.FunctionComponent<{
   flameChartLink: string
@@ -126,13 +141,14 @@ export const FlamechartView: React.FunctionComponent<{
     }, [reactProfile, reactTimeOffset])
 
     const tasksProfile = useMemo(() => {
-      return (
-        tasks &&
-        buildProfileFromTracehouse(
-          tasks,
-          -tasksTimeOffset,
-          (task) => task.kind !== 'other' && task.kind !== 'scriptEvaluation' && task.kind !== 'garbageCollection',
-        )
+      if (!tasks) {
+        return undefined
+      }
+
+      return buildProfileFromTracehouse(
+        tasks,
+        -tasksTimeOffset,
+        (task) => task.kind !== 'other' && task.kind !== 'scriptEvaluation' && task.kind !== 'garbageCollection',
       )
     }, [tasks, tasksTimeOffset])
 
@@ -157,7 +173,7 @@ export const FlamechartView: React.FunctionComponent<{
           const name = parsedLocation?.name || componentName
 
           return {
-            name: name ? `${name} ${e.type}` : e.type,
+            name: '[img:react-logo]' + (name ? `${name} ${e.type}` : e.type),
             value: e.timestamp * 1000 + reactTimeOffset,
             color: SharedColors.cyan10,
             style: 'point' as const,
@@ -177,7 +193,8 @@ export const FlamechartView: React.FunctionComponent<{
           const name = parsedLocation?.name || componentName
 
           return {
-            name: name ? `${name} throw error during ${e.phase}` : `throw error during ${e.phase}`,
+            name:
+              '[img:react-logo]' + (name ? `${name} throw error during ${e.phase}` : `throw error during ${e.phase}`),
             value: e.timestamp * 1000 + reactTimeOffset,
             color: SharedColors.red10,
             style: 'point' as const,
@@ -260,6 +277,7 @@ export const FlamechartView: React.FunctionComponent<{
           timings={timings?.concat(reactTimings || [])}
           initialRight={initialRight}
           onSelectFrame={onSelectFrame}
+          images={images}
         />
       </>
     )

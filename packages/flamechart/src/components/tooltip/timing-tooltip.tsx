@@ -1,4 +1,4 @@
-import { Timing } from '../..'
+import { FlamechartImage, Timing } from '../..'
 
 export const renderTimingNameTooltip = ({ timing }: { timing: Timing }) => {
   if (!timing.name) {
@@ -8,5 +8,5 @@ export const renderTimingNameTooltip = ({ timing }: { timing: Timing }) => {
   if (!timing.style || timing.style === 'label') {
     return undefined
   }
-  return <div style={{ padding: '0 4px' }}>{timing.name}</div>
+  return <div style={{ padding: '0 4px' }}>{FlamechartImage.parseStrWithImageLabel(timing.name).str}</div>
 }

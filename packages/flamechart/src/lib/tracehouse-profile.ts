@@ -38,12 +38,14 @@ export class TracehouseProfile extends NonStackProfile {
   }
 
   appendTracehouseTask(task: TracehouseTask) {
-    var frame = new TracehouseFrame({
-      key: task.event.name,
-      name: task.event.name,
-      file: `[${task.kind}] ` + task.event.cat,
-      kind: task.kind,
-    })
+    const frame = this.frames.getOrInsert(
+      new TracehouseFrame({
+        key: task.event.name,
+        name: task.event.name,
+        file: `[${task.kind}] ` + task.event.cat,
+        kind: task.kind,
+      }),
+    )
     frame.addToSelfWeight(task.endTime - task.startTime)
     frame.addToTotalWeight(task.endTime - task.startTime)
     this.append(frame, task.startTime, task.endTime)
