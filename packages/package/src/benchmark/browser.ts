@@ -39,7 +39,7 @@ export async function runBrowser(
   const browser = await puppeteer.launch({
     headless: !options?.open,
     devtools: options?.devtools,
-    args: ['--no-sandbox'],
+    args: ['--no-sandbox', '--js-flags="--max-old-space-size=2048"'],
     executablePath: (await findChrome()).executablePath,
   })
 
