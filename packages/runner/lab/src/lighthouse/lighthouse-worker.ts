@@ -173,7 +173,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       } catch (e) {
         this.logger.error('Failed to upload react profile', { error: e })
       }
-    } else if (this.reactProfiling) {
+    } else if (this.reactProfiling && ReactProfiler.reactDetected()) {
       this.logger.error('Cannot get react profiling data.')
     }
 
@@ -221,7 +221,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       try {
         this.logger.info('React profiler enabled.')
         await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser, this.logger)
-        this.logger.info('`react-dom` script detected')
+        if (ReactProfiler.reactDetected()) {
+          this.logger.info('`react-dom` script detected')
+        }
       } catch (e) {
         this.logger.error('Failed to detect `react-dom` script', { error: e })
       } finally {

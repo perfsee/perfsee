@@ -92,6 +92,10 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     this.lastProcessedUrl = url
   }
 
+  static reactDetected() {
+    return this.bundleToReplace.size > 0
+  }
+
   static reset() {
     this.bundleToReplace.clear()
   }
