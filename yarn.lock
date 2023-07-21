@@ -6150,16 +6150,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/event-emitter@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "@nestjs/event-emitter@npm:1.4.1"
+"@nestjs/event-emitter@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@nestjs/event-emitter@npm:2.0.0"
   dependencies:
     eventemitter2: 6.4.9
   peerDependencies:
-    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
-    "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0
+    "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
+    "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
     reflect-metadata: ^0.1.12
-  checksum: d8fba80b8f81a717430d0ee774f8a02b068d7ab278dbfae66165c7c0a2941874fb563103bd04dfe8088683fc105472722601f5a7ba4a60e80d7d3cd36d4490a0
+  checksum: 958eec68b5a157fd81d00e53ee90de6b01a981968befd6d4b13c056faba0a55bde3cf9a820da333031c320c0d752d7488540a4b7e8cf8ea07bb95be30a670235
   languageName: node
   linkType: hard
 
@@ -7215,7 +7215,7 @@ __metadata:
     "@nestjs/apollo": ^11.0.5
     "@nestjs/common": ^9.4.0
     "@nestjs/core": ^9.4.0
-    "@nestjs/event-emitter": ^1.4.1
+    "@nestjs/event-emitter": ^2.0.0
     "@nestjs/graphql": ^11.0.5
     "@nestjs/platform-express": ^9.4.0
     "@nestjs/schedule": ^2.2.1
