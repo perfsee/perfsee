@@ -9,6 +9,7 @@ import { FlamechartContainer } from '../flamechart-container'
 interface Props {
   profile: ReactProfile
   theme?: Theme
+  focusedFrame?: { key: string }
   onSelectFiber?: (fiber: { id: number; name: string } | null) => void
 }
 
@@ -16,7 +17,12 @@ const styles = {
   container: { height: '100%' } as React.CSSProperties,
 }
 
-export const FlamechartReactDevtoolProfileContainer = ({ profile, theme = lightWeightTheme, onSelectFiber }: Props) => {
+export const FlamechartReactDevtoolProfileContainer = ({
+  profile,
+  theme = lightWeightTheme,
+  onSelectFiber,
+  focusedFrame,
+}: Props) => {
   const handleSelectFrame = useCallback(
     (frame: FlamechartFrame | null) => {
       if (typeof onSelectFiber === 'function') {
@@ -40,6 +46,7 @@ export const FlamechartReactDevtoolProfileContainer = ({ profile, theme = lightW
         disableDetailView
         disableTimeIndicators
         onSelectFrame={handleSelectFrame}
+        focusedFrame={focusedFrame}
       />
     </div>
   )
