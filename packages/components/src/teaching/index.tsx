@@ -82,6 +82,7 @@ export const TeachingBubbleHost: React.FC<Props> = ({
   const calloutProps = useMemo(
     () => ({
       directionalHint: directional ?? DirectionalHint.rightTopEdge,
+      preventDismissOnEvent: () => true,
     }),
     [directional],
   )
