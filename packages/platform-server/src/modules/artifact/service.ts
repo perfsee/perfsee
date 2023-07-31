@@ -107,7 +107,9 @@ export class ArtifactService implements OnApplicationBootstrap {
     }
 
     if (name) {
-      query.andWhere('artifact.name = :name', { name })
+      query.andWhere('artifact.name like :name', {
+        name: `%${name.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')}%`,
+      })
     }
 
     if (hash) {
