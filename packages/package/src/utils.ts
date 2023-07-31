@@ -17,6 +17,7 @@ limitations under the License.
 import { mkdirSync, rmSync } from 'fs'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { createGunzip } from 'zlib'
 
 import { extract } from 'tar'
 
@@ -26,6 +27,9 @@ export async function extractBundleFromStream(stream: NodeJS.ReadableStream, pat
   await new Promise((resolve, reject) => {
     rmSync(path, { recursive: true, force: true })
     mkdirSync(path, { recursive: true })
+    if (path.endsWith('.gz')) {
+      stream = stream.pipe(createGunzip())
+    }
     stream
       .pipe(
         extract({
