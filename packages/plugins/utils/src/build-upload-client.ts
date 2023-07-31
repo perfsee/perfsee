@@ -130,7 +130,7 @@ export class BuildUploadClient {
 
   private async pack(statsPath: string, stats: PerfseeReportStats) {
     return new Promise<string>((resolve, reject) => {
-      const packPath = `${tmpdir()}/build-${uuid()}.tar`
+      const packPath = `${tmpdir()}/build-${uuid()}.tar.gz`
       const includedAssets = new Set([statsPath])
 
       stats.assets?.forEach((a) => {
@@ -158,6 +158,7 @@ export class BuildUploadClient {
         },
         ['./'],
       )
+        .pipe(createGzip())
         .pipe(createWriteStream(packPath))
         .on('finish', () => {
           resolve(packPath)
