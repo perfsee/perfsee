@@ -329,23 +329,27 @@ export const BundleList = memo(() => {
   )
 
   const onChangeArtifactName = useCallback(
-    (name: string | undefined) => {
-      updateQueryString({
-        page: 1,
-        name,
-      })
+    (changedName: string | undefined) => {
+      if (changedName !== name) {
+        updateQueryString({
+          page: 1,
+          name: changedName,
+        })
+      }
     },
-    [updateQueryString],
+    [updateQueryString, name],
   )
 
   const onChangeBranch = useCallback(
-    (branch: string | undefined) => {
-      updateQueryString({
-        page: 1,
-        branch,
-      })
+    (changedBranch: string | undefined) => {
+      if (changedBranch !== branch) {
+        updateQueryString({
+          page: 1,
+          branch: changedBranch,
+        })
+      }
     },
-    [updateQueryString],
+    [updateQueryString, branch],
   )
 
   const onRenderHeader = useCallback(

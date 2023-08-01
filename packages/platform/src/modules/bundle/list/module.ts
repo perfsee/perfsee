@@ -69,8 +69,8 @@ export class BundleListModule extends EffectModule<State> {
             variables: {
               projectId: project!.id,
               pagination: { first: pageSize, skip: pageSize * (pageNum - 1) },
-              branch,
-              name,
+              branch: branch?.toString(),
+              name: name?.toString(),
             },
           })
           .pipe(
