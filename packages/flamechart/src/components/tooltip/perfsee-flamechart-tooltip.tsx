@@ -1,8 +1,7 @@
 import { Fragment } from 'react'
 
-import { FlamechartImage } from '@perfsee/flamechart/lib/flamechart-image'
-import { PerfseeFrame } from '@perfsee/flamechart/lib/perfsee-profile'
-
+import { FlamechartImage } from '../../lib/flamechart-image'
+import { PerfseeFrame } from '../../lib/perfsee-profile'
 import { CallTreeNode, CallTreeNodeAttribute } from '../../lib/profile'
 import { Theme } from '../../themes/theme'
 

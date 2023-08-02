@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 
-import { FlamechartImage } from '@perfsee/flamechart/lib/flamechart-image'
-
+import { FlamechartImage } from '../../lib/flamechart-image'
 import { CallTreeNode, CallTreeNodeAttribute } from '../../lib/profile'
 import { Theme } from '../../themes/theme'
 
