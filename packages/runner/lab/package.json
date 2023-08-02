@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/job-runner-lab",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Perfsee job runner lab",
   "main": "./dist/index.js",
   "private": true,

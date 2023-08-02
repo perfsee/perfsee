@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/job-runner-bundle",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Perfsee job runner bundle",
   "main": "./dist/index.js",
   "private": true,
