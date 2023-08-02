@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/package-report",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "package report module frontend part",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
