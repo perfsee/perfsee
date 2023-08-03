@@ -48,6 +48,7 @@ export interface LabJobPayload {
   cookies: CookieType[]
   localStorage: LocalStorageType[]
   reactProfiling: boolean
+  enableProxy: boolean
 }
 
 export type E2EJobPayload = LabJobPayload & {

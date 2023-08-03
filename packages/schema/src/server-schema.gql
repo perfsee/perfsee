@@ -650,6 +650,9 @@ type Profile {
 
   """Disable scanning of this profile"""
   disable: Boolean!
+
+  """Enable http2 + https proxy server"""
+  enableProxy: Boolean!
 }
 
 """environment used to measure pages"""
@@ -1812,6 +1815,9 @@ input UpdateProfileInput {
 
   """Disable scanning of this profile"""
   disable: Boolean
+
+  """Enable http2 + https proxy server"""
+  enableProxy: Boolean
 }
 
 input UpdateTimerInput {

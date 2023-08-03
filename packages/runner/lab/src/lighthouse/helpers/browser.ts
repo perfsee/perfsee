@@ -18,7 +18,9 @@ import puppeteer from 'puppeteer-core'
 
 import { findChrome } from '@perfsee/chrome-finder'
 
-type BrowserOptions = Parameters<typeof puppeteer.launch>[0]
+export type BrowserOptions = Parameters<typeof puppeteer.launch>[0] & {
+  enableProxy?: boolean
+}
 
 export async function createBrowser(options: BrowserOptions = {}) {
   const { executablePath } = await findChrome()
@@ -36,6 +38,10 @@ export async function createBrowser(options: BrowserOptions = {}) {
     '--disable-dev-shm-usage',
     '--disable-web-security',
   ]
+
+  if (options.enableProxy) {
+    chromeArgs.push('--host-rules=MAP * 127.0.0.1')
+  }
 
   const browser = await puppeteer.launch({
     executablePath,

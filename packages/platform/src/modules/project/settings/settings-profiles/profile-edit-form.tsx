@@ -24,6 +24,7 @@ import { RequiredTextField } from '@perfsee/components'
 import { ProfileSchema, PropertyModule } from '../../../shared'
 import { getDevicesOptions, getConnectionsOptions, DefaultConnection, DefaultDevice } from '../helper'
 
+import { FormProxy } from './form-proxy'
 import { FormReact } from './form-react'
 
 type FromProps = {
@@ -35,6 +36,7 @@ type FromProps = {
 export const ProfileForm = (props: FromProps) => {
   const { profile: defaultProfile, closeModal, onSubmit } = props
   const reactProfilingRef = useRef<{ getReactProfilingEnable: () => boolean }>()
+  const proxyRef = useRef<{ getProxyEnable: () => boolean }>()
   const { connections, devices } = useModuleState(PropertyModule, {
     selector: (state) => pick(state, 'connections', 'devices'),
     dependencies: [],
@@ -49,9 +51,10 @@ export const ProfileForm = (props: FromProps) => {
   const onSave = useCallback(
     (_e: any) => {
       const reactProfiling = reactProfilingRef.current!.getReactProfilingEnable()
+      const enableProxy = proxyRef.current!.getProxyEnable()
 
       if (profile.name) {
-        onSubmit({ ...profile, reactProfiling })
+        onSubmit({ ...profile, reactProfiling, enableProxy })
       }
     },
     [onSubmit, profile],
@@ -68,7 +71,6 @@ export const ProfileForm = (props: FromProps) => {
     const type = (e.target as HTMLDivElement).dataset.type!
     setProfile((p) => ({ ...p, [type]: option.key }))
   }, [])
-
   return (
     <Stack tokens={{ childrenGap: 6 }}>
       <RequiredTextField label="Profile name" defaultValue={profile.name} onChange={onNameChange} />
@@ -89,6 +91,7 @@ export const ProfileForm = (props: FromProps) => {
         options={getConnectionsOptions(connections)}
       />
       <FormReact defaultEnable={defaultProfile?.reactProfiling ?? false} ref={reactProfilingRef} />
+      <FormProxy defaultEnable={defaultProfile?.enableProxy ?? false} ref={proxyRef} />
       <DialogFooter>
         <PrimaryButton onClick={onSave} text="Save" />
         <DefaultButton onClick={closeModal} text="Cancel" />

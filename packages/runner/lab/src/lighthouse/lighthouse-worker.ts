@@ -22,7 +22,7 @@ import { groupBy, mapValues } from 'lodash'
 import puppeteer from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
-import { JobWorker } from '@perfsee/job-runner-shared'
+import { JobWorker, clearProxyCache, startProxyServer } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
@@ -44,6 +44,7 @@ import {
   slimTraceData,
   getLighthouseMetricScores,
   formatCookies,
+  onRequestFactory,
 } from './helpers'
 import { computeMedianRun, getFCP, getNumericValue, getTTI, lighthouse, MetricsRecord } from './lighthouse-runtime'
 import { ReactProfiler } from './lighthouse-runtime/gatherers'
@@ -56,6 +57,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   protected async before() {
     await this.warmupPageLoad()
+    await this.startProxyServer()
     return Promise.resolve()
   }
 
@@ -189,6 +191,31 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
+  protected async startProxyServer() {
+    if (this.payload.enableProxy) {
+      try {
+        this.logger.info('Found `enableProxy` flag, Start proxy server now.')
+        startProxyServer()
+
+        // load page twice to cache api requests
+        await this.loadPage()
+        await this.loadPage()
+      } catch (e) {
+        this.logger.error('Failed to start proxy server.', { error: e })
+      }
+    }
+  }
+
+  protected async stopProxyServer() {
+    if (this.payload.enableProxy) {
+      try {
+        await clearProxyCache()
+      } catch (e) {
+        this.logger.error('Failed to clear proxy cache', { error: e })
+      }
+    }
+  }
+
   private wrapLighthouseLogger() {
     // we may have different version of `debug` lib
     // hack in this is safer
@@ -236,11 +263,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   private async createBrowser() {
     const { cookies, localStorageContent } = this
-    const { url, deviceId } = this.payload
+    const { url, deviceId, enableProxy } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
 
-    const browser = await createBrowser()
+    const browser = await createBrowser({ enableProxy })
 
     browser.on('targetcreated', (e: puppeteer.Target) => {
       const setup = async () => {
@@ -372,6 +399,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         break
       }
     }
+
+    await this.stopProxyServer()
 
     if (runs > 1 && metricsList.length) {
       this.logger.info('All available result: ', metricsList)
@@ -506,5 +535,29 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     })
 
     return metrics
+  }
+
+  private async loadPage() {
+    this.logger.info('Preload the page now for http proxying.')
+    const browser = await this.createBrowser()
+    this.logger.info('Browser created.')
+
+    try {
+      const page = await browser.newPage()
+      await page.setRequestInterception(true)
+      this.logger.info('page created.')
+      const onRequest = onRequestFactory(this.payload.url, this.headers)
+      page.on('request', onRequest)
+
+      this.logger.info(`Loading page: ${this.payload.url}`)
+      await page.goto(this.payload.url, {
+        waitUntil: ['networkidle2'],
+      })
+      this.logger.info('Finished loading page.')
+    } catch (e) {
+      this.logger.error('Error occurred when loading page.', { error: e })
+    } finally {
+      await browser.close()
+    }
   }
 }

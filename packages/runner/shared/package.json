@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "private": true,
   "dependencies": {
+    "@perfsee/iri": "workspace:*",
     "@perfsee/server-common": "workspace:*",
     "@perfsee/shared": "workspace:*",
     "chalk": "^4.1.2",
