@@ -16,8 +16,8 @@ use core::task::{Context, Poll};
 use futures::{future::TryFutureExt, stream::Stream};
 use http::header::CONTENT_TYPE;
 use http::header::HOST;
+use http::StatusCode;
 use http::Uri;
-use http::{Method, StatusCode};
 use hyper::client::Client;
 use hyper::http::{HeaderValue, Version};
 use hyper::service::{make_service_fn, service_fn};
@@ -236,16 +236,19 @@ async fn run_server(
       let global_api_captured = global_api_captured.clone();
       let global_api_cache = global_api_cache.clone();
       let http_client = http_client.clone();
+
       async move {
         let http_client = http_client.clone();
         let global_cache = global_cache.clone();
         let global_api_captured = global_api_captured.clone();
         let global_api_cache = global_api_cache.clone();
+
         Ok::<_, io::Error>(service_fn(move |mut req: Request<Body>| {
           let http_client = http_client.clone();
           let global_cache = global_cache.clone();
           let global_api_captured = global_api_captured.clone();
           let global_api_cache = global_api_cache.clone();
+
           async move {
             let req_uri = req.uri().clone();
             let guard = global_cache.lock().await;
@@ -325,6 +328,9 @@ async fn run_server(
                 || req_uri.path().ends_with(".webp")
                 || req_uri.path().ends_with(".json")
                 || req_uri.path().ends_with(".wasm")
+                || req_uri.path().ends_with(".txt")
+                || req_uri.path().ends_with(".xml")
+                || req_uri.path().ends_with(".map")
                 || cached_res
                   .headers()
                   .get(CONTENT_TYPE)
@@ -345,32 +351,30 @@ async fn run_server(
               let _ = mem::replace(cached_res.body_mut(), Body::from(res_bytes));
               mem::drop(guard);
             } else {
-              if req.method() == Method::GET {
-                // non-static request
-                let mut guard = global_api_captured.lock().await;
-                let res_bytes_inner = res_bytes.slice(0..res_bytes.len());
-                let req_bytes = hyper::body::to_bytes(req_body).await?;
-                if let Some(cached_res_body) =
-                  (*guard).get(&(req_uri.clone(), cached_res.status(), req_bytes.clone()))
-                {
-                  if cached_res_body == &res_bytes_inner {
-                    println!("Put [{}] into API cache", req_uri);
-                    let mut api_cache_guard = global_api_cache.lock().await;
-                    (*api_cache_guard).insert(
-                      (req_uri, req_bytes),
-                      (
-                        cached_res.status(),
-                        cached_res.headers().clone(),
-                        res_bytes_inner,
-                      ),
-                    );
-                    mem::drop(api_cache_guard);
-                  }
-                } else {
-                  (*guard).insert((req_uri, cached_res.status(), req_bytes), res_bytes_inner);
+              // non-static request
+              let mut guard = global_api_captured.lock().await;
+              let res_bytes_inner = res_bytes.slice(0..res_bytes.len());
+              let req_bytes = hyper::body::to_bytes(req_body).await?;
+              if let Some(cached_res_body) =
+                (*guard).get(&(req_uri.clone(), cached_res.status(), req_bytes.clone()))
+              {
+                if cached_res_body == &res_bytes_inner {
+                  println!("Put [{}] into API cache", req_uri);
+                  let mut api_cache_guard = global_api_cache.lock().await;
+                  (*api_cache_guard).insert(
+                    (req_uri, req_bytes),
+                    (
+                      cached_res.status(),
+                      cached_res.headers().clone(),
+                      res_bytes_inner,
+                    ),
+                  );
+                  mem::drop(api_cache_guard);
                 }
-                mem::drop(guard);
+              } else {
+                (*guard).insert((req_uri, cached_res.status(), req_bytes), res_bytes_inner);
               }
+              mem::drop(guard);
 
               let _ = mem::replace(cached_res.body_mut(), Body::from(res_bytes));
             }
@@ -403,7 +407,18 @@ impl hyper::server::accept::Accept for HyperAcceptor<'_> {
     mut self: Pin<&mut Self>,
     cx: &mut Context,
   ) -> Poll<Option<Result<Self::Conn, Self::Error>>> {
-    Pin::new(&mut self.acceptor).poll_next(cx)
+    Pin::new(&mut self.acceptor)
+      .poll_next(cx)
+      .map(|result| match &result {
+        Some(inner) => {
+          if inner.is_err() {
+            None
+          } else {
+            result
+          }
+        }
+        _ => result,
+      })
   }
 }
 

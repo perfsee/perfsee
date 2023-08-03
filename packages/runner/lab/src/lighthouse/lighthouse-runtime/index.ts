@@ -21,16 +21,19 @@ import defaultConfig from 'lighthouse/lighthouse-core/config/default-config'
 import { NetworkRequests, WhiteScreen } from './audits'
 import { ConsoleLogger, ReactProfiler, RequestInterception, Screencast } from './gatherers'
 
-type KeyAuditName = 'first-contentful-paint' | 'interactive'
+type KeyAuditName = 'first-contentful-paint' | 'interactive' | 'total-blocking-time' | 'largest-contentful-paint'
 
 export const getNumericValue = (lhr: LH.Result, auditName: KeyAuditName) => lhr.audits[auditName]?.numericValue ?? NaN
-export const getFCP = (lhr: LH.Result) => getNumericValue(lhr, 'first-contentful-paint')
 export const getTTI = (lhr: LH.Result) => getNumericValue(lhr, 'interactive')
 
+export const getScore = (lhr: LH.Result, auditName: KeyAuditName) => lhr.audits[auditName]?.score ?? NaN
+export const getTBTScore = (lhr: LH.Result) => getScore(lhr, 'total-blocking-time')
+export const getLCPScore = (lhr: LH.Result) => getScore(lhr, 'largest-contentful-paint')
+
 export type MetricsRecord = {
-  fcp: number
-  tti: number
   index: number
+  lcp: number
+  tbt: number
 }
 
 function getMedianValue(numbers: number[]) {
@@ -51,36 +54,58 @@ function filterToValidRuns(runs: MetricsRecord[], key: keyof MetricsRecord) {
 }
 
 export function computeMedianRun(runs: MetricsRecord[]) {
-  const runsWithFCP = filterToValidRuns(runs, 'fcp')
+  const runsWithLCP = filterToValidRuns(runs, 'lcp')
 
-  if (!runsWithFCP.length) {
+  if (!runsWithLCP.length) {
     return runs[0].index
   }
 
-  const runsWithTTI = filterToValidRuns(runsWithFCP, 'tti')
-  if (runsWithTTI.length > 0 && runsWithTTI.length < 3) {
-    return runsWithTTI[0].index
+  const runsWithTBT = filterToValidRuns(runsWithLCP, 'tbt')
+  if (runsWithTBT.length > 0 && runsWithTBT.length < 3) {
+    return runsWithTBT[0].index
   }
 
-  const medianFCP = getMedianValue(runsWithFCP.map((run) => run.fcp))
-  const medianTTI = getMedianValue(runsWithTTI.map((run) => run.tti))
+  const medianLCP = getMedianValue(runsWithLCP.map((run) => run.lcp))
+  const medianTBT = getMedianValue(runsWithTBT.map((run) => run.tbt))
 
-  // Sort by proximity to the medians, breaking ties with the minimum TTI.
-  const sortedByProximityToMedian = runsWithFCP.sort((a, b) => {
-    const aFCP = a.fcp
-    const aTTI = a.tti
-    const bFCP = b.fcp
-    const bTTI = b.tti
-    const fcpOrder = getMedianSortValue(aFCP, medianFCP) - getMedianSortValue(bFCP, medianFCP)
+  // Sort by proximity to the medians, breaking ties with the minimum TBT.
+  const sortedByProximityToMedian = runsWithLCP.sort((a, b) => {
+    const aLCP = a.lcp
+    const aTBT = a.tbt
+    const bLCP = b.lcp
+    const bTBT = b.tbt
+    const order = getMedianSortValue(aLCP, medianLCP) - getMedianSortValue(bLCP, medianLCP)
 
-    if (aTTI && bTTI) {
-      return fcpOrder + getMedianSortValue(aTTI, medianTTI) - getMedianSortValue(bTTI, medianTTI)
+    if (aTBT && bTBT) {
+      return order + getMedianSortValue(aTBT, medianTBT) - getMedianSortValue(bTBT, medianTBT)
     }
 
-    return fcpOrder
+    return order
   })
 
   return sortedByProximityToMedian[0].index
+}
+
+export function runsNotExceedMedianBy(diffScore: number, runs: MetricsRecord[]) {
+  const runsWithLCP = filterToValidRuns(runs, 'lcp')
+
+  if (!runsWithLCP.length) {
+    return runs
+  }
+
+  const runsWithTBT = filterToValidRuns(runsWithLCP, 'tbt')
+  if (!runsWithTBT.length) {
+    return runsWithTBT
+  }
+
+  const medianLCP = getMedianValue(runsWithLCP.map((run) => run.lcp))
+  const medianTBT = getMedianValue(runsWithTBT.map((run) => run.tbt))
+
+  return runsWithTBT.filter((run) => {
+    const tbtPass = run.tbt - medianTBT <= diffScore && run.tbt - medianTBT >= -diffScore
+    const lcpPass = run.lcp - medianLCP <= diffScore && run.lcp - medianLCP >= -diffScore
+    return tbtPass && lcpPass
+  })
 }
 
 export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Flags = {}) {

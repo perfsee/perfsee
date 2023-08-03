@@ -57,16 +57,14 @@ sidebar_position: 3
 
 ### React Profiling
 
-:::caution 注意
-
-这是一个实验性的功能，可能存在不稳定的情况。如果没有按照预期工作，请向我们报告 Issue。
-
-这个功能可能会降低页面渲染速度。
-
-:::
-
 ![](/settings/react-profiling.png)
 
 开启这个功能，会在 Lab 分析阶段收集 React 应用每个组件渲染时间等信息。分析报告中会展示组件火焰图，帮助我们分析 React 应用性能瓶颈。
 
 这个功能是基于 React Profiler API 实现的，但 Profier API 在生产环境是关闭的。我们通过拦截 `react-don` 对应资源的请求，并将其替换成 profiling build 来解决这个问题。
+
+### Request Proxy
+
+开启这个选项之后，启动一个 TCP server 来代理部分请求，可以降低网络引起的波动，让性能分析结果更加稳定可靠。
+
+我们会在预热阶段缓存所有静态资源请求和部分 API 请求，在运行 lab 分析时如果请求命中了缓存，则会直接返回结果。

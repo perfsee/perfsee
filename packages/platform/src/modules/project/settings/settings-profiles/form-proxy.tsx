@@ -25,7 +25,7 @@ interface FormProxyProps {
 
 const tips = (
   <>
-    Enable HTTP proxy server to prevent inevitable variability of networking,{' '}
+    Proxy portions of requests to prevent inevitable variability of networking,{' '}
     <b>which can make the lab result more stable and reliable</b>
   </>
 )
@@ -49,7 +49,7 @@ export const FormProxy = forwardRef((props: FormProxyProps, ref) => {
 
   return (
     <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
-      <LabelWithTips label="HTTP Proxy" tips={tips} />
+      <LabelWithTips label="Request Proxy" tips={tips} />
       <Stack horizontal verticalAlign="center">
         <Toggle
           defaultChecked={enable}
