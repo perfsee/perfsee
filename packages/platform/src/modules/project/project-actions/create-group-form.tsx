@@ -28,6 +28,7 @@ interface CreateGroupFormProps {
 }
 
 const loadingIconProps = { iconName: 'loading' }
+const PROJECT_LIMIT = 12
 
 export const CreateGroupForm: FC<CreateGroupFormProps> = memo(({ onClose }) => {
   const [id, setGroupId] = useState<string | undefined>()
@@ -35,13 +36,13 @@ export const CreateGroupForm: FC<CreateGroupFormProps> = memo(({ onClose }) => {
   const [{ creating, idVerifying, idVerification }, { createGroup, verifyId }] = useModule(CreateGroupModule)
 
   const submitDisabled =
-    selectedProjects.length < 1 || idVerifying || !idVerification?.ok || selectedProjects.length > 8
+    selectedProjects.length < 1 || idVerifying || !idVerification?.ok || selectedProjects.length > PROJECT_LIMIT
   const handleSubmit = useCallback(() => {
     if (!id) {
       return
     }
 
-    if (selectedProjects.length > 8) {
+    if (selectedProjects.length > PROJECT_LIMIT) {
       return
     }
 
@@ -72,7 +73,7 @@ export const CreateGroupForm: FC<CreateGroupFormProps> = memo(({ onClose }) => {
       />
       <SearchProjectsSelect
         multiSelect={true}
-        placeholder="Need less than 8 projects"
+        placeholder={`Need less than ${PROJECT_LIMIT} projects`}
         selectedProjects={selectedProjects}
         onSelect={selectProjects}
       />
