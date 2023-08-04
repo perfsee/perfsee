@@ -55,6 +55,9 @@ export class KeyedSet<T extends HasKey> implements Iterable<T> {
     this.map.set(key, t)
     return t
   }
+  get(t: T): T | undefined {
+    return this.map.get(t.key)
+  }
   forEach(fn: (t: T) => void) {
     this.map.forEach(fn)
   }
@@ -157,28 +160,31 @@ export function findIndexBisect<T>(ls: T[], f: (val: T) => boolean): number {
 
 export function noop(..._: any[]) {}
 
-export function objectsHaveShallowEquality<T extends object>(a: T | null | undefined, b: T | null | undefined): boolean {
+export function objectsHaveShallowEquality<T extends object>(
+  a: T | null | undefined,
+  b: T | null | undefined,
+): boolean {
   if (a && b) {
     for (let key in a) {
       if (a[key] !== b[key]) return false
     }
     for (let key in b) {
       if (a[key] !== b[key]) return false
-    } 
+    }
   } else {
     return a === b
   }
-  
+
   return true
 }
 
 export function memoizeByShallowEquality<T extends object, U>(cb: (t: T) => U): (t: T) => U {
-  let last: {args: T; result: U} | null = null
+  let last: { args: T; result: U } | null = null
   return (args: T) => {
     let result: U
     if (last == null) {
       result = cb(args)
-      last = {args, result}
+      last = { args, result }
       return result
     } else if (objectsHaveShallowEquality(last.args, args)) {
       return last.result
@@ -191,12 +197,12 @@ export function memoizeByShallowEquality<T extends object, U>(cb: (t: T) => U): 
 }
 
 export function memoizeByReference<T, U>(cb: (t: T) => U): (t: T) => U {
-  let last: {args: T; result: U} | null = null
+  let last: { args: T; result: U } | null = null
   return (args: T) => {
     let result: U
     if (last == null) {
       result = cb(args)
-      last = {args, result}
+      last = { args, result }
       return result
     } else if (last.args === args) {
       return last.result
@@ -209,26 +215,24 @@ export function memoizeByReference<T, U>(cb: (t: T) => U): (t: T) => U {
 }
 
 export function lazyStatic<T>(cb: () => T): () => T {
-  let last: {result: T} | null = null
+  let last: { result: T } | null = null
   return () => {
     if (last == null) {
-      last = {result: cb()}
+      last = { result: cb() }
     }
     return last.result
   }
 }
 
-const base64lookupTable = lazyStatic(
-  (): Map<string, number> => {
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    const ret = new Map<string, number>()
-    for (let i = 0; i < alphabet.length; i++) {
-      ret.set(alphabet.charAt(i), i)
-    }
-    ret.set('=', -1)
-    return ret
-  },
-)
+const base64lookupTable = lazyStatic((): Map<string, number> => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  const ret = new Map<string, number>()
+  for (let i = 0; i < alphabet.length; i++) {
+    ret.set(alphabet.charAt(i), i)
+  }
+  ret.set('=', -1)
+  return ret
+})
 
 // NOTE: There are probably simpler solutions to this problem, but I have this written already, so
 // until we run into problems with this, let's just use this.
@@ -251,9 +255,7 @@ export function decodeBase64(encoded: string): Uint8Array {
   //  (on the right) to form an integral number of 6-bit groups."
 
   if (encoded.length % 4 !== 0) {
-    throw new Error(
-      `Invalid length for base64 encoded string. Expected length % 4 = 0, got length = ${encoded.length}`,
-    )
+    throw new Error(`Invalid length for base64 encoded string. Expected length % 4 = 0, got length = ${encoded.length}`)
   }
 
   const quartetCount = encoded.length / 4
@@ -312,12 +314,7 @@ export function decodeBase64(encoded: string): Uint8Array {
     const sextet4 = lookupTable.get(enc4)
 
     if (sextet1 == null || sextet2 == null || sextet3 == null || sextet4 == null) {
-      throw new Error(
-        `Invalid quartet at indices ${i * 4} .. ${i * 4 + 3}: ${encoded.substring(
-          i * 4,
-          i * 4 + 3,
-        )}`,
-      )
+      throw new Error(`Invalid quartet at indices ${i * 4} .. ${i * 4 + 3}: ${encoded.substring(i * 4, i * 4 + 3)}`)
     }
 
     bytes[offset++] = (sextet1 << 2) | (sextet2 >> 4)
@@ -345,10 +342,10 @@ export function assert(pass: boolean, msg?: string) {
 }
 
 export function debounce<T extends Function>(cb: T, wait = 200) {
-  let h: any;
+  let h: any
   let callable = (...args: any) => {
-      clearTimeout(h);
-      h = setTimeout(() => cb(...args), wait);
-  };
-  return <T>(<any>callable);
+    clearTimeout(h)
+    h = setTimeout(() => cb(...args), wait)
+  }
+  return <T>(<any>callable)
 }

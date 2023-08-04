@@ -1,6 +1,7 @@
 import { forwardRef, memo, useCallback, useRef, useState, useImperativeHandle, useMemo, useEffect } from 'react'
 
 import { Flamechart, FlamechartFrame, RootFilter } from '../lib/flamechart'
+import { FlamechartImage } from '../lib/flamechart-image'
 import { Frame, Profile } from '../lib/profile'
 import { ProfileFrameKeySearch, ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
@@ -90,6 +91,10 @@ export interface FlamechartProps {
    */
   rootFilter?: RootFilter
   /**
+   * flamechart images used in the flamechart
+   */
+  images?: FlamechartImage[]
+  /**
    * render custom tooltip
    */
   renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
@@ -140,6 +145,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           renderTooltip,
           renderTimingTooltip,
           onSelectFrame,
+          images,
         },
         ref,
       ) => {
@@ -217,6 +223,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 timings={timings}
                 initialLeft={initialLeft}
                 initialRight={initialRight}
+                images={images}
                 minLeft={minLeft}
                 maxRight={maxRight}
                 topPadding={topPadding}

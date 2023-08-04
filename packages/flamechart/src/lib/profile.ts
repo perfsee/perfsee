@@ -18,6 +18,8 @@ export interface FrameInfo {
 
   // Column in the file, 1-based.
   col?: number
+
+  extra?: any
 }
 
 export type SymbolRemapper = (frame: Frame) => { name?: string; file?: string; line?: number; col?: number } | null
@@ -44,7 +46,7 @@ export class HasWeights {
   }
 }
 
-export class Frame extends HasWeights {
+export class Frame extends HasWeights implements FrameInfo {
   key: string | number
 
   // Name of the frame. May be a method name, e.g.
@@ -61,6 +63,8 @@ export class Frame extends HasWeights {
   // Column in the file
   col?: number
 
+  extra?: any
+
   public constructor(info: FrameInfo) {
     super()
     this.key = info.key
@@ -68,6 +72,7 @@ export class Frame extends HasWeights {
     this.file = info.file
     this.line = info.line
     this.col = info.col
+    this.extra = info.extra
   }
 
   static root = new Frame({
@@ -124,21 +129,10 @@ export class Profile {
 
   protected frames = new KeyedSet<Frame>()
 
-  // Profiles store two call-trees.
-  //
-  // The "append order" call tree is the one in which nodes are ordered in
-  // whatever order they were appended to their parent.
-  //
-  // The "grouped" call tree is one in which each node has at most one child per
-  // frame. Nodes are ordered in decreasing order of weight
   protected appendOrderCalltreeRoot = new CallTreeNode(Frame.root, null)
-  protected groupedCalltreeRoot = new CallTreeNode(Frame.root, null)
 
   public getAppendOrderCalltreeRoot() {
     return this.appendOrderCalltreeRoot
-  }
-  public getGroupedCalltreeRoot() {
-    return this.groupedCalltreeRoot
   }
 
   // List of references to CallTreeNodes at the top of the
@@ -192,43 +186,9 @@ export class Profile {
   private totalNonIdleWeight: number | null = null
   getTotalNonIdleWeight() {
     if (this.totalNonIdleWeight === null) {
-      this.totalNonIdleWeight = this.groupedCalltreeRoot.children.reduce((n, c) => n + c.getTotalWeight(), 0)
+      this.totalNonIdleWeight = this.appendOrderCalltreeRoot.children.reduce((n, c) => n + c.getTotalWeight(), 0)
     }
     return this.totalNonIdleWeight
-  }
-
-  // This is private because it should only be called in the ProfileBuilder
-  // classes. Once a Profile instance has been constructed, it should be treated
-  // as immutable.
-  protected sortGroupedCallTree() {
-    function visit(node: CallTreeNode) {
-      node.children.sort((a, b) => -(a.getTotalWeight() - b.getTotalWeight()))
-      node.children.forEach(visit)
-    }
-    visit(this.groupedCalltreeRoot)
-  }
-
-  forEachCallGrouped(
-    openFrame: (node: CallTreeNode, value: number) => void,
-    closeFrame: (node: CallTreeNode, value: number) => void,
-  ) {
-    function visit(node: CallTreeNode, start: number) {
-      if (node.frame !== Frame.root) {
-        openFrame(node, start)
-      }
-
-      let childTime = 0
-
-      node.children.forEach(function (child) {
-        visit(child, start + childTime)
-        childTime += child.getTotalWeight()
-      })
-
-      if (node.frame !== Frame.root) {
-        closeFrame(node, start + node.getTotalWeight())
-      }
-    }
-    visit(this.groupedCalltreeRoot, 0)
   }
 
   forEachCall(
@@ -294,7 +254,7 @@ export class Profile {
       } else {
         framesInStack.add(node.frame)
         stack.push(node)
-        builder.enterFrame(node.frame, value)
+        builder.enterFrame(new Frame(node.frame), value)
       }
     }
     function closeFrame(_: CallTreeNode, value: number) {
@@ -332,7 +292,7 @@ export class Profile {
     // is flattened. To work around that, we'll just copy the weights directly from the
     // un-flattened profile.
     this.forEachFrame((f) => {
-      flattenedProfile.frames.getOrInsert(f).overwriteWeightWith(f)
+      flattenedProfile.frames.get(f)?.overwriteWeightWith(f)
     })
 
     return flattenedProfile
@@ -400,7 +360,7 @@ export class Profile {
     this.samples.forEach((node, i) => {
       const stack: Frame[] = []
       for (let n: CallTreeNode | null = node; n != null && n.frame !== Frame.root; n = n.parent) {
-        stack.push(n.frame)
+        stack.push(new Frame(n.frame))
       }
       stack.reverse()
       if (stack.length > 0) {
@@ -451,6 +411,23 @@ export class Profile {
     return ret
   }
 
+  getLeftHeavyProfile(): Profile {
+    const builder = new CallTreeGroupedProfileBuilder(this.totalWeight, this.totalWeight, 0)
+
+    function openFrame(node: CallTreeNode, value: number) {
+      builder.enterFrame(new Frame(node.frame), value)
+    }
+    function closeFrame(node: CallTreeNode, value: number) {
+      builder.leaveFrame(node.frame, value)
+    }
+
+    this.forEachCall(openFrame, closeFrame)
+    const ret = builder.build()
+    ret.name = this.name
+    ret.valueFormatter = this.valueFormatter
+    return ret
+  }
+
   remapSymbols(callback: SymbolRemapper) {
     for (let frame of this.frames) {
       const remapped = callback(frame)
@@ -484,15 +461,15 @@ export class StackListProfileBuilder extends Profile {
     super(totalWeight, maxValue, minValue)
   }
 
-  _appendSample(stack: Frame[], weight: number, useAppendOrder: boolean) {
+  _appendSample(stack: Frame[], weight: number) {
     if (isNaN(weight)) throw new Error('invalid weight')
-    let node = useAppendOrder ? this.appendOrderCalltreeRoot : this.groupedCalltreeRoot
+    let node = this.appendOrderCalltreeRoot
 
     let framesInStack = new Set<Frame>()
 
     for (let newFrame of stack) {
       const frame = Frame.getOrInsert(this.frames, newFrame)
-      const last = useAppendOrder ? lastOf(node.children) : node.children.find((c) => c.frame === frame)
+      const last = lastOf(node.children)
       if (last && !last.isFrozen() && last.frame == frame) {
         node = last
       } else {
@@ -512,26 +489,22 @@ export class StackListProfileBuilder extends Profile {
     }
     node.addToSelfWeight(weight)
 
-    if (useAppendOrder) {
-      for (let child of node.children) {
-        child.attributes = typeof this.getAttributesForNode === 'function' ? this.getAttributesForNode(child) : 0
-        child.freeze()
-      }
+    for (let child of node.children) {
+      child.attributes = typeof this.getAttributesForNode === 'function' ? this.getAttributesForNode(child) : 0
+      child.freeze()
     }
 
-    if (useAppendOrder) {
-      node.frame.addToSelfWeight(weight)
+    node.frame.addToSelfWeight(weight)
 
-      for (let frame of framesInStack) {
-        frame.addToTotalWeight(weight)
-      }
+    for (let frame of framesInStack) {
+      frame.addToTotalWeight(weight)
+    }
 
-      if (node === lastOf(this.samples)) {
-        this.weights[this.weights.length - 1] += weight
-      } else {
-        this.samples.push(node)
-        this.weights.push(weight)
-      }
+    if (node === lastOf(this.samples)) {
+      this.weights[this.weights.length - 1] += weight
+    } else {
+      this.samples.push(node)
+      this.weights.push(weight)
     }
   }
 
@@ -544,8 +517,7 @@ export class StackListProfileBuilder extends Profile {
       throw new Error('Samples must have positive weights')
     }
 
-    this._appendSample(stack, weight, true)
-    this._appendSample(stack, weight, false)
+    this._appendSample(stack, weight)
   }
 
   private pendingSample: {
@@ -586,7 +558,6 @@ export class StackListProfileBuilder extends Profile {
     )
     this.maxValue = Math.max(this.totalWeight, this.maxValue)
     this.minValue = Math.min(0, this.minValue)
-    this.sortGroupedCallTree()
     return this
   }
 }
@@ -596,7 +567,6 @@ export class StackListProfileBuilder extends Profile {
 // arrays as intermediaries.
 export class CallTreeProfileBuilder extends Profile {
   private appendOrderStack: CallTreeNode[] = [this.appendOrderCalltreeRoot]
-  private groupedOrderStack: CallTreeNode[] = [this.groupedCalltreeRoot]
   private framesInStack = new Map<Frame, number>()
   private stack: Frame[] = []
 
@@ -622,19 +592,17 @@ export class CallTreeProfileBuilder extends Profile {
     }
   }
 
-  private _enterFrame(frame: Frame, value: number, useAppendOrder: boolean) {
-    let stack = useAppendOrder ? this.appendOrderStack : this.groupedOrderStack
+  private _enterFrame(frame: Frame, value: number) {
+    let stack = this.appendOrderStack
     this.addWeightsToNodes(value, stack)
 
     let prevTop = lastOf(stack)
 
     if (prevTop) {
-      if (useAppendOrder) {
-        this.samples.push(prevTop)
-        this.weights.push(Math.max(value - this.lastValue, 0))
-      }
+      this.samples.push(prevTop)
+      this.weights.push(Math.max(value - this.lastValue, 0))
 
-      const last = useAppendOrder ? lastOf(prevTop.children) : prevTop.children.find((c) => c.frame === frame)
+      const last = lastOf(prevTop.children)
       let node: CallTreeNode
       if (last && !last.isFrozen() && last.frame == frame) {
         node = last
@@ -648,8 +616,7 @@ export class CallTreeProfileBuilder extends Profile {
   enterFrame(frame: Frame, value: number) {
     frame = Frame.getOrInsert(this.frames, frame)
     this.addWeightsToFrames(value)
-    this._enterFrame(frame, value, true)
-    this._enterFrame(frame, value, false)
+    this._enterFrame(frame, value)
 
     this.stack.push(frame)
     const frameCount = this.framesInStack.get(frame) || 0
@@ -660,39 +627,34 @@ export class CallTreeProfileBuilder extends Profile {
     this.minValue = Math.min(this.lastValue, this.minValue)
   }
 
-  private _leaveFrame(frame: Frame, value: number, useAppendOrder: boolean) {
-    let stack = useAppendOrder ? this.appendOrderStack : this.groupedOrderStack
+  private _leaveFrame(frame: Frame, value: number) {
+    let stack = this.appendOrderStack
     this.addWeightsToNodes(value, stack)
 
-    if (useAppendOrder) {
-      const leavingStackTop = this.appendOrderStack.pop()
-      if (leavingStackTop == null) {
-        throw new Error(`Trying to leave ${frame.key} when stack is empty`)
-      }
-      if (this.lastValue == null) {
-        throw new Error(`Trying to leave a ${frame.key} before any have been entered`)
-      }
-      leavingStackTop.freeze()
-
-      if (leavingStackTop.frame.key !== frame.key) {
-        throw new Error(
-          `Tried to leave frame "${frame.name}" while frame "${leavingStackTop.frame.name}" was at the top at ${value}`,
-        )
-      }
-
-      this.samples.push(leavingStackTop)
-      this.weights.push(Math.max(value - this.lastValue, 0))
-    } else {
-      this.groupedOrderStack.pop()
+    const leavingStackTop = this.appendOrderStack.pop()
+    if (leavingStackTop == null) {
+      throw new Error(`Trying to leave ${frame.key} when stack is empty`)
     }
+    if (this.lastValue == null) {
+      throw new Error(`Trying to leave a ${frame.key} before any have been entered`)
+    }
+    leavingStackTop.freeze()
+
+    if (leavingStackTop.frame.key !== frame.key) {
+      throw new Error(
+        `Tried to leave frame "${frame.name}" while frame "${leavingStackTop.frame.name}" was at the top at ${value}`,
+      )
+    }
+
+    this.samples.push(leavingStackTop)
+    this.weights.push(Math.max(value - this.lastValue, 0))
   }
 
   leaveFrame(frame: Frame, value: number) {
     frame = Frame.getOrInsert(this.frames, frame)
     this.addWeightsToFrames(value)
 
-    this._leaveFrame(frame, value, true)
-    this._leaveFrame(frame, value, false)
+    this._leaveFrame(frame, value)
 
     this.stack.pop()
     const frameCount = this.framesInStack.get(frame)
@@ -712,10 +674,102 @@ export class CallTreeProfileBuilder extends Profile {
   build(): Profile {
     // Each stack is expected to contain a single node which we initialize to be
     // the root node.
-    if (this.appendOrderStack.length > 1 || this.groupedOrderStack.length > 1) {
+    if (this.appendOrderStack.length > 1) {
       throw new Error('Tried to complete profile construction with a non-empty stack')
     }
-    this.sortGroupedCallTree()
     return this
+  }
+}
+
+export class CallTreeGroupedProfileBuilder extends Profile {
+  private groupedOrderStack: CallTreeNode[] = [this.appendOrderCalltreeRoot]
+  private lastValue = 0
+  private stack: Frame[] = []
+
+  private addWeightsToNodes(value: number, stack: CallTreeNode[]) {
+    const delta = value - this.lastValue
+    for (const node of stack) {
+      node.addToTotalWeight(delta)
+    }
+    const stackTop = lastOf(stack)
+    if (stackTop) {
+      stackTop.addToSelfWeight(delta)
+    }
+  }
+
+  private _enterFrame(frame: Frame, value: number) {
+    const stack = this.groupedOrderStack
+    this.addWeightsToNodes(value, stack)
+
+    const prevTop = lastOf(stack)
+
+    if (prevTop) {
+      const last = prevTop.children.find((c) => c.frame === frame)
+      let node: CallTreeNode
+      if (last && !last.isFrozen() && last.frame == frame) {
+        node = last
+      } else {
+        node = new CallTreeNode(frame, prevTop)
+        prevTop.children.push(node)
+      }
+      stack.push(node)
+    }
+  }
+  enterFrame(frame: Frame, value: number) {
+    frame = Frame.getOrInsert(this.frames, frame)
+    this._enterFrame(frame, value)
+
+    this.stack.push(frame)
+    this.lastValue = value
+  }
+
+  private _leaveFrame(_: Frame, value: number) {
+    const stack = this.groupedOrderStack
+    this.addWeightsToNodes(value, stack)
+
+    this.groupedOrderStack.pop()
+  }
+
+  leaveFrame(frame: Frame, value: number) {
+    frame = Frame.getOrInsert(this.frames, frame)
+    this._leaveFrame(frame, value)
+
+    this.stack.pop()
+
+    this.lastValue = value
+  }
+
+  build(): Profile {
+    if (this.groupedOrderStack.length > 1) {
+      throw new Error('Tried to complete profile construction with a non-empty stack')
+    }
+
+    function visit(node: CallTreeNode) {
+      node.children.sort((a, b) => -(a.getTotalWeight() - b.getTotalWeight()))
+      node.children.forEach(visit)
+    }
+    visit(this.appendOrderCalltreeRoot)
+
+    const builder = new CallTreeProfileBuilder()
+
+    function visitGrouped(node: CallTreeNode, start: number) {
+      if (node.frame !== Frame.root) {
+        builder.enterFrame(node.frame, start)
+      }
+
+      let childTime = 0
+
+      node.children.forEach(function (child) {
+        visitGrouped(child, start + childTime)
+        childTime += child.getTotalWeight()
+      })
+
+      if (node.frame !== Frame.root) {
+        builder.leaveFrame(node.frame, start + node.getTotalWeight())
+      }
+    }
+    visitGrouped(this.appendOrderCalltreeRoot, 0)
+
+    return builder.build()
   }
 }

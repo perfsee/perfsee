@@ -30,30 +30,6 @@ export const getFrameToColorBucket = memoizeByReference((profile: Profile): Map<
   return frameToColorBucket
 })
 
-export const getLeftHeavyFlamechart = (
-  profile: Profile,
-  rootFilter?: RootFilter,
-  {
-    getColorBucketForFrame = createGetColorBucketForFrame(getFrameToColorBucket(profile)),
-    processor,
-  }: {
-    getColorBucketForFrame?: (frame: Frame) => number
-    processor?: NodeProcessor
-  } = {},
-): Flamechart => {
-  return buildFlamechart(
-    {
-      minValue: 0,
-      maxValue: profile.getTotalNonIdleWeight(),
-      forEachCall: profile.forEachCallGrouped.bind(profile),
-      formatValue: profile.formatValue.bind(profile),
-      getColorBucketForFrame,
-    },
-    processor,
-    rootFilter,
-  )
-}
-
 export const getChronoViewFlamechart = (
   profile: Profile,
   rootFilter?: RootFilter,
@@ -156,10 +132,6 @@ export const FlamechartFactoryMap = {
    * Default flamechart
    */
   default: getChronoViewFlamechart,
-  /**
-   * left-heavy grouped view, more easy to find functions cost longer time.
-   */
-  'left-heavy': getLeftHeavyFlamechart,
   /**
    * used for network flow chart
    */
