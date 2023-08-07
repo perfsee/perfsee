@@ -17,7 +17,7 @@ limitations under the License.
 import { useTheme } from '@emotion/react'
 import { Stack } from '@fluentui/react'
 import { debounce } from 'lodash'
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { IconWithTips } from '@perfsee/components'
 import { darken } from '@perfsee/dls'
@@ -29,7 +29,7 @@ import { HeaderTitle } from '../style'
 
 export const ImageCount = 10
 export const ImageBoxWidth = 110
-export const ContainerPaddingLeft = 80
+const containerPaddingLeft = 20
 
 type Props = {
   snapshots: SnapshotDetailType[]
@@ -38,6 +38,7 @@ type Props = {
 export const OverviewRenderTimelines: FC<Props> = ({ snapshots }) => {
   const [position, setPosition] = useState<number>()
   const [currentTime, setCurrentTime] = useState<number>(0)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const { minTime, distance } = useMemo(() => {
     const { maxTime, minTime } = snapshots.reduce(
@@ -63,10 +64,11 @@ export const OverviewRenderTimelines: FC<Props> = ({ snapshots }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onMouseMove = useCallback(
     debounce((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      const containerLeft = (containerRef.current?.offsetLeft ?? 0) + containerPaddingLeft
       const maxTime = minTime + distance * (ImageCount - 1)
       const containerWidth = ImageCount * ImageBoxWidth
-      const time = ((event.clientX - ContainerPaddingLeft) / containerWidth) * maxTime + minTime
-      setPosition(event.clientX - ContainerPaddingLeft)
+      const time = ((event.clientX - containerLeft) / containerWidth) * maxTime + minTime
+      setPosition(event.clientX - containerLeft)
       setCurrentTime(time)
     }, 100),
     [],
@@ -88,7 +90,7 @@ export const OverviewRenderTimelines: FC<Props> = ({ snapshots }) => {
   }, [onMouseLeave, onMouseMove])
 
   return (
-    <div style={{ position: 'relative', width: `${ImageBoxWidth * ImageCount}px` }}>
+    <div style={{ position: 'relative', width: `${ImageBoxWidth * ImageCount}px` }} ref={containerRef}>
       <HeaderTitle>
         Render Timeline
         <IconWithTips
