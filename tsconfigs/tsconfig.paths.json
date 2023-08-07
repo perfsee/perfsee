@@ -45,6 +45,12 @@
       "@perfsee/flamechart/*": [
         "packages/flamechart/src/*"
       ],
+      "@perfsee/iri": [
+        "packages/iri/src"
+      ],
+      "@perfsee/iri/*": [
+        "packages/iri/src/*"
+      ],
       "@perfsee/jsonr": [
         "packages/jsonr/src"
       ],

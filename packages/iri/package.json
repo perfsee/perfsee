@@ -2,6 +2,7 @@
   "name": "@perfsee/iri",
   "version": "1.8.0",
   "description": "Proxy server with http2/https support",
+  "private": "true",
   "keywords": [
     "Rust",
     "N-API",
