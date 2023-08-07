@@ -41,6 +41,8 @@ import { UserService } from '../user'
 
 import { CreateGroupInput } from './types'
 
+const PROJECT_LIMIT = 12
+
 @Injectable()
 export class GroupService {
   loader = createDataLoader((ids: number[]) =>
@@ -218,8 +220,8 @@ export class GroupService {
       throw new UserError('Invalid id, ' + slugVerification.error)
     }
 
-    if (projectIds.length > 8) {
-      throw new UserError('Need less than 8 projects')
+    if (projectIds.length > PROJECT_LIMIT) {
+      throw new UserError(`Need less than ${PROJECT_LIMIT} projects`)
     }
 
     const projects = await Project.findBy({ slug: In(projectIds) })
@@ -262,8 +264,8 @@ export class GroupService {
       }
     }
 
-    if (isAdd && projectGroupCount > 7) {
-      throw new UserError('Need less than 8 projects')
+    if (isAdd && projectGroupCount > PROJECT_LIMIT) {
+      throw new UserError(`Need less than ${PROJECT_LIMIT} projects`)
     }
 
     if (isAdd && !existed) {
