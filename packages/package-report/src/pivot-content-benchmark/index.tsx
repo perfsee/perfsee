@@ -22,7 +22,6 @@ import {
   FlamechartContainer,
   importFromChromeCPUProfile,
   ProfileNameSearchEngine,
-  FlamechartFactoryMap,
   CPUProfile,
   CallTreeNode,
 } from '@perfsee/flamechart'
@@ -40,7 +39,7 @@ export const BenchmarkDetail: FC = memo(() => {
 
   const [focusedCase, setFocused] = useState<string | undefined>()
   const flameChartRef = useRef<HTMLDivElement>(null)
-  const [flameChartMode, setFlamechartMode] = useState<keyof typeof FlamechartFactoryMap>('default')
+  const [leftHeavy, setLeftHeavy] = useState(false)
   const [showCaseOnly, setShowCaseOnly] = useState(true)
 
   const onTableRowClick = useCallback(
@@ -60,14 +59,16 @@ export const BenchmarkDetail: FC = memo(() => {
   ))
 
   const profiles = useMemo(() => {
-    if (Array.isArray(current?.benchmarkResult?.profiles)) {
-      return current?.benchmarkResult?.profiles?.map((profile) => importFromChromeCPUProfile(profile as CPUProfile))
-    } else {
-      return current?.benchmarkResult?.profile
+    return (
+      Array.isArray(current?.benchmarkResult?.profiles)
+        ? current?.benchmarkResult?.profiles?.map((profile) => importFromChromeCPUProfile(profile as CPUProfile))
+        : current?.benchmarkResult?.profile
         ? [importFromChromeCPUProfile(current.benchmarkResult.profile as CPUProfile)]
         : undefined
-    }
-  }, [current])
+    )?.map((p) => {
+      return leftHeavy ? p.getLeftHeavyProfile() : p
+    })
+  }, [current, leftHeavy])
 
   const flameCharts = profiles
     ? profiles.map((profile, i) => {
@@ -82,7 +83,6 @@ export const BenchmarkDetail: FC = memo(() => {
               profile={profile}
               focusedFrame={focusedFrame}
               ref={flameChartRef}
-              flamechartFactory={flameChartMode}
               onDblclick={onFlameChartDbClick}
               rootFilter={showCaseOnly ? showCaseOnlyFilter : undefined}
             />
@@ -93,9 +93,9 @@ export const BenchmarkDetail: FC = memo(() => {
 
   const handleLeftHeavyModeToggle = useCallback((_: React.MouseEvent<HTMLElement>, checked?: boolean) => {
     if (checked) {
-      setFlamechartMode('left-heavy')
+      setLeftHeavy(true)
     } else {
-      setFlamechartMode('default')
+      setLeftHeavy(false)
     }
   }, [])
 
@@ -123,7 +123,7 @@ export const BenchmarkDetail: FC = memo(() => {
           <Stack horizontalAlign="end">
             <Toggle
               label="Left Heavy Mode"
-              checked={flameChartMode === 'left-heavy'}
+              checked={leftHeavy}
               styles={{ text: { whiteSpace: 'pre' } }}
               inlineLabel
               onText="On "
