@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/components",
-  "version": "1.8.5",
+  "version": "1.9.0",
   "description": "frontend components for perfsee platform",
   "private": true,
   "main": "esm/index.js",
