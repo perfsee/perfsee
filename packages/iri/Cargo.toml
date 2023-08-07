@@ -1,0 +1,39 @@
+[package]
+edition = "2018"
+name = "iri"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+async-compression = {version = "0.3", features = ["all-algorithms"]}
+async-stream = "0.3"
+bytes = "1.0"
+futures = "0.3"
+http = "0.2"
+hyper = {version = "0.14", features = ["full"]}
+hyper-tls = {version = "0.5", features = ["vendored"]}
+napi = {version = "1", features = ["serde-json", "napi6"]}
+napi-derive = "1"
+napi-sys = "1"
+once_cell = "1"
+rustls = "0.19"
+tokio = {version = "1", features = [
+  "full",
+]}
+tokio-native-tls = "0.3"
+tokio-rustls = "0.22"
+tokio-stream = "0.1"
+tokio-util = {version = "0.6", features = ["full"]}
+tower = "0.4"
+unicase = "2.6"
+
+[target.'cfg(all(unix, not(target_env = "musl"), not(target_arch = "aarch64"), not(target_arch = "arm")))'.dependencies]
+jemallocator = {version = "0.3", features = ["disable_initial_exec_tls"]}
+
+[target.'cfg(all(windows, target_arch = "x86_64"))'.dependencies]
+mimalloc = {version = "0.1"}
+
+[build-dependencies]
+napi-build = "1"

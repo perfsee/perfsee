@@ -22,7 +22,7 @@ import { groupBy, mapValues } from 'lodash'
 import puppeteer from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
-import { JobWorker } from '@perfsee/job-runner-shared'
+import { JobWorker, clearProxyCache, startProxyServer } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
@@ -44,8 +44,18 @@ import {
   slimTraceData,
   getLighthouseMetricScores,
   formatCookies,
+  onRequestFactory,
 } from './helpers'
-import { computeMedianRun, getFCP, getNumericValue, getTTI, lighthouse, MetricsRecord } from './lighthouse-runtime'
+import {
+  computeMedianRun,
+  runsNotExceedMedianBy,
+  getLCPScore,
+  getScore,
+  getTBTScore,
+  getTTI,
+  lighthouse,
+  MetricsRecord,
+} from './lighthouse-runtime'
 import { ReactProfiler } from './lighthouse-runtime/gatherers'
 
 export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
@@ -56,6 +66,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   protected async before() {
     await this.warmupPageLoad()
+    await this.startProxyServer()
     return Promise.resolve()
   }
 
@@ -76,7 +87,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       // `devtoolsLogs.defaultPass` doesn't exist when the page is not found(404).
     }
 
-    if (!Number.isFinite(getNumericValue(lhr, 'first-contentful-paint'))) {
+    if (!Number.isFinite(getScore(lhr, 'first-contentful-paint'))) {
       failedReason = 'No valid FCP result emitted.'
     }
 
@@ -189,6 +200,31 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
+  protected async startProxyServer() {
+    if (this.payload.enableProxy) {
+      try {
+        this.logger.info('Found `enableProxy` flag, Start proxy server now.')
+        startProxyServer()
+
+        // load page twice to cache api requests
+        await this.loadPage()
+        await this.loadPage()
+      } catch (e) {
+        this.logger.error('Failed to start proxy server.', { error: e })
+      }
+    }
+  }
+
+  protected async stopProxyServer() {
+    if (this.payload.enableProxy) {
+      try {
+        await clearProxyCache()
+      } catch (e) {
+        this.logger.error('Failed to clear proxy cache', { error: e })
+      }
+    }
+  }
+
   private wrapLighthouseLogger() {
     // we may have different version of `debug` lib
     // hack in this is safer
@@ -236,11 +272,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   private async createBrowser() {
     const { cookies, localStorageContent } = this
-    const { url, deviceId } = this.payload
+    const { url, deviceId, enableProxy } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
 
-    const browser = await createBrowser()
+    const browser = await createBrowser({ enableProxy })
 
     browser.on('targetcreated', (e: puppeteer.Target) => {
       const setup = async () => {
@@ -263,7 +299,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             }, localStorageContent)
           })
           .catch((err) => {
-            this.logger.error('inject localStorage error, localStorage may not work, ' + err)
+            this.logger.warn('inject localStorage error, localStorage may not work, ' + err)
           })
       }
 
@@ -277,8 +313,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   private async runLighthouse() {
     const { cookies, headers, localStorageContent, reactProfiling } = this
-    const { url, deviceId, throttle, runs } = this.payload
+    const { url, deviceId, throttle, enableProxy } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
+    let runs = this.payload.runs
 
     this.logger.info(`Will load page: ${url}`, {
       device,
@@ -311,7 +348,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     let result: LH.PerfseeRunnerResult | undefined
     let errorMessage: string | undefined
-    const metricsList: MetricsRecord[] = []
+    let metricsList: MetricsRecord[] = []
 
     const tmpDir = `tmp/lighthouse-artifacts-${Date.now()}`
 
@@ -322,28 +359,19 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     for (let i = 0; i < runs; i++) {
       this.logger.info(`Running lighthouse auditing. Round #${i + 1}`)
-      const browser = await this.createBrowser()
 
       try {
-        const wsEndpoint = new URL(browser.wsEndpoint())
-        const lhResult = await lighthouse(url, {
-          port: parseInt(wsEndpoint.port),
-          hostname: wsEndpoint.hostname,
-          ...lighthouseFlags,
-        })
-
+        const runData = await this.runLh(url, lighthouseFlags)
+        const lhResult = runData.result
         if (lhResult) {
-          const msg: LH.IcuMessage | undefined = lhResult.artifacts.PageLoadError?.friendlyMessage
-          if (msg) {
-            errorMessage = msg.formattedDefault
-          }
-
           if (runs > 1) {
-            metricsList.push({
+            const metrics = {
               index: i,
-              fcp: getFCP(lhResult.lhr),
-              tti: getTTI(lhResult.lhr),
-            })
+              lcp: getLCPScore(lhResult.lhr),
+              tbt: getTBTScore(lhResult.lhr),
+            }
+            this.logger.info('Avaliable result: ', metrics)
+            metricsList.push(metrics)
             const inputFile = join(tmpDir, `${i}-artifacts.json`)
             await writeFile(inputFile, JSON.stringify(lhResult))
           } else {
@@ -351,11 +379,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           }
         }
 
-        try {
-          await browser.close()
-          this.logger.verbose('Browser closed')
-        } catch (e) {
-          this.logger.error('Failed to close browser', { error: e })
+        if (runData.errorMessage) {
+          errorMessage = runData.errorMessage
         }
       } catch (e) {
         errorMessage = 'message' in (e as Error) ? (e as Error).message : String(e)
@@ -366,6 +391,20 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         // So we leave Browser closing job to process exiting.
       }
 
+      if (enableProxy && runs > 3 && i === runs - 1) {
+        // after last run, we drop results that has a obvious variability
+        const stableRuns = runsNotExceedMedianBy(0.05, metricsList)
+        if (stableRuns.length) {
+          metricsList = stableRuns
+        } else {
+          metricsList = runsNotExceedMedianBy(0.1, metricsList)
+        }
+
+        // and run more test to get enough stable results
+        runs += this.payload.runs - metricsList.length
+        runs = Math.min(runs, this.payload.runs * 2)
+      }
+
       // save my times
       if (i === 0 && errorMessage) {
         this.logger.info('Early return because error found in first round.')
@@ -373,7 +412,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    if (runs > 1 && metricsList.length) {
+    await this.stopProxyServer()
+
+    if (metricsList.length) {
       this.logger.info('All available result: ', metricsList)
       const index = metricsList.length < 3 ? metricsList[metricsList.length - 1].index : computeMedianRun(metricsList)
       const inputFile = join(tmpDir, `${index}-artifacts.json`)
@@ -386,6 +427,40 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     return result
+  }
+
+  private async runLh(url: string, lighthouseFlags: LH.Flags) {
+    let errorMessage: string | undefined
+    let result: LH.PerfseeRunnerResult | undefined
+    const browser = await this.createBrowser()
+
+    const wsEndpoint = new URL(browser.wsEndpoint())
+    const lhResult = await lighthouse(url, {
+      port: parseInt(wsEndpoint.port),
+      hostname: wsEndpoint.hostname,
+      ...lighthouseFlags,
+    })
+
+    if (lhResult) {
+      const msg: LH.IcuMessage | undefined = lhResult.artifacts.PageLoadError?.friendlyMessage
+      if (msg) {
+        errorMessage = msg.formattedDefault
+      }
+
+      result = lhResult
+    }
+
+    try {
+      await browser.close()
+      this.logger.verbose('Browser closed')
+    } catch (e) {
+      this.logger.error('Failed to close browser', { error: e })
+    }
+
+    return {
+      result,
+      errorMessage,
+    }
   }
 
   private async uploadScreencast(screencast: LH.ScreencastGathererResult | null) {
@@ -506,5 +581,29 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     })
 
     return metrics
+  }
+
+  private async loadPage() {
+    this.logger.info('Preload the page now for requests proxying.')
+    const browser = await this.createBrowser()
+    this.logger.info('Browser created.')
+
+    try {
+      const page = await browser.newPage()
+      await page.setRequestInterception(true)
+      this.logger.info('page created.')
+      const onRequest = onRequestFactory(this.payload.url, this.headers)
+      page.on('request', onRequest)
+
+      this.logger.info(`Loading page: ${this.payload.url}`)
+      await page.goto(this.payload.url, {
+        waitUntil: ['networkidle2'],
+      })
+      this.logger.info('Finished loading page.')
+    } catch (e) {
+      this.logger.error('Error occurred when loading page.', { error: e })
+    } finally {
+      await browser.close()
+    }
   }
 }

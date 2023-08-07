@@ -54,6 +54,7 @@ export function getLighthouseRunData(
       runs: page.isE2e || process.env.NODE_ENV === 'development' ? 1 : 5,
       localStorage: env.localStorage ?? [],
       reactProfiling: profile.reactProfiling ?? false,
+      enableProxy: profile.enableProxy ?? false,
     }
   })
 }

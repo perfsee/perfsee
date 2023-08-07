@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "target": "ESNext",
+    "module": "CommonJS"
+  },
+  "include": [
+    "."
+  ]
+}

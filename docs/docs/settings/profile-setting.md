@@ -57,13 +57,6 @@ The following network speed options are available:
 
 ### React Profiling
 
-:::caution Notice
-
-This is an experimental feature which may be unstable in some circumstances. Please report an issue if it works unexpectedly.
-
-It may slow down the rendering speed of pages.
-
-:::
 ![](/settings/react-profiling.png)
 
 By enabling this feature, timing information about each component that’s rendered in React applications will be collected during lab analysis.
@@ -72,3 +65,9 @@ Flamegraph will be shown in the snapshot report, which can help us to identify p
 
 This feature is based on the use of React Profier API, which is disabled in the production build.
 We solved this by intercepting the network request of `react-dom` and replace it with a profiling build.
+
+### Request Proxy
+
+By enabling this feature, we start a tcp server to proxy portions of HTTP requests to prevent inevitable variability of networking, which can make the lab result more stable and reliable.
+
+More specifically, we caches the response of all static resources and portions of API requests during the warmup phase and respond with them during the real lab running phase.

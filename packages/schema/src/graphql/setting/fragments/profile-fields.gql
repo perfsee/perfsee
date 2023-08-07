@@ -5,4 +5,5 @@ fragment profileFields on Profile {
     bandWidth
     disable
     reactProfiling
+    enableProxy
 }

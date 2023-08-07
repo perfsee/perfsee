@@ -177,6 +177,12 @@ export class Profile extends BaseEntity {
 
   @OneToMany('SnapshotReport', 'profile')
   reports!: SnapshotReport[]
+
+  @Field(() => Boolean, {
+    description: 'Enable http2 + https proxy server',
+  })
+  @Column({ type: 'boolean', default: false })
+  enableProxy!: boolean
 }
 
 @ObjectType({ description: 'environment used to measure pages' })
