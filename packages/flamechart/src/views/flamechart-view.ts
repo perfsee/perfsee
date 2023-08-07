@@ -17,9 +17,6 @@ export class FlamechartView {
   private readonly controller: FlamechartViewController
   constructor(
     container: HTMLElement,
-    flamechart: Flamechart,
-    timings: Timing[],
-    images: FlamechartImage[],
     theme: Theme,
     bindingManager: FlamechartBindingManager | undefined,
     props: Props,
@@ -47,18 +44,30 @@ export class FlamechartView {
     this.innerContainer.appendChild(overlayCanvas)
     container.appendChild(this.innerContainer)
 
-    this.renderer = new FlamechartViewRenderer(overlayCanvas, glCanvas, flamechart, timings, images, theme)
+    this.renderer = new FlamechartViewRenderer(overlayCanvas, glCanvas, theme)
     this.controller = new FlamechartViewController(
       this.innerContainer,
       overlayCanvas,
       glCanvas,
-      flamechart,
       this.renderer,
-      timings,
-      images,
       bindingManager,
       props,
     )
+  }
+
+  setFlamechart(flamechart: Flamechart) {
+    this.renderer.setFlamechart(flamechart)
+    this.controller.setFlamechart(flamechart)
+  }
+
+  setTimings(timings: Timing[]) {
+    this.renderer.setTimings(timings)
+    this.controller.setTimings(timings)
+  }
+
+  setImages(images: FlamechartImage[]) {
+    this.renderer.setImages(images)
+    this.controller.setImages(images)
   }
 
   dispose() {

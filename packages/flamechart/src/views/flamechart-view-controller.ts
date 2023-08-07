@@ -31,7 +31,7 @@ export interface ControllerProps {
  * support zoom, pin, hover, selection and animation
  */
 export class FlamechartViewController {
-  private viewport: Rect = null!
+  private viewport: Rect = Rect.empty
   private physicalSize: Vec2 = null!
   private devicePixelRatio = 1
   private selectedFrame: FlamechartFrame | undefined = undefined
@@ -40,16 +40,16 @@ export class FlamechartViewController {
   private timelineCursor: number | undefined = undefined
   private searchResults: ProfileSearchEngine | undefined = undefined
   private renderFeedback: RenderFeedback | undefined = undefined
+  private flamechart: Flamechart | undefined = undefined
+  private timings: Timing[] = []
+  private images: FlamechartImage[] = []
   private readonly resizeObserver: ResizeObserver
 
   constructor(
     private readonly container: HTMLElement,
     private readonly overlayCanvas: HTMLCanvasElement,
     private readonly glCanvas: HTMLCanvasElement,
-    private readonly flamechart: Flamechart,
     private readonly renderer: FlamechartViewRenderer,
-    private readonly timings: Timing[],
-    private readonly images: FlamechartImage[],
     private readonly bindingManager: FlamechartBindingManager | undefined,
     private readonly props: ControllerProps,
   ) {
@@ -63,24 +63,65 @@ export class FlamechartViewController {
     this.resizeObserver.observe(this.container)
     this.bindingManager?.addListener(this.onBindingChanged)
 
-    for (const image of images) {
-      image.addEventListener('update', this.onUpdateImage)
-    }
+    this.onResize()
+  }
 
-    const viewSize = this.viewSize()
-    const defaultTopPadding = timings.length > 0 && !this.props.bottomTimingLabels ? -2.5 : -1
-    const topPadding = typeof this.props.topPadding === 'number' ? -this.props.topPadding : defaultTopPadding
-    const initialLeft = props.initialLeft ?? 0
-    const initialRight = props.initialRight ?? viewSize.x
-    this.viewport = new Rect(
-      new Vec2(initialLeft, topPadding),
-      new Vec2(initialRight - initialLeft, /* initialize on resize */ 0),
+  setTimings(timings: Timing[]) {
+    const oldViewport = this.viewport
+    const oldMaxViewport = this.getMaxViewport()
+    this.timings = timings
+    const newMaxViewport = this.getMaxViewport()
+    const transform = AffineTransform.betweenRects(
+      new Rect(oldMaxViewport.min, oldMaxViewport.max.minus(oldMaxViewport.min)),
+      new Rect(newMaxViewport.min, newMaxViewport.max.minus(newMaxViewport.min)),
     )
+    this.viewport = transform.transformRect(oldViewport)
+    this.onResize()
+  }
+
+  setFlamechart(flamechart: Flamechart) {
+    const oldViewport = this.viewport
+    const oldMaxViewport = this.getMaxViewport()
+    this.flamechart = flamechart
+    if (oldViewport.isEmpty()) {
+      const viewSize = this.viewSize()
+      const defaultTopPadding = this.timings.length > 0 && !this.props.bottomTimingLabels ? -2.5 : -1
+      const topPadding = typeof this.props.topPadding === 'number' ? -this.props.topPadding : defaultTopPadding
+      const initialLeft = this.props.initialLeft ?? 0
+      const initialRight = this.props.initialRight ?? viewSize.x
+      this.viewport = new Rect(
+        new Vec2(initialLeft, topPadding),
+        new Vec2(initialRight - initialLeft, /* initialize on resize */ 0),
+      )
+    } else {
+      const newMaxViewport = this.getMaxViewport()
+
+      const transform = AffineTransform.betweenRects(
+        new Rect(oldMaxViewport.min, oldMaxViewport.max.minus(oldMaxViewport.min)),
+        new Rect(newMaxViewport.min, newMaxViewport.max.minus(newMaxViewport.min)),
+      )
+
+      this.viewport = transform.transformRect(oldViewport)
+    }
 
     this.onResize()
   }
 
+  setImages(images: FlamechartImage[]) {
+    for (const image of this.images) {
+      image.removeEventListener('update', this.onUpdateImage)
+    }
+    for (const image of images) {
+      image.addEventListener('update', this.onUpdateImage)
+    }
+    this.images = images
+    this.requestRender()
+  }
+
   viewSize(): Vec2 {
+    if (!this.flamechart) {
+      return Vec2.zero
+    }
     return new Vec2(this.flamechart.getMaxValue() - this.flamechart.getMinValue(), this.flamechart.getLayers().length)
   }
 
@@ -254,6 +295,9 @@ export class FlamechartViewController {
   }
 
   private readonly onMouseMove = (ev: MouseEvent) => {
+    if (!this.flamechart) {
+      return
+    }
     const logicalViewSpaceMouse = new Vec2(ev.offsetX, ev.offsetY)
     const physicalViewSpaceMouse = this.logicalToPhysicalViewSpace().transformPosition(logicalViewSpaceMouse)
     const configSpaceMouse = this.configSpaceToPhysicalViewSpace().inverseTransformPosition(physicalViewSpaceMouse)
@@ -362,13 +406,13 @@ export class FlamechartViewController {
       this.glCanvas.height = this.physicalSize.y
       this.overlayCanvas.width = this.physicalSize.x
       this.overlayCanvas.height = this.physicalSize.y
-      this.viewport = this.limitViewport(
-        this.viewport.withSize(
-          this.viewport.size.withY(this.physicalSize.y / (LOGICAL_FRAME_HEIGHT * this.devicePixelRatio)),
-        ),
-      )
     }
 
+    this.viewport = this.limitViewport(
+      this.viewport.withSize(
+        this.viewport.size.withY(this.physicalSize.y / (LOGICAL_FRAME_HEIGHT * this.devicePixelRatio)),
+      ),
+    )
     this.stopAnimationViewportRect()
     this.syncRender()
   }
@@ -487,7 +531,34 @@ export class FlamechartViewController {
     this.viewport = this.limitViewport(targetViewport)
   }
 
+  private getMaxViewport() {
+    if (!this.flamechart) {
+      return {
+        min: Vec2.zero,
+        max: Vec2.zero,
+      }
+    }
+
+    const minLeft = this.props.minLeft ?? this.flamechart.getMinValue()
+    const maxRight = this.props.maxRight ?? this.flamechart.getMaxValue()
+
+    const defaultTopPadding = this.timings.length > 0 && !this.props.bottomTimingLabels ? -2.5 : -1
+    const topPadding = typeof this.props.topPadding === 'number' ? -this.props.topPadding : defaultTopPadding
+    const bottomPadding = this.props.bottomPadding ?? 20
+    return {
+      min: new Vec2(minLeft, topPadding),
+      max: Vec2.max(
+        new Vec2(minLeft, topPadding),
+        new Vec2(maxRight, this.flamechart.getLayers().length + bottomPadding),
+      ),
+    }
+  }
+
   private limitViewport(viewport: Rect) {
+    if (!this.flamechart) {
+      return Rect.empty
+    }
+
     const maxWidth =
       typeof this.props.maxRight === 'number' && typeof this.props.minLeft === 'number'
         ? this.props.maxRight - this.props.minLeft
@@ -495,24 +566,16 @@ export class FlamechartViewController {
 
     const maxZoom = Math.pow(2, 40)
     const minWidth = maxWidth / maxZoom
-    const minLeft = this.props.minLeft ?? this.flamechart.getMinValue()
-    const maxRight = this.props.maxRight ?? this.flamechart.getMaxValue()
 
     const width = clamp(viewport.size.x, minWidth, maxWidth)
     const size = viewport.size.withX(width)
 
     const defaultTopPadding = this.timings.length > 0 && !this.props.bottomTimingLabels ? -2.5 : -1
     const topPadding = typeof this.props.topPadding === 'number' ? -this.props.topPadding : defaultTopPadding
-    const bottomPadding = this.props.bottomPadding ?? 20
 
-    const origin = Vec2.clamp(
-      viewport.origin,
-      new Vec2(minLeft, topPadding),
-      Vec2.max(
-        new Vec2(-Infinity, topPadding),
-        new Vec2(maxRight, this.flamechart.getLayers().length + bottomPadding).minus(size),
-      ),
-    )
+    const { min, max } = this.getMaxViewport()
+
+    const origin = Vec2.clamp(viewport.origin, min, Vec2.max(new Vec2(-Infinity, topPadding), max.minus(size)))
     return new Rect(origin, size)
   }
 
