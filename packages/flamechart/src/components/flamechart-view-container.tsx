@@ -202,29 +202,21 @@ export const FlamechartViewContainer = memo(
 
       useEffect(() => {
         if (flamechartContainer) {
-          const newView = new FlamechartView(
-            flamechartContainer,
-            flamechart,
-            timings ?? [],
-            images ?? [],
-            theme,
-            bindingManager,
-            {
-              initialLeft,
-              initialRight,
-              minLeft,
-              maxRight,
-              topPadding,
-              disableTimeIndicators,
-              bottomTimingLabels,
-              bottomPadding,
-              hiddenFrameLabels,
-              disableTimelineCursor,
-              onNodeSelect: handleSelectFlamechart,
-              onNodeHover: onFrameHover,
-              onTimingHover: onTimingHover,
-            },
-          )
+          const newView = new FlamechartView(flamechartContainer, theme, bindingManager, {
+            initialLeft,
+            initialRight,
+            minLeft,
+            maxRight,
+            topPadding,
+            disableTimeIndicators,
+            bottomTimingLabels,
+            bottomPadding,
+            hiddenFrameLabels,
+            disableTimelineCursor,
+            onNodeSelect: handleSelectFlamechart,
+            onNodeHover: onFrameHover,
+            onTimingHover: onTimingHover,
+          })
 
           setView(newView)
           return () => {
@@ -235,7 +227,6 @@ export const FlamechartViewContainer = memo(
         bindingManager,
         disableTimeIndicators,
         disableTimelineCursor,
-        flamechart,
         flamechartContainer,
         handleSelectFlamechart,
         initialLeft,
@@ -245,11 +236,27 @@ export const FlamechartViewContainer = memo(
         maxRight,
         minLeft,
         theme,
-        timings,
-        images,
         topPadding,
         hiddenFrameLabels,
       ])
+
+      useEffect(() => {
+        if (view && flamechart) {
+          view.setFlamechart(flamechart)
+        }
+      }, [view, flamechart])
+
+      useEffect(() => {
+        if (view) {
+          view.setTimings(timings ?? [])
+        }
+      }, [view, timings])
+
+      useEffect(() => {
+        if (view) {
+          view.setImages(images ?? [])
+        }
+      }, [view, images])
 
       return (
         <div style={{ position: 'relative', height, overflow: 'hidden', ...style }}>
@@ -275,3 +282,5 @@ export const FlamechartViewContainer = memo(
     },
   ),
 )
+
+FlamechartViewContainer.displayName = 'FlamechartViewContainer'
