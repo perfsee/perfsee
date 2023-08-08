@@ -21,9 +21,13 @@ import { promisify } from 'util'
 import { noop } from 'lodash'
 
 export const clearProxyCache = (function () {
-  if (process.env.ENABLE_PROXY || process.env.NODE_ENV === 'production') {
-    const { clearCache } = require('@perfsee/iri')
-    return promisify(clearCache)
+  try {
+    if (process.env.ENABLE_PROXY || process.env.NODE_ENV === 'production') {
+      const { clearCache } = require('@perfsee/iri')
+      return promisify(clearCache)
+    }
+  } catch (e) {
+    console.warn('@perfsee/iri module is not available')
   }
   return noop
 })()
@@ -31,17 +35,21 @@ export const clearProxyCache = (function () {
 export const startProxyServer = (function () {
   if (process.env.ENABLE_PROXY || process.env.NODE_ENV === 'production') {
     return () => {
-      const { startServer } = require('@perfsee/iri')
-      if (process.env.NODE_ENV === 'production') {
-        execSync(`${join(process.cwd(), 'mkcert')} -install`, {
-          stdio: 'inherit',
-        })
-      }
-      startServer((err: Error | null) => {
-        if (err) {
-          console.error('Proxy server error', err)
+      try {
+        const { startServer } = require('@perfsee/iri')
+        if (process.env.NODE_ENV === 'production') {
+          execSync(`${join(process.cwd(), 'mkcert')} -install`, {
+            stdio: 'inherit',
+          })
         }
-      })
+        startServer((err: Error | null) => {
+          if (err) {
+            console.error('Proxy server error', err)
+          }
+        })
+      } catch (e) {
+        console.warn('@perfsee/iri module is not available')
+      }
     }
   }
   return noop
