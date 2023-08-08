@@ -6063,30 +6063,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@napi-rs/cli@npm:^1.3.3":
-  version: 1.3.5
-  resolution: "@napi-rs/cli@npm:1.3.5"
-  dependencies:
-    inquirer: ^8.1.3
-  bin:
-    napi: scripts/index.js
-  checksum: 80b1a6fc61dd02b77b71b7f6027d5f0569fccddeae45e4426f9e97c3fdbb3586136f29349707f529ef44f0f982a34eee671a9e5c0333abcb3c65926457544232
-  languageName: node
-  linkType: hard
-
 "@napi-rs/cli@npm:^2.11.4":
   version: 2.11.4
   resolution: "@napi-rs/cli@npm:2.11.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40napi-rs%2Fcli%2F-%2Fcli-2.11.4.tgz"
   bin:
     napi: scripts/index.js
   checksum: f9f1036520ba43685c782c4eafdd56176930d317ab31c6841c2f033e09f4cac7c9561ccdfeaefcb30c2ac5e64390fb308a5658eb47c373e8131e138ad38b98c1
-  languageName: node
-  linkType: hard
-
-"@napi-rs/triples@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@napi-rs/triples@npm:1.1.0"
-  checksum: 8da77d47ec15704b1936f5f3995951459fc5d604bf2ed400d9579e3356dc0aeb486b217a503f675dda653221751e1fd5dcaaf8de1bab3c71853e8cfd72309709
   languageName: node
   linkType: hard
 
@@ -6386,15 +6368,6 @@ __metadata:
     rxjs: ^7.2.0
     typeorm: ^0.3.0
   checksum: fbf8d28405331bffa7bf224664d99078c0b7bf55a77007f79ca141a94fcf812dbc5ac40baacff370626b15f6e037bb8d60e6fee977c798fbb3f6b080c5d5b3d9
-  languageName: node
-  linkType: hard
-
-"@node-rs/helper@npm:^1.2.1":
-  version: 1.3.3
-  resolution: "@node-rs/helper@npm:1.3.3"
-  dependencies:
-    "@napi-rs/triples": ^1.1.0
-  checksum: 2539913a0505895aa64f726ca43acf639fa24fe5e049677de874a9aa0b3f1c548f9d1d8fe1746e7731758f069f94a991398fe534f9d3cb6ec08a95ffd6522aa2
   languageName: node
   linkType: hard
 
@@ -6976,8 +6949,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/iri@workspace:packages/iri"
   dependencies:
-    "@napi-rs/cli": ^1.3.3
-    "@node-rs/helper": ^1.2.1
+    "@napi-rs/cli": ^2.11.4
   languageName: unknown
   linkType: soft
 
@@ -19332,29 +19304,6 @@ __metadata:
     through: ^2.3.6
     wrap-ansi: ^7.0.0
   checksum: dfcb6529d3af443dfea2241cb471508091b51f5121a088fdb8728b23ec9b349ef0a5e13a0ef2c8e19457b0bed22f7cbbcd561f7a4529d084c562a58c605e2655
-  languageName: node
-  linkType: hard
-
-"inquirer@npm:^8.1.3":
-  version: 8.2.5
-  resolution: "inquirer@npm:8.2.5"
-  dependencies:
-    ansi-escapes: ^4.2.1
-    chalk: ^4.1.1
-    cli-cursor: ^3.1.0
-    cli-width: ^3.0.0
-    external-editor: ^3.0.3
-    figures: ^3.0.0
-    lodash: ^4.17.21
-    mute-stream: 0.0.8
-    ora: ^5.4.1
-    run-async: ^2.4.0
-    rxjs: ^7.5.5
-    string-width: ^4.1.0
-    strip-ansi: ^6.0.0
-    through: ^2.3.6
-    wrap-ansi: ^7.0.0
-  checksum: f13ee4c444187786fb393609dedf6b30870115a57b603f2e6424f29a99abc13446fd45ee22461c33c9c40a92a60a8df62d0d6b25d74fc6676fa4cb211de55b55
   languageName: node
   linkType: hard
 
