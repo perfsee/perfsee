@@ -349,6 +349,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     let result: LH.PerfseeRunnerResult | undefined
     let errorMessage: string | undefined
     let metricsList: MetricsRecord[] = []
+    let errorTimes = 0
 
     const tmpDir = `tmp/lighthouse-artifacts-${Date.now()}`
 
@@ -405,10 +406,14 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         runs = Math.min(runs, this.payload.runs * 2)
       }
 
-      // save my times
-      if (i === 0 && errorMessage) {
-        this.logger.info('Early return because error found in first round.')
-        break
+      if (errorMessage) {
+        errorTimes += 1
+
+        // save my times
+        if (i === 0 || errorTimes >= 2) {
+          this.logger.info('Early return because error found in first round or error occured twice.')
+          break
+        }
       }
     }
 

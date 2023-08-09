@@ -102,7 +102,14 @@ export class JobTraceModule extends EffectModule<State> {
 
     rawLogs.forEach((log, i) => {
       const [level, time, message, payload] = log
-      const curLog = { id: i + percedingCount, level, elapsed: time - (elapsed || time), time, message, payload }
+      const curLog = {
+        id: i + percedingCount,
+        level,
+        elapsed: time - (elapsed || time),
+        time,
+        message: typeof message === 'string' ? message : JSON.stringify(message),
+        payload,
+      }
       elapsed = time
 
       if (level !== JobLogLevel.info && level !== JobLogLevel.error) {
