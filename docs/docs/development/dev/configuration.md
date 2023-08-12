@@ -195,6 +195,8 @@ perfsee.objectStorage.artifact = {
   region: 'eu-west-1',
   aws_access_key_id: '',
   aws_secret_access_key: '',
+  aws_s3_bucket: '',
+  aws_s3_endpoint: '',
   // other aws storage perfsee...
 }
 // If you don't need to store logs separately, you can leave it empty
@@ -203,6 +205,8 @@ perfsee.objectStorage.jobLog = {
   region: 'eu-west-1',
   aws_access_key_id: '',
   aws_secret_access_key: '',
+  aws_s3_bucket: '',
+  aws_s3_endpoint: '',
   // other aws storage perfsee...
 }
 ```

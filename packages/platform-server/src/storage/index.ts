@@ -16,7 +16,11 @@ limitations under the License.
 
 import { FactoryProvider, Module } from '@nestjs/common'
 
+import { Config } from '../config'
+
+import { S3Config, S3Storage } from './providers/aws'
 import { ObjectStorage, LogObjectStorage } from './providers/local'
+import { BaseObjectStorage } from './providers/provider'
 
 /**
  * override in the way like:
@@ -30,17 +34,25 @@ import { ObjectStorage, LogObjectStorage } from './providers/local'
  * }
  */
 const artifactProvider: FactoryProvider = {
-  provide: ObjectStorage,
-  useFactory: () => {
+  provide: BaseObjectStorage,
+  useFactory: (config: Config) => {
+    if (config.objectStorage.enable && config.objectStorage.artifact.provider === 'aws') {
+      return new S3Storage(config.objectStorage.artifact as unknown as S3Config)
+    }
     return new ObjectStorage()
   },
+  inject: [Config],
 }
 
 const logProvider: FactoryProvider = {
-  provide: LogObjectStorage,
-  useFactory: () => {
+  provide: BaseObjectStorage,
+  useFactory: (config: Config) => {
+    if (config.objectStorage.enable && config.objectStorage.jobLog?.provider === 'aws') {
+      return new S3Storage(config.objectStorage.jobLog as unknown as S3Config)
+    }
     return new LogObjectStorage()
   },
+  inject: [Config],
 }
 
 @Module({
@@ -49,4 +61,4 @@ const logProvider: FactoryProvider = {
 })
 export class StorageModule {}
 
-export { ObjectStorage, LogObjectStorage as JobLogStorage }
+export { BaseObjectStorage as ObjectStorage, BaseObjectStorage as JobLogStorage }
