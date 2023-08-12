@@ -78,7 +78,10 @@ export class S3Storage extends BaseObjectStorage {
       Bucket: this.bucket,
       Key: name,
     })
-    const result = await this.client.send(getObject)
+    const result = await this.client.send(getObject).catch((err) => {
+      debug(`Get ${name} from s3 storage failed, error: ${err}`)
+      throw err
+    })
     if (result.Body) {
       return Buffer.from(await result.Body.transformToByteArray())
     }
@@ -91,7 +94,10 @@ export class S3Storage extends BaseObjectStorage {
       Bucket: this.bucket,
       Key: name,
     })
-    const result = await this.client.send(getObject)
+    const result = await this.client.send(getObject).catch((err) => {
+      debug(`Get ${name} stream from s3 storage failed, error: ${err}`)
+      throw err
+    })
     if (result.Body) {
       return result.Body as Readable
     }
@@ -110,15 +116,11 @@ export class S3Storage extends BaseObjectStorage {
       queueSize: 5,
       partSize: 1024 * 1024 * 5,
     })
-    const result = await upload
-      .done()
-      .then((v) => {
-        debug(`Upload ${name} to s3 storage, result: ${JSON.stringify(v.$metadata)}`)
-      })
-      .catch((err) => {
-        debug(`Upload ${name} to s3 storage failed: ${err}`)
-      })
-    debug(`Upload ${name} to s3 storage, result: ${JSON.stringify(result)}`)
+    const result = await upload.done().catch((err) => {
+      debug(`Upload ${name} to s3 storage failed, error: ${err}`)
+      throw err
+    })
+    debug(`Upload ${name} to s3 storage, result: ${JSON.stringify(result.$metadata)}`)
   }
   async uploadFile(name: string, file: string): Promise<void> {
     debug(`Uploading ${name} filepath: ${file} to s3 storage...`)
@@ -132,16 +134,22 @@ export class S3Storage extends BaseObjectStorage {
       queueSize: 5,
       partSize: 1024 * 1024 * 5,
     })
-    const result = await upload.done()
-    debug(`Upload ${name} to s3 storage, result: ${JSON.stringify(result)}`)
+    const result = await upload.done().catch((err) => {
+      debug(`Upload ${name} to s3 storage failed, error: ${err}`)
+      throw err
+    })
+    debug(`Upload ${name} to s3 storage, result: ${JSON.stringify(result.$metadata)}`)
   }
   async delete(name: string): Promise<void> {
     const deleteObject = new DeleteObjectCommand({
       Bucket: this.bucket,
       Key: name,
     })
-    const result = await this.client.send(deleteObject)
-    debug(`Delete ${name} from s3 storage, result: ${JSON.stringify(result)}`)
+    const result = await this.client.send(deleteObject).catch((err) => {
+      debug(`Delete ${name} from s3 storage failed, error: ${err}`)
+      throw err
+    })
+    debug(`Delete ${name} from s3 storage, result: ${JSON.stringify(result.$metadata)}`)
   }
   async bulkDelete(name: string[]): Promise<void> {
     if (name.length < 1000) {
@@ -152,8 +160,11 @@ export class S3Storage extends BaseObjectStorage {
           Quiet: true,
         },
       })
-      const result = await this.client.send(deleteObjects)
-      debug(`Bulk delete from s3 storage, result: ${JSON.stringify(result)}`)
+      const result = await this.client.send(deleteObjects).catch((err) => {
+        debug(`Bulk delete from s3 storage failed, error: ${err}`)
+        throw err
+      })
+      debug(`Bulk delete from s3 storage, result: ${JSON.stringify(result.$metadata)}`)
       return
     }
     return new Promise((resolve, reject) => {
