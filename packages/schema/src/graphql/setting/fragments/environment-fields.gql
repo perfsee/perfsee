@@ -24,4 +24,5 @@ fragment environmentFields on Environment {
     disable
     needReminder
     zone
+    loginScript
 }

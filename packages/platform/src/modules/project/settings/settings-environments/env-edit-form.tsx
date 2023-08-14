@@ -33,6 +33,7 @@ import { CookieSchema, EnvSchema, PropertyModule, LocalStorageSchema, HeaderSche
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
 import { FormLocalStorage } from './form-localstorage'
+import { LoginScriptForm } from './login-script-form'
 
 type FromProps = {
   defaultEnv?: EnvSchema
@@ -54,6 +55,7 @@ export const EnvEditForm = (props: FromProps) => {
   const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
   const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
   const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageSchema[] }>()
+  const loginScriptRef = useRef<{ getScript: () => string | null }>()
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
   const onSave = useCallback(
@@ -62,9 +64,10 @@ export const EnvEditForm = (props: FromProps) => {
       const cookies = cookiesRef.current!.getCookies()
       const headers = headersRef.current!.getHeaders()
       const localStorage = localStorageRef.current!.getLocalStorage()
+      const loginScript = loginScriptRef.current!.getScript()
 
       // Not allowed to save
-      if (!name) {
+      if (!name || loginScript === '') {
         return
       }
 
@@ -77,6 +80,7 @@ export const EnvEditForm = (props: FromProps) => {
         localStorage,
         needReminder,
         zone,
+        loginScript,
       })
     },
     [onSubmit, defaultEnv, zone],
@@ -97,6 +101,7 @@ export const EnvEditForm = (props: FromProps) => {
       <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
+      <LoginScriptForm defaultScript={defaultEnv?.loginScript} ref={loginScriptRef} />
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">
         <DialogFooter>
           <PrimaryButton onClick={onSave} text="Save" />

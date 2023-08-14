@@ -36,6 +36,8 @@ import {
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
+import { createSandbox } from './e2e-runtime/sandbox'
+import { puppeteerNodeWrapper } from './e2e-runtime/wrapper/puppeteer'
 import {
   createBrowser,
   transformHeadersToHostHeaders,
@@ -252,6 +254,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.localStorageContent = localStorage
     this.reactProfiling = reactProfiling
 
+    await this.login()
+
     if (reactProfiling) {
       const browser = await this.createBrowser()
       try {
@@ -268,6 +272,43 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     this.logger.verbose('Warming up ended.')
+  }
+
+  private async login() {
+    const { loginScript } = this.payload
+
+    if (loginScript) {
+      const browser = await this.createBrowser()
+      const page = await browser.newPage()
+      const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
+        browser,
+        page,
+        ignoreEmulate: true,
+      })
+      const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
+      const sandbox = createSandbox(
+        {
+          require: (m: string) => {
+            return m === 'puppeteer' ? wrappedPuppeteer : undefined
+          },
+          page: wrappedPage,
+        },
+        (method, message) => this.logger.info(`[From Login Script] ${message} - [${method}]`),
+      )
+
+      try {
+        this.logger.info('Start running login script')
+        await sandbox.run(loginScript)
+
+        // @ts-expect-error
+        this.cookies.push(...(await page.cookies()))
+      } catch (err) {
+        const failedReason = 'Error from login script: ' + (err instanceof Error ? err.message : err)
+        throw new Error(failedReason)
+      } finally {
+        await browser.close()
+      }
+    }
   }
 
   private async createBrowser() {

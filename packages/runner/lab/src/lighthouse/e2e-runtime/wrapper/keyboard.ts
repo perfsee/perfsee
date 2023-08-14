@@ -22,23 +22,23 @@ import { createWrapper } from './wrapper'
 export const keyboardWrapper = createWrapper<Keyboard>('Keyboard', (keyboard, { flow }) => {
   return {
     down: async (key, options) => {
-      await flow.startAction('down')
+      await flow?.startAction('down')
       return keyboard.down(key, options)
     },
     up: async (key) => {
-      await flow.startAction('up')
+      await flow?.startAction('up')
       return keyboard.up(key)
     },
     sendCharacter: async (char) => {
-      await flow.startAction('sendCharacter')
+      await flow?.startAction('sendCharacter')
       return keyboard.sendCharacter(char)
     },
     type: async (text, options) => {
-      await flow.startAction('type')
+      await flow?.startAction('type')
       return keyboard.type(text, options)
     },
     press: async (key, options) => {
-      await flow.startAction('press')
+      await flow?.startAction('press')
       return keyboard.press(key, options)
     },
   }
