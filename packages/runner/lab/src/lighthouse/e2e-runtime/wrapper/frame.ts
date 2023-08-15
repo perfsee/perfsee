@@ -35,7 +35,7 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
     addStyleTag: async (fnOptions) => elementHandleWrapper.wrap(await frame.addStyleTag(fnOptions), options),
     childFrames: () => frameWrapper.wrapAll(frame.childFrames(), options),
     click: async (selector, clickOptions) => {
-      await flow.startAction('click')
+      await flow?.startAction('click')
       return frame.click(selector, clickOptions)
     },
     content: () => frame.content(),
@@ -44,29 +44,29 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
       elementHandleWrapper.wrap(await frame.evaluateHandle(pageFunction, ...args), options) as any,
     executionContext: async () => executionContextWrapper.wrap(await frame.executionContext(), options),
     focus: async (selector) => {
-      await flow.startAction('focus')
+      await flow?.startAction('focus')
       return frame.focus(selector)
     },
     goto: async (url, gotoOptions) => httpResponseWrapper.wrapOrNull(await frame.goto(url, gotoOptions), options),
     hover: async (selector) => {
-      await flow.startAction('hover')
+      await flow?.startAction('hover')
       return frame.hover(selector)
     },
     isDetached: () => frame.isDetached(),
     name: () => frame.name(),
     parentFrame: () => frameWrapper.wrapOrNull(frame.parentFrame(), options),
     select: async (selector, ...values) => {
-      await flow.startAction('select')
+      await flow?.startAction('select')
       return frame.select(selector, ...values)
     },
     setContent: (html, options) => frame.setContent(html, options),
     tap: async (selector) => {
-      await flow.startAction('tap')
+      await flow?.startAction('tap')
       return frame.tap(selector)
     },
     title: () => frame.title(),
     type: async (selector, text, options) => {
-      await flow.startAction('type')
+      await flow?.startAction('type')
       return frame.type(selector, text, options)
     },
     url: () => frame.url(),

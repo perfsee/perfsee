@@ -49,6 +49,7 @@ export interface LabJobPayload {
   localStorage: LocalStorageType[]
   reactProfiling: boolean
   enableProxy: boolean
+  loginScript: string | null
 }
 
 export type E2EJobPayload = LabJobPayload & {

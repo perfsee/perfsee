@@ -88,12 +88,16 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
     url: () => page.url(),
     content: () => page.content(),
     setContent: (html, options) => page.setContent(html, options),
-    goto: async (url, _) => {
-      await flow.navigate(url)
+    goto: async (url, options) => {
+      if (flow) {
+        await flow?.navigate(url)
+      } else {
+        return page.goto(url, options)
+      }
       return null as any
     },
     reload: async (reloadOptions) => {
-      await flow.startAction('reload')
+      await flow?.startAction('reload')
       return httpResponseWrapper.wrapOrNull(await page.reload(reloadOptions), options)
     },
     waitForNavigation: async (navigationOptions) =>
@@ -104,11 +108,11 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
       httpResponseWrapper.wrap(await page.waitForResponse(urlOrPredicate, fnOptions), options),
     waitForNetworkIdle: async (options) => page.waitForNetworkIdle(options),
     goBack: async (goBackOptions) => {
-      await flow.startAction('goBack')
+      await flow?.startAction('goBack')
       return httpResponseWrapper.wrapOrNull(await page.goBack(goBackOptions), options)
     },
     goForward: async (goForwardOptions) => {
-      await flow.startAction('goForward')
+      await flow?.startAction('goForward')
       return httpResponseWrapper.wrapOrNull(await page.goForward(goForwardOptions), options)
     },
     bringToFront: async () => page.bringToFront(),
@@ -139,27 +143,27 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
     isClosed: () => page.isClosed(),
     mouse: mouseWrapper.wrap(page.mouse, options),
     click: async (selector, clickOptions) => {
-      await flow.startAction('click')
+      await flow?.startAction('click')
       return page.click(selector, clickOptions)
     },
     focus: async (selector) => {
-      await flow.startAction('focus')
+      await flow?.startAction('focus')
       return page.focus(selector)
     },
     hover: async (selector) => {
-      await flow.startAction('hover')
+      await flow?.startAction('hover')
       return page.hover(selector)
     },
     select: async (selector, ...values) => {
-      await flow.startAction('select')
+      await flow?.startAction('select')
       return page.select(selector, ...values)
     },
     tap: async (selector) => {
-      await flow.startAction('tap')
+      await flow?.startAction('tap')
       return page.tap(selector)
     },
     type: async (selector, text, options) => {
-      await flow.startAction('type')
+      await flow?.startAction('type')
       return page.type(selector, text, options)
     },
     waitFor: async (selectorOrFunctionOrTimeout, fnOptions, ...args) =>

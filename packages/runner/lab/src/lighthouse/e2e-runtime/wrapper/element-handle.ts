@@ -49,47 +49,47 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
       },
       dispose: () => elementHandle.dispose(),
       click: async (options) => {
-        await flow.startAction('click')
+        await flow?.startAction('click')
         return elementHandle.click(options)
       },
       drag: async (target) => {
-        await flow.startAction('drag')
+        await flow?.startAction('drag')
         return elementHandle.drag(target)
       },
       dragAndDrop: async (target, options) => {
-        await flow.startAction('dragAndDrop')
+        await flow?.startAction('dragAndDrop')
         return elementHandle.dragAndDrop(target, options)
       },
       dragEnter: async (data) => {
-        await flow.startAction('dragEnter')
+        await flow?.startAction('dragEnter')
         return elementHandle.dragEnter(data)
       },
       dragOver: async (data) => {
-        await flow.startAction('dragOver')
+        await flow?.startAction('dragOver')
         return elementHandle.dragOver(data)
       },
       drop: async (data) => {
-        await flow.startAction('drop')
+        await flow?.startAction('drop')
         return elementHandle.drop(data)
       },
       focus: async () => {
-        await flow.startAction('focus')
+        await flow?.startAction('focus')
         return elementHandle.focus()
       },
       hover: async () => {
-        await flow.startAction('hover')
+        await flow?.startAction('hover')
         return elementHandle.hover()
       },
       press: async (key, options) => {
-        await flow.startAction('press')
+        await flow?.startAction('press')
         return elementHandle.press(key, options)
       },
       tap: async () => {
-        await flow.startAction('tap')
+        await flow?.startAction('tap')
         return elementHandle.tap()
       },
       type: async (text, options) => {
-        await flow.startAction('type')
+        await flow?.startAction('type')
         return elementHandle.type(text, options)
       },
       evaluate: (pageFunction, ...args) => elementHandle.evaluate(pageFunction, ...args),
