@@ -278,7 +278,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const { loginScript } = this.payload
 
     if (loginScript) {
-      const browser = await this.createBrowser()
+      const browser = await createBrowser()
       const page = await browser.newPage()
       const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
         browser,
