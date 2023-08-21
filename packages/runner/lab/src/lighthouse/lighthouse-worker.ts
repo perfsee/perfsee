@@ -46,7 +46,6 @@ import {
   slimTraceData,
   getLighthouseMetricScores,
   formatCookies,
-  onRequestFactory,
 } from './helpers'
 import {
   computeMedianRun,
@@ -208,9 +207,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         this.logger.info('Found `enableProxy` flag, Start proxy server now.')
         startProxyServer()
 
-        // load page twice to cache api requests
-        await this.loadPage()
-        await this.loadPage()
+        const lhFlags = this.getLighthouseFlags()
+        // run page twice to cache api requests
+        await this.runLh(this.payload.url, lhFlags)
+        await this.runLh(this.payload.url, lhFlags)
       } catch (e) {
         this.logger.error('Failed to start proxy server.', { error: e })
       }
@@ -352,11 +352,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return browser
   }
 
-  private async runLighthouse() {
+  private getLighthouseFlags(): LH.Flags {
     const { cookies, headers, localStorageContent, reactProfiling } = this
-    const { url, deviceId, throttle, enableProxy } = this.payload
+    const { url, deviceId, throttle } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
-    let runs = this.payload.runs
 
     this.logger.info(`Will load page: ${url}`, {
       device,
@@ -368,7 +367,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     const downloadKbps = throttle.download ? throttle.download / 125 : 40000
     const uploadKbps = throttle.upload ? throttle.upload / 125 : 40000
-    const lighthouseFlags: LH.Flags = {
+    return {
       formFactor: device.formFactor,
       screenEmulation: { disabled: true, width: device.viewport.width, height: device.viewport.height },
       emulatedUserAgent: device.userAgent,
@@ -386,6 +385,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         reactProfiling,
       },
     }
+  }
+
+  private async runLighthouse() {
+    const { url, enableProxy } = this.payload
+    let runs = this.payload.runs
+    const lighthouseFlags = this.getLighthouseFlags()
 
     let result: LH.PerfseeRunnerResult | undefined
     let errorMessage: string | undefined
@@ -627,29 +632,5 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     })
 
     return metrics
-  }
-
-  private async loadPage() {
-    this.logger.info('Preload the page now for requests proxying.')
-    const browser = await this.createBrowser()
-    this.logger.info('Browser created.')
-
-    try {
-      const page = await browser.newPage()
-      await page.setRequestInterception(true)
-      this.logger.info('page created.')
-      const onRequest = onRequestFactory(this.payload.url, this.headers)
-      page.on('request', onRequest)
-
-      this.logger.info(`Loading page: ${this.payload.url}`)
-      await page.goto(this.payload.url, {
-        waitUntil: ['networkidle2'],
-      })
-      this.logger.info('Finished loading page.')
-    } catch (e) {
-      this.logger.error('Error occurred when loading page.', { error: e })
-    } finally {
-      await browser.close()
-    }
   }
 }
