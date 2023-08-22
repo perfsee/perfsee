@@ -22,43 +22,43 @@ import { createWrapper } from './wrapper'
 export const mouseWrapper = createWrapper<Mouse>('Mouse', (mouse, { flow }) => {
   return {
     click: async (x, y, options) => {
-      await flow.startAction('click')
+      await flow?.startAction('click')
       return mouse.click(x, y, options)
     },
     down: async (options) => {
-      await flow.startAction('down')
+      await flow?.startAction('down')
       return mouse.down(options)
     },
     drag: async (start, target) => {
-      await flow.startAction('drag')
+      await flow?.startAction('drag')
       return mouse.drag(start, target)
     },
     dragAndDrop: async (start, target, options) => {
-      await flow.startAction('dragAndDrop')
+      await flow?.startAction('dragAndDrop')
       return mouse.dragAndDrop(start, target, options)
     },
     dragEnter: async (target, data) => {
-      await flow.startAction('dragEnter')
+      await flow?.startAction('dragEnter')
       return mouse.dragEnter(target, data)
     },
     dragOver: async (target, data) => {
-      await flow.startAction('dragOver')
+      await flow?.startAction('dragOver')
       return mouse.dragOver(target, data)
     },
     drop: async (target, data) => {
-      await flow.startAction('drop')
+      await flow?.startAction('drop')
       return mouse.drop(target, data)
     },
     move: async (x, y, options) => {
-      await flow.startAction('move')
+      await flow?.startAction('move')
       return mouse.move(x, y, options)
     },
     up: async (options) => {
-      await flow.startAction('up')
+      await flow?.startAction('up')
       return mouse.up(options)
     },
     wheel: async (options) => {
-      await flow.startAction('wheel')
+      await flow?.startAction('wheel')
       return mouse.wheel(options)
     },
   }

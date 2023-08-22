@@ -684,6 +684,9 @@ type Environment {
 
   """extra localStorage value inserted into page"""
   localStorage: [LocalStorageType!]
+
+  """login script"""
+  loginScript: String
 }
 
 """message target setting"""
@@ -1771,6 +1774,9 @@ input UpdateEnvironmentInput {
 
   """Disable scanning of this environment"""
   disable: Boolean
+
+  """login script"""
+  loginScript: String
   localStorage: [LocalStorageInputType!]
   cookies: [CookieInputType!]
   headers: [HeaderInputType!]

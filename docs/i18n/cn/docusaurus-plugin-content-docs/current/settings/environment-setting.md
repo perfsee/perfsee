@@ -69,3 +69,30 @@ sidebar_position: 4
 
 默认为 Table 模式，按照提示输入数据，如上图。点击按钮可切换至批量输入模式。
 ![](/settings/headers-stringify.png)
+
+### 登录脚本
+
+![login script](/settings/login-script.png)
+
+开启这个功能后，Perfsee 会在 Lab 分析之前启动一个标签页页运行该脚本并保存所有 cookies，这个功能通常用于自动登录网站。
+
+Perfsee 使用 [puppeteer](https://pptr.dev/) 来运行脚本，脚本兼容大部分常用 Puppeteer API。
+
+标签页会被注入到脚本环境全局变量 `page` 中。 登录脚本只需要调用 `page` 上的方法即可对页面进行操作。更多方法请看 [Puppeteer Page API](https://pptr.dev/api/puppeteer.page).
+
+例子:
+
+```js
+await page.goto('https://test.com/')
+
+const accountInput = await page.waitForSelector('#account_input')
+await accountInput.type('account')
+
+const passwordInput = await page.waitForSelector('#password_input')
+await passwordInput.type('password')
+
+const loginButton = await page.waitForSelector('#login')
+await loginButton.click()
+
+await page.waitForNavigation()
+```

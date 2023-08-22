@@ -248,6 +248,10 @@ export class Environment extends BaseEntity {
   @OneToMany('SnapshotReport', 'environment')
   reports!: SnapshotReport[]
 
+  @Field(() => String, { description: 'login script', nullable: true })
+  @Column({ type: 'text', nullable: true })
+  loginScript!: string | null
+
   @BeforeInsert()
   async updateCookiesAndHeaders() {
     if (!this.cookies) {

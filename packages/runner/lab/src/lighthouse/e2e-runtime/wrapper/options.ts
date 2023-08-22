@@ -22,7 +22,7 @@ export interface WrapperOptions {
   browser: Browser
   page: Page
 
-  flow: LighthouseFlow
+  flow?: LighthouseFlow
 
   /**
    * ignore emulate function call, include `setUserAgent`, `setViewport`, `emulate*`.

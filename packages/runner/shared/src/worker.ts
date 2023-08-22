@@ -51,7 +51,13 @@ export abstract class JobWorker<Payload = any> {
   async run() {
     try {
       this.postMessage('start', undefined)
-      this.logger.info(`Start working on job: '${this.job.jobType}'.`, this.payload as any)
+      this.logger.info(
+        `Start working on job: '${this.job.jobType}'.`,
+        // @ts-expect-error
+        typeof this.payload?.loginScript === 'string'
+          ? { ...this.payload, loginScript: 'Sensitive information has been hidden' }
+          : (this.payload as any),
+      )
       this.logger.verbose(`Start working at: ${this.startedAt.toISOString()}.`)
 
       this.logger.info('Start running preparation scripts.')
