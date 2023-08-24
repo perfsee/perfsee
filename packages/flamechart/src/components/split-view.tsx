@@ -148,7 +148,7 @@ const SplitView: React.FunctionComponent<ISplitViewProps> = memo(
       const minSizeTotal = minSize.reduce((pre, value) => pre + value, 0)
       const targetSizeTotal = Math.max(direction === 'row' ? width : height, minSizeTotal)
       const sizeOffsetTotal = targetSizeTotal - size.reduce((pre, value, i) => pre + Math.max(value, minSize[i]), 0)
-      if (sizeOffsetTotal !== 0) {
+      if (sizeOffsetTotal >= 0) {
         const growTotal = grow.reduce((pre, value) => pre + value, 0)
         const growOffset = grow.map((grow) => {
           return growTotal !== 0 ? (grow / growTotal) * sizeOffsetTotal : 0
