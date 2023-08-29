@@ -196,7 +196,7 @@ export class Flamechart {
 
     this.getLayers().forEach((layer) => {
       layer.forEach((frame) => {
-        const match = searchResults!.getMatchForNode(frame.node)
+        const match = searchResults!.getMatchForFrame(frame)
 
         if (match) {
           matchFrames.push(frame)
@@ -211,7 +211,7 @@ export class Flamechart {
 
     return {
       matchFrames,
-      highestScoreFrame,
+      highestScoreFrame: highestScoreFrame as FlamechartFrame | undefined,
     }
   }
 

@@ -22,7 +22,7 @@ import { renderTimingNameTooltip } from './tooltip/timing-tooltip'
 import { TimingTreeNodeTooltip } from './tooltip/timingnode-tooltip'
 
 const SplitViewDefaultGrow = [1, 0]
-const SplitViewDefaultSize = [1, 0]
+const SplitViewDefaultSize = [150, 0]
 const SplitViewMinSize = [150, 150]
 const SplitViewMinSizeNoDetailView = [150, 0]
 
@@ -61,6 +61,8 @@ export interface FlamechartViewProps {
   style?: React.CSSProperties
   renderTooltip?: (frame: FlamechartFrame, flamechart: Flamechart, theme: Theme) => React.ReactNode
   renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme) => React.ReactNode
+  onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
+  selectedFrame?: FlamechartFrame | null
 }
 
 export type FlamechartViewContainerRef = FlamechartView | undefined
@@ -93,15 +95,16 @@ export const FlamechartViewContainer = memo(
         style,
         renderTooltip,
         renderTimingTooltip,
+        onClickTiming,
+        selectedFrame,
       }: FlamechartViewProps,
       ref: ForwardedRef<FlamechartViewContainerRef>,
     ) => {
-      const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame | null>(null)
       const [hoverFrame, onFrameHover] = useState<{ frame: FlamechartFrame; event: MouseEvent } | null>(null)
       const [hoverTiming, onTimingHover] = useState<{ timing: Timing; event: MouseEvent } | null>(null)
       const [externalHoverFrame, onExternalHoverFrame] = useState<FlamechartFrame | null>(null)
       const [flamechartContainer, setFlamechartContainer] = useState<HTMLDivElement | null>(null)
-      const [splitSize, setSplitSize] = useState<number[]>([100, 200])
+      const [splitSize, setSplitSize] = useState<number[]>([100, 100])
       const [view, setView] = useState<FlamechartView>()
 
       useImperativeHandle(ref, () => view, [view])
@@ -163,7 +166,6 @@ export const FlamechartViewContainer = memo(
       const handleSelectFlamechart = useCallback(
         (frame: FlamechartFrame | null) => {
           onSelectFrame?.(frame)
-          setSelectedFrame(frame)
         },
         [onSelectFrame],
       )
@@ -216,6 +218,7 @@ export const FlamechartViewContainer = memo(
             onNodeSelect: handleSelectFlamechart,
             onNodeHover: onFrameHover,
             onTimingHover: onTimingHover,
+            onTimingClick: onClickTiming,
           })
 
           setView(newView)
@@ -238,6 +241,7 @@ export const FlamechartViewContainer = memo(
         theme,
         topPadding,
         hiddenFrameLabels,
+        onClickTiming,
       ])
 
       useEffect(() => {
@@ -257,6 +261,12 @@ export const FlamechartViewContainer = memo(
           view.setImages(images ?? [])
         }
       }, [view, images])
+
+      useEffect(() => {
+        if (view) {
+          view.setSelectFrame(selectedFrame || undefined)
+        }
+      }, [view, selectedFrame])
 
       return (
         <div style={{ position: 'relative', height, overflow: 'hidden', ...style }}>

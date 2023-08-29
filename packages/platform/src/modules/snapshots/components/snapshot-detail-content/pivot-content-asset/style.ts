@@ -38,11 +38,13 @@ export const StyledLink = styled(ForeignLink)({
 export const StyledInfoItem = styled.p(({ theme }) => ({
   padding: '8px',
   borderBottom: `1px solid ${theme.border.color}`,
+  display: 'flex',
 }))
 
 export const StyledInfoKey = styled.b(() => ({
   display: 'inline-block',
   width: '240px',
+  flexShrink: 0,
 }))
 
 export const RequestDesc = styled.p(({ theme }) => ({

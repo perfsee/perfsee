@@ -13,23 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import type { Frame } from '@perfsee/flamechart'
 
-export interface FlameChartDiagnostic {
-  code: string
-  frame: Frame
-  info: FlameChartDiagnosticInfo
-  bundleHash?: string
+import { SnapshotDetailType } from '../../../../snapshot-type'
+
+import { LCPInsight } from './lcp'
+
+export const renderMetricInsight = (metricName: string | null, snapshot: SnapshotDetailType) => {
+  // @ts-expect-error
+  if (metricName?.toUpperCase() === 'LCP' && snapshot.audits['cause-for-lcp']?.details?.items?.length) {
+    return {
+      title: 'Largest Contentful Paint',
+      content: <LCPInsight snapshot={snapshot} />,
+    }
+  }
+
+  return null
 }
-
-export interface FlameChartDiagnosticInfo {
-  unit: 'us'
-  value: number
-  isSource?: boolean
-}
-
-export type {
-  PerfseeFlameChartData as FlameChartData,
-  ReactDevtoolProfilingDataExport,
-  CallFrame,
-} from '@perfsee/flamechart'

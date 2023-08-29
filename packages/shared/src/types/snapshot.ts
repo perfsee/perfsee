@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NetworkRequest as RequestSchema, RequestTiming } from '@perfsee/flamechart/types'
+import { NetworkRequest as RequestSchema, RequestTiming, StackTrack } from '@perfsee/flamechart/types'
 import { Task } from '@perfsee/tracehouse'
 
 import { MetricScoreSchema, TimelineSchema, UserTimingSchema } from './lighthouse-score'
+import { TraceEvent } from './trace-event'
 
 export enum LifeCycle {
   dataReceived = 'Network.dataReceived',
@@ -154,4 +155,31 @@ export type LHStoredSchema = {
   scripts?: { fileName: string }[]
 }
 
-export { RequestSchema, RequestTiming as Timing }
+export interface DomNode {
+  attributes: string[]
+  localName: string
+}
+
+export interface CauseForLcp {
+  LcpElement: {
+    node: DomNode
+    outerHtml: string
+    boxModel: {
+      height: number
+      width: number
+    }
+  } | null
+  criticalPathForLcp: {
+    request: RequestSchema
+  } | null
+  networkBlockings: TraceEvent[]
+  metrics: {
+    elementRenderDelay: number | null
+    navigationTimeToFirstByte: number | null
+    resourceLoadDelay: number | null
+    resourceLoadTime: number | null
+  }
+  longtasks: TraceEvent[]
+}
+
+export { RequestSchema, RequestTiming as Timing, StackTrack }

@@ -35,8 +35,11 @@ import { JobType, SourceAnalyzeJob, SourceAnalyzeJobResult, SourceStatus } from 
 import {
   FlameChartData,
   FlameChartDiagnostic,
+  LHStoredSchema,
   ReactDevtoolProfilingDataExport,
   SourceAnalyzeStatistics,
+  CallFrame,
+  CauseForLcp,
 } from '@perfsee/shared'
 import { generateSourceCoverageTreemapData, GenerateSourceCoverageTreemapDataOptions } from '@perfsee/source-coverage'
 
@@ -71,6 +74,13 @@ interface BundleMeta {
   }
 }
 
+interface FunctionLocation {
+  name: string
+  file: string
+  line: number
+  col: number
+}
+
 const KEY_EVENT_NAMES = new Set(['Profile', 'thread_name', 'ProfileChunk'])
 interface ProfileAnalyzeResult {
   diagnostics: FlameChartDiagnostic[]
@@ -79,15 +89,8 @@ interface ProfileAnalyzeResult {
     'time-using-by-script-file'?: Record<string, number>
     'total-execution-time'?: number
   }
-  reactLocations?: ReadonlyArray<
-    | {
-        name: string
-        file: string
-        line: number
-        col: number
-      }
-    | undefined
-  >
+  reactLocations?: ReadonlyArray<FunctionLocation | undefined>
+  callFrames?: ReadonlyArray<FunctionLocation | undefined>
 }
 
 export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
@@ -97,6 +100,10 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private tracePath: string | null = null
   private reactPath: string | null = null
   private reactProfile?: ReactDevtoolProfilingDataExport
+  private callFramesPath: string | null = null
+  private callFrameKeys: string[] | null = null
+  private callFrames: CallFrame[] = []
+  private lhResult: LHStoredSchema | null = null
   private result!: ProfileAnalyzeResult
 
   protected async before() {
@@ -117,7 +124,12 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     this.pwd = join(process.cwd(), 'tmp', payload.projectId.toString(), uuid())
     await mkdir(this.pwd, { recursive: true })
 
-    await Promise.all([this.prepareArtifacts(), this.prepareTraces(), this.prepareReactProfile()])
+    await Promise.all([
+      this.prepareArtifacts(),
+      this.prepareTraces(),
+      this.prepareReactProfile(),
+      this.prepareCallFrames(),
+    ])
   }
 
   protected async work() {
@@ -127,11 +139,22 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
 
     const startTime = Date.now()
     this.logger.info(`Start analyze profile of snapshot report.`)
-    const analyzeResultStr = await analyseProfile!(this.tracePath!, this.bundleMetaPath, this.reactPath, false)
+    const analyzeResultStr = await analyseProfile!(
+      this.tracePath!,
+      this.bundleMetaPath,
+      this.reactPath,
+      this.callFramesPath,
+      false,
+    )
     this.logger.info(`Profile analysis finished, timeSpent=${Date.now() - startTime}ms].`)
 
     this.result = JSON.parse(analyzeResultStr) as ProfileAnalyzeResult
-    const { diagnostics, profile, reactLocations } = this.result
+    const { diagnostics, profile, reactLocations, callFrames } = this.result
+
+    if (callFrames) {
+      this.transferCallFrames(callFrames)
+    }
+
     const flameChartStorageName = `flame-charts/${uuid()}.json`
     this.logger.info(`Uploading analysis flame chart data to artifacts. [name=${flameChartStorageName}]`)
     const flameChartStorageKey = await this.client.uploadArtifact(
@@ -170,6 +193,20 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       }
     }
 
+    let lighthouseStorageKey = this.payload.snapshotReport.lighthouseStorageKey
+    if (this.lhResult && callFrames) {
+      this.logger.info(`Start uploading lh result with parsed function callframes`)
+      try {
+        const lighthouseStorageName = `lh-result/${uuid()}.json`
+        lighthouseStorageKey = await this.client.uploadArtifact(
+          lighthouseStorageName,
+          Buffer.from(JSON.stringify(this.lhResult), 'utf-8'),
+        )
+      } catch (e) {
+        this.logger.error('Failed to uploading lh result', { error: e })
+      }
+    }
+
     const result = {
       status: SourceStatus.Completed as const,
       projectId: payload.projectId,
@@ -180,6 +217,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       sourceCoverageStorageKey: sourceCoverageStorageKey,
       statisticsStorageKey: statisticsStorageKey,
       reactProfileStorageKey,
+      lighthouseStorageKey,
     } as SourceAnalyzeJobResult
 
     this.logger.info('Return source analysis result', { result })
@@ -370,6 +408,70 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     this.logger.info('Finished downloading react profile.')
   }
 
+  private async prepareCallFrames() {
+    const { lighthouseStorageKey } = this.payload.snapshotReport
+    if (!lighthouseStorageKey) {
+      return
+    }
+
+    this.logger.info('Start preparing call frames.')
+    this.logger.info('Downloading lighthouse result.')
+
+    try {
+      const buf = await this.client.getArtifact(lighthouseStorageKey)
+      const lhResult = JSON.parse(buf.toString('utf-8')) as LHStoredSchema
+      this.lhResult = lhResult
+      this.logger.verbose(`Downloading lighthouse result ${lighthouseStorageKey} finished`)
+      const initiatorCallFrames = lhResult.artifactsResult.flatMap((network) => {
+        const frames = []
+        for (let stack = network.initiator.stack; stack; stack = stack.parent) {
+          frames.push(...stack.callFrames)
+        }
+        return frames
+      })
+      // @ts-expect-error
+      const causeForLcp = lhResult.lhrAudit['cause-for-lcp'].details?.items?.[0] as CauseForLcp | undefined
+      const lcpLongtaskCallFrames = causeForLcp?.longtasks.flatMap((t) => t.hotFunctionsStackTraces ?? []).flat() ?? []
+      this.callFrames = initiatorCallFrames.concat(...lcpLongtaskCallFrames)
+
+      const callFrameKeys = this.callFrames.map(getKeyForCallFrame).filter(Boolean) as string[]
+      this.callFrameKeys = callFrameKeys
+      const callFramesPath = join(this.pwd, 'callframes.json')
+      await writeFile(callFramesPath, JSON.stringify(callFrameKeys))
+      this.callFramesPath = callFramesPath
+    } catch (e) {
+      this.callFramesPath = null
+      this.logger.error('Failed to prepare call frames', { error: e })
+      throw e
+    }
+
+    this.logger.info('Finished preparing call frames')
+  }
+
+  private transferCallFrames(parsedCallframes: ReadonlyArray<FunctionLocation | undefined>) {
+    if (!this.lhResult || !this.callFrameKeys) {
+      return
+    }
+
+    const functionMaps: Record<string, FunctionLocation | undefined> = {}
+    this.callFrameKeys.forEach((key, i) => {
+      functionMaps[key] = parsedCallframes[i]
+    })
+
+    for (const callframe of this.callFrames) {
+      const key = getKeyForCallFrame(callframe)
+      if (key) {
+        const parsedFunction = functionMaps[key]
+        if (parsedFunction) {
+          callframe.url = parsedFunction.file
+          callframe.lineNumber = parsedFunction.line
+          callframe.columnNumber = parsedFunction.col
+          callframe.functionName ||= parsedFunction.name
+        }
+      }
+    }
+  }
+
   private async SourceCoverage() {
     if (!this.bundleMetaPath) {
       this.logger.error('Prepare artifacts first.')
@@ -490,4 +592,8 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     const storageName = `source-statistics/${uuid()}.json`
     return this.client.uploadArtifact(storageName, Buffer.from(JSON.stringify(result), 'utf-8'))
   }
+}
+
+function getKeyForCallFrame(callFrame: CallFrame) {
+  return callFrame.url ? `${callFrame.url}:${callFrame.lineNumber}:${callFrame.columnNumber}` : undefined
 }

@@ -14,10 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
-import { PropsWithChildren, ReactNode, useMemo } from 'react'
+import { Stack, Link } from '@fluentui/react'
+import { stringifyUrl } from 'query-string'
+import { PropsWithChildren, ReactNode, useCallback, useMemo } from 'react'
+import { useHistory, useParams } from 'react-router'
 
 import { ChartHeader } from '@perfsee/components/chart'
+import { LighthouseScoreType } from '@perfsee/shared'
+import { RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
 import { SnapshotDetailType, SnapshotUserFlowDetailType } from '../../../snapshot-type'
 import { isLHCalculator } from '../../../utils/is-lh-calculator'
@@ -41,9 +45,28 @@ type Props = {
   snapshot: SnapshotDetailType | SnapshotUserFlowDetailType
 }
 
+const metricInsightStyle = { margin: '-20px 16px 1px', fontSize: 12 }
+
 export const OverviewPivotContent = (props: Props) => {
   const { traceData, timings, metricScores, timelines, categories, audits } = props.snapshot
   const report = 'report' in props.snapshot ? props.snapshot.report : null
+  const { projectId, reportId } = useParams<RouteTypes['project']['lab']['report']>()
+  const history = useHistory()
+
+  const onLCPClick = useCallback(() => {
+    history.push(
+      stringifyUrl({
+        url: pathFactory.project.lab.report({
+          projectId,
+          reportId,
+          tabName: 'flamechart',
+        }),
+        query: {
+          insight: 'lcp',
+        },
+      }),
+    )
+  }, [history, projectId, reportId])
 
   const [scores, otherScores] = useMemo(() => {
     if (!metricScores) {
@@ -53,13 +76,28 @@ export const OverviewPivotContent = (props: Props) => {
     const others = []
     for (const detail of metricScores) {
       if (isLHCalculator(detail.id, categories?.performance)) {
-        scores.push(<LighthouseScoreBlock key={detail.id} detail={detail} colorful={true} />)
+        if (LighthouseScoreType.LCP === detail.id) {
+          scores.push(
+            <Stack>
+              <LighthouseScoreBlock key={detail.id} detail={detail} colorful={true} />
+              {(detail.score ?? 0) < 90 &&
+                // @ts-expect-error
+                audits['cause-for-lcp']?.details?.items?.[0] && (
+                  <Link style={metricInsightStyle} onClick={onLCPClick}>
+                    why slow
+                  </Link>
+                )}
+            </Stack>,
+          )
+        } else {
+          scores.push(<LighthouseScoreBlock key={detail.id} detail={detail} colorful={true} />)
+        }
       } else {
         others.push(<LighthouseScoreBlock key={detail.id} detail={detail} />)
       }
     }
     return [scores, others]
-  }, [metricScores, categories])
+  }, [metricScores, categories, onLCPClick, audits])
 
   return (
     <Stack tokens={{ childrenGap: '24px' }}>

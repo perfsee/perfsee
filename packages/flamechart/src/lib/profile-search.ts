@@ -2,6 +2,7 @@ import { Frame, CallTreeNode, Profile } from './profile'
 import { FuzzyMatch, fuzzyMatchStrings } from './fuzzy-find'
 import { Rect } from './math'
 import { FlamechartImage } from './flamechart-image'
+import { FlamechartFrame } from './flamechart'
 
 export enum FlamechartType {
   CHRONO_FLAME_CHART,
@@ -9,7 +10,7 @@ export enum FlamechartType {
 }
 
 export interface ProfileSearchEngine {
-  getMatchForNode(node: CallTreeNode): FuzzyMatch | null
+  getMatchForFrame(frame: FlamechartFrame): FuzzyMatch | null
 }
 
 export class ProfileNameSearchEngine implements ProfileSearchEngine {
@@ -17,8 +18,8 @@ export class ProfileNameSearchEngine implements ProfileSearchEngine {
 
   private cache = new WeakMap<Frame, FuzzyMatch | null>()
 
-  getMatchForNode(node: CallTreeNode): FuzzyMatch | null {
-    const frame = node.frame
+  getMatchForFrame(framechartFrame: FlamechartFrame): FuzzyMatch | null {
+    const frame = framechartFrame.node.frame
     const cachedMatch = this.cache.get(frame)
     if (cachedMatch !== undefined) {
       return cachedMatch
@@ -44,8 +45,8 @@ export class ProfileFileSearchEngine implements ProfileSearchEngine {
 
   private cache = new WeakMap<Frame, FuzzyMatch | null>()
 
-  getMatchForNode(node: CallTreeNode): FuzzyMatch | null {
-    const frame = node.frame
+  getMatchForFrame(framechartFrame: FlamechartFrame): FuzzyMatch | null {
+    const frame = framechartFrame.node.frame
     const cachedMatch = this.cache.get(frame)
     if (cachedMatch !== undefined) {
       return cachedMatch
@@ -62,11 +63,11 @@ export class ProfileFileSearchEngine implements ProfileSearchEngine {
 export class ProfileFrameKeySearch implements ProfileSearchEngine {
   constructor(readonly frameKey: string) {}
 
-  getMatchForNode(node: CallTreeNode): FuzzyMatch | null {
-    if (node.frame.key === this.frameKey) {
+  getMatchForFrame(framechartFrame: FlamechartFrame): FuzzyMatch | null {
+    if (this.frameKey && framechartFrame.node.frame.key === this.frameKey) {
       return {
         matchedRanges: [],
-        score: node.getTotalWeight(),
+        score: framechartFrame.node.getTotalWeight(),
       }
     }
     return null

@@ -29,7 +29,7 @@ use std::mem;
 use analyzer::Artifact;
 use gatherers::get_all_gatherers;
 use napi::bindgen_prelude::*;
-use parser::ReactLocation;
+use parser::FunctionLocation;
 use serde::Serialize;
 
 use crate::analyzer::{Analyzer, Diagnostic};
@@ -61,7 +61,8 @@ static ALLOC: mimalloc_rust::GlobalMiMalloc = mimalloc_rust::GlobalMiMalloc;
 pub struct AnalyseResult {
   diagnostics: Vec<Diagnostic>,
   artifacts: HashMap<String, Artifact>,
-  react_locations: Option<Vec<Option<ReactLocation>>>,
+  react_locations: Option<Vec<Option<FunctionLocation>>>,
+  call_frames: Option<Vec<Option<FunctionLocation>>>,
   profile: Profile,
 }
 
@@ -70,7 +71,8 @@ pub struct AnalyseResult {
 struct DebugAnalyseResult {
   diagnostics: Vec<Diagnostic>,
   artifacts: HashMap<String, Artifact>,
-  react_locations: Option<Vec<Option<ReactLocation>>>,
+  react_locations: Option<Vec<Option<FunctionLocation>>>,
+  call_frames: Option<Vec<Option<FunctionLocation>>>,
   profile: SpeedScopeProfileGroup,
 }
 
@@ -78,6 +80,7 @@ pub struct AnalyzeTask {
   profile_path: String,
   bundle_meta_path: String,
   react_locations_path: Option<String>,
+  call_frames_path: Option<String>,
   debug_mode: bool,
 }
 
@@ -87,10 +90,11 @@ impl Task for AnalyzeTask {
   type JsValue = String;
 
   fn compute(&mut self) -> Result<Self::Output> {
-    let (profile, react_locations) = parser::parse(
+    let (profile, react_locations, call_frames) = parser::parse(
       &self.profile_path,
       &self.bundle_meta_path,
       self.react_locations_path.as_deref(),
+      self.call_frames_path.as_deref(),
     )
     .map_err(|err| Error::new(Status::Unknown, format!("{err:?}")))?;
     let mut analyzer = Analyzer::new(&profile, get_all_rules(), get_all_gatherers());
@@ -101,6 +105,7 @@ impl Task for AnalyzeTask {
       artifacts,
       profile,
       react_locations,
+      call_frames,
     })
   }
 
@@ -110,6 +115,7 @@ impl Task for AnalyzeTask {
         diagnostics: mem::take(&mut output.diagnostics),
         artifacts: mem::take(&mut output.artifacts),
         react_locations: mem::take(&mut output.react_locations),
+        call_frames: mem::take(&mut output.call_frames),
         profile: SpeedScopeProfile::from(output.profile).group(),
       };
 
@@ -126,6 +132,7 @@ pub fn analyse_profile(
   profile_path: String,
   bundle_meta_path: String,
   react_locations_path: Option<String>,
+  call_frames_path: Option<String>,
   debug_mode: Option<bool>,
 ) -> AsyncTask<AnalyzeTask> {
   let debug_mode = debug_mode.unwrap_or(false);
@@ -134,6 +141,7 @@ pub fn analyse_profile(
     profile_path,
     bundle_meta_path,
     react_locations_path,
+    call_frames_path,
     debug_mode,
   };
   AsyncTask::new(task)

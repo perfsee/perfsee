@@ -168,6 +168,8 @@ export function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
         resourceType: record.resourceType,
         endTime,
         resourceSize: record.resourceSize,
+        initiator: record.initiator,
+        requestId: record.requestId,
       }
     })
     .filter(<T>(v: T | undefined): v is T => v !== undefined)

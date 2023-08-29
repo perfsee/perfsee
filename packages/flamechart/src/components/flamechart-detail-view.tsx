@@ -1,8 +1,10 @@
-import { CSSProperties, FunctionComponent, memo, MouseEventHandler, useCallback } from 'react'
+import { CSSProperties, Fragment, FunctionComponent, memo, MouseEventHandler, ReactNode, useCallback } from 'react'
 
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
+import { NetworkFrame } from '../lib/network-profile'
 import { Frame } from '../lib/profile'
 import { Theme } from '../themes/theme'
+import { StackTrack } from '../types'
 
 const FONT_SIZE = 12
 
@@ -172,6 +174,127 @@ function StackTraceView({
   )
 }
 
+const traverseStack = (stack: StackTrack, props: Omit<StackTraceViewProps, 'frame'>): ReactNode[] => {
+  const elements = []
+
+  if (stack.description) {
+    elements.push(
+      <div
+        style={{
+          whiteSpace: 'nowrap',
+          background: props.theme.bgPrimaryColor,
+          borderBottom: `1px solid ${props.theme.borderColor}`,
+          padding: '0px 8px',
+        }}
+      >
+        {stack.description} (async)
+      </div>,
+    )
+  }
+
+  elements.push(
+    stack.callFrames.map((frame, i) => {
+      return (
+        <div
+          key={i}
+          style={{
+            whiteSpace: 'nowrap',
+            background: props.theme.bgPrimaryColor,
+            borderBottom: `1px solid ${props.theme.borderColor}`,
+            padding: '0px 8px',
+          }}
+        >
+          {frame.functionName ?? '(anonymous)'}{' '}
+          <span>{frame.url ? `(${frame.url}:${frame.lineNumber + 1}:${frame.columnNumber + 1})` : ''}</span>
+        </div>
+      )
+    }),
+  )
+
+  if (stack.parent) {
+    elements.push(...traverseStack(stack.parent, props))
+  }
+
+  return elements
+}
+
+const InitiatorView = memo(
+  ({ onSelectFrame, onHoverFrame, onOpenFile, hoverFrame, theme, frame, getFrameColor }: StackTraceViewProps) => {
+    const rows: ReactNode[] = []
+    const initiator = (frame.node.frame as NetworkFrame).info?.initiator
+
+    if (!initiator) {
+      return null
+    }
+
+    const { url, lineNumber, columnNumber, stack, type } = initiator
+
+    if (url) {
+      rows.push(
+        <a
+          style={{
+            whiteSpace: 'nowrap',
+            cursor: 'pointer',
+            background: theme.bgPrimaryColor,
+            borderBottom: `1px solid ${theme.borderColor}`,
+            padding: '0px 8px',
+          }}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {url}
+          {typeof lineNumber === 'number' && typeof columnNumber === 'number' ? `:${lineNumber}:${columnNumber}` : ''}
+        </a>,
+      )
+    } else if (stack) {
+      rows.push(
+        ...traverseStack(stack, {
+          onSelectFrame,
+          onHoverFrame,
+          onOpenFile,
+          hoverFrame,
+          getFrameColor,
+          theme,
+        }),
+      )
+    } else {
+      rows.push(
+        <div
+          style={{
+            whiteSpace: 'nowrap',
+            background: theme.bgPrimaryColor,
+            borderBottom: `1px solid ${theme.borderColor}`,
+            padding: '0px 8px',
+          }}
+        >
+          {type}
+        </div>,
+      )
+    }
+
+    return (
+      <div style={{ flex: '1', lineHeight: `2`, overflow: 'auto' }}>
+        <div style={{ display: 'inline-block', minWidth: '100%' }}>
+          <h4
+            style={{
+              padding: '2px 5px',
+              margin: '0px',
+              borderBottom: `1px solid ${theme.borderColor}`,
+              userSelect: 'none',
+            }}
+          >
+            Initiator
+          </h4>
+          {rows.map((node, i) => (
+            <Fragment key={i}>{node}</Fragment>
+          ))}
+        </div>
+      </div>
+    )
+  },
+)
+
 interface FlamechartDetailViewProps {
   flamechart: Flamechart
   selectedFrame: FlamechartFrame
@@ -193,6 +316,8 @@ export const FlamechartDetailView = memo((props: FlamechartDetailViewProps) => {
     [flamechart, theme],
   )
 
+  const DetailView = selectedFrame.node.frame instanceof NetworkFrame ? InitiatorView : StackTraceView
+
   return (
     <div
       style={{
@@ -208,7 +333,7 @@ export const FlamechartDetailView = memo((props: FlamechartDetailViewProps) => {
         ...style,
       }}
     >
-      <StackTraceView
+      <DetailView
         frame={selectedFrame}
         onSelectFrame={onSelectFrame}
         onHoverFrame={onHoverFrame}

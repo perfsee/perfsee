@@ -426,7 +426,7 @@ impl TryFrom<ChromeProfile> for Profile {
     let mut elapsed = 0;
     let mut samples_with_timestamp = samples
       .into_iter()
-      .zip(time_deltas.into_iter())
+      .zip(time_deltas)
       .map(|(node_id, delta)| {
         elapsed += delta;
         (node_id, elapsed)

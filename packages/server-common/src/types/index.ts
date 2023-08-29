@@ -185,6 +185,7 @@ export interface SourceAnalyzeJob {
     pageUrl: string
     traceEventsStorageKey: string
     jsCoverageStorageKey: string
+    lighthouseStorageKey: string
     reactProfileStorageKey?: string | null
     scripts?: { fileName: string }[]
   }
@@ -200,6 +201,7 @@ export type SourceAnalyzeJobResult =
       artifactIds: number[]
       diagnostics: FlameChartDiagnostic[]
       flameChartStorageKey: string
+      lighthouseStorageKey: string
       sourceCoverageStorageKey?: string
       statisticsStorageKey?: string
       reactProfileStorageKey?: string

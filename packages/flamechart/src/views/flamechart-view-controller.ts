@@ -18,6 +18,7 @@ export interface ControllerProps {
   bottomPadding?: number
   onNodeHover?: (hover: { frame: FlamechartFrame; event: MouseEvent } | null) => void
   onTimingHover?: (hover: { timing: Timing; event: MouseEvent } | null) => void
+  onTimingClick?: (click: { timing: Timing; event: MouseEvent } | null) => void
   onNodeSelect?: (frame: FlamechartFrame | null) => void
 
   disableTimeIndicators?: boolean
@@ -36,6 +37,7 @@ export class FlamechartViewController {
   private devicePixelRatio = 1
   private selectedFrame: FlamechartFrame | undefined = undefined
   private hoverFrame: FlamechartFrame | undefined = undefined
+  private hoverTiming: Timing | undefined = undefined
   private matchedOutlineWidth = 0
   private timelineCursor: number | undefined = undefined
   private searchResults: ProfileSearchEngine | undefined = undefined
@@ -232,6 +234,7 @@ export class FlamechartViewController {
     const configDelta = this.configSpaceToPhysicalViewSpace().inverseTransformVector(physicalDelta)
 
     this.hoverFrame = undefined
+    this.hoverTiming = undefined
     this.props.onNodeHover?.(null)
     this.props.onTimingHover?.(null)
 
@@ -325,14 +328,14 @@ export class FlamechartViewController {
 
         this.props.onNodeHover?.(this.hoverFrame ? { frame: this.hoverFrame, event: ev } : null)
 
-        let hoverTiming = undefined
+        this.hoverTiming = undefined
         for (const { area, timing } of this.renderFeedback?.timingPhysicalAreas || []) {
           if (area.contains(physicalViewSpaceMouse)) {
-            hoverTiming = timing
+            this.hoverTiming = timing
           }
         }
 
-        this.props.onTimingHover?.(hoverTiming ? { timing: hoverTiming, event: ev } : null)
+        this.props.onTimingHover?.(this.hoverTiming ? { timing: this.hoverTiming, event: ev } : null)
       }
     }
 
@@ -342,6 +345,7 @@ export class FlamechartViewController {
 
   private readonly onMouseLeave = (_: MouseEvent) => {
     this.hoverFrame = undefined
+    this.hoverTiming = undefined
     this.timelineCursor = undefined
     this.props.onNodeHover?.(null)
     this.props.onTimingHover?.(null)
@@ -426,6 +430,10 @@ export class FlamechartViewController {
       // If the cursor is more than 5 logical space pixels away from the mouse
       // down location, then don't interpret this event as a click.
       return
+    }
+
+    if (this.hoverTiming) {
+      this.props.onTimingClick?.({ timing: this.hoverTiming, event: ev })
     }
 
     if (this.hoverFrame) {

@@ -24,9 +24,9 @@ import {
   IGroup,
 } from '@fluentui/react'
 import { groupBy } from 'lodash'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef, useLayoutEffect, useEffect } from 'react'
 
-import { Table, useWideScreen } from '@perfsee/components'
+import { Table, useQueryString, useWideScreen } from '@perfsee/components'
 import { lighten, SharedColors } from '@perfsee/dls'
 import { RequestSchema } from '@perfsee/shared'
 
@@ -40,7 +40,15 @@ import { getStartTime } from './utils'
 import { WaterFall } from './waterfall'
 
 const DetailRowItem = (props: IDetailsRowProps) => {
-  const [opened, setOpened] = useState<boolean>()
+  const [query] = useQueryString<{ opened?: string }>({ parseNumbers: false })
+  const [opened, setOpened] = useState<boolean>(query.opened === (props.item as RequestSchema).requestId)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    if (opened) {
+      ref.current?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [opened])
 
   const customStyles: Partial<IDetailsRowStyles> = useMemo(
     () => ({
@@ -59,10 +67,10 @@ const DetailRowItem = (props: IDetailsRowProps) => {
   }, [])
 
   return (
-    <>
+    <div ref={ref}>
       <DetailsRow {...props} styles={customStyles} onClick={onClick} />
       {opened && <TableExtraInfo item={props.item as RequestSchema} />}
-    </>
+    </div>
   )
 }
 
@@ -84,10 +92,17 @@ export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
   const [searchedList, setSearchedList] = useState<RequestSchema[] | undefined>()
   const [filterColumnKeys, setFilterColumnKeys] = useState<Set<string>>(new Set(defaultKeys))
   const [groupByKey, setGroupBy] = useState<GroupByKey>(GroupByKey.None)
+  const [, setQueryString] = useQueryString<{ opened?: string }>()
 
   const onFilter = useCallback((list: RequestSchema[]) => {
     setSearchedList(list)
   }, [])
+
+  useEffect(() => {
+    return () => {
+      setQueryString({ opened: undefined })
+    }
+  }, [setQueryString])
 
   const waterfallColumn = useMemo(() => {
     return [

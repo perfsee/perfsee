@@ -21,10 +21,11 @@ import { MetricScoreSchema } from '@perfsee/shared'
 type Props = {
   detail: MetricScoreSchema
   colorful?: boolean
+  hideTitle?: boolean
 }
 
 export const LighthouseScoreBlock = (props: Props) => {
-  const { detail, colorful } = props
+  const { detail, colorful, hideTitle } = props
   let value: string | number | undefined = detail.value
   let unit: string | undefined = detail.unit
   if (detail.value && detail.formatter === 'duration') {
@@ -38,5 +39,5 @@ export const LighthouseScoreBlock = (props: Props) => {
     color = getScoreColor(detail.score * 100)
   }
 
-  return <ScoreBlock title={detail.title} color={color} value={value} unit={unit} />
+  return <ScoreBlock title={hideTitle ? null : detail.title} color={color} value={value} unit={unit} />
 }

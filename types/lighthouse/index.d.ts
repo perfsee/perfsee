@@ -51,6 +51,7 @@ module LH {
     CpuProfiler: Crdp.Profiler.Profile
     ConsoleLogger: null
     ReactProfiler: ProfilingDataExport | null
+    LcpElement: any
   }
 
   export interface PerfseeGathererInstance extends Gatherer.GathererInstance {
