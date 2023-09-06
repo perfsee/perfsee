@@ -332,7 +332,9 @@ export const LCPInsight: FC<InsightProps> = memo(({ snapshot }) => {
       </Stack>
       {LcpElement}
       <SlowedDownBy causeForLCP={causeForLCP} />
-      {causeForLCP.criticalPathForLcp ? <CriticalPath request={causeForLCP.criticalPathForLcp.request} /> : null}
+      {causeForLCP.criticalPathForLcp?.request ? (
+        <CriticalPath request={causeForLCP.criticalPathForLcp.request} />
+      ) : null}
       <TimingBreakdown causeForLCP={causeForLCP} />
     </Stack>
   )
