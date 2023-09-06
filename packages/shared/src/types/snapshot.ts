@@ -170,7 +170,7 @@ export interface CauseForLcp {
     }
   } | null
   criticalPathForLcp: {
-    request: RequestSchema
+    request?: RequestSchema
   } | null
   networkBlockings: TraceEvent[]
   metrics: {
