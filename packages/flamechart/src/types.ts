@@ -22,6 +22,32 @@ export type TimingSchema = {
   [key: string]: string | number
 }
 
+export interface CallFrame {
+  functionName: string
+  scriptId: string
+  url?: string
+  lineNumber: number
+  columnNumber: number
+}
+export interface StackTrack {
+  description?: string
+  parent?: StackTrack
+  parentId?: {
+    id: string
+    debuggerId?: string
+  }
+  callFrames: CallFrame[]
+}
+
+export interface Initiator {
+  type: 'parser' | 'script' | 'preload' | 'SignedExchange' | 'preflight' | 'other'
+  url?: string
+  lineNumber?: number
+  columnNumber?: number
+  requestId?: string
+  stack?: StackTrack
+}
+
 export type NetworkRequest = {
   index: number
   url: string
@@ -39,6 +65,8 @@ export type NetworkRequest = {
   timings: { name: RequestTiming; value: number }[]
   responseHeader: Record<string, string | number>
   requestHeader: Record<string, string | number>
+  initiator: Initiator
+  requestId: string
 }
 
 export interface TracehouseTask {

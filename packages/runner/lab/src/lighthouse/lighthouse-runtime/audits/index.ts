@@ -16,3 +16,4 @@ limitations under the License.
 
 export * from './network-requests'
 export * from './white-screen'
+export * from './cause-for-lcp'

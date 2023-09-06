@@ -40,7 +40,7 @@ impl Deref for SourceMap {
 
 #[derive(Default, Debug, Serialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
-pub struct ReactLocation {
+pub struct FunctionLocation {
   pub name: String,
   pub file: String,
   pub line: u32,
@@ -283,15 +283,66 @@ fn parse_frame(
   }
 }
 
-const REACT_LOCATION_REGEX: &str = r"(?P<file>.*):(?P<line>\d+):(?P<col>\d+)$";
+const LOCATION_REGEX: &str = r"(?P<file>.*):(?P<line>\d+):(?P<col>\d+)$";
+
+fn parse_call_frame(
+  key: &str,
+  source_maps: &[(&str, &str, SourceMap)],
+  bundle_meta: &BundleMeta,
+  location_regex: &Regex,
+  source_regex: &Regex,
+) -> Option<FunctionLocation> {
+  if let Some(caps) = location_regex.captures(key) {
+    let file = caps.name("file").map(|m| m.as_str());
+    let line = caps
+      .name("line")
+      .and_then(|l| l.as_str().parse::<u32>().ok());
+    let col = caps
+      .name("col")
+      .and_then(|l| l.as_str().parse::<u32>().ok());
+
+    if let Some(file) = file {
+      let mut frame = Frame {
+        file: file.to_string(),
+        line,
+        col,
+        sourced: false,
+        key: String::default(),
+        name: String::default(),
+        bundle_hash: None,
+        bundle_name: None,
+        origin_script_file: String::default(),
+        node_module: None,
+      };
+
+      parse_frame(&mut frame, source_maps, bundle_meta, source_regex);
+      return Some(FunctionLocation {
+        file: frame.file,
+        name: frame.name,
+        line: frame.line.unwrap_or_default(),
+        col: frame.col.unwrap_or_default(),
+      });
+    }
+  }
+  None
+}
+
+type ParseResult = (
+  Profile,
+  Option<Vec<Option<FunctionLocation>>>,
+  Option<Vec<Option<FunctionLocation>>>,
+);
+
 pub fn parse(
   profile_path: &str,
   bundle_meta_path: &str,
   react_locations_path: Option<&str>,
-) -> Result<(Profile, Option<Vec<Option<ReactLocation>>>)> {
+  call_frames_path: Option<&str>,
+) -> Result<ParseResult> {
   let bundle_meta: BundleMeta = serde_json::from_reader(File::open(bundle_meta_path)?)?;
   let source_maps = bundle_meta.generate_source_maps();
-  let mut locations = None;
+  let mut parsed_react_locations = None;
+  let mut parsed_call_frames = None;
 
   let source_regex = Regex::new(SOURCE_REGEXP).unwrap();
 
@@ -300,45 +351,39 @@ pub fn parse(
     if let Some(react_locations_path) = react_locations_path {
       let react_locations: Vec<String> =
         serde_json::from_reader(File::open(react_locations_path)?)?;
-      let location_regex = Regex::new(REACT_LOCATION_REGEX)?;
+      let location_regex = Regex::new(LOCATION_REGEX)?;
 
-      locations.replace(
+      parsed_react_locations.replace(
         react_locations
           .into_iter()
           .map(|location| {
-            if let Some(caps) = location_regex.captures(&location) {
-              let file = caps.name("file").map(|m| m.as_str());
-              let line = caps
-                .name("line")
-                .and_then(|l| l.as_str().parse::<u32>().ok());
-              let col = caps
-                .name("col")
-                .and_then(|l| l.as_str().parse::<u32>().ok());
+            parse_call_frame(
+              &location,
+              &source_maps,
+              &bundle_meta,
+              &location_regex,
+              &source_regex,
+            )
+          })
+          .collect(),
+      );
+    }
 
-              if let Some(file) = file {
-                let mut frame = Frame {
-                  file: file.to_string(),
-                  line,
-                  col,
-                  sourced: false,
-                  key: String::default(),
-                  name: String::default(),
-                  bundle_hash: None,
-                  bundle_name: None,
-                  origin_script_file: String::default(),
-                  node_module: None,
-                };
+    if let Some(call_frames_path) = call_frames_path {
+      let call_frame_keys: Vec<String> = serde_json::from_reader(File::open(call_frames_path)?)?;
+      let location_regex = Regex::new(LOCATION_REGEX)?;
 
-                parse_frame(&mut frame, &source_maps, &bundle_meta, &source_regex);
-                return Some(ReactLocation {
-                  file: frame.file,
-                  name: frame.name,
-                  line: frame.line.unwrap_or_default(),
-                  col: frame.col.unwrap_or_default(),
-                });
-              }
-            }
-            None
+      parsed_call_frames.replace(
+        call_frame_keys
+          .into_iter()
+          .map(|location| {
+            parse_call_frame(
+              &location,
+              &source_maps,
+              &bundle_meta,
+              &location_regex,
+              &source_regex,
+            )
           })
           .collect(),
       );
@@ -379,7 +424,7 @@ pub fn parse(
       });
     }
   }
-  Ok((profile, locations))
+  Ok((profile, parsed_react_locations, parsed_call_frames))
 }
 
 #[cfg(test)]

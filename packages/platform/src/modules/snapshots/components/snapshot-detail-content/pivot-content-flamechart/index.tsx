@@ -14,11 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Panel } from '@fluentui/react'
+import { useCallback, useMemo, useState } from 'react'
+
+import { useQueryString } from '@perfsee/components'
+import { Timing } from '@perfsee/flamechart'
 import { FlamechartPlaceholder } from '@perfsee/platform/modules/flamechart'
 
 import { SnapshotDetailType } from '../../../snapshot-type'
 
+import { FlamechartOperationContext } from './context'
 import { FlamechartView } from './flamechart'
+import { renderMetricInsight } from './metrics-insight'
 import { FlamechartContainer } from './style'
 
 type Props = {
@@ -27,6 +34,49 @@ type Props = {
 
 export const FlameChartPivotContent = (props: Props) => {
   const { snapshot } = props
+  const [{ insight }] = useQueryString<{ insight?: string }>()
+  const [clickedMetric, setClickedMetric] = useState<string | null>(insight ?? null)
+  const [focusedFrame, setFocusedFrame] = useState<{ key: string; time?: number } | undefined>()
+
+  const onClickTiming = useCallback(
+    (click: { timing: Timing } | null) => {
+      setClickedMetric(click?.timing.name ?? null)
+    },
+    [setClickedMetric],
+  )
+
+  const onTimingPanelDismiss = useCallback(() => {
+    setClickedMetric(null)
+  }, [])
+
+  const { title: metricInsightTitle, content: metricInsightContent } =
+    renderMetricInsight(clickedMetric, snapshot) ?? {}
+
+  const flamechartOperations = useMemo(() => {
+    return {
+      focuseFrame(key: string, time?: number) {
+        setFocusedFrame({
+          key,
+          time,
+        })
+      },
+    }
+  }, [])
+
+  const metricInsightPanel = (
+    <Panel
+      isLightDismiss
+      isOpen={!!clickedMetric && !!metricInsightContent}
+      onDismiss={onTimingPanelDismiss}
+      headerText={metricInsightTitle}
+      isBlocking={false}
+      type={3}
+    >
+      <FlamechartOperationContext.Provider value={flamechartOperations}>
+        {metricInsightContent}
+      </FlamechartOperationContext.Provider>
+    </Panel>
+  )
 
   if ('flameChartLink' in snapshot.report && snapshot.report.flameChartLink) {
     const tasksBaseTimestamp =
@@ -44,7 +94,10 @@ export const FlameChartPivotContent = (props: Props) => {
           metrics={snapshot.metricScores}
           userTimings={snapshot.userTimings}
           reactProfileLink={snapshot.report.reactProfileLink}
+          onClickTiming={onClickTiming}
+          focusedFrame={focusedFrame}
         />
+        {metricInsightPanel}
       </FlamechartContainer>
     )
   } else {

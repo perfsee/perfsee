@@ -106,6 +106,10 @@ export interface FlamechartProps {
    * on select frame
    */
   onSelectFrame?: (frame: FlamechartFrame | null) => void
+  /**
+   * on click timing
+   */
+  onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
 }
 
 const styles = {
@@ -146,6 +150,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           renderTimingTooltip,
           onSelectFrame,
           images,
+          onClickTiming,
         },
         ref,
       ) => {
@@ -154,6 +159,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
         const { width: containerWidth, height: containerHeight } = useElementSize(containerRef)
         const [searchEngine, setSearchEngine] = useState<ProfileSearchEngine | null>()
         const [searchBoxVisibility, setSearchBoxVisibility] = useState<boolean>()
+        const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame | null>()
 
         const flamechart = useMemo(
           () =>
@@ -201,8 +207,21 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           if (viewportRect) {
             view.focusToViewportRect(viewportRect, false)
             view.highlightSearchResult()
+            if (matchFrames.length === 1) {
+              setSelectedFrame(matchFrames[0])
+            } else {
+              setSelectedFrame(null)
+            }
           }
         }, [view, flamechart, searchResults])
+
+        const handleSelectFlamechart = useCallback(
+          (frame: FlamechartFrame | null) => {
+            onSelectFrame?.(frame)
+            setSelectedFrame(frame)
+          },
+          [onSelectFrame],
+        )
 
         return (
           <div style={styles.container} ref={containerRef}>
@@ -237,7 +256,9 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 hiddenFrameLabels={hiddenFrameLabels}
                 renderTooltip={renderTooltip}
                 renderTimingTooltip={renderTimingTooltip}
-                onSelectFrame={onSelectFrame}
+                onSelectFrame={handleSelectFlamechart}
+                onClickTiming={onClickTiming}
+                selectedFrame={selectedFrame}
               />
             )}
           </div>

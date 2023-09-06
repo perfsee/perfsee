@@ -183,7 +183,7 @@ export class FlamechartViewRenderer {
             }
 
             if (textWidth > minWidthToRender) {
-              const match = props.searchResults?.getMatchForNode(frame.node)
+              const match = props.searchResults?.getMatchForFrame(frame)
 
               const trimmedText = trimTextMid(ctx, labelText, textWidth)
 
@@ -233,7 +233,7 @@ export class FlamechartViewRenderer {
         ctx.strokeStyle = this.theme.selectionSecondaryColor
 
         const renderSpecialFrameOutlines = (frame: FlamechartFrame, configSpaceBounds: Rect) => {
-          if (props.searchResults?.getMatchForNode(frame.node)) {
+          if (props.searchResults?.getMatchForFrame(frame)) {
             const physicalRectBounds = viewportToPhysical.transformRect(configSpaceBounds)
             matchedFrameBatch.rect({
               x: Math.round(physicalRectBounds.left() + props.matchedStrokeWidth / 2 - props.matchedOutlineWidth / 2),

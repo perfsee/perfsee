@@ -18,8 +18,9 @@ import run from 'lighthouse'
 // @ts-expect-error
 import defaultConfig from 'lighthouse/lighthouse-core/config/default-config'
 
-import { NetworkRequests, WhiteScreen } from './audits'
+import { CauseForLCP, NetworkRequests, WhiteScreen } from './audits'
 import { ConsoleLogger, ReactProfiler, RequestInterception, Screencast } from './gatherers'
+import { LcpElement } from './gatherers/lcp-element'
 
 type KeyAuditName = 'first-contentful-paint' | 'interactive' | 'total-blocking-time' | 'largest-contentful-paint'
 
@@ -127,7 +128,7 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
         }
 
         if (pass.passName === 'defaultPass') {
-          pass.gatherers?.push(Screencast)
+          pass.gatherers?.push(Screencast, LcpElement)
           if (customFlags?.reactProfiling) {
             pass.gatherers?.push(new ReactProfiler())
           }
@@ -135,7 +136,7 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
 
         return pass
       }),
-      audits: [...defaultConfig.audits, NetworkRequests, WhiteScreen],
+      audits: [...defaultConfig.audits, NetworkRequests, WhiteScreen, CauseForLCP],
       settings: {
         additionalTraceCategories: 'disabled-by-default-v8.cpu_profiler',
       },

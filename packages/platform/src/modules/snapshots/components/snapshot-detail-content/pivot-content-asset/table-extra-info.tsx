@@ -15,8 +15,9 @@ limitations under the License.
 */
 
 import { PivotItem, Stack } from '@fluentui/react'
+import { ReactNode, memo } from 'react'
 
-import { RequestSchema } from '@perfsee/shared'
+import { RequestSchema, StackTrack } from '@perfsee/shared'
 
 import { StyledPivot, StyledLink, StyledInfoItem, StyledInfoKey } from './style'
 
@@ -49,7 +50,70 @@ export const TableExtraInfo = (props: Props) => {
       <StyledPivot styles={{ itemContainer: { width: '100%', padding: '8px' } }}>
         <PivotItem headerText="Response headers">{response}</PivotItem>
         <PivotItem headerText="Request headers">{request}</PivotItem>
+        <PivotItem headerText="Initiator">
+          <TableInitiator item={item} />
+        </PivotItem>
       </StyledPivot>
     </Stack>
   )
+}
+
+export const TableInitiator = memo(({ item }: { item: RequestSchema }) => {
+  const { initiator } = item
+
+  if (!initiator) {
+    return null
+  }
+
+  const { url, lineNumber, columnNumber, stack, type } = initiator
+
+  if (url) {
+    return (
+      <StyledInfoItem>
+        <StyledInfoKey>
+          {url}
+          {typeof lineNumber === 'number' && typeof columnNumber === 'number' ? `:${lineNumber}:${columnNumber}` : ''}
+        </StyledInfoKey>
+      </StyledInfoItem>
+    )
+  }
+
+  if (stack) {
+    return <>{traverseStack(stack)}</>
+  }
+
+  return (
+    <StyledInfoItem>
+      <StyledInfoKey>{type}</StyledInfoKey>
+    </StyledInfoItem>
+  )
+})
+
+const traverseStack = (stack: StackTrack): ReactNode[] => {
+  const elements = []
+
+  if (stack.description) {
+    elements.push(
+      <StyledInfoItem>
+        <StyledInfoKey>{stack.description} (async)</StyledInfoKey>
+      </StyledInfoItem>,
+    )
+  }
+
+  elements.push(
+    stack.callFrames.map((frame, i) => {
+      return (
+        <StyledInfoItem key={i}>
+          <StyledInfoKey>{frame.functionName || '(anonymous)'}</StyledInfoKey>
+          {`${frame.url}:${frame.lineNumber}:${frame.columnNumber}`}
+        </StyledInfoItem>
+      )
+    }),
+  )
+
+  if (stack.parent) {
+    elements.push(...traverseStack(stack.parent))
+  }
+
+  return elements
 }

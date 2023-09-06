@@ -5,7 +5,7 @@ import { Flamechart, FlamechartFrame } from '../lib/flamechart'
 import { FlamechartImage } from '../lib/flamechart-image'
 import { Rect } from '../lib/math'
 import { Profile } from '../lib/profile'
-import { ProfileSearchEngine } from '../lib/profile-search'
+import { ProfileFrameKeySearch, ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
 import { lightTheme, Theme } from '../themes/theme'
 import { FlamechartBindingManager } from '../views/flamechart-binding-manager'
@@ -43,6 +43,9 @@ export interface FlamechartGroupContainerProps {
   ) => React.ReactNode
   renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme, profileIndex: number) => React.ReactNode
   onSelectFrame?: (frame: FlamechartFrame | null) => void
+  onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
+  focusedFrame?: { key: string }
+  useSimpleDetailView?: boolean
 }
 
 const CollapseButton = memo<{ collapsed: boolean }>(({ collapsed }) => {
@@ -68,7 +71,7 @@ const CollapseButton = memo<{ collapsed: boolean }>(({ collapsed }) => {
   )
 })
 
-const DetailView: React.FunctionComponent<{ frame: FlamechartFrame; theme: Theme }> = ({ frame, theme }) => {
+const SimpleDetailView: React.FunctionComponent<{ frame: FlamechartFrame; theme: Theme }> = ({ frame, theme }) => {
   return (
     <div
       style={{
@@ -116,7 +119,10 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       renderTimingTooltip,
       timings = [],
       onSelectFrame,
+      onClickTiming,
       images = [],
+      focusedFrame,
+      useSimpleDetailView,
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
       const bindingManager = useMemo(() => {
@@ -247,6 +253,47 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         })
       }, [firstVisibleSplit, profiles, timings, timingsOnlyLine])
 
+      const focusedSearchEngine = useMemo(() => {
+        if (!focusedFrame) return null
+        return new ProfileFrameKeySearch(focusedFrame.key)
+      }, [focusedFrame])
+
+      useEffect(() => {
+        viewsRef.current?.forEach((view, i) => {
+          if (!view) return
+          if (!focusedSearchEngine) return
+          view.setSearchResults(focusedSearchEngine)
+
+          const { matchFrames, highestScoreFrame } = flamecharts[i].search(focusedSearchEngine)
+
+          if (matchFrames.length === 0) return
+
+          const viewportRect = view.computeFocusViewportRect(matchFrames, highestScoreFrame)
+          if (viewportRect) {
+            view.focusToViewportRect(viewportRect, false)
+            view.highlightSearchResult()
+            if (matchFrames.length === 1) {
+              setSelectedFrame(matchFrames[0])
+            } else {
+              setSelectedFrame(null)
+            }
+          }
+        })
+      }, [viewsRef, flamecharts, focusedSearchEngine])
+
+      const lastVisibleView = useMemo(() => {
+        let lastVisibleSplit = -1
+        for (let i = splitCollapsed.length - 1; i >= 0; i--) {
+          if (splitCollapsed[i]) {
+            lastVisibleSplit = i
+          } else {
+            break
+          }
+        }
+        lastVisibleSplit += 1
+        return lastVisibleSplit
+      }, [splitCollapsed])
+
       const views = profiles.map((item, index) => {
         const isFirstVisible = index === firstVisibleSplit
         const collapsed = !!splitCollapsed[index]
@@ -266,7 +313,6 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               initialRight={initialRight}
               minLeft={minValue}
               maxRight={maxValue}
-              disableDetailView
               bindingManager={bindingManager}
               disableTimeIndicators={!isFirstVisible}
               disableTimelineCursor={disableTimelineCursor}
@@ -280,6 +326,9 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               onSelectFrame={handleSelectFlamechart}
               renderTooltip={profilesRenderTooltip?.[index]}
               renderTimingTooltip={profilesRenderTimingTooltip?.[index]}
+              onClickTiming={onClickTiming}
+              selectedFrame={selectedFrame}
+              disableDetailView={index !== lastVisibleView || useSimpleDetailView}
             />
           </Fragment>
         )
@@ -350,7 +399,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
             {containerWidth && containerHeight && (
               <SplitView
                 width={containerWidth}
-                height={containerHeight - 24 /* detail view height */}
+                height={containerHeight - (useSimpleDetailView ? 24 /** simple detail view height */ : 0)}
                 minSize={splitMinSize}
                 size={finalSplitSize}
                 grow={splitGrow}
@@ -360,7 +409,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
                 {views}
               </SplitView>
             )}
-            {selectedFrame && <DetailView frame={selectedFrame} theme={globalTheme} />}
+            {useSimpleDetailView && selectedFrame && <SimpleDetailView frame={selectedFrame} theme={globalTheme} />}
           </div>
         </>
       )

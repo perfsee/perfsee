@@ -37,3 +37,4 @@ export type {
   PackageStats,
   BenchmarkResult,
 } from '@perfsee/package'
+export * from './trace-event'

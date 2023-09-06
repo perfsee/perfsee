@@ -17,12 +17,6 @@ limitations under the License.
 import styled from '@emotion/styled'
 import { NeutralColors, Stack } from '@fluentui/react'
 
-export const FlamechartContainer = styled.div({
-  width: '100%',
-  height: 'calc(100vh - 350px)',
-  minHeight: '500px',
-})
-
 export const DetailContentContainer = styled(Stack)({
   overflow: 'hidden',
   lineBreak: 'anywhere',
@@ -37,7 +31,7 @@ export const DetailTitle = styled.span({
 
 export const DetailKey = styled(Stack)({
   flexShrink: 0,
-  width: 150,
+  width: 160,
 })
 
 export const SlowedDownByItemContainer = styled(Stack)({
@@ -46,5 +40,11 @@ export const SlowedDownByItemContainer = styled(Stack)({
   '&:not(:last-of-type)': {
     borderBottom: `1px solid ${NeutralColors.gray40}`,
     paddingBottom: 12,
+  },
+})
+
+export const ElementNodeContainer = styled.div({
+  '> span': {
+    marginRight: 4,
   },
 })

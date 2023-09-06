@@ -96,6 +96,8 @@ export const FlamechartView: React.FunctionComponent<{
   metrics?: MetricScoreSchema[]
   userTimings?: UserTimingSchema[]
   onSelectFrame?: (frame: FlamechartFrame | null) => void
+  onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
+  focusedFrame?: { key: string }
 }> = memo(
   ({
     flameChartLink,
@@ -107,6 +109,8 @@ export const FlamechartView: React.FunctionComponent<{
     metrics,
     userTimings,
     onSelectFrame,
+    onClickTiming,
+    focusedFrame,
   }) => {
     useWideScreen()
     const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
@@ -266,6 +270,8 @@ export const FlamechartView: React.FunctionComponent<{
           timings={timings}
           initialRight={initialRight}
           onSelectFrame={onSelectFrame}
+          onClickTiming={onClickTiming}
+          focusedFrame={focusedFrame}
         />
       )
     }
@@ -278,6 +284,8 @@ export const FlamechartView: React.FunctionComponent<{
           initialRight={initialRight}
           onSelectFrame={onSelectFrame}
           images={images}
+          onClickTiming={onClickTiming}
+          focusedFrame={focusedFrame}
         />
       </>
     )
