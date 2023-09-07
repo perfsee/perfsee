@@ -20,6 +20,8 @@ limitations under the License.
 import Audit from 'lighthouse/lighthouse-core/audits/audit'
 import { TraceEvent } from 'lighthouse/types/artifacts'
 
+import { FunctionStackTrace } from '@perfsee/shared'
+
 import { getNetworkRecords } from '../../helpers'
 import * as SamplesHandler from '../../helpers/samples-handler'
 
@@ -113,7 +115,11 @@ export class CauseForLCP extends Audit {
       score: null,
       details: Audit.makeTableDetails(headings, [
         {
-          longtasks,
+          longtasks: longtasks.filter((longtask) => {
+            // @ts-expect-error
+            const hotFunctionStackTraces = longtask.hotFunctionsStackTraces as FunctionStackTrace[][] | undefined
+            return hotFunctionStackTraces?.[0]?.[0].functionName !== '__puppeteer_evaluation_script__'
+          }),
           criticalPathForLcp,
           LcpElement,
           networkBlockings,

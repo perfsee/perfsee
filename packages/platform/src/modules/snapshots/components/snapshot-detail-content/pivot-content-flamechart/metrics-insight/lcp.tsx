@@ -218,7 +218,7 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
   return (
     <Stack tokens={{ childrenGap: 16 }}>
       <DetailTitle>Timing Breakdown</DetailTitle>
-      {navigationTimeToFirstByte && (
+      {navigationTimeToFirstByte ? (
         <Stack horizontal>
           <DetailKey>Time To Frist Byte</DetailKey>
           <Stack horizontal>
@@ -234,8 +234,8 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
             {navigationTimeToFirstByte?.toFixed(2)}ms
           </Stack>
         </Stack>
-      )}
-      {resourceLoadDelay && haveRequest && (
+      ) : null}
+      {resourceLoadDelay && haveRequest ? (
         <Stack horizontal>
           <DetailKey>Resource Load Delay</DetailKey>
           <Stack horizontal>
@@ -252,8 +252,8 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
             {resourceLoadDelay?.toFixed(2)}ms
           </Stack>
         </Stack>
-      )}
-      {resourceLoadTime && haveRequest && (
+      ) : null}
+      {resourceLoadTime && haveRequest ? (
         <Stack horizontal>
           <DetailKey>Resource Load Time</DetailKey>
           <Stack horizontal>
@@ -271,8 +271,8 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
             {resourceLoadTime?.toFixed(2)}ms
           </Stack>
         </Stack>
-      )}
-      {elementRenderDelay && (
+      ) : null}
+      {elementRenderDelay ? (
         <Stack horizontal>
           <DetailKey>Element Render Delay</DetailKey>
           <Stack horizontal>
@@ -294,7 +294,7 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
             {elementRenderDelay?.toFixed(2)}ms
           </Stack>
         </Stack>
-      )}
+      ) : null}
     </Stack>
   )
 }
