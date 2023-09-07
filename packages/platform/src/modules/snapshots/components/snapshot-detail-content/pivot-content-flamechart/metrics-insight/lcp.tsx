@@ -210,8 +210,10 @@ const TimingBreakdownTotalWidth = 350
 
 const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
   const { navigationTimeToFirstByte, resourceLoadDelay, resourceLoadTime, elementRenderDelay } = causeForLCP.metrics
-  const total =
-    (navigationTimeToFirstByte ?? 0) + (resourceLoadDelay ?? 0) + (resourceLoadTime ?? 0) + (elementRenderDelay ?? 0)
+  const haveRequest = !!causeForLCP.criticalPathForLcp?.request
+  const total = haveRequest
+    ? (navigationTimeToFirstByte ?? 0) + (resourceLoadDelay ?? 0) + (resourceLoadTime ?? 0) + (elementRenderDelay ?? 0)
+    : (navigationTimeToFirstByte ?? 0) + (elementRenderDelay ?? 0)
 
   return (
     <Stack tokens={{ childrenGap: 16 }}>
@@ -233,7 +235,7 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
           </Stack>
         </Stack>
       )}
-      {resourceLoadDelay && (
+      {resourceLoadDelay && haveRequest && (
         <Stack horizontal>
           <DetailKey>Resource Load Delay</DetailKey>
           <Stack horizontal>
@@ -251,7 +253,7 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
           </Stack>
         </Stack>
       )}
-      {resourceLoadTime && (
+      {resourceLoadTime && haveRequest && (
         <Stack horizontal>
           <DetailKey>Resource Load Time</DetailKey>
           <Stack horizontal>
@@ -280,10 +282,11 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
                 root: {
                   background: SharedColors.yellow10,
                   width: (TimingBreakdownTotalWidth * elementRenderDelay) / total,
-                  marginLeft:
-                    (TimingBreakdownTotalWidth *
-                      ((resourceLoadDelay ?? 0) + (navigationTimeToFirstByte ?? 0) + (resourceLoadTime ?? 0))) /
-                    total,
+                  marginLeft: haveRequest
+                    ? (TimingBreakdownTotalWidth *
+                        ((resourceLoadDelay ?? 0) + (navigationTimeToFirstByte ?? 0) + (resourceLoadTime ?? 0))) /
+                      total
+                    : (TimingBreakdownTotalWidth * (navigationTimeToFirstByte ?? 0)) / total,
                   marginRight: 4,
                 },
               }}
