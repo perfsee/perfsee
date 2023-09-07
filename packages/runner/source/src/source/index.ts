@@ -462,11 +462,11 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       const key = getKeyForCallFrame(callframe)
       if (key) {
         const parsedFunction = functionMaps[key]
-        if (parsedFunction) {
+        if (parsedFunction && callframe.url !== parsedFunction.file) {
           callframe.url = parsedFunction.file
-          callframe.lineNumber = parsedFunction.line
-          callframe.columnNumber = parsedFunction.col
-          callframe.functionName ||= parsedFunction.name
+          callframe.lineNumber = parsedFunction.line - 1
+          callframe.columnNumber = parsedFunction.col - 1
+          callframe.functionName = parsedFunction.name
         }
       }
     }

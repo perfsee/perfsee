@@ -282,17 +282,15 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       }, [viewsRef, flamecharts, focusedSearchEngine])
 
       const lastVisibleView = useMemo(() => {
-        let lastVisibleSplit = -1
+        let lastVisibleSplit = profiles.length - 1
         for (let i = splitCollapsed.length - 1; i >= 0; i--) {
-          if (splitCollapsed[i]) {
+          if (!splitCollapsed[i]) {
             lastVisibleSplit = i
-          } else {
             break
           }
         }
-        lastVisibleSplit += 1
         return lastVisibleSplit
-      }, [splitCollapsed])
+      }, [splitCollapsed, profiles])
 
       const views = profiles.map((item, index) => {
         const isFirstVisible = index === firstVisibleSplit
