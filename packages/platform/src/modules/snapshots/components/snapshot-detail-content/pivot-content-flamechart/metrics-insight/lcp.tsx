@@ -208,12 +208,13 @@ const SlowedDownBy = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
 
 const TimingBreakdownTotalWidth = 350
 
-const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
-  const { navigationTimeToFirstByte, resourceLoadDelay, resourceLoadTime, elementRenderDelay } = causeForLCP.metrics
+const TimingBreakdown = ({ causeForLCP, lcp }: { causeForLCP: CauseForLcp; lcp: number }) => {
+  const { navigationTimeToFirstByte, resourceLoadDelay, resourceLoadTime } = causeForLCP.metrics
   const haveRequest = !!causeForLCP.criticalPathForLcp?.request
-  const total = haveRequest
-    ? (navigationTimeToFirstByte ?? 0) + (resourceLoadDelay ?? 0) + (resourceLoadTime ?? 0) + (elementRenderDelay ?? 0)
-    : (navigationTimeToFirstByte ?? 0) + (elementRenderDelay ?? 0)
+  const elementRenderDelay = haveRequest
+    ? lcp - ((navigationTimeToFirstByte ?? 0) + (resourceLoadDelay ?? 0) + (resourceLoadTime ?? 0))
+    : (lcp = navigationTimeToFirstByte ?? 0)
+  const total = lcp
 
   return (
     <Stack tokens={{ childrenGap: 16 }}>
@@ -302,6 +303,9 @@ const TimingBreakdown = ({ causeForLCP }: { causeForLCP: CauseForLcp }) => {
 export const LCPInsight: FC<InsightProps> = memo(({ snapshot }) => {
   // @ts-expect-error
   const causeForLCP: CauseForLcp = snapshot.audits['cause-for-lcp']?.details?.items[0]
+  // @ts-expect-error
+  const lcpElementAudit = snapshot.audits['largest-contentful-paint-element']?.details?.items[0]
+  const lcpValue = snapshot.audits['largest-contentful-paint']?.numericValue
   const lcpScore = snapshot.metricScores?.find((score) => score.id === 'largest-contentful-paint')
 
   if (!lcpScore || !causeForLCP) {
@@ -317,6 +321,10 @@ export const LCPInsight: FC<InsightProps> = memo(({ snapshot }) => {
           {formatNode(causeForLCP.LcpElement.node)}
         </Stack>
       </DetailContentContainer>
+      <Stack horizontal>
+        <DetailKey>Selector</DetailKey>
+        <span style={{ color: NeutralColors.gray130 }}>{lcpElementAudit?.node?.selector}</span>
+      </Stack>
       <Stack horizontal>
         <DetailKey>Width</DetailKey>
         {causeForLCP.LcpElement.boxModel.width}px
@@ -338,7 +346,7 @@ export const LCPInsight: FC<InsightProps> = memo(({ snapshot }) => {
       {causeForLCP.criticalPathForLcp?.request ? (
         <CriticalPath request={causeForLCP.criticalPathForLcp.request} />
       ) : null}
-      <TimingBreakdown causeForLCP={causeForLCP} />
+      <TimingBreakdown causeForLCP={causeForLCP} lcp={lcpValue ?? 0} />
     </Stack>
   )
 })

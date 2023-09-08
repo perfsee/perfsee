@@ -104,11 +104,6 @@ export class CauseForLCP extends Audit {
 
     const resourceLoadDelay = (criticalPathForLcp?.request?.startTime ?? 0) - navigationTimeToFirstByte
 
-    const receiveLCPResponseTrace = traceEvents.find((e) => {
-      return e.args.data?.requestId === lcpCandidate.args.data?.['navigationId'] && e.name.includes('ResourceFinish')
-    })
-    const elementRenderDelay = lcpCandidate.ts / 1000000 - (receiveLCPResponseTrace?.args.data?.['finishTime'] ?? 0)
-
     const headings: LH.Audit.Details.Table['headings'] = []
 
     return Promise.resolve({
@@ -128,7 +123,6 @@ export class CauseForLCP extends Audit {
             navigationTimeToFirstByte,
             resourceLoadDelay,
             resourceLoadTime,
-            elementRenderDelay,
           },
         },
       ]),
