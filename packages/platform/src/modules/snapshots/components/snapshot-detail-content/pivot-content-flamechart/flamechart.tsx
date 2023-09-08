@@ -97,7 +97,7 @@ export const FlamechartView: React.FunctionComponent<{
   userTimings?: UserTimingSchema[]
   onSelectFrame?: (frame: FlamechartFrame | null) => void
   onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
-  focusedFrame?: { key: string }
+  focusedFrame?: { key: string; parentKeys?: string[] }
 }> = memo(
   ({
     flameChartLink,
