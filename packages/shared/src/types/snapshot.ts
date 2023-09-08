@@ -174,7 +174,6 @@ export interface CauseForLcp {
   } | null
   networkBlockings: TraceEvent[]
   metrics: {
-    elementRenderDelay: number | null
     navigationTimeToFirstByte: number | null
     resourceLoadDelay: number | null
     resourceLoadTime: number | null
