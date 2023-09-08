@@ -34,8 +34,8 @@ type Props = {
 
 export const FlameChartPivotContent = (props: Props) => {
   const { snapshot } = props
-  const [{ insight }] = useQueryString<{ insight?: string }>()
-  const [clickedMetric, setClickedMetric] = useState<string | null>(insight ?? null)
+  const [queryString, updateQueryString] = useQueryString<{ insight?: string }>()
+  const [clickedMetric, setClickedMetric] = useState<string | null>(queryString.insight ?? null)
   const [focusedFrame, setFocusedFrame] = useState<{ key: string; parentKeys?: string[] } | undefined>()
 
   const onClickTiming = useCallback(
@@ -47,7 +47,11 @@ export const FlameChartPivotContent = (props: Props) => {
 
   const onTimingPanelDismiss = useCallback(() => {
     setClickedMetric(null)
-  }, [])
+    updateQueryString({
+      ...queryString,
+      insight: undefined,
+    })
+  }, [queryString, updateQueryString])
 
   const { title: metricInsightTitle, content: metricInsightContent } =
     renderMetricInsight(clickedMetric, snapshot) ?? {}

@@ -41,7 +41,9 @@ import { WaterFall } from './waterfall'
 
 const DetailRowItem = (props: IDetailsRowProps) => {
   const [query] = useQueryString<{ opened?: string }>({ parseNumbers: false })
-  const [opened, setOpened] = useState<boolean>(query.opened === (props.item as RequestSchema).requestId)
+  const [opened, setOpened] = useState<boolean>(
+    !!query.opened && query.opened === (props.item as RequestSchema).requestId,
+  )
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
