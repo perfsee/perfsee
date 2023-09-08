@@ -17,5 +17,5 @@ limitations under the License.
 import { createContext } from 'react'
 
 export const FlamechartOperationContext = createContext({
-  focuseFrame: (_key: string) => {},
+  focuseFrame: (_key: string, _parentKeys?: string[]) => {},
 })

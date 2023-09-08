@@ -18,7 +18,7 @@ import { Stack, Link, SharedColors, NeutralColors } from '@fluentui/react'
 import { FC, memo, useCallback, useContext } from 'react'
 
 import { NetworkRequest } from '@perfsee/flamechart'
-import { TraceEvent, CauseForLcp, DomNode } from '@perfsee/shared'
+import { TraceEvent, CauseForLcp, DomNode, FunctionStackTrace } from '@perfsee/shared'
 
 import { SnapshotDetailType } from '../../../../snapshot-type'
 import { LighthouseScoreBlock } from '../../pivot-content-overview/lighthouse-score-block'
@@ -92,19 +92,26 @@ const CriticalPath = ({ request }: { request: NetworkRequest }) => {
   )
 }
 
+const getFlameKey = (stack: FunctionStackTrace) => {
+  if (stack.functionName === '(root)') {
+    return '(profile root)'
+  }
+  return `${stack.functionName || '(anonymous)'}:${stack.url ?? ''}:${
+    typeof stack.lineNumber === 'number' ? stack.lineNumber + 1 : 0
+  }:${typeof stack.columnNumber === 'number' ? stack.columnNumber + 1 : 0}`
+}
+
 const SlowedDownByLongtask = ({ longtask }: { longtask: TraceEvent }) => {
   const focuseFrame = useContext(FlamechartOperationContext).focuseFrame
 
   const firstStack = longtask.hotFunctionsStackTraces?.[0]?.[0]
 
   const onClick = useCallback(() => {
-    const key = firstStack
-      ? `${firstStack.functionName || '(anonymous)'}:${firstStack.url ?? ''}:${
-          typeof firstStack.lineNumber === 'number' ? firstStack.lineNumber + 1 : 0
-        }:${typeof firstStack.columnNumber === 'number' ? firstStack.columnNumber + 1 : 0}`
-      : ''
-    focuseFrame(key)
-  }, [focuseFrame, firstStack])
+    const restStack = longtask.hotFunctionsStackTraces?.[0]?.slice(1)
+    const key = firstStack ? getFlameKey(firstStack) : ''
+    const parentKeys = restStack?.map(getFlameKey)
+    focuseFrame(key, parentKeys)
+  }, [focuseFrame, firstStack, longtask])
 
   if (!firstStack) {
     return null
@@ -213,7 +220,7 @@ const TimingBreakdown = ({ causeForLCP, lcp }: { causeForLCP: CauseForLcp; lcp: 
   const haveRequest = !!causeForLCP.criticalPathForLcp?.request
   const elementRenderDelay = haveRequest
     ? lcp - ((navigationTimeToFirstByte ?? 0) + (resourceLoadDelay ?? 0) + (resourceLoadTime ?? 0))
-    : (lcp = navigationTimeToFirstByte ?? 0)
+    : lcp - (navigationTimeToFirstByte ?? 0)
   const total = lcp
 
   return (

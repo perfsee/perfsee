@@ -21,7 +21,7 @@ export interface FlamechartProps {
   /**
    * the default focused frame key object
    */
-  focusedFrame?: { key: string }
+  focusedFrame?: { key: string; parentKeys?: string[] }
   /**
    * callback when `open file` action triggered
    */
@@ -174,7 +174,7 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
 
         const focusedSearchEngine = useMemo(() => {
           if (!focusedFrame) return null
-          return new ProfileFrameKeySearch(focusedFrame.key)
+          return new ProfileFrameKeySearch(focusedFrame.key, focusedFrame.parentKeys)
         }, [focusedFrame])
 
         const handleSearch = useCallback((searchEngine: ProfileSearchEngine | null) => {

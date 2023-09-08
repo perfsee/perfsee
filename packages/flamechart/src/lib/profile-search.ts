@@ -61,10 +61,21 @@ export class ProfileFileSearchEngine implements ProfileSearchEngine {
 }
 
 export class ProfileFrameKeySearch implements ProfileSearchEngine {
-  constructor(readonly frameKey: string) {}
+  constructor(readonly frameKey: string, readonly parentKeys?: string[]) {}
 
   getMatchForFrame(framechartFrame: FlamechartFrame): FuzzyMatch | null {
     if (this.frameKey && framechartFrame.node.frame.key === this.frameKey) {
+      // match for parent stacks
+      if (this.parentKeys?.length) {
+        let parentNode = framechartFrame.node.parent
+        for (const parentKey of this.parentKeys) {
+          if (parentNode?.frame.key === parentKey) {
+            parentNode = parentNode.parent
+          } else {
+            return null
+          }
+        }
+      }
       return {
         matchedRanges: [],
         score: framechartFrame.node.getTotalWeight(),

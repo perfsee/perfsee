@@ -44,7 +44,7 @@ export interface FlamechartGroupContainerProps {
   renderTimingTooltip?: (timing: Timing, flamechart: Flamechart, theme: Theme, profileIndex: number) => React.ReactNode
   onSelectFrame?: (frame: FlamechartFrame | null) => void
   onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
-  focusedFrame?: { key: string }
+  focusedFrame?: { key: string; parentKeys?: string[] }
   useSimpleDetailView?: boolean
 }
 
@@ -255,7 +255,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
 
       const focusedSearchEngine = useMemo(() => {
         if (!focusedFrame) return null
-        return new ProfileFrameKeySearch(focusedFrame.key)
+        return new ProfileFrameKeySearch(focusedFrame.key, focusedFrame.parentKeys)
       }, [focusedFrame])
 
       useEffect(() => {
