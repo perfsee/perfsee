@@ -466,7 +466,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
           callframe.url = parsedFunction.file
           callframe.lineNumber = parsedFunction.line - 1
           callframe.columnNumber = parsedFunction.col - 1
-          callframe.functionName ||= parsedFunction.name
+          callframe.functionName = parsedFunction.name || callframe.functionName
         }
       }
     }
