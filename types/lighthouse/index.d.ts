@@ -36,6 +36,7 @@ module LH {
     customFlags?: {
       headers?: Record<string, Record<string, string>>
       reactProfiling?: boolean
+      dryRun?: boolean
     }
   }
 

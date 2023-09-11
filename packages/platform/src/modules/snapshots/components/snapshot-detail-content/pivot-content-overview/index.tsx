@@ -78,7 +78,7 @@ export const OverviewPivotContent = (props: Props) => {
       if (isLHCalculator(detail.id, categories?.performance)) {
         if (LighthouseScoreType.LCP === detail.id) {
           scores.push(
-            <Stack>
+            <Stack key={detail.id}>
               <LighthouseScoreBlock key={detail.id} detail={detail} colorful={true} />
               {(detail.score ?? 0) < 90 &&
                 // @ts-expect-error

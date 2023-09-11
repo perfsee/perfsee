@@ -96,7 +96,7 @@ export function runsNotExceedMedianBy(diffScore: number, runs: MetricsRecord[]) 
 
   const runsWithTBT = filterToValidRuns(runsWithLCP, 'tbt')
   if (!runsWithTBT.length) {
-    return runsWithTBT
+    return runsWithLCP
   }
 
   const medianLCP = getMedianValue(runsWithLCP.map((run) => run.lcp))
@@ -124,10 +124,12 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
       passes: defaultConfig.passes.map((pass: LH.PerfseePassJson) => {
         pass = {
           ...pass,
-          gatherers: [new RequestInterception(customFlags?.headers), new ConsoleLogger(), ...(pass.gatherers ?? [])],
+          gatherers: customFlags?.dryRun
+            ? []
+            : [new RequestInterception(customFlags?.headers), new ConsoleLogger(), ...(pass.gatherers ?? [])],
         }
 
-        if (pass.passName === 'defaultPass') {
+        if (pass.passName === 'defaultPass' && !customFlags?.dryRun) {
           pass.gatherers?.push(Screencast, LcpElement)
           if (customFlags?.reactProfiling) {
             pass.gatherers?.push(new ReactProfiler())
@@ -136,10 +138,11 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
 
         return pass
       }),
-      audits: [...defaultConfig.audits, NetworkRequests, WhiteScreen, CauseForLCP],
+      audits: customFlags?.dryRun ? [] : [...defaultConfig.audits, NetworkRequests, WhiteScreen, CauseForLCP],
       settings: {
         additionalTraceCategories: 'disabled-by-default-v8.cpu_profiler',
       },
+      categories: customFlags?.dryRun ? [] : defaultConfig.categories,
     },
   )
 }
