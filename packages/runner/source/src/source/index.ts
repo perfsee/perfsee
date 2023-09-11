@@ -595,5 +595,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
 }
 
 function getKeyForCallFrame(callFrame: CallFrame) {
-  return callFrame.url ? `${callFrame.url}:${callFrame.lineNumber}:${callFrame.columnNumber}` : undefined
+  // raw call frame's location is 0-based
+  // the source analyzer uses 1-based locations
+  return callFrame.url ? `${callFrame.url}:${callFrame.lineNumber + 1}:${callFrame.columnNumber + 1}` : undefined
 }

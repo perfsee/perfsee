@@ -208,6 +208,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         startProxyServer()
 
         const lhFlags = this.getLighthouseFlags()
+        lhFlags.customFlags ||= {}
+        lhFlags.customFlags!.dryRun = true
         // run page twice to cache api requests
         await this.runLh(this.payload.url, lhFlags)
         await this.runLh(this.payload.url, lhFlags)

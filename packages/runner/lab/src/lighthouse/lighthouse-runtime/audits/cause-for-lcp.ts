@@ -113,7 +113,14 @@ export class CauseForLCP extends Audit {
           longtasks: longtasks.filter((longtask) => {
             // @ts-expect-error
             const hotFunctionStackTraces = longtask.hotFunctionsStackTraces as FunctionStackTrace[][] | undefined
-            return hotFunctionStackTraces?.[0]?.[0].functionName !== '__puppeteer_evaluation_script__'
+            for (const stacks of hotFunctionStackTraces ?? []) {
+              for (const stack of stacks ?? []) {
+                if (stack.functionName === '__puppeteer_evaluation_script__') {
+                  return false
+                }
+              }
+            }
+            return true
           }),
           criticalPathForLcp,
           LcpElement,
