@@ -63,7 +63,7 @@ export class BundleModule extends EffectModule<State> {
   }
 
   @Effect()
-  getBundle(payload$: Observable<number>) {
+  getBundleWithBaseline(payload$: Observable<number>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
       filter(([, { project }]) => !!project),
@@ -71,6 +71,27 @@ export class BundleModule extends EffectModule<State> {
         this.client
           .query({
             query: artifactWithBaselineQuery,
+            variables: { id, projectId: project!.id },
+          })
+          .pipe(
+            createErrorCatcher('Failed to fetch bundle detail.'),
+            map(({ project: { artifact } }) => this.getActions().setBundleWithBaseline(artifact)),
+            startWith(this.getActions().setLoading(true)),
+            endWith(this.getActions().setLoading(false)),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
+  getBundle(payload$: Observable<number>) {
+    return payload$.pipe(
+      withLatestFrom(this.projectModule.state$),
+      filter(([, { project }]) => !!project),
+      switchMap(([id, { project }]) =>
+        this.client
+          .query({
+            query: artifactQuery,
             variables: { id, projectId: project!.id },
           })
           .pipe(
@@ -167,9 +188,14 @@ export class BundleModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setBundle(state: Draft<State>, bundle: ArtifactWithBaselineQuery['project']['artifact']) {
+  setBundleWithBaseline(state: Draft<State>, bundle: ArtifactWithBaselineQuery['project']['artifact']) {
     state.current = bundle
     state.baseline = bundle.baseline
+  }
+
+  @ImmerReducer()
+  setBundle(state: Draft<State>, bundle: Bundle) {
+    state.current = bundle
   }
 
   @ImmerReducer()
