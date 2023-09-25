@@ -36,7 +36,8 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
     const { bundleId: routeBundleId } = match.params
     const bundleId = parseInt(routeBundleId)
 
-    const queries: { entry?: string } = parse(location.search)
+    const queries: { entry?: string; baseline?: string } = parse(location.search)
+    const hasBaselineInQueries = !!queries.baseline
 
     const [state, dispatcher] = useModule(BundleModule)
     const project = useModuleState(ProjectModule, {
@@ -50,17 +51,21 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
 
     const handleSelectArtifact = useCallback(
       (payload: ArtifactSelectEventPayload) => {
-        dispatcher.updateBaseline(payload.artifact.id)
+        history.push(`${location.pathname}?${stringify({ ...queries, baseline: payload.artifact.id })}`)
         hideArtifactSelect()
       },
-      [dispatcher, hideArtifactSelect],
+      [hideArtifactSelect, history, location.pathname, queries],
     )
 
     useEffect(() => {
-      dispatcher.getBundle(bundleId)
+      hasBaselineInQueries ? dispatcher.getBundle(bundleId) : dispatcher.getBundleWithBaseline(bundleId)
 
       return dispatcher.reset
-    }, [dispatcher, bundleId])
+    }, [dispatcher, bundleId, hasBaselineInQueries])
+
+    useEffect(() => {
+      queries.baseline && dispatcher.updateBaseline(Number(queries.baseline))
+    }, [queries.baseline, dispatcher])
 
     const onSelectEntryPoint = useCallback(
       (entryPoint: string) => {
