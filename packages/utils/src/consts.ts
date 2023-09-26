@@ -29,6 +29,7 @@ export const CONNECTIONS = [
 ]
 
 export const DEVICES = [
+  { id: 'Desktop', value: 'Low-End Desktop', cpuSlowdownMultiplier: 1 },
   { id: 'iPhone6', value: 'iPhone 6', cpuSlowdownMultiplier: 4 },
   { id: 'iPhone8', value: 'iPhone 8', cpuSlowdownMultiplier: 2 },
   { id: 'iPhoneX', value: 'iPhone X', cpuSlowdownMultiplier: 2 },

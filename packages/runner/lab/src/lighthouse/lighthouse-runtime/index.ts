@@ -35,14 +35,20 @@ export type MetricsRecord = {
   index: number
   lcp: number
   tbt: number
+  benchmarkIndex: number
+  cpuSlowdownMultiplier?: number
 }
 
-function getMedianValue(numbers: number[]) {
+export function getMedianValue(numbers: number[]) {
   const sorted = numbers.slice().sort((a, b) => a - b)
   if (sorted.length % 2 === 1) return sorted[(sorted.length - 1) / 2]
   const lowerValue = sorted[sorted.length / 2 - 1]
   const upperValue = sorted[sorted.length / 2]
   return (lowerValue + upperValue) / 2
+}
+
+export function getMeanValue(numbers: number[]) {
+  return numbers.reduce((a, b) => a + b, 0) / numbers.length
 }
 
 function getMedianSortValue(value: number, median: number) {
@@ -85,28 +91,6 @@ export function computeMedianRun(runs: MetricsRecord[]) {
   })
 
   return sortedByProximityToMedian[0].index
-}
-
-export function runsNotExceedMedianBy(diffScore: number, runs: MetricsRecord[]) {
-  const runsWithLCP = filterToValidRuns(runs, 'lcp')
-
-  if (!runsWithLCP.length) {
-    return runs
-  }
-
-  const runsWithTBT = filterToValidRuns(runsWithLCP, 'tbt')
-  if (!runsWithTBT.length) {
-    return runsWithLCP
-  }
-
-  const medianLCP = getMedianValue(runsWithLCP.map((run) => run.lcp))
-  const medianTBT = getMedianValue(runsWithTBT.map((run) => run.tbt))
-
-  return runsWithTBT.filter((run) => {
-    const tbtPass = run.tbt - medianTBT <= diffScore && run.tbt - medianTBT >= -diffScore
-    const lcpPass = run.lcp - medianLCP <= diffScore && run.lcp - medianLCP >= -diffScore
-    return tbtPass && lcpPass
-  })
 }
 
 export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Flags = {}) {

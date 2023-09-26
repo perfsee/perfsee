@@ -46,16 +46,17 @@ import {
   slimTraceData,
   getLighthouseMetricScores,
   formatCookies,
+  DEFAULT_BENCHMARK_INDEX,
 } from './helpers'
 import {
   computeMedianRun,
-  runsNotExceedMedianBy,
   getLCPScore,
   getScore,
   getTBTScore,
   getTTI,
   lighthouse,
   MetricsRecord,
+  getMeanValue,
 } from './lighthouse-runtime'
 import { ReactProfiler } from './lighthouse-runtime/gatherers'
 
@@ -64,6 +65,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected cookies!: CookieType[]
   protected localStorageContent!: LocalStorageType[]
   protected reactProfiling!: boolean
+  // See https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#benchmarking-cpu-power
+  protected benchmarkIndex: number = DEFAULT_BENCHMARK_INDEX
+  protected cpuThrottling = false
 
   protected async before() {
     await this.warmupPageLoad()
@@ -76,6 +80,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const lhResult = await this.runLighthouse()
 
     const { lhr, artifacts } = lhResult
+
+    this.logger.info(`Actual benchmark index: ${lhr.environment.benchmarkIndex}`)
 
     const screencastStorageKey = await this.uploadScreencast(artifacts.Screencast)
 
@@ -211,8 +217,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         lhFlags.customFlags ||= {}
         lhFlags.customFlags!.dryRun = true
         // run page twice to cache api requests
-        await this.runLh(this.payload.url, lhFlags)
-        await this.runLh(this.payload.url, lhFlags)
+        const runData1 = await this.runLh(this.payload.url, lhFlags)
+        const runData2 = await this.runLh(this.payload.url, lhFlags)
+        this.benchmarkIndex =
+          ((runData1.result?.lhr.environment.benchmarkIndex ?? DEFAULT_BENCHMARK_INDEX) +
+            (runData2.result?.lhr.environment.benchmarkIndex ?? DEFAULT_BENCHMARK_INDEX)) /
+          2
+        this.logger.info(`Get benchmark index ${this.benchmarkIndex}`)
       } catch (e) {
         this.logger.error('Failed to start proxy server.', { error: e })
       }
@@ -248,7 +259,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   private async warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
-    const { headers, cookies, localStorage, reactProfiling, url } = this.payload
+    const { headers, cookies, localStorage, reactProfiling, url, deviceId } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
     this.headers = hostHeaders
@@ -257,6 +268,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.reactProfiling = reactProfiling
 
     await this.login()
+
+    // If `enableProxy` is enabled
+    // The `benchmarkIndex` should be set during the proxy server warming up phase
+    this.cpuThrottling = !!deviceId && deviceId !== 'no' && !!DEVICE_DESCRIPTORS[deviceId]
+    if (!this.payload.enableProxy && this.cpuThrottling) {
+      await this.getBenchmarkIndex()
+    }
 
     if (reactProfiling) {
       const browser = await this.createBrowser()
@@ -274,6 +292,25 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     this.logger.verbose('Warming up ended.')
+  }
+
+  private async getBenchmarkIndex() {
+    try {
+      this.logger.info(`Warming up page ${this.payload.url}.`)
+
+      const lhFlags = this.getLighthouseFlags()
+      lhFlags.customFlags ||= {}
+      lhFlags.customFlags!.dryRun = true
+      const runData = await this.runLh(this.payload.url, lhFlags)
+      const lhResult = runData.result
+
+      if (lhResult) {
+        this.benchmarkIndex = lhResult.lhr.environment.benchmarkIndex
+        this.logger.info(`Get benchmark index ${this.benchmarkIndex}`)
+      }
+    } catch (e) {
+      this.logger.error('Failed to warmup page.', { error: e })
+    }
   }
 
   private async login() {
@@ -358,6 +395,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const { cookies, headers, localStorageContent, reactProfiling } = this
     const { url, deviceId, throttle } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
+    const cpuSlowdownMultiplier = Number(
+      (this.cpuThrottling ? (device.cpuSlowdownMultiplier * this.benchmarkIndex) / DEFAULT_BENCHMARK_INDEX : 1).toFixed(
+        2,
+      ),
+    )
 
     this.logger.info(`Will load page: ${url}`, {
       device,
@@ -365,17 +407,19 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       headers,
       throttle,
       localStorageContent,
+      cpuSlowdownMultiplier,
     })
 
     const downloadKbps = throttle.download ? throttle.download / 125 : 40000
     const uploadKbps = throttle.upload ? throttle.upload / 125 : 40000
+
     return {
       formFactor: device.formFactor,
       screenEmulation: { disabled: true, width: device.viewport.width, height: device.viewport.height },
       emulatedUserAgent: device.userAgent,
       throttlingMethod: 'devtools',
       throttling: {
-        cpuSlowdownMultiplier: device.cpuSlowdownMultiplier,
+        cpuSlowdownMultiplier,
         downloadThroughputKbps: downloadKbps,
         requestLatencyMs: throttle.latency ?? 20,
         throughputKbps: downloadKbps,
@@ -392,7 +436,6 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   private async runLighthouse() {
     const { url, enableProxy } = this.payload
     let runs = this.payload.runs
-    const lighthouseFlags = this.getLighthouseFlags()
 
     let result: LH.PerfseeRunnerResult | undefined
     let errorMessage: string | undefined
@@ -408,6 +451,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     for (let i = 0; i < runs; i++) {
       this.logger.info(`Running lighthouse auditing. Round #${i + 1}`)
+      const lighthouseFlags = this.getLighthouseFlags()
 
       try {
         const runData = await this.runLh(url, lighthouseFlags)
@@ -418,6 +462,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
               index: i,
               lcp: getLCPScore(lhResult.lhr),
               tbt: getTBTScore(lhResult.lhr),
+              benchmarkIndex: lhResult.lhr.environment.benchmarkIndex,
+              cpuSlowdownMultiplier: lighthouseFlags.throttling?.cpuSlowdownMultiplier,
             }
             this.logger.info('Avaliable result: ', metrics)
             metricsList.push(metrics)
@@ -442,17 +488,19 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
       if (enableProxy && runs > 3 && i === runs - 1) {
         // after last run, we drop results that has a obvious variability
-        const stableRuns = runsNotExceedMedianBy(0.05, metricsList)
+        const stableRuns = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 70)
         if (stableRuns.length) {
           metricsList = stableRuns
         } else {
-          metricsList = runsNotExceedMedianBy(0.1, metricsList)
+          metricsList = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 100)
         }
 
         // and run more test to get enough stable results
         runs += this.payload.runs - metricsList.length
         runs = Math.min(runs, this.payload.runs * 2)
       }
+
+      this.benchmarkIndex = getMeanValue(metricsList.map((metric) => metric.benchmarkIndex).concat(this.benchmarkIndex))
 
       if (errorMessage) {
         errorTimes += 1

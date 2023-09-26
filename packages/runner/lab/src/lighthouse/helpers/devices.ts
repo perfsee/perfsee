@@ -28,8 +28,24 @@ export type DeviceSchema = {
   }
 }
 
+export const DEFAULT_BENCHMARK_INDEX = 1000
+
 export const DEVICE_DESCRIPTORS: Record<string, DeviceSchema> = {
   no: {
+    formFactor: 'desktop',
+    cpuSlowdownMultiplier: 1,
+    viewport: {
+      width: 1920,
+      height: 1080,
+      deviceScaleFactor: 1,
+      isMobile: false,
+      hasTouch: false,
+      isLandscape: false,
+    },
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36 Edg/103.0.1264.37',
+  },
+  Desktop: {
     formFactor: 'desktop',
     cpuSlowdownMultiplier: 1,
     viewport: {

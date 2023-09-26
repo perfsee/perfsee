@@ -43,7 +43,7 @@ export async function createBrowser(options: BrowserOptions = {}) {
     chromeArgs.push('--host-rules=MAP * 127.0.0.1')
   }
 
-  const browser = await puppeteer.launch({
+  return puppeteer.launch({
     executablePath,
     ignoreHTTPSErrors: true,
     defaultViewport: {
@@ -53,15 +53,4 @@ export async function createBrowser(options: BrowserOptions = {}) {
     ...options,
     args: [...chromeArgs, ...(options.args ?? [])],
   })
-
-  // close default created tabs
-  await browser.pages().then((pages) => {
-    return Promise.allSettled(
-      pages.map(async (page) => {
-        await page.close()
-      }),
-    )
-  })
-
-  return browser
 }
