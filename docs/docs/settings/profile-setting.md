@@ -24,6 +24,7 @@ We use Google Chrome device emulation and other factors to ensure the experience
 
 We provide the following devices emulation:
 
+- Low-end Desktop
 - iPhone 6
 - iPhone 8
 - iPhone X
