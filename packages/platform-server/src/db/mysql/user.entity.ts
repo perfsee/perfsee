@@ -19,6 +19,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGenerat
 
 import type { AccessToken } from './access-token.entity'
 import type { UserConnectedAccount } from './user-connected-account.entity'
+import { UserCookies } from './user-cookies.entity'
 import type { UserPermission } from './user-permission.entity'
 import type { Webhook } from './webhook.entity'
 
@@ -74,6 +75,9 @@ export class User extends BaseEntity {
 
   @OneToMany('UserPermission', 'user')
   permissions!: UserPermission[]
+
+  @OneToMany('UserCookies', 'user')
+  cookies!: UserCookies[]
 
   @OneToMany('Webhook', 'user')
   webhooks!: Webhook[]

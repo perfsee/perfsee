@@ -29,6 +29,7 @@ import { ConnectedAccount, ConnectedAccountsModule, GlobalModule } from '../shar
 import { AccessToken } from './access-token'
 import { Account } from './account'
 import { UserAvatar } from './avatar'
+import { UserCookie } from './cookie'
 import { Title } from './styled'
 
 export const Me = () => {
@@ -104,6 +105,12 @@ const navGroups: INavLinkGroup[] = [
         url: '',
         icon: 'key',
       },
+      {
+        name: 'Personal cookies',
+        key: staticPath.me.cookies,
+        url: '',
+        icon: 'cookie',
+      },
     ],
   },
 ]
@@ -131,6 +138,7 @@ const MePage = () => {
               <Route exact={true} path={staticPath.me.connectedAccounts} component={ConnectedAccounts} />
               <Route exact={true} path={staticPath.me.accessToken} component={AccessToken} />
               <Route exact={true} path={staticPath.me.billing} component={Me} />
+              <Route exact={true} path={staticPath.me.cookies} component={UserCookie} />
             </Switch>
           </ContentCard>
         </Stack.Item>

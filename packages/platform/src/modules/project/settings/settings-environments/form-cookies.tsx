@@ -44,6 +44,7 @@ type CookieProps = {
   index: number
   onCookieChange: (value: PartialCookie, index: number) => void
   onCookieRemove: (index: number) => void
+  readonly?: boolean
 }
 
 const removeIconProps: IIconProps = { iconName: 'delete' }
@@ -77,7 +78,7 @@ const SameSiteOptions = [
 const FormCookie = (props: CookieProps) => {
   const [editing, open, close] = useToggleState(!props.cookie.value)
 
-  const { cookie, index, onCookieRemove, onCookieChange } = props
+  const { cookie, index, onCookieRemove, onCookieChange, readonly } = props
 
   const onRemove = useCallback(() => {
     onCookieRemove(index)
@@ -129,18 +130,20 @@ const FormCookie = (props: CookieProps) => {
   const header = (
     <Stack horizontal verticalAlign="center" horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
       Cookie #{index + 1}
-      <div>
-        <IconButton
-          disabled={editing ? !cookie.name || !cookie.value : false}
-          iconProps={!editing ? editIconProps : saveIconProps}
-          onClick={!editing ? open : close}
-        />
-        <IconButton
-          iconProps={removeIconProps}
-          styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
-          onClick={onRemove}
-        />
-      </div>
+      {readonly ? null : (
+        <div>
+          <IconButton
+            disabled={editing ? !cookie.name || !cookie.value : false}
+            iconProps={!editing ? editIconProps : saveIconProps}
+            onClick={!editing ? open : close}
+          />
+          <IconButton
+            iconProps={removeIconProps}
+            styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
+            onClick={onRemove}
+          />
+        </div>
+      )}
     </Stack>
   )
 
@@ -285,10 +288,11 @@ const FormCookie = (props: CookieProps) => {
 
 const defaultCookie = { httpOnly: true, secure: false, sameSite: 'Lax' }
 
-export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }, ref) => {
+export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[]; readonly?: boolean }, ref) => {
   const [cookies, setCookies] = useState<PartialCookie[]>(props.defaultCookies)
   const [isTable, toggle] = useState<boolean>(true)
   const [errorInfo, setErrorInfo] = useState<string>()
+  const { readonly } = props
 
   useImperativeHandle(
     ref,
@@ -374,10 +378,11 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
           cookie={cookies[i]}
           index={i}
           key={i}
+          readonly={readonly}
         />
       )
     })
-  }, [cookies, onCookieChange, onCookieRemove])
+  }, [cookies, onCookieChange, onCookieRemove, readonly])
 
   return (
     <>
@@ -391,7 +396,7 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
             offText="Json"
             onClick={onToggle}
           />
-          {isTable && <DefaultButton onClick={onAddCookie}>add cookie</DefaultButton>}
+          {isTable && !readonly && <DefaultButton onClick={onAddCookie}>add cookie</DefaultButton>}
         </Stack>
       </Stack>
       {isTable ? (

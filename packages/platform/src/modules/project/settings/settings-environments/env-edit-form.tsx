@@ -40,6 +40,7 @@ import {
   SessionStorageSchema,
 } from '../../../shared'
 
+import { FormCookieTarget } from './cookie-target-form'
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
 import { FormLocalStorage } from './form-localstorage'
@@ -67,6 +68,7 @@ export const EnvEditForm = (props: FromProps) => {
 
   const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
   const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
+  const cookieTargetRef = useRef<{ getCookieTarget: () => Pick<EnvSchema, 'cookieTarget' | 'cookieTargetType'> }>()
   const localStorageRef = useRef<{
     getLocalStorage: () => LocalStorageSchema[]
   }>()
@@ -106,6 +108,7 @@ export const EnvEditForm = (props: FromProps) => {
     const localStorage = localStorageRef.current!.getLocalStorage()
     const sessionStorage = sessionStorageRef.current!.getSessionStorage()
     const loginScript = loginScriptRef.current!.getScript()
+    const cookieTarget = cookieTargetRef.current!.getCookieTarget()
 
     return {
       id: defaultEnv?.id,
@@ -116,6 +119,7 @@ export const EnvEditForm = (props: FromProps) => {
       sessionStorage,
       zone,
       loginScript,
+      ...cookieTarget,
     }
   }, [defaultEnv?.id, tableEnvName, zone])
 
@@ -206,6 +210,11 @@ export const EnvEditForm = (props: FromProps) => {
       <RequiredTextField id="name" label="Environment name" value={tableEnvName} onChange={onNameChange} />
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
       <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
+      <FormCookieTarget
+        defaultCookieTarget={defaultEnv?.cookieTarget}
+        defaultTargetType={defaultEnv?.cookieTargetType}
+        ref={cookieTargetRef}
+      />
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <FormSessionStorage defaultSessionStorage={defaultEnv?.sessionStorage ?? []} ref={sessionStorageRef} />
       <ComboBox

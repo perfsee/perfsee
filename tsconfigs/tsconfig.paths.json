@@ -15,6 +15,12 @@
       "@perfsee/bundle-report/*": [
         "packages/bundle-report/src/*"
       ],
+      "@perfsee/chrome-extension": [
+        "packages/chrome-extension/src"
+      ],
+      "@perfsee/chrome-extension/*": [
+        "packages/chrome-extension/src/*"
+      ],
       "@perfsee/chrome-finder": [
         "packages/chrome-finder/src"
       ],

@@ -24,6 +24,7 @@ import { UserInputPicker } from './user-input-picker'
 import { CloseableUserTag } from './user-tag'
 
 interface UserEmailsInputProps {
+  readonly?: boolean
   emails: string[]
   label: string
   required?: boolean
@@ -32,7 +33,15 @@ interface UserEmailsInputProps {
   onDelete?: (email: string) => void
 }
 
-export const UserEmailsInput: FC<UserEmailsInputProps> = ({ emails, onChange, label, required, onAdd, onDelete }) => {
+export const UserEmailsInput: FC<UserEmailsInputProps> = ({
+  emails,
+  onChange,
+  label,
+  required,
+  onAdd,
+  onDelete,
+  readonly,
+}) => {
   const handleRemove = useCallback(
     (removedEmail: string) => {
       if (onDelete) {
@@ -60,9 +69,9 @@ export const UserEmailsInput: FC<UserEmailsInputProps> = ({ emails, onChange, la
       <Label required={required}>{label}</Label>
       <Stack horizontal={true} tokens={{ childrenGap: 6 }} verticalAlign="center" wrap={true}>
         {emails.map((email) => (
-          <CloseableUserTag key={email} email={email} onClose={handleRemove} />
+          <CloseableUserTag key={email} email={email} onClose={handleRemove} readonly={readonly} />
         ))}
-        <UserInputPicker onPick={handleAdd} />
+        {readonly ? null : <UserInputPicker onPick={handleAdd} />}
       </Stack>
       {emails.length === 0 && required && <Text styles={{ root: { color: SharedColors.red20 } }}>Required</Text>}
     </Stack>
