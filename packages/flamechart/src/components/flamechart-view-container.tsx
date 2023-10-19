@@ -200,7 +200,6 @@ export const FlamechartViewContainer = memo(
           onSelectFrame={handleSelectDetailView}
           onHoverFrame={handleHoverDetailView}
           onOpenFile={onOpenFile}
-          ext={externalHoverFrame}
           hoverFrame={detailViewHoverFrame}
         />
       )

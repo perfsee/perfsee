@@ -70,6 +70,7 @@ function errorToObject(error: any) {
     const errorObject = {}
 
     Object.getOwnPropertyNames(error).forEach((key) => {
+      // @ts-expect-error
       errorObject[key] =
         typeof error[key] === 'object' ? errorToObject(error[key]) : String(error[key]).substring(0, 40)
     })

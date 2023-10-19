@@ -63,6 +63,7 @@ export class CommonGitHost implements IGitHost {
 }
 
 export function gitHostFromDomain(domainOrHost: string): GitHost {
+  // @ts-expect-error
   const existing = GitHost[domainOrHost]
   if (existing) {
     return existing

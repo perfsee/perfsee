@@ -32,7 +32,7 @@ export interface RouteTypes {
   }
   editPassword: void
   resetPassword: void
-  me: { home: void; connectedAccounts: void; billing: void; accessToken: void }
+  me: { home: void; connectedAccounts: void; billing: void; accessToken: void; cookies: void }
   login: void
   importGithub: void
   register: void
@@ -100,6 +100,7 @@ export const staticPath = {
     connectedAccounts: '/me/connected-accounts',
     billing: '/me/billing',
     accessToken: '/me/access-token',
+    cookies: '/me/cookies',
   },
   login: '/login',
   importGithub: '/import/github',
@@ -192,6 +193,7 @@ export const pathFactory = {
     connectedAccounts: makePathsFrom<FactoryParams<RouteTypes['me']['connectedAccounts']>>('/me/connected-accounts'),
     billing: makePathsFrom<FactoryParams<RouteTypes['me']['billing']>>('/me/billing'),
     accessToken: makePathsFrom<FactoryParams<RouteTypes['me']['accessToken']>>('/me/access-token'),
+    cookies: makePathsFrom<FactoryParams<RouteTypes['me']['cookies']>>('/me/cookies'),
   },
   login: makePathsFrom<FactoryParams<RouteTypes['login']>>('/login'),
   importGithub: makePathsFrom<FactoryParams<RouteTypes['importGithub']>>('/import/github'),
@@ -296,6 +298,7 @@ export const titleFactory = {
   '/me/connected-accounts': (data: Record<string, any>) => makeTitlesFrom('Connected Accounts | Me | Perfsee', data),
   '/me/billing': (data: Record<string, any>) => makeTitlesFrom('Billing | Me | Perfsee', data),
   '/me/access-token': (data: Record<string, any>) => makeTitlesFrom('Access token | Me | Perfsee', data),
+  '/me/cookies': (data: Record<string, any>) => makeTitlesFrom('Cookies | Me | Perfsee', data),
   '/login': (data: Record<string, any>) => makeTitlesFrom('Login | Perfsee', data),
   '/import/github': (data: Record<string, any>) => makeTitlesFrom('Import github | Perfsee', data),
   '/register': (data: Record<string, any>) => makeTitlesFrom('Register | Perfsee', data),

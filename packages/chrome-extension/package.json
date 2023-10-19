@@ -1,0 +1,22 @@
+{
+  "name": "@perfsee/chrome-extension",
+  "version": "1.8.1",
+  "description": "Chrome extension for perfsee",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/perfsee/perfsee",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "chrome-types": "^0.1.234",
+    "esbuild": "^0.19.5"
+  },
+  "scripts": {
+    "dev": "node ./scripts/build.cjs",
+    "build": "NODE_ENV=production node ./scripts/build.cjs"
+  }
+}

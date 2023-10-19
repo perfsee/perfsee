@@ -11,7 +11,7 @@ export const CallTreeNodeTooltip: React.FC<{
 }> = ({ node, theme, formatValue }) => {
   const showLineNum = !!node.frame.file && !!node.frame.line && !!node.frame.col
 
-  const tipData = {
+  const tipData: Record<string, string> = {
     Name: FlamechartImage.parseStrWithImageLabel(node.frame.name).str,
     'Self time': formatValue(node.getSelfWeight()),
     'Total time': formatValue(node.getTotalWeight()),
