@@ -46,8 +46,24 @@ sidebar_position: 4
 
 ##### Stringify
 
-该格式无法直接方便地使用浏览器获取，建议安装第三方插件[EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol)，导出页面所需 cookies 粘贴至文本框即可。
+Cookies 无法直接方便地使用浏览器获取，建议安装[Perfsee 插件](https://todo.todo)或第三方插件[EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol)，导出页面所需 cookies 粘贴至文本框即可。
 ![](/settings/cookies-stringify.png)
+
+#### 使用个人 Cookies
+
+通过[Perfsee 插件](https://todo.todo)，可以定时将浏览器中选定域名的所有 cookies 同步至 Perfsee 平台，在运行快照时可以使用个人 cookies，具体步骤如下：
+
+1. 同意插件上传你的 cookies
+2. 在插件域名管理页面勾选你要同步的域名
+3. 选择或者输入 Perfsee 平台 host（比如在非官方部署版本场景）
+4. 获取并输入你的 access token，请在 [Token Management](https://perfsee.com/me/access-token) 页面申请 API Token
+5. 点击立即同步或者定时同步，等待 cookies 上传到平台
+6. 上传成功后，在目标 Environment 配置中开启 personal cookies
+7. 你可以选择使用自己的 cookies 或是动态地使用快照触发人的 cookies
+
+| chrome extension                                            | use personal cookies                                        |
+| ----------------------------------------------------------- | ----------------------------------------------------------- |
+| ![chrome extension](/settings/chrome-extension-cookies.png) | ![use personal cookies](/settings/use-personal-cookies.png) |
 
 ### Headers
 

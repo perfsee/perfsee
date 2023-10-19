@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ObjectType, Field, Int } from '@nestjs/graphql'
+import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql'
 import GraphQLJSON from 'graphql-type-json'
 import {
   Column,
@@ -38,6 +38,14 @@ import {
 import { ApplicationSetting } from './application-setting.entity'
 import type { Project } from './project.entity'
 import type { SnapshotReport } from './snapshot-report.entity'
+
+export enum CookieTargetType {
+  None = 0,
+  Issuer = 1,
+  Specified,
+}
+
+registerEnumType(CookieTargetType, { name: 'CookieTargetType' })
 
 @ObjectType()
 export class HeaderType implements Header {
@@ -290,6 +298,17 @@ export class Environment extends BaseEntity {
   @Field(() => String, { description: 'login script', nullable: true })
   @Column({ type: 'text', nullable: true })
   loginScript!: string | null
+
+  @Field(() => CookieTargetType, { description: 'type of whose personal cookies will be used', nullable: true })
+  @Column({ type: 'tinyint', default: CookieTargetType.None, comment: 'type of whose personal cookies will be used' })
+  cookieTargetType!: CookieTargetType
+
+  @Field(() => String, { description: 'whose personal cookies will be used', nullable: true })
+  @Column({
+    nullable: true,
+    comment: 'whose personal cookies will be used',
+  })
+  cookieTarget!: string
 
   @BeforeInsert()
   async updateCookiesAndHeaders() {

@@ -262,16 +262,16 @@ export const RightCreateButton: FC<RightCreateButtonProps> = (props) => {
   )
 }
 
-type CountBlockProps = { count?: number; title: string }
+type CountBlockProps = { count?: number; title: string | JSX.Element }
 
 export const CountBlock: FC<CountBlockProps> = ({ count, title }) => {
-  if (!count) {
+  if (typeof count === 'number' && count <= 0) {
     return null
   }
   return (
     <StyledDesc size="12px">
       {count} {title}
-      {count > 1 && 's'}
+      {typeof count === 'number' && count > 1 && 's'}
     </StyledDesc>
   )
 }

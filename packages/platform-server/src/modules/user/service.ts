@@ -17,13 +17,14 @@ limitations under the License.
 import { Injectable } from '@nestjs/common'
 import { In } from 'typeorm'
 
-import { User, UserConnectedAccount } from '@perfsee/platform-server/db'
+import { User, UserConnectedAccount, UserCookies } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
-import { EMAIL_REGEXP, ExternalAccount } from '@perfsee/shared'
+import { ObjectStorage } from '@perfsee/platform-server/storage'
+import { CookieType, EMAIL_REGEXP, ExternalAccount } from '@perfsee/shared'
 
 @Injectable()
 export class UserService {
-  constructor() {}
+  constructor(private readonly storage: ObjectStorage) {}
 
   async findUserByEmail(email: string) {
     return User.findOneBy({ email })
@@ -132,6 +133,21 @@ export class UserService {
         take: 2,
       })) !== 0
     )
+  }
+
+  async getUserCookies(email: string): Promise<CookieType[]> {
+    const user = await User.findOneByOrFail({ email })
+    const userCookie = await UserCookies.findOneOrFail({ where: { userId: user.id }, order: { createdAt: 'DESC' } })
+    if (!userCookie.cookieStorageKey) {
+      return []
+    }
+    const buffer = await this.storage.get(userCookie.cookieStorageKey)
+    return JSON.parse(buffer.toString())
+  }
+
+  async getUserCookiesLastUpdate(userId: number): Promise<Date> {
+    const userCookie = await UserCookies.findOneOrFail({ where: { userId }, order: { createdAt: 'DESC' } })
+    return userCookie.createdAt
   }
 
   private async findByEmailsInternal(emails: string[]) {

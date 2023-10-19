@@ -67,6 +67,9 @@ paths:
       accessToken:
         path: /access-token
         title: Access token
+      cookies:
+        path: /cookies
+        title: Cookies
   login:
     path: /login
     title: Login

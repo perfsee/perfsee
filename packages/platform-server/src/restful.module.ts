@@ -25,6 +25,7 @@ import {
   RunnerModule,
   RunnerScriptModule,
   PackageModule,
+  UserModule,
 } from './modules'
 
 @Module({
@@ -40,6 +41,7 @@ import {
           RunnerModule,
           RunnerScriptModule,
           PackageModule,
+          UserModule,
         ],
       },
     ]),

@@ -12,6 +12,9 @@
       "path": "../packages/bundle-report"
     },
     {
+      "path": "../packages/chrome-extension"
+    },
+    {
       "path": "../packages/chrome-finder"
     },
     {

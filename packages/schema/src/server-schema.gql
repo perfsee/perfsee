@@ -622,6 +622,8 @@ type User {
   isAdmin: Boolean!
   starredProjects: [ID!]!
   connectedAccounts: [Account!]!
+  userCookies: JSON!
+  userCookiesLastUpdate: DateTime!
   accessTokens: [AccessToken!]!
 }
 
@@ -774,6 +776,18 @@ type Environment {
 
   """login script"""
   loginScript: String
+
+  """type of whose personal cookies will be used"""
+  cookieTargetType: CookieTargetType
+
+  """whose personal cookies will be used"""
+  cookieTarget: String
+}
+
+enum CookieTargetType {
+  None
+  Issuer
+  Specified
 }
 
 """message target setting"""
@@ -1216,6 +1230,8 @@ type UserWithPermission {
   isAdmin: Boolean!
   starredProjects: [ID!]!
   connectedAccounts: [Account!]!
+  userCookies: JSON!
+  userCookiesLastUpdate: DateTime!
   accessTokens: [AccessToken!]!
 
   """user permission of project"""
@@ -1891,6 +1907,12 @@ input UpdateEnvironmentInput {
 
   """login script"""
   loginScript: String
+
+  """type of whose personal cookies will be used"""
+  cookieTargetType: CookieTargetType
+
+  """whose personal cookies will be used"""
+  cookieTarget: String
   localStorage: [LocalStorageInputType!]
   sessionStorage: [SessionStorageInputType!]
   cookies: [CookieInputType!]

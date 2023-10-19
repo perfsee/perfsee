@@ -27,11 +27,12 @@ const TagWrapper = styled(Tag)({
   borderRadius: '12px',
 })
 
-export const CloseableUserTag: FC<{ email: string; avatarUrl?: string | null; onClose: (email: string) => void }> = ({
-  email,
-  avatarUrl,
-  onClose,
-}) => {
+export const CloseableUserTag: FC<{
+  email: string
+  avatarUrl?: string | null
+  onClose: (email: string) => void
+  readonly?: boolean
+}> = ({ email, avatarUrl, onClose, readonly }) => {
   const close = useCallback(() => {
     onClose(email)
   }, [email, onClose])
@@ -39,7 +40,7 @@ export const CloseableUserTag: FC<{ email: string; avatarUrl?: string | null; on
   return (
     <TagWrapper>
       <Persona size={PersonaSize.size24} text={email} imageUrl={avatarUrl ?? undefined} />
-      <CloseCircleOutlined onClick={close} />
+      {readonly ? null : <CloseCircleOutlined onClick={close} />}
     </TagWrapper>
   )
 }

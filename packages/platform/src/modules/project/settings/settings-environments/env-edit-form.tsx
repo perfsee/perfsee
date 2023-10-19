@@ -30,6 +30,7 @@ import { useCallback, useState, useRef, useEffect } from 'react'
 
 import { RequiredTextField } from '@perfsee/components'
 import { notify } from '@perfsee/platform/common'
+import { CookieTargetType } from '@perfsee/schema'
 
 import {
   CookieSchema,
@@ -40,6 +41,7 @@ import {
   SessionStorageSchema,
 } from '../../../shared'
 
+import { FormCookieTarget } from './cookie-target-form'
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
 import { FormLocalStorage } from './form-localstorage'
@@ -67,6 +69,7 @@ export const EnvEditForm = (props: FromProps) => {
 
   const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
   const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
+  const cookieTargetRef = useRef<{ getCookieTarget: () => Pick<EnvSchema, 'cookieTarget' | 'cookieTargetType'> }>()
   const localStorageRef = useRef<{
     getLocalStorage: () => LocalStorageSchema[]
   }>()
@@ -81,6 +84,9 @@ export const EnvEditForm = (props: FromProps) => {
   const [tableEnvName, setTableEnvName] = useState<string | undefined>(defaultEnv?.name)
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
   const [errorMessage, setErrorMessage] = useState<string>()
+  const [usePersonalCookies, setUsePersonalCookies] = useState(
+    !!defaultEnv?.cookieTargetType && defaultEnv?.cookieTargetType !== CookieTargetType.None,
+  )
 
   // init
   useEffect(() => {
@@ -106,6 +112,9 @@ export const EnvEditForm = (props: FromProps) => {
     const localStorage = localStorageRef.current!.getLocalStorage()
     const sessionStorage = sessionStorageRef.current!.getSessionStorage()
     const loginScript = loginScriptRef.current!.getScript()
+    const cookieTarget = usePersonalCookies
+      ? cookieTargetRef.current!.getCookieTarget()
+      : { cookieTarget: null, cookieTargetType: CookieTargetType.None }
 
     return {
       id: defaultEnv?.id,
@@ -116,8 +125,9 @@ export const EnvEditForm = (props: FromProps) => {
       sessionStorage,
       zone,
       loginScript,
+      ...cookieTarget,
     }
-  }, [defaultEnv?.id, tableEnvName, zone])
+  }, [defaultEnv?.id, tableEnvName, zone, usePersonalCookies])
 
   const onPrewview = useCallback(() => {
     const payload = getJsonPayload()
@@ -201,11 +211,27 @@ export const EnvEditForm = (props: FromProps) => {
     setTableEnvName(value)
   }, [])
 
+  const onChangeUsePersonalCookies = useCallback((_: any, value?: boolean) => {
+    setUsePersonalCookies(!!value)
+  }, [])
+
   const innerTable = (
     <>
       <RequiredTextField id="name" label="Environment name" value={tableEnvName} onChange={onNameChange} />
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
-      <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
+      <FormCookies
+        defaultCookies={defaultEnv?.cookies ?? []}
+        ref={cookiesRef}
+        onUsePersonalCookiesChange={onChangeUsePersonalCookies}
+        usePersonalCookies={usePersonalCookies}
+      />
+      {usePersonalCookies ? (
+        <FormCookieTarget
+          defaultCookieTarget={defaultEnv?.cookieTarget}
+          defaultTargetType={defaultEnv?.cookieTargetType}
+          ref={cookieTargetRef}
+        />
+      ) : null}
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <FormSessionStorage defaultSessionStorage={defaultEnv?.sessionStorage ?? []} ref={sessionStorageRef} />
       <ComboBox

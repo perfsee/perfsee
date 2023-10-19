@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Perfsee Sync Domains</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <div class="title-container">
+      <h2>Manage Sync Domains</h2>
+      <div class="stats">
+        <div>Select Count: <span id="selectedCount">0</span></div>
+        <div>Total Count: <span id="totalCount">0</span></div>
+      </div>
+    </div>
+
+  <div class="search-controls">
+    <div class="search-bar">
+      <input type="text"
+             id="searchDomain"
+             class="search-input"
+             placeholder="Search domains...">
+    </div>
+    <div class="header-buttons">
+      <button id="refreshDomains" class="button">Refresh Domain List</button>
+      <button id="selectAll" class="button">Select All</button>
+      <button id="deselectAll" class="button">Deselect All</button>
+    </div>
+  </div>
+    <div class="category">
+      <h3>Frequent Domains</h3>
+      <div id="frequentDomains" class="domain-list"></div>
+    </div>
+
+    <div class="category">
+      <h3>All Domains</h3>
+      <div id="allDomains" class="domain-list"></div>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
