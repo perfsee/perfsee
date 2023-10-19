@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "version": "0.1.0",
+  "name": "Perfsee",
+  "description": "The Chome plugin for Perfsee platform.",
+  "permissions": [
+    "debugger",
+    "tabs",
+    "notifications",
+    "sessions"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "devtools_page": "index.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "minimum_chrome_version": "112.0.5569.0"
+}

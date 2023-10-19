@@ -70,14 +70,14 @@ module LH {
   }
 }
 
-declare module 'lighthouse' {
-  declare namespace lighthouse {}
-  declare function lighthouse(
-    url?: string,
-    flags?: LH.Flags,
-    configJSON?: LH.Config.Json,
-    connection?: any,
-  ): Promise<LH.PerfseeRunnerResult | undefined>
+// declare module 'lighthouse' {
+//   declare namespace lighthouse {}
+//   declare function lighthouse(
+//     url?: string,
+//     flags?: LH.Flags,
+//     configJSON?: LH.Config.Json,
+//     connection?: any,
+//   ): Promise<LH.PerfseeRunnerResult | undefined>
 
-  export = lighthouse
-}
+//   export = lighthouse
+// }
