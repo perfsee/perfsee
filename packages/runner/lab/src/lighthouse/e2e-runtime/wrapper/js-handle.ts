@@ -17,7 +17,6 @@ limitations under the License.
 import { JSHandle } from 'puppeteer-core'
 
 import { elementHandleWrapper } from './element-handle'
-import { executionContextWrapper } from './execution-context'
 import { createWrapper, Wrapper } from './wrapper'
 
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-jshandle
@@ -25,13 +24,13 @@ export const jsHandleWrapper: Wrapper<JSHandle> = createWrapper<JSHandle>('JSHan
   return {
     asElement: () => {
       const element = jsHandle.asElement()
+      // @ts-expect-error
       return element && elementHandleWrapper.wrap(element, options)
     },
     dispose: () => jsHandle.dispose(),
     evaluate: (pageFunction, ...args) => jsHandle.evaluate(pageFunction, ...args),
     evaluateHandle: async (pageFunction, ...args) =>
-      elementHandleWrapper.wrap(await jsHandle.evaluateHandle(pageFunction, ...args), options) as any,
-    executionContext: () => executionContextWrapper.wrap(jsHandle.executionContext(), options),
+      jsHandleWrapper.wrap(await jsHandle.evaluateHandle(pageFunction, ...args), options) as any,
     getProperties: async () => {
       const newMap = new Map<string, JSHandle<unknown>>()
       const properties = await jsHandle.getProperties()
@@ -41,10 +40,12 @@ export const jsHandleWrapper: Wrapper<JSHandle> = createWrapper<JSHandle>('JSHan
 
       return newMap
     },
-    getProperty: async (propertyName) => {
+    getProperty: async (propertyName: any) => {
       const handle = await jsHandle.getProperty(propertyName)
       return handle && jsHandleWrapper.wrap(handle, options)
     },
     jsonValue: () => jsHandle.jsonValue(),
+    move: () => jsHandle.move(),
+    remoteObject: () => jsHandle.remoteObject(),
   }
 })

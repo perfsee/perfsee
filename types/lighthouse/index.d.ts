@@ -24,6 +24,8 @@ declare module LH {
   type Artifacts = import('lighthouse/types/artifacts').Artifacts
   type PassJson = import('lighthouse/types/config').default.PassJson
   type RunnerResult = import('lighthouse/types/lh').RunnerResult
+  type GathererInstance<T> = import('lighthouse/types/gatherer').default.GathererInstance<T>
+  type Context<T> = import('lighthouse/types/gatherer').default.Context<T>
 
   export type { Artifacts, TraceEvent, DevtoolsLog, GathererArtifacts } from 'lighthouse/types/artifacts'
   export type {
@@ -65,13 +67,11 @@ declare module LH {
   }
 
   type PhaseResultNonPromise = void | PerfseeGathererArtifacts[keyof PerfseeGathererArtifacts]
-  type PhaseResult = PhaseResultNonPromise | Promise<PhaseResultNonPromise>
+  export type PhaseResult = PhaseResultNonPromise | Promise<PhaseResultNonPromise>
 
-  export interface PerfseeGathererInstance {
+  export interface PerfseeGathererInstance<D = '__none__'> extends GathererInstance<D> {
     name: keyof PerfseeGathererArtifacts
-    beforePass(context: Gatherer.PassContext): PhaseResult
-    pass(context: Gatherer.PassContext): PhaseResult
-    afterPass(context: Gatherer.PassContext, loadData: Gatherer.LoadData): PhaseResult
+    getArtifact(_context: Context<'__none__'>): PhaseResult
   }
 
   export interface PerfseePassJson extends PassJson {

@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import type { Driver } from 'lighthouse/core/legacy/gather/driver'
 import { ContinueRequestOverrides, ResponseForRequest, HTTPRequest } from 'puppeteer-core'
 
 import { logger } from '@perfsee/job-runner-shared'
@@ -32,7 +31,7 @@ function headersArray(headers: Record<string, unknown>): Array<HeaderEntry> {
 }
 
 class CDPRequest {
-  constructor(private readonly rawRequest: RequestMeta, private readonly driver: Driver) {}
+  constructor(private readonly rawRequest: RequestMeta, private readonly driver: LH.Gatherer.ProtocolSession) {}
 
   continue(data?: ContinueRequestOverrides) {
     return this.driver.sendCommand('Fetch.continueRequest', {
@@ -65,7 +64,7 @@ class CDPRequest {
 export function onRequestFactory(
   pageUrl: string,
   extraHeadersWithHost?: Record<string, Record<string, string>>,
-  driver?: Driver,
+  driver?: LH.Gatherer.ProtocolSession,
 ) {
   return (raw: RequestMeta | HTTPRequest) => {
     let request: CDPRequest | HTTPRequest | null = null

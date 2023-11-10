@@ -55,7 +55,7 @@ export abstract class LabPingJobWorker extends JobWorker<PingJobPayload> {
     })
 
     const result = await page.goto(url)
-    const success = result.status() === 200
+    const success = result?.status() === 200
 
     try {
       await browser.close()

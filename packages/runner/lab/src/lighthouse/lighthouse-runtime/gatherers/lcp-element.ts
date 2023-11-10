@@ -14,34 +14,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export class LcpElement implements LH.PerfseeGathererInstance {
-  name = 'LcpElement' as const
+import { dynamicImport } from '@perfsee/job-runner-shared'
 
-  async beforePass() {}
+import { GathererInstance } from './gatherer'
 
-  pass() {}
+export async function LcpElement() {
+  const { default: Trace } = (await dynamicImport(
+    'lighthouse/core/gather/gatherers/trace.js',
+  )) as typeof import('lighthouse/core/gather/gatherers/trace')
 
-  async afterPass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver
-    const traceEvents = ctx.baseArtifacts.traces['defaultPass'].traceEvents
-
-    const lcpCandidate = traceEvents
-      .filter((e) => e.name === 'largestContentfulPaint::Candidate')
-      .sort((a, b) => b.args.data!['candidateIndex'] - a.args.data!['candidateIndex'])[0]
-    const backendNodeId = lcpCandidate?.args.data?.nodeId
-
-    if (!lcpCandidate || typeof backendNodeId === 'undefined') {
-      return null
+  return class extends GathererInstance {
+    meta = {
+      supportedModes: ['navigation' as const],
+      dependencies: { Trace: Trace.symbol },
     }
 
-    const { node } = await driver.sendCommand('DOM.describeNode', { backendNodeId })
-    const { model: boxModel } = await driver.sendCommand('DOM.getBoxModel', { backendNodeId })
-    const { outerHTML } = await driver.sendCommand('DOM.getOuterHTML', { backendNodeId })
+    async getArtifact(ctx: LH.Gatherer.Context<'Trace'>) {
+      const driver = ctx.driver.defaultSession
+      const traceEvents = ctx.dependencies.Trace.traceEvents
 
-    return {
-      node,
-      boxModel,
-      outerHTML,
+      const lcpCandidate = traceEvents
+        .filter((e) => e.name === 'largestContentfulPaint::Candidate')
+        .sort((a, b) => b.args.data!['candidateIndex'] - a.args.data!['candidateIndex'])[0]
+      const backendNodeId = lcpCandidate?.args.data?.nodeId
+
+      if (!lcpCandidate || typeof backendNodeId === 'undefined') {
+        return null
+      }
+
+      const { node } = await driver.sendCommand('DOM.describeNode', { backendNodeId })
+      const { model: boxModel } = await driver.sendCommand('DOM.getBoxModel', { backendNodeId })
+      const { outerHTML } = await driver.sendCommand('DOM.getOuterHTML', { backendNodeId })
+
+      return {
+        node,
+        boxModel,
+        outerHTML,
+      }
     }
   }
 }

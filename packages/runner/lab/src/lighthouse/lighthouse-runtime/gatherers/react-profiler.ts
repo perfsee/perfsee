@@ -17,7 +17,6 @@ limitations under the License.
 import { promisify } from 'util'
 
 import Protocol from 'devtools-protocol'
-import { Driver } from 'lighthouse/core/legacy/gather/driver'
 import Gatherer from 'lighthouse/types/gatherer'
 import { Browser, HTTPResponse } from 'puppeteer-core'
 
@@ -36,8 +35,9 @@ import {
 } from '../../helpers'
 
 import { DEVTOOLS_INJECTION } from './devtools-injection'
+import { GathererInstance } from './gatherer'
 
-export class ReactProfiler implements LH.PerfseeGathererInstance {
+export class ReactProfiler extends GathererInstance {
   static SEND = 'reactDevltoolsBridgeWallSend'
   static RESOLVE_LOCATION = 'reactDevtoolsResolveLocation'
   static FUNCTION_MAP = 'reactDevltoolsFunctionMap'
@@ -100,14 +100,12 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     this.bundleToReplace.clear()
   }
 
-  name = 'ReactProfiler' as const
-
   private isProfiling = false
   private readonly renderQueue = new Set<number>()
   private readonly rendererIdsThatReportedProfilingData = new Set<number>()
   private readonly inProgressOperationsByRootID = new Map<number, number[][]>()
 
-  private driver?: Driver
+  private driver?: LH.Gatherer.Driver
 
   private readonly profilingDataPromise: Promise<ReactDevtoolProfilingDataExport | null>
   private resolveProfilngData!: (result: ReactDevtoolProfilingDataExport | null) => void
@@ -116,12 +114,13 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   private result?: ReactDevtoolProfilingDataExport | null
 
   constructor() {
+    super()
     this.profilingDataPromise = new Promise((resolve) => {
       this.resolveProfilngData = resolve
     })
   }
 
-  async beforePass(ctx: Gatherer.PassContext) {
+  async startInstrumentation(ctx: Gatherer.Context) {
     const driver = ctx.driver
     if (!ReactProfiler.bundleToReplace) {
       this.resolveProfilngData(null)
@@ -138,22 +137,21 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     )
   }
 
-  async pass() {
+  async stopInstrumentation() {
     this.result = await Promise.race([this.profilingDataPromise, promisify(setTimeout)(10000).then(() => null)])
   }
 
-  async afterPass() {
+  async getArtifact() {
     await Promise.all(this.teardowns.map((t) => t()))
     return Promise.resolve(this.result || null)
   }
 
   private send(event: string, payload?: any) {
-    // @ts-expect-error
-    void this.driver?.evaluateAsync(`window.postMessage(${JSON.stringify({ event, payload })})`)
+    void this.driver?.executionContext.evaluateAsync(`window.postMessage(${JSON.stringify({ event, payload })})`)
   }
 
   private async injectDevtoolsBackendRuntime() {
-    const driver = this.driver!
+    const driver = this.driver!.defaultSession
     const injection = `
     ${DEVTOOLS_INJECTION};
     ReactDevtoolsBackend.initialize(window);
@@ -181,13 +179,13 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
     });
     observer.observe({ type: "largest-contentful-paint", buffered: true });
     `
-    const { identifier } = await driver!.sendCommand('Page.addScriptToEvaluateOnNewDocument', { source: injection })
+    const { identifier } = await driver.sendCommand('Page.addScriptToEvaluateOnNewDocument', { source: injection })
 
     return () => driver.sendCommand('Page.removeScriptToEvaluateOnNewDocument', { identifier })
   }
 
   private async interceptRequest() {
-    const driver = this.driver!
+    const driver = this.driver!.defaultSession
 
     const onRequestIntercepted = ({ interceptionId, request }: LH.CrdpEvents['Network.requestIntercepted'][0]) => {
       if (ReactProfiler.bundleToReplace.has(request.url)) {
@@ -226,7 +224,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   }
 
   private async injectSendFunction() {
-    const driver = this.driver!
+    const driver = this.driver!.defaultSession
     // expose function to page
     await driver.sendCommand('Runtime.addBinding', { name: ReactProfiler.SEND })
 
@@ -257,7 +255,7 @@ export class ReactProfiler implements LH.PerfseeGathererInstance {
   }
 
   private async injectResolveFiberLocationFunction() {
-    const driver = this.driver!
+    const driver = this.driver!.defaultSession
     const fiberLocations: string[] = []
     const { identifier } = await driver.sendCommand('Page.addScriptToEvaluateOnNewDocument', {
       source: `

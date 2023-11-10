@@ -17,7 +17,6 @@ limitations under the License.
 import { promises as fs } from 'fs'
 import { dirname, join } from 'path'
 
-import { Driver } from 'lighthouse/core/legacy/gather/driver'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker, dynamicImport } from '@perfsee/job-runner-shared'
@@ -115,19 +114,18 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     }) as any)
 
     // --- setup request handler ---
-    const drive: Driver = {
+    const drive = {
       on: client.on.bind(client) as any,
       once: client.once.bind(client) as any,
       off: client.off.bind(client) as any,
-      // @ts-expect-error
-      sendCommand: client.send.bind(client),
+      sendCommand: client.send.bind(client) as any,
       evaluate: () => {
         throw new Error('not support')
       },
       evaluateAsync: () => {
         throw new Error('not support')
       },
-    }
+    } as any as LH.Gatherer.ProtocolSession
     const requestHandler = onRequestFactory(url, this.headers, drive)
     client.on('Fetch.requestPaused', requestHandler)
     await client.send('Fetch.enable', { patterns: [{ urlPattern: '*' }] })
@@ -231,7 +229,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
         // hiding network-requests
         // @ts-expect-error
-        lhr.audits['network-requests'] = {}
+        lhr.audits['network-requests-custom'] = {}
 
         return {
           stepName,
@@ -313,7 +311,7 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
 
   private async computeMainThreadTask(artifacts: LH.Artifacts) {
     // format execution timeline data
-    const trace = artifacts['traces']['defaultPass']
+    const trace = artifacts.Trace
     const { tasks, timings } = await computeMainThreadTasksWithTimings(trace)
     const traceData = slimTraceData(tasks, Infinity)
     return {

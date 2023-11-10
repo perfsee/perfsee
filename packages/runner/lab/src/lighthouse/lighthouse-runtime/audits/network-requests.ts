@@ -26,16 +26,17 @@ export async function NetworkRequests() {
   return class extends Audit {
     static get meta(): LH.Audit.Meta {
       return {
-        id: 'network-requests',
+        id: 'network-requests-custom',
         scoreDisplayMode: Audit.SCORING_MODES.INFORMATIVE,
         title: 'Network Requests',
         description: 'Lists the network requests that were made during page load.',
-        requiredArtifacts: ['devtoolsLogs'],
+        // @ts-expect-error
+        requiredArtifacts: ['DevtoolsLog', 'RequestInterception', 'ConsoleLogger'],
       }
     }
 
     static async audit(artifacts: LH.Artifacts, _: LH.Audit.Context): Promise<LH.Audit.Product> {
-      const devtoolsLog = artifacts.devtoolsLogs[Audit.DEFAULT_PASS]
+      const devtoolsLog = artifacts.DevtoolsLog
       const results = await getNetworkRecords(devtoolsLog)
 
       // NOTE(i18n): this audit is only for debug info in the LHR and does not appear in the report.

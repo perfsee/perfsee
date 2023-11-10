@@ -122,13 +122,13 @@ export async function CauseForLCP() {
         failureTitle: '',
         description: 'Cause for lcp.',
         // @ts-expect-error
-        requiredArtifacts: ['traces', 'LcpElement', 'devtoolsLogs'],
+        requiredArtifacts: ['Trace', 'LcpElement', 'DevtoolsLog'],
       }
     }
 
     static async audit(artifacts: LH.Artifacts, _: LH.Audit.Context): Promise<LH.Audit.Product> {
-      const traceEvents = artifacts.traces['defaultPass'].traceEvents
-      const networks = await getNetworkRecords(artifacts.devtoolsLogs[Audit.DEFAULT_PASS])
+      const traceEvents = artifacts.Trace.traceEvents
+      const networks = await getNetworkRecords(artifacts.DevtoolsLog)
       const LcpElement = artifacts['LcpElement']
 
       const lcpCandidate = traceEvents

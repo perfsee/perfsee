@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ElementHandle, WebWorker } from 'puppeteer-core'
+import { WebWorker } from 'puppeteer-core'
 
-import { elementHandleWrapper } from './element-handle'
-import { executionContextWrapper } from './execution-context'
+import { jsHandleWrapper } from './js-handle'
 import { NotSupportFunction } from './utils'
 import { createWrapper } from './wrapper'
 
@@ -26,11 +25,7 @@ export const webWorkerWrapper = createWrapper<WebWorker>('WebWorker', (webWorker
   return {
     evaluate: (pageFunction, ...args) => webWorker.evaluate(pageFunction, ...args),
     evaluateHandle: async (pageFunction, ...args) =>
-      elementHandleWrapper.wrap(
-        (await webWorker.evaluateHandle(pageFunction, ...args)) as ElementHandle,
-        options,
-      ) as any,
-    executionContext: async () => executionContextWrapper.wrap(await webWorker.executionContext(), options),
+      jsHandleWrapper.wrap(await webWorker.evaluateHandle(pageFunction, ...args), options) as any,
     url: () => webWorker.url(),
     on: NotSupportFunction,
     off: NotSupportFunction,
@@ -40,5 +35,6 @@ export const webWorkerWrapper = createWrapper<WebWorker>('WebWorker', (webWorker
     once: NotSupportFunction,
     listenerCount: NotSupportFunction,
     removeAllListeners: NotSupportFunction,
+    client: webWorker.client,
   }
 })

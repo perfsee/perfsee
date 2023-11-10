@@ -23,6 +23,8 @@ import { noop } from 'lodash'
 
 import { logger } from '@perfsee/job-runner-shared'
 
+import { GathererInstance } from './gatherer'
+
 let available = false
 
 try {
@@ -51,18 +53,16 @@ async function getWhiteScreen(width: number, height: number): Promise<Buffer> {
   return jpg.getBufferAsync(Jimp.MIME_JPEG)
 }
 
-export class Screencast implements LH.PerfseeGathererInstance {
-  name = 'Screencast' as const
-
+export class Screencast extends GathererInstance {
   private readonly frames: ScreencastFrame[] = []
 
-  async beforePass(ctx: LH.Gatherer.PassContext) {
+  async startInstrumentation(ctx: LH.Gatherer.Context) {
     if (!available) {
       return
     }
 
     const startTime = Date.now()
-    const driver = ctx.driver
+    const driver = ctx.driver.defaultSession
 
     driver.on('Page.screencastFrame', (e) => {
       this.frames.push({
@@ -84,12 +84,12 @@ export class Screencast implements LH.PerfseeGathererInstance {
     })
   }
 
-  async pass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver
+  async stopInstrumentation(ctx: LH.Gatherer.Context) {
+    const driver = ctx.driver.defaultSession
     await driver.sendCommand('Page.stopScreencast')
   }
 
-  async afterPass(ctx: LH.Gatherer.PassContext) {
+  async getArtifact(ctx: LH.Gatherer.Context) {
     if (!available) {
       return null
     }
@@ -98,8 +98,7 @@ export class Screencast implements LH.PerfseeGathererInstance {
 
     try {
       const driver = ctx.driver
-      // @ts-expect-error
-      const startTime /* in seconds */ = await driver.evaluate(getStartTime, { args: [] })
+      const startTime /* in seconds */ = await driver.executionContext.evaluate(getStartTime, { args: [] })
       frames = frames.filter(({ timestamp }) => timestamp > startTime)
       const { width, height } = ctx.settings.screenEmulation
       const whiteScreen = await getWhiteScreen(width, height)

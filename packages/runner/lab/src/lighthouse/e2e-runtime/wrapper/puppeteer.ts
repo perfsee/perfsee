@@ -36,5 +36,8 @@ export const puppeteerNodeWrapper = createWrapper<PuppeteerNode>('PuppeteerNode'
     unregisterCustomQueryHandler: NotSupportFunction,
     customQueryHandlerNames: NotSupportFunction,
     clearCustomQueryHandlers: NotSupportFunction,
+    lastLaunchedProduct: puppeteer.lastLaunchedProduct,
+    defaultProduct: puppeteer.defaultProduct,
+    trimCache: () => puppeteer.trimCache(),
   }
 })

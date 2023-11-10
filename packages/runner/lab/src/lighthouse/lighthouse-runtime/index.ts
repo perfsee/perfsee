@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Config } from 'lighthouse'
-
 import { dynamicImport } from '@perfsee/job-runner-shared'
 
 import { CauseForLCP, NetworkRequests, WhiteScreen } from './audits'
@@ -94,10 +92,16 @@ export function computeMedianRun(runs: MetricsRecord[]) {
 }
 
 export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Flags = {}) {
-  const { legacyNavigation: run } = (await dynamicImport('lighthouse')) as typeof import('lighthouse')
+  const { default: run } = (await dynamicImport('lighthouse')) as typeof import('lighthouse')
   const { default: defaultConfig } = (await dynamicImport(
-    'lighthouse/core/legacy/config/legacy-default-config.js',
-  )) as typeof import('lighthouse/core/legacy/config/legacy-default-config')
+    'lighthouse/core/config/default-config.js',
+  )) as typeof import('lighthouse/core/config/default-config')
+
+  defaultConfig.categories!['performance'].auditRefs.push(
+    { id: 'network-requests-custom', weight: 0, group: 'hidden' },
+    { id: 'white-screen', weight: 0, group: 'hidden' },
+    { id: 'cause-for-lcp', weight: 0, group: 'hidden' },
+  )
 
   return run(
     url,
@@ -110,23 +114,17 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
     },
     {
       ...defaultConfig,
-      passes: defaultConfig.passes!.map((pass: LH.PerfseePassJson) => {
-        pass = {
-          ...pass,
-          gatherers: customFlags?.dryRun
-            ? []
-            : [new RequestInterception(customFlags?.headers), new ConsoleLogger(), ...(pass.gatherers ?? [])],
-        }
-
-        if (pass.passName === 'defaultPass' && !customFlags?.dryRun) {
-          pass.gatherers?.push(Screencast, LcpElement)
-          if (customFlags?.reactProfiling) {
-            pass.gatherers?.push(new ReactProfiler())
-          }
-        }
-
-        return pass as Config.PassJson
-      }),
+      // @ts-expect-error
+      artifacts: customFlags?.dryRun
+        ? []
+        : [
+            ...(defaultConfig.artifacts ?? []),
+            { id: 'RequestInterception', gatherer: new RequestInterception(customFlags?.headers) },
+            { id: 'ConsoleLogger', gatherer: ConsoleLogger },
+            { id: 'Screencast', gatherer: Screencast },
+            { id: 'LcpElement', gatherer: await LcpElement() },
+            ...(customFlags?.reactProfiling ? [{ id: 'ReactProfiler', gatherer: ReactProfiler }] : []),
+          ],
       audits: customFlags?.dryRun
         ? []
         : [...(defaultConfig.audits ?? []), await NetworkRequests(), await WhiteScreen(), await CauseForLCP()],

@@ -33,6 +33,7 @@ import { webWorkerWrapper } from './web-worker'
 import { createWrapper, Wrapper } from './wrapper'
 
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-page
+// @ts-expect-error
 export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, options) => {
   const flow = options.flow
   return {
@@ -67,11 +68,12 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
     setDefaultTimeout: (timeout) => page.setDefaultTimeout(timeout),
     $: async (selector) => elementHandleWrapper.wrapOrNull(await page.$(selector), options),
     evaluateHandle: async (pageFunction, ...args) =>
-      elementHandleWrapper.wrap(await page.evaluateHandle(pageFunction, ...args), options) as any,
+      jsHandleWrapper.wrap(await page.evaluateHandle(pageFunction, ...args), options) as any,
     queryObjects: async (prototypeHandle) => jsHandleWrapper.wrap(await page.queryObjects(prototypeHandle), options),
     $eval: (selector, pageFunction, ...args) => page.$eval(selector, pageFunction, ...args),
     $$eval: (selector, pageFunction, ...args) => page.$$eval(selector, pageFunction, ...args),
     $$: async (selector) => elementHandleWrapper.wrapAll(await page.$$(selector), options),
+    // @ts-expect-error
     $x: async (expression) => elementHandleWrapper.wrapAll(await page.$x(expression), options),
     cookies: (...urls) => page.cookies(...urls),
     deleteCookie: (...cookies) => page.deleteCookie(...cookies),
@@ -166,12 +168,11 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
       await flow?.startAction('type')
       return page.type(selector, text, options)
     },
-    waitFor: async (selectorOrFunctionOrTimeout, fnOptions, ...args) =>
-      jsHandleWrapper.wrap(await page.waitFor(selectorOrFunctionOrTimeout, fnOptions, ...args), options),
     waitForTimeout: async (timeout) => page.waitForTimeout(timeout),
     waitForSelector: async (selector, fnOptions) =>
       elementHandleWrapper.wrapOrNull(await page.waitForSelector(selector, fnOptions), options),
     waitForXPath: async (xpath, fnOptions) =>
+      // @ts-expect-error
       elementHandleWrapper.wrapOrNull(await page.waitForXPath(xpath, fnOptions), options),
     waitForFunction: async (pageFunction, fnOptions, ...args) =>
       jsHandleWrapper.wrap(await page.waitForFunction(pageFunction, fnOptions, ...args), options),
@@ -179,5 +180,14 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
     removeAllListeners: NotSupportFunction,
     waitForFrame: async (urlOrPredicate, fnOptions) =>
       frameWrapper.wrap(await page.waitForFrame(urlOrPredicate, fnOptions), options),
+    isServiceWorkerBypassed: () => page.isServiceWorkerBypassed(),
+    setBypassServiceWorker: (val) => page.setBypassServiceWorker(val),
+    createCDPSession: () => page.createCDPSession(),
+    getDefaultTimeout: () => page.getDefaultTimeout(),
+    locator: NotSupportFunction,
+    removeScriptToEvaluateOnNewDocument: (id) => page.removeScriptToEvaluateOnNewDocument(id),
+    removeExposedFunction: (id) => page.removeExposedFunction(id),
+    screencast: (options) => page.screencast(options),
+    waitForDevicePrompt: NotSupportFunction,
   }
 })

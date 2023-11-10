@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { isSuitableVersion, chromeVersion, downloadChromium } from './chrome'
+import { isSuitableVersion, chromeVersion } from './chrome'
 import { findChromeBinaryOnDarwin } from './darwin'
 import { findChromeBinaryOnLinux } from './linux'
 import { findChromeBinaryOnWin32 } from './win32'
@@ -32,15 +32,6 @@ interface FindOptions {
    * Max suitable version
    */
   max?: number
-  /**
-   * If provided, will try to use puppeteer browser fetcher to download chrome
-   * in case no suitable installations found in local with version in range from `min` to `max`
-   */
-  download?: {
-    puppeteer: import('puppeteer-core').PuppeteerNode
-    path: string
-    revision: string
-  }
 }
 
 interface FindResult {
@@ -48,28 +39,16 @@ interface FindResult {
   browser?: string
 }
 
-export async function findChrome({ min, max, canary, download }: FindOptions = {}): Promise<FindResult> {
+export function findChrome({ min, max, canary }: FindOptions = {}): Promise<FindResult> {
   const executablePath = findChromeBinaryPath(canary)
   const isNotEmpty = typeof executablePath === 'string' && executablePath.length > 0
   const isSuitable = isNotEmpty && isSuitableVersion(executablePath, min, max)
 
   if (isSuitable) {
-    return { executablePath, browser: chromeVersion(executablePath) }
+    return Promise.resolve({ executablePath, browser: chromeVersion(executablePath) })
   }
 
-  const isDownloadSkipped = !download || !download.path || !download.revision
-
-  if (isDownloadSkipped) {
-    throw new Error(
-      "Couldn't find suitable Chrome version locally.\nSkipping Chromium downloading due to unset or incorrect download settings.",
-    )
-  }
-
-  const revisionInfo = await downloadChromium(download.puppeteer, download.path, download.revision)
-  return {
-    executablePath: revisionInfo.executablePath,
-    browser: chromeVersion(revisionInfo.executablePath),
-  }
+  throw new Error("Couldn't find suitable Chrome version locally.")
 }
 
 function findChromeBinaryPath(canary?: boolean) {

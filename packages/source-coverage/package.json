@@ -13,6 +13,6 @@
   "sideEffects": false,
   "private": true,
   "dependencies": {
-    "lighthouse": "^10.2.0"
+    "lighthouse": "^11.3.0"
   }
 }

@@ -18,7 +18,7 @@ import assert from 'assert'
 
 import { dynamicImport } from '@perfsee/job-runner-shared'
 
-type FlowResult = LH.Gatherer.FRGatherResult & { lhr: LH.Result; stepName: string }
+type FlowResult = LH.Gatherer.GatherResult & { lhr: LH.Result; stepName: string }
 
 export class LighthouseFlow {
   readonly name: string
@@ -101,7 +101,7 @@ export class LighthouseFlow {
     try {
       await this.ensureFlowStarted()
 
-      const result = (await this.flow.navigate(url)) as LH.Gatherer.FRGatherResult
+      const result = (await this.flow.navigate(url)) as LH.Gatherer.GatherResult
       this.steps.push({ ...result, stepName: `navigate (${url})` })
     } finally {
       unlock()
@@ -134,7 +134,7 @@ export class LighthouseFlow {
 
   private async endTimespan() {
     assert(this.isTimespanStarted, 'timespan is not started')
-    const result = (await this.flow.endTimespan()) as LH.Gatherer.FRGatherResult
+    const result = (await this.flow.endTimespan()) as LH.Gatherer.GatherResult
     this.steps.push({ ...result, stepName: this.currentTimespanName })
     this.isTimespanStarted = false
   }
