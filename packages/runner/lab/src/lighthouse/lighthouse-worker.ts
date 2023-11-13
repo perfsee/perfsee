@@ -17,12 +17,11 @@ limitations under the License.
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
 
-import lighthouseLogger from 'lighthouse-logger'
 import { groupBy, mapValues } from 'lodash'
 import { Target } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
-import { JobWorker, clearProxyCache, startProxyServer } from '@perfsee/job-runner-shared'
+import { JobWorker, clearProxyCache, dynamicImport, startProxyServer } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
@@ -75,7 +74,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected async audit() {
-    this.wrapLighthouseLogger()
+    await this.wrapLighthouseLogger()
     const lhResult = await this.runLighthouse()
 
     const { artifacts, lhr } = lhResult
@@ -239,9 +238,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private wrapLighthouseLogger() {
+  private async wrapLighthouseLogger() {
     // we may have different version of `debug` lib
     // hack in this is safer
+    const { default: lighthouseLogger } = (await dynamicImport(
+      'lighthouse-logger',
+    )) as typeof import('lighthouse-logger')
+
     lighthouseLogger._logToStdErr = (title, args) => {
       if (title.endsWith('error')) {
         this.logger.error(args[0], args[1])
