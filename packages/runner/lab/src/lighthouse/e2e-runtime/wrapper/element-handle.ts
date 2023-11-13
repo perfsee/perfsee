@@ -16,7 +16,6 @@ limitations under the License.
 
 import { ElementHandle, JSHandle } from 'puppeteer-core'
 
-import { executionContextWrapper } from './execution-context'
 import { frameWrapper } from './frame'
 import { jsHandleWrapper } from './js-handle'
 import { NotSupportFunction } from './utils'
@@ -25,6 +24,7 @@ import { createWrapper, Wrapper } from './wrapper'
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-elementhandle
 export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<ElementHandle>(
   'ElementHandle',
+  // @ts-expect-error
   (elementHandle, options) => {
     const flow = options.flow
     return {
@@ -35,9 +35,11 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
       $$: async (selector) => (await elementHandle.$$(selector)).map((e) => elementHandleWrapper.wrap(e, options)),
       $$eval: (selector, pageFunction, ...args) => elementHandle.$$eval(selector, pageFunction, ...args),
       $eval: (selector, pageFunction, ...args) => elementHandle.$eval(selector, pageFunction, ...args),
+      // @ts-expect-error
       $x: async (expression) => (await elementHandle.$x(expression)).map((e) => elementHandleWrapper.wrap(e, options)),
       asElement: () => {
         const element = elementHandle.asElement()
+        // @ts-expect-error
         return element && elementHandleWrapper.wrap(element, options)
       },
       boundingBox: () => elementHandle.boundingBox(),
@@ -68,7 +70,7 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
         await flow?.startAction('dragOver')
         return elementHandle.dragOver(data)
       },
-      drop: async (data) => {
+      drop: async (data: any) => {
         await flow?.startAction('drop')
         return elementHandle.drop(data)
       },
@@ -94,8 +96,8 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
       },
       evaluate: (pageFunction, ...args) => elementHandle.evaluate(pageFunction, ...args),
       evaluateHandle: async (pageFunction, ...args) =>
+        // @ts-expect-error
         elementHandleWrapper.wrap(await elementHandle.evaluateHandle(pageFunction, ...args), options) as any,
-      executionContext: () => executionContextWrapper.wrap(elementHandle.executionContext(), options),
       getProperties: async () => {
         const newMap = new Map<string, JSHandle<unknown>>()
         const properties = await elementHandle.getProperties()
@@ -105,7 +107,7 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
 
         return newMap
       },
-      getProperty: async (propertyName) => {
+      getProperty: async (propertyName: any) => {
         const handle = await elementHandle.getProperty(propertyName)
         return handle && jsHandleWrapper.wrap(handle, options)
       },
@@ -117,6 +119,35 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
       uploadFile: NotSupportFunction,
       waitForSelector: async (selector, fnOptions) =>
         elementHandleWrapper.wrapOrNull(await elementHandle.waitForSelector(selector, fnOptions), options),
+      touchStart: async () => {
+        await flow?.startAction('touchStart')
+        return elementHandle.touchStart()
+      },
+      touchEnd: async () => {
+        await flow?.startAction('touchEnd')
+        return elementHandle.touchEnd()
+      },
+      touchMove: async () => {
+        await flow?.startAction('touchMove')
+        return elementHandle.touchMove()
+      },
+      frame: elementHandle.frame,
+      isVisible: () => elementHandle.isVisible(),
+      isHidden: () => elementHandle.isHidden(),
+      waitForXPath: async (xpath, fnOptions) =>
+        // @ts-expect-error
+        elementHandleWrapper.wrapOrNull(await elementHandle.waitForXPath(xpath, fnOptions), options),
+      toElement: async (tagName) => elementHandleWrapper.wrapOrNull(await elementHandle.toElement(tagName), options),
+      autofill: (data) => async () => {
+        await flow?.startAction('autofill')
+        return elementHandle.autofill(data)
+      },
+      scrollIntoView: async () => {
+        await flow?.startAction('scrollIntoView')
+        return elementHandle.scrollIntoView()
+      },
+      move: () => elementHandle.move(),
+      remoteObject: () => elementHandle.remoteObject(),
     }
   },
 )

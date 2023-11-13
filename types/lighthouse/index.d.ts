@@ -14,24 +14,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <reference path="../../node_modules/lighthouse/types/externs.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/config.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/gatherer.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/audit.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/audit-details.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/lhr.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/artifacts.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/protocol.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/i18n.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/treemap.d.ts" />
-/// <reference path="../../node_modules/lighthouse/types/global-lh.d.ts" />
-/// <reference path="../../node_modules/@types/react-devtools-inline/common.d.ts" />
-
 interface ClassOf<T> {
   new (): T
 }
 
-module LH {
+declare module LH {
+  type SharedFlagsSettings = import('lighthouse/types/lhr/settings').SharedFlagsSettings
+  type GathererArtifacts = import('lighthouse/types/artifacts').GathererArtifacts
+  type Artifacts = import('lighthouse/types/artifacts').Artifacts
+  type PassJson = import('lighthouse/types/config').default.PassJson
+  type RunnerResult = import('lighthouse/types/lh').RunnerResult
+  type GathererInstance<T> = import('lighthouse/types/gatherer').default.GathererInstance<T>
+  type Context<T> = import('lighthouse/types/gatherer').default.Context<T>
+
+  export type { Artifacts, TraceEvent, DevtoolsLog, GathererArtifacts } from 'lighthouse/types/artifacts'
+  export type {
+    CrdpEvents,
+    CrdpCommands,
+    Crdp,
+    Gatherer,
+    Result,
+    Audit,
+    Trace,
+    Config,
+    Puppeteer,
+  } from 'lighthouse/types/lh'
+  export type { IcuMessage } from 'lighthouse/types/lhr/i18n'
+  export type { Treemap } from 'lighthouse/types/lhr/treemap'
+
   export interface Flags extends SharedFlagsSettings {
     customFlags?: {
       headers?: Record<string, Record<string, string>>
@@ -46,38 +56,35 @@ module LH {
     lastFrameTime: number
   }
 
-  export interface PerfseeGathererArtifacts extends LH.GathererArtifacts {
-    RequestInterception: null
-    Screencast: ScreencastGathererResult | null
-    CpuProfiler: Crdp.Profiler.Profile
-    ConsoleLogger: null
-    ReactProfiler: ProfilingDataExport | null
-    LcpElement: any
+  export interface PerfseeGathererArtifacts extends GathererArtifacts {
+    RequestInterception?: null
+    Screencast?: ScreencastGathererResult | null
+    CpuProfiler?: import('lighthouse/types/lh').Crdp.Profiler.Profile
+    ConsoleLogger?: null
+    ReactProfiler?: ProfilingDataExport | null
+    LcpElement?: any | null
+    ReactProfiler?: any | null
   }
 
-  export interface PerfseeGathererInstance extends Gatherer.GathererInstance {
+  type PhaseResultNonPromise = void | PerfseeGathererArtifacts[keyof PerfseeGathererArtifacts]
+  export type PhaseResult = PhaseResultNonPromise | Promise<PhaseResultNonPromise>
+
+  export interface PerfseeGathererInstance<D = '__none__'> extends GathererInstance<D> {
     name: keyof PerfseeGathererArtifacts
+    getArtifact(_context: Context<'__none__'>): PhaseResult
   }
 
-  export interface PerfseePassJson extends LH.Config.PassJson {
-    gatherers?: (LH.Config.GathererJson | LH.PerfseeGathererInstance | ClassOf<LH.PerfseeGathererInstance>)[]
+  export interface PerfseePassJson extends PassJson {
+    gatherers?: (
+      | import('lighthouse/types/config').default.GathererJson
+      | PerfseeGathererInstance
+      | ClassOf<PerfseeGathererInstance>
+    )[]
   }
 
-  export interface PerfseeArtifacts extends LH.Artifacts, PerfseeGathererArtifacts {}
+  export interface PerfseeArtifacts extends Artifacts, PerfseeGathererArtifacts {}
 
-  export interface PerfseeRunnerResult extends LH.RunnerResult {
+  export interface PerfseeRunnerResult extends RunnerResult {
     artifacts: PerfseeArtifacts
   }
-}
-
-declare module 'lighthouse' {
-  declare namespace lighthouse {}
-  declare function lighthouse(
-    url?: string,
-    flags?: LH.Flags,
-    configJSON?: LH.Config.Json,
-    connection?: any,
-  ): Promise<LH.PerfseeRunnerResult | undefined>
-
-  export = lighthouse
 }

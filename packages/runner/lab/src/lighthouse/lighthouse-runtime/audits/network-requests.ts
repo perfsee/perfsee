@@ -14,58 +14,63 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <reference types="lighthouse" />
-
-//@ts-expect-error
-import Audit from 'lighthouse/lighthouse-core/audits/audit'
+import { dynamicImport } from '@perfsee/job-runner-shared'
 
 import { getNetworkRecords } from '../../helpers'
 
-export class NetworkRequests extends Audit {
-  static get meta(): LH.Audit.Meta {
-    return {
-      id: 'network-requests',
-      scoreDisplayMode: Audit.SCORING_MODES.INFORMATIVE,
-      title: 'Network Requests',
-      description: 'Lists the network requests that were made during page load.',
-      requiredArtifacts: ['devtoolsLogs'],
+export async function NetworkRequests() {
+  const { Audit } = (await dynamicImport(
+    'lighthouse/core/audits/audit.js',
+  )) as typeof import('lighthouse/core/audits/audit')
+
+  return class extends Audit {
+    static get meta(): LH.Audit.Meta {
+      return {
+        id: 'network-requests-custom',
+        scoreDisplayMode: Audit.SCORING_MODES.INFORMATIVE,
+        title: 'Network Requests',
+        description: 'Lists the network requests that were made during page load.',
+        // @ts-expect-error
+        requiredArtifacts: ['DevtoolsLog', 'RequestInterception', 'ConsoleLogger'],
+      }
     }
-  }
 
-  static audit(artifacts: LH.Artifacts, _: LH.Audit.Context): Promise<LH.Audit.Product> {
-    const devtoolsLog = artifacts.devtoolsLogs[Audit.DEFAULT_PASS]
-    const results = getNetworkRecords(devtoolsLog)
+    static async audit(artifacts: LH.Artifacts, _: LH.Audit.Context): Promise<LH.Audit.Product> {
+      const devtoolsLog = artifacts.DevtoolsLog
+      const results = await getNetworkRecords(devtoolsLog)
 
-    // NOTE(i18n): this audit is only for debug info in the LHR and does not appear in the report.
-    /** @type {LH.Audit.Details.Table['headings']} */
-    const headings = [
-      { key: 'url', itemType: 'url', text: 'URL' },
-      { key: 'startTime', itemType: 'ms', granularity: 1, text: 'Start Time' },
-      { key: 'endTime', itemType: 'ms', granularity: 1, text: 'End Time' },
-      {
-        key: 'transferSize',
-        itemType: 'bytes',
-        displayUnit: 'kb',
-        granularity: 1,
-        text: 'Transfer Size',
-      },
-      {
-        key: 'resourceSize',
-        itemType: 'bytes',
-        displayUnit: 'kb',
-        granularity: 1,
-        text: 'Resource Size',
-      },
-      { key: 'statusCode', itemType: 'text', text: 'Status Code' },
-      { key: 'mimeType', itemType: 'text', text: 'MIME Type' },
-      { key: 'resourceType', itemType: 'text', text: 'Resource Type' },
-    ]
+      // NOTE(i18n): this audit is only for debug info in the LHR and does not appear in the report.
+      /** @type {LH.Audit.Details.Table['headings']} */
+      const headings = [
+        { key: 'url', itemType: 'url', text: 'URL' },
+        { key: 'startTime', itemType: 'ms', granularity: 1, text: 'Start Time' },
+        { key: 'endTime', itemType: 'ms', granularity: 1, text: 'End Time' },
+        {
+          key: 'transferSize',
+          itemType: 'bytes',
+          displayUnit: 'kb',
+          granularity: 1,
+          text: 'Transfer Size',
+        },
+        {
+          key: 'resourceSize',
+          itemType: 'bytes',
+          displayUnit: 'kb',
+          granularity: 1,
+          text: 'Resource Size',
+        },
+        { key: 'statusCode', itemType: 'text', text: 'Status Code' },
+        { key: 'mimeType', itemType: 'text', text: 'MIME Type' },
+        { key: 'resourceType', itemType: 'text', text: 'Resource Type' },
+      ]
 
-    const tableDetails = Audit.makeTableDetails(headings, results)
+      // @ts-expect-error
+      const tableDetails = Audit.makeTableDetails(headings, results)
 
-    return Promise.resolve({
-      score: 1,
-      details: tableDetails,
-    })
+      return {
+        score: 1,
+        details: tableDetails,
+      }
+    }
   }
 }

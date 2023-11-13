@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//@ts-expect-error
-import NetworkRecorder from 'lighthouse/lighthouse-core/lib/network-recorder'
-//@ts-expect-error
-import URL from 'lighthouse/lighthouse-core/lib/url-shim'
-
+import { dynamicImport } from '@perfsee/job-runner-shared'
 import { ArtifactSchema, LifeCycle, TimingSchema } from '@perfsee/shared'
 
-export type NetworkRecord = ReturnType<typeof getNetworkRecords>[number]
+export type NetworkRecord = ReturnType<typeof getNetworkRecords> extends Promise<infer T>
+  ? T extends Array<any>
+    ? T[number]
+    : never
+  : never
 
 export const getRequestType = (item: ArtifactSchema) => {
   return item[LifeCycle.responseReceived]?.type ?? item[LifeCycle.loadingFailed]?.type ?? ''
@@ -48,7 +48,7 @@ export const getRequestTimings = (
       },
     ]
   } else {
-    const receiveTime = (endTime - responseReceivedTime) * 1000
+    const receiveTime = endTime - responseReceivedTime
     return getFromNetworkRequestTiming(timing, responseReceivedTime, receiveTime)
   }
 }
@@ -58,7 +58,7 @@ const getFromNetworkRequestTiming = (
   responseReceivedTime: number /**timestamp */,
   receiveTime: number,
 ) => {
-  const responseReceived = (responseReceivedTime - timing.requestTime) * 1000
+  const responseReceived = responseReceivedTime - timing.requestTime * 1000
 
   const blockingEnd = [timing.dnsStart, timing.connectStart, timing.sendStart, responseReceived].find((v) => v > 0) ?? 0
   return [
@@ -111,14 +111,20 @@ export const getRequestHeader = (item: ArtifactSchema) => {
   }
 }
 
-export function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
+export async function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
   const finalMap = getDevtoolsLogMap(devtoolsLog)
+  const { NetworkRecorder } = (await dynamicImport(
+    'lighthouse/core/lib/network-recorder.js',
+  )) as typeof import('lighthouse/core/lib/network-recorder')
+  const URL = (
+    (await dynamicImport('lighthouse/core/lib/url-utils.js')) as typeof import('lighthouse/core/lib/url-utils')
+  ).default
   const records: LH.Artifacts.NetworkRequest[] = NetworkRecorder.recordsFromLogs(devtoolsLog)
 
-  const earliestStartTime = records.reduce((min: number, record) => Math.min(min, record.startTime), Infinity)
+  const earliestStartTime = records.reduce((min: number, record) => Math.min(min, record.networkRequestTime), Infinity)
 
-  const timeToMs = (time: number) =>
-    time < earliestStartTime || !Number.isFinite(time) ? undefined : (time - earliestStartTime) * 1000
+  const formatTime = (time: number) =>
+    time < earliestStartTime || !Number.isFinite(time) ? undefined : time - earliestStartTime
 
   return records
     .map((record, i) => {
@@ -141,14 +147,14 @@ export function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
       const requestHeader = data ? getRequestHeader(data) : getRequestHeader(redirectData!)
       const responseHeader = formatResponseHeader(record.responseHeaders)
 
-      const startTime = timeToMs(record.startTime)
-      const endTime = timeToMs(record.endTime)
+      const startTime = formatTime(record.networkRequestTime)
+      const endTime = formatTime(record.networkEndTime)
 
       return {
         index: i,
         url: URL.elideDataURI(record.url),
         startTime: startTime!,
-        baseTimestamp: Math.round(earliestStartTime * 1000 * 1000),
+        baseTimestamp: Math.round(earliestStartTime * 1000),
         method: record.requestMethod,
         status: record.statusCode.toString(),
         protocol: record.protocol,
@@ -158,8 +164,8 @@ export function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
         transferSize: record.transferSize,
         timing: (endTime ?? 0) - (startTime ?? 0),
         timings: data
-          ? getRequestTimings(data, record.endTime, record.timing, record.responseReceivedTime)
-          : getRequestTimings(redirectData!, record.endTime, record.timing, record.responseReceivedTime),
+          ? getRequestTimings(data, record.networkEndTime, record.timing, record.responseHeadersEndTime)
+          : getRequestTimings(redirectData!, record.networkEndTime, record.timing, record.responseHeadersEndTime),
         requestHeader,
         responseHeader,
         // for performance advice

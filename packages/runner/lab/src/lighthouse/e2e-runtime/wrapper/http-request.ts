@@ -47,6 +47,7 @@ export const httpRequestWrapper: Wrapper<HTTPRequest> = createWrapper<HTTPReques
       interceptResolutionState: NotSupportFunction,
       isInterceptResolutionHandled: () => httpRequest.isInterceptResolutionHandled(),
       initiator: () => httpRequest.initiator(),
+      client: httpRequest.client,
     }
   },
 )

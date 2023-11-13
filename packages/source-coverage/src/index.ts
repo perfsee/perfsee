@@ -14,9 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//@ts-expect-error
-import ScriptTreemapData from 'lighthouse/lighthouse-core/audits/script-treemap-data'
-
 import { SourceCoverageResult } from '@perfsee/shared'
 
 export interface GenerateSourceCoverageTreemapDataOptions {
@@ -25,35 +22,55 @@ export interface GenerateSourceCoverageTreemapDataOptions {
   source: { filename: string; content: string; map?: LH.Artifacts.RawSourceMap }[]
 }
 
+function dynamicImport(specifier: string): Promise<any> {
+  // eslint-disable-next-line
+  return new Function('specifier', 'return import(specifier)')(specifier)
+}
+
 export async function generateSourceCoverageTreemapData(options: GenerateSourceCoverageTreemapDataOptions) {
-  const scriptUrls = Object.keys(options.jsCoverageData)
+  const { default: ScriptTreemapData } = (await dynamicImport(
+    'lighthouse/core/audits/script-treemap-data.js',
+  )) as typeof import('lighthouse/core/audits/script-treemap-data')
+
+  const scriptUrls = Object.values(options.jsCoverageData) as LH.Crdp.Profiler.ScriptCoverage[]
 
   const scripts = scriptUrls
-    .map((url) => {
+    .map(({ scriptId, url }) => {
       const source = options.source.find((source) => url.endsWith(source.filename))
 
       if (source) {
         return {
           url,
+          scriptId,
           ...source,
         }
       } else {
         return undefined
       }
     })
-    .filter((script) => !!script) as (GenerateSourceCoverageTreemapDataOptions['source'][number] & { url: string })[]
+    .filter((script) => !!script) as (GenerateSourceCoverageTreemapDataOptions['source'][number] & {
+    url: string
+    scriptId: string
+  })[]
 
-  const sourceMaps = scripts.map((script) => ({ scriptUrl: script.url, map: script.map }))
-  const scriptElements = scripts.map((script) => ({ src: script.url, content: script.content }))
+  const sourceMaps = scripts.map((script) => ({ scriptUrl: script.url, map: script.map, scriptId: script.scriptId }))
+  const scriptElements = scripts.map((script) => ({
+    scriptId: script.scriptId,
+    url: script.url,
+    content: script.content,
+    name: script.filename,
+    scriptLanguage: 'JavaScript',
+    length: script.content.length,
+  }))
 
-  const context = { computedCache: new Map() }
+  const context = { computedCache: new Map(), options: {}, settings: {} as any } as LH.Audit.Context
   const artifacts = {
-    URL: { requestedUrl: options.pageUrl, finalUrl: options.pageUrl },
+    URL: { requestedUrl: options.pageUrl, finalDisplayedUrl: options.pageUrl },
     JsUsage: options.jsCoverageData,
     SourceMaps: sourceMaps,
-    ScriptElements: scriptElements,
-  } as Pick<LH.Artifacts, 'URL' | 'JsUsage' | 'SourceMaps' | 'ScriptElements'>
-  const result = await (ScriptTreemapData.audit(artifacts, context) as Promise<
+    Scripts: scriptElements,
+  } as Pick<LH.Artifacts, 'URL' | 'JsUsage' | 'SourceMaps' | 'Scripts' | 'devtoolsLogs' | 'traces'>
+  const result = await (ScriptTreemapData.audit(artifacts as LH.Artifacts, context) as Promise<
     LH.Audit.Product & { details: LH.Audit.Details.TreemapData }
   >)
 

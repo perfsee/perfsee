@@ -16,11 +16,9 @@ limitations under the License.
 
 import assert from 'assert'
 
-// @ts-expect-error
-import { startFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api.js'
-import { Page } from 'puppeteer-core'
+import { dynamicImport } from '@perfsee/job-runner-shared'
 
-type FlowResult = LH.Gatherer.FRGatherResult & { lhr: LH.Result; stepName: string }
+type FlowResult = LH.Gatherer.GatherResult & { lhr: LH.Result; stepName: string }
 
 export class LighthouseFlow {
   readonly name: string
@@ -33,7 +31,7 @@ export class LighthouseFlow {
 
   private readonly steps: Omit<FlowResult, 'lhr'>[] = []
 
-  constructor(private readonly page: Page, private readonly flowOptions: any) {
+  constructor(private readonly page: LH.Puppeteer.Page, private readonly flowOptions: any) {
     this.name = 'lighthouse flow'
   }
 
@@ -103,7 +101,7 @@ export class LighthouseFlow {
     try {
       await this.ensureFlowStarted()
 
-      const result = (await this.flow.navigate(url)) as LH.Gatherer.FRGatherResult
+      const result = (await this.flow.navigate(url)) as LH.Gatherer.GatherResult
       this.steps.push({ ...result, stepName: `navigate (${url})` })
     } finally {
       unlock()
@@ -136,13 +134,14 @@ export class LighthouseFlow {
 
   private async endTimespan() {
     assert(this.isTimespanStarted, 'timespan is not started')
-    const result = (await this.flow.endTimespan()) as LH.Gatherer.FRGatherResult
+    const result = (await this.flow.endTimespan()) as LH.Gatherer.GatherResult
     this.steps.push({ ...result, stepName: this.currentTimespanName })
     this.isTimespanStarted = false
   }
 
   private async ensureFlowStarted() {
     if (!this.flow) {
+      const { startFlow } = (await dynamicImport('lighthouse')) as typeof import('lighthouse')
       this.flow = await startFlow(this.page, this.flowOptions)
     }
   }

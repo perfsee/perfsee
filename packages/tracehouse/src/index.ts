@@ -14,13 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <reference path="../../../node_modules/lighthouse/types/externs.d.ts" />
-/// <reference path="../../../node_modules/lighthouse/types/artifacts.d.ts" />
-/// <reference path="../../../node_modules/lighthouse/types/global-lh.d.ts" />
-
-const MainThreadTasks = require('lighthouse/lighthouse-core/lib/tracehouse/main-thread-tasks')
-const TraceProcessor = require('lighthouse/lighthouse-core/lib/tracehouse/trace-processor')
-
 export type TaskGroupIds =
   | 'parseHTML'
   | 'styleLayout'
@@ -56,18 +49,6 @@ export type Task = Omit<TaskNode, 'group' | 'parent' | 'children'> & {
   children: Task[]
 }
 
-// Monkey patch the `_isNavigationStartOfInterest` method of `TraceProcessor` to compatible the `file://` protocol
-const ACCEPTABLE_NAVIGATION_URL_REGEX = /^(chrome|file|https?):/
-
-TraceProcessor._isNavigationStartOfInterest = (event: LH.TraceEvent) => {
-  return (
-    event.name === 'navigationStart' &&
-    (!event.args.data ||
-      !event.args.data.documentLoaderURL ||
-      ACCEPTABLE_NAVIGATION_URL_REGEX.test(event.args.data.documentLoaderURL))
-  )
-}
-
 function transformTask(tasks: TaskNode[]): Task[] {
   return tasks.map((task: any) => {
     if (!task.group) {
@@ -83,32 +64,44 @@ function transformTask(tasks: TaskNode[]): Task[] {
   })
 }
 
-function processTrace(trace: LH.Trace): LH.Artifacts.ProcessedTrace {
+function dynamicImport(specifier: string): Promise<any> {
+  // eslint-disable-next-line
+  return new Function('specifier', 'return import(specifier)')(specifier)
+}
+
+async function processTrace(trace: LH.Trace) {
+  const { TraceProcessor } = (await dynamicImport(
+    'lighthouse/core/lib/tracehouse/trace-processor.js',
+  )) as typeof import('lighthouse/core/lib/tracehouse/trace-processor')
+
   return TraceProcessor.processTrace(trace)
 }
 
-function getMainThreadTasks(processedTrace: LH.Artifacts.ProcessedTrace): Task[] {
+async function getMainThreadTasks(processedTrace: LH.Artifacts.ProcessedTrace) {
   const { mainThreadEvents, timestamps, frames } = processedTrace
+  const { MainThreadTasks } = (await dynamicImport(
+    'lighthouse/core/lib/tracehouse/main-thread-tasks.js',
+  )) as typeof import('lighthouse/core/lib/tracehouse/main-thread-tasks')
   const tasks = MainThreadTasks.getMainThreadTasks(mainThreadEvents, frames, timestamps.traceEnd) as TaskNode[]
   return transformTask(tasks)
 }
 
-function processNavigation(processedTrace: LH.Artifacts.ProcessedTrace): LH.Artifacts.ProcessedNavigation {
+async function processNavigation(processedTrace: LH.Artifacts.ProcessedTrace) {
+  const { TraceProcessor } = (await dynamicImport(
+    'lighthouse/core/lib/tracehouse/trace-processor.js',
+  )) as typeof import('lighthouse/core/lib/tracehouse/trace-processor')
   return TraceProcessor.processNavigation(processedTrace)
 }
 
-export function computeMainThreadTasks(trace: LH.Trace): Task[] {
-  return getMainThreadTasks(processTrace(trace))
+export async function computeMainThreadTasks(trace: LH.Trace) {
+  return getMainThreadTasks(await processTrace(trace))
 }
 
-export function computeMainThreadTasksWithTimings(trace: LH.Trace): {
-  tasks: Task[]
-  timings: LH.Artifacts.NavigationTraceTimes
-} {
-  const processedTrace = processTrace(trace)
+export async function computeMainThreadTasksWithTimings(trace: LH.Trace) {
+  const processedTrace = await processTrace(trace)
 
   return {
-    tasks: getMainThreadTasks(processedTrace),
-    timings: processNavigation(processedTrace).timings,
+    tasks: await getMainThreadTasks(processedTrace),
+    timings: (await processNavigation(processedTrace)).timings,
   }
 }

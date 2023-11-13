@@ -13,6 +13,6 @@
   "types": "dist/index.d.ts",
   "private": true,
   "devDependencies": {
-    "lighthouse": "^9.6.3"
+    "lighthouse": "^11.3.0"
   }
 }

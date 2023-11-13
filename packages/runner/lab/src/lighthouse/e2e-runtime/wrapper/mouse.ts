@@ -61,5 +61,9 @@ export const mouseWrapper = createWrapper<Mouse>('Mouse', (mouse, { flow }) => {
       await flow?.startAction('wheel')
       return mouse.wheel(options)
     },
+    reset: async () => {
+      await flow?.startAction('reset')
+      return mouse.reset()
+    },
   }
 })

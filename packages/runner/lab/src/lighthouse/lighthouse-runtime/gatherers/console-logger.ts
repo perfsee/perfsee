@@ -14,21 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import Gatherer from 'lighthouse/types/gatherer'
 import { truncate } from 'lodash'
 import { Protocol } from 'puppeteer-core'
 
 import { logger } from '@perfsee/job-runner-shared'
 
-import { Driver } from '../../helpers'
+import { GathererInstance } from './gatherer'
 
-export class ConsoleLogger implements LH.PerfseeGathererInstance {
-  name = 'ConsoleLogger' as const
+export class ConsoleLogger extends GathererInstance {
   private messageHandler?: (...params: any) => any
 
-  constructor() {}
-
-  async beforePass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+  async startInstrumentation(ctx: Gatherer.Context) {
+    const driver = ctx.driver.defaultSession
 
     const onMessage = (event: Protocol.Log.EntryAddedEvent) => {
       logger.verbose(
@@ -44,12 +42,13 @@ export class ConsoleLogger implements LH.PerfseeGathererInstance {
     await driver.sendCommand('Log.enable')
   }
 
-  pass() {}
-
-  async afterPass(ctx: LH.Gatherer.PassContext) {
-    await ctx.driver.sendCommand('Log.disable')
-    await ctx.driver.off('Log.entryAdded', this.messageHandler)
+  async stopInstrumentation(ctx: Gatherer.Context) {
+    await ctx.driver.defaultSession.sendCommand('Log.disable')
+    ctx.driver.defaultSession.off('Log.entryAdded', this.messageHandler!)
     this.messageHandler = undefined
-    return null
+  }
+
+  getArtifact() {
+    return {}
   }
 }

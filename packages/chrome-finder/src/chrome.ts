@@ -16,8 +16,6 @@ limitations under the License.
 
 import { execSync } from 'child_process'
 
-import { PuppeteerNode } from 'puppeteer-core'
-
 import { MIN_CHROME_VERSION, MAX_CHROME_VERSION } from './utils'
 import { getWin32ChromeVersionInfo } from './win32'
 
@@ -55,35 +53,4 @@ export function chromeVersion(executablePath: string) {
       ? getWin32ChromeVersionInfo(executablePath)
       : execSync(`"${executablePath}" --version`).toString()
   ).trim()
-}
-
-export async function downloadChromium(puppeteer: PuppeteerNode, path: string, revision: string) {
-  try {
-    const downloadHost = process.env.PUPPETEER_DOWNLOAD_HOST ?? process.env.npm_config_puppeteer_download_host
-    process.env.npm_package_config_puppeteer_download_host
-
-    const browserFetcher = puppeteer.createBrowserFetcher({
-      path,
-      host: downloadHost,
-    })
-
-    const revisionInfo = browserFetcher.revisionInfo(revision)
-
-    // If already downloaded
-    if (revisionInfo.local) return revisionInfo
-
-    const newRevisionInfo = await browserFetcher.download(revisionInfo.revision)
-
-    let localRevisions = await browserFetcher.localRevisions()
-    localRevisions = localRevisions.filter((r) => r !== revisionInfo.revision)
-
-    // Remove previous revisions
-    const cleanupOldVersions = localRevisions.map((r) => browserFetcher.remove(r))
-    await Promise.all(cleanupOldVersions)
-
-    return newRevisionInfo
-  } catch (error) {
-    console.error(`ERROR: Failed to download Chromium!`)
-    throw error
-  }
 }

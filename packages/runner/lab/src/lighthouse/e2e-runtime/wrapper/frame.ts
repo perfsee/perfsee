@@ -17,12 +17,14 @@ limitations under the License.
 import { Frame } from 'puppeteer-core'
 
 import { elementHandleWrapper } from './element-handle'
-import { executionContextWrapper } from './execution-context'
 import { httpResponseWrapper } from './http-response'
 import { jsHandleWrapper } from './js-handle'
+import { pageWrapper } from './page'
+import { NotSupportFunction } from './utils'
 import { createWrapper, Wrapper } from './wrapper'
 
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-frame
+// @ts-expect-error
 export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame, options) => {
   const flow = options.flow
   return {
@@ -30,6 +32,7 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
     $eval: (selector, pageFunction, ...args) => frame.$eval(selector, pageFunction, ...args),
     $$eval: (selector, pageFunction, ...args) => frame.$$eval(selector, pageFunction, ...args),
     $$: async (selector) => elementHandleWrapper.wrapAll(await frame.$$(selector), options),
+    // @ts-expect-error
     $x: async (expression) => elementHandleWrapper.wrapAll(await frame.$x(expression), options),
     addScriptTag: async (fnOptions) => elementHandleWrapper.wrap(await frame.addScriptTag(fnOptions), options),
     addStyleTag: async (fnOptions) => elementHandleWrapper.wrap(await frame.addStyleTag(fnOptions), options),
@@ -41,8 +44,7 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
     content: () => frame.content(),
     evaluate: (pageFunction, ...args) => frame.evaluate(pageFunction, ...args),
     evaluateHandle: async (pageFunction, ...args) =>
-      elementHandleWrapper.wrap(await frame.evaluateHandle(pageFunction, ...args), options) as any,
-    executionContext: async () => executionContextWrapper.wrap(await frame.executionContext(), options),
+      jsHandleWrapper.wrap(await frame.evaluateHandle(pageFunction, ...args), options) as any,
     focus: async (selector) => {
       await flow?.startAction('focus')
       return frame.focus(selector)
@@ -70,8 +72,6 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
       return frame.type(selector, text, options)
     },
     url: () => frame.url(),
-    waitFor: async (selectorOrFunctionOrTimeout, fnOptions, ...args) =>
-      jsHandleWrapper.wrapOrNull(await frame.waitFor(selectorOrFunctionOrTimeout, fnOptions, ...args), options),
     waitForFunction: async (pageFunction, fnOptions, ...args) =>
       jsHandleWrapper.wrap(await frame.waitForFunction(pageFunction, fnOptions, ...args), options),
     waitForNavigation: async (navigationOptions) =>
@@ -80,8 +80,20 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
       elementHandleWrapper.wrapOrNull(await frame.waitForSelector(selector, fnOptions), options),
     waitForTimeout: async (timeout) => frame.waitForTimeout(timeout),
     waitForXPath: async (xpath, fnOptions) =>
+      // @ts-expect-error
       elementHandleWrapper.wrapOrNull(await frame.waitForXPath(xpath, fnOptions), options),
     isOOPFrame: () => frame.isOOPFrame(),
-    client: () => frame.client(),
+    page: () => pageWrapper.wrap(frame.page(), options),
+    locator: NotSupportFunction,
+    detached: false,
+    waitForDevicePrompt: NotSupportFunction,
+    on: (e, handler) => frame.on(e, handler),
+    off: (e, handler) => frame.off(e, handler),
+    once: (e, handler) => frame.once(e, handler),
+    addListener: NotSupportFunction,
+    removeListener: NotSupportFunction,
+    emit: (k, e) => frame.emit(k, e),
+    removeAllListeners: (type) => frame.removeAllListeners(type),
+    listenerCount: (type) => frame.listenerCount(type),
   }
 })

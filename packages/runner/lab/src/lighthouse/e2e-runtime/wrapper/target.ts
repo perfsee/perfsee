@@ -28,7 +28,7 @@ export const targetWrapper: Wrapper<Target> = createWrapper<Target>('Target', (t
     browser: () => browserWrapper.wrap(target.browser(), options),
     browserContext: NotSupportFunction,
     createCDPSession: NotSupportFunction,
-    opener: () => targetWrapper.wrapOrNull(target.opener(), options),
+    opener: () => targetWrapper.wrapOrNull(target.opener() || null, options) || undefined,
     page: async () => pageWrapper.wrapOrNull(await target.page(), options),
     type: () => target.type(),
     url: () => target.url(),

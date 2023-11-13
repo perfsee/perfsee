@@ -14,30 +14,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { onRequestFactory, Driver } from '../../helpers'
+import { onRequestFactory } from '../../helpers'
 
-export class RequestInterception implements LH.PerfseeGathererInstance {
-  name = 'RequestInterception' as const
+import { GathererInstance } from './gatherer'
+
+export class RequestInterception extends GathererInstance {
   private requestHandler?: (...params: any) => any
 
-  constructor(private readonly headersWithHost?: Record<string, Record<string, string>>) {}
+  constructor(private readonly headersWithHost?: Record<string, Record<string, string>>) {
+    super()
+  }
 
-  async beforePass(ctx: LH.Gatherer.PassContext) {
-    const driver = ctx.driver as Driver
+  async startInstrumentation(ctx: LH.Gatherer.Context) {
+    const driver = ctx.driver.defaultSession
 
-    const onRequest = onRequestFactory(ctx.url, this.headersWithHost, driver)
+    const onRequest = onRequestFactory(ctx.page!.url(), this.headersWithHost, driver)
 
     this.requestHandler = onRequest
     driver.on('Fetch.requestPaused', onRequest)
     await driver.sendCommand('Fetch.enable', { patterns: [{ urlPattern: '*' }] })
   }
 
-  pass() {}
-
-  async afterPass(ctx: LH.Gatherer.PassContext) {
-    await ctx.driver.sendCommand('Fetch.disable')
-    await ctx.driver.off('Fetch.requestPaused', this.requestHandler)
+  async stopInstrumentation(ctx: LH.Gatherer.Context) {
+    await ctx.driver.defaultSession.sendCommand('Fetch.disable')
+    ctx.driver.defaultSession.off('Fetch.requestPaused', this.requestHandler!)
     this.requestHandler = undefined
-    return null
+  }
+
+  getArtifact() {
+    return {}
   }
 }

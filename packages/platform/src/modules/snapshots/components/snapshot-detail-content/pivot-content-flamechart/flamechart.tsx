@@ -131,7 +131,9 @@ export const FlamechartView: React.FunctionComponent<{
     const reactTimeOffset = useMemo(() => {
       return (
         (userTimings
-          ? userTimings.find((timing) => timing.name.startsWith('--schedule-render'))?.timestamp ?? 10000
+          ? userTimings.find(
+              (timing) => timing.name.startsWith('--schedule-render') || timing.name.startsWith('--render-start-1'),
+            )?.timestamp ?? 10000
           : 10000) - 10000
       )
     }, [userTimings])

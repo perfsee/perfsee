@@ -19,14 +19,13 @@ import { join, dirname, basename } from 'path'
 
 import lighthouseLogger from 'lighthouse-logger'
 import { groupBy, mapValues } from 'lodash'
-import puppeteer from 'puppeteer-core'
+import { Target } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker, clearProxyCache, startProxyServer } from '@perfsee/job-runner-shared'
 import { LabJobPayload } from '@perfsee/server-common'
 import {
   CookieType,
-  LHStoredSchema,
   LighthouseScoreMetric,
   LocalStorageType,
   MetricKeyType,
@@ -79,16 +78,16 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.wrapLighthouseLogger()
     const lhResult = await this.runLighthouse()
 
-    const { lhr, artifacts } = lhResult
+    const { artifacts, lhr } = lhResult
 
     this.logger.info(`Actual benchmark index: ${lhr.environment.benchmarkIndex}`)
 
-    const screencastStorageKey = await this.uploadScreencast(artifacts.Screencast)
+    const screencastStorageKey = await this.uploadScreencast(artifacts.Screencast || null)
 
     let failedReason = artifacts.PageLoadError?.friendlyMessage?.formattedDefault
 
     // format request data
-    const devtoolsLog = artifacts.devtoolsLogs.defaultPass
+    const devtoolsLog = artifacts.DevtoolsLog
     if (!devtoolsLog && !failedReason) {
       failedReason = `No artifacts result. Please check if the url '${this.payload.url}' in this env is accessible.`
       // `devtoolsLogs.defaultPass` doesn't exist when the page is not found(404).
@@ -109,7 +108,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const scripts = this.getScripts(requests)
     const userTimings = this.getUserTimings(artifacts, requestsBaseTimestamp)
     const metrics = this.getMetrics(lhr)
-    const { traceData, timings } = this.computeMainThreadTask(lhr, artifacts)
+    const { traceData, timings } = await this.computeMainThreadTask(lhr, artifacts)
     // format overview render timeline data
     // @ts-expect-error
     const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
@@ -139,7 +138,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     // hiding network-requests
     // @ts-expect-error
-    lhr.audits['network-requests'] = {}
+    lhr.audits['network-requests-custom'] = {}
 
     // hide user timings
     // @ts-expect-error
@@ -161,7 +160,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             metricScores,
             userTimings,
             scripts,
-          } as LHStoredSchema),
+          }),
         ),
       )
     } catch (e) {
@@ -358,7 +357,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     const browser = await createBrowser({ enableProxy })
 
-    browser.on('targetcreated', (e: puppeteer.Target) => {
+    browser.on('targetcreated', (e: Target) => {
       const setup = async () => {
         const page = await e.page()
         if (!page) {
@@ -470,7 +469,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             const inputFile = join(tmpDir, `${i}-artifacts.json`)
             await writeFile(inputFile, JSON.stringify(lhResult))
           } else {
-            result = lhResult
+            result = lhResult as LH.PerfseeRunnerResult
           }
         }
 
@@ -579,7 +578,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   private async uploadTraceEvents(artifacts: LH.Artifacts) {
-    const { traceEvents } = artifacts.traces['defaultPass']
+    const { traceEvents } = artifacts.Trace
 
     const traceEventsFile = `trace-events/${uuid()}.json`
     try {
@@ -590,11 +589,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   private getRequests(lhResult: LH.Result) {
-    // @ts-expect-error
-    const networkRequestsAuditsResult = (lhResult.audits['network-requests']?.details?.items ?? []).filter(
-      // requests with status code < 0 are blocked by browser
-      (req: RequestSchema) => req.statusCode > 0,
-    )
+    const networkRequestsAuditsResult =
+      // @ts-expect-error
+      (lhResult.audits['network-requests-custom']?.details?.items ?? []).filter(
+        // requests with status code < 0 are blocked by browser
+        (req: RequestSchema) => req.statusCode > 0,
+      )
     const requestsBaseTimestamp = networkRequestsAuditsResult[0].baseTimestamp
     const requests = networkRequestsAuditsResult.map((item: any) => {
       delete item.baseTimestamp
@@ -607,7 +607,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   private getUserTimings(artifacts: LH.Artifacts, baseTimestamp: number) {
-    const { traceEvents } = artifacts.traces['defaultPass']
+    const { traceEvents } = artifacts.Trace
     const userTimings = mapValues(
       groupBy(
         traceEvents.filter((e: any) => e.cat === 'blink.user_timing'),
@@ -654,10 +654,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return results
   }
 
-  private computeMainThreadTask(lhResult: LH.Result, artifacts: LH.Artifacts) {
+  private async computeMainThreadTask(lhResult: LH.Result, artifacts: LH.Artifacts) {
     // format execution timeline data
-    const trace = artifacts['traces']['defaultPass']
-    const { tasks, timings } = computeMainThreadTasksWithTimings(trace)
+    const trace = artifacts.Trace
+    const { tasks, timings } = await computeMainThreadTasksWithTimings(trace)
     const tti = getTTI(lhResult)
     const traceData = slimTraceData(tasks, Number.isFinite(tti) ? tti + 5000 : 1000 * 20)
     return {

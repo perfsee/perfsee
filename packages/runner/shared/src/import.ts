@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './utils'
-export * from './request-interceptor'
-export * from './devices'
-export * from './network'
-export * from './browser'
-export * from './react'
+export function dynamicImport(specifier: string): Promise<any> {
+  // eslint-disable-next-line
+  return new Function('specifier', 'return import(specifier)')(specifier)
+}
