@@ -53,7 +53,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.3.0",
+    "@faker-js/faker": "^8.0.0",
     "@nestjs/serve-static": "^3.0.1",
     "@perfsee/schema": "workspace:*",
     "@perfsee/server-common": "workspace:*",

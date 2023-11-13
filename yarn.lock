@@ -4036,10 +4036,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^7.3.0":
-  version: 7.3.0
-  resolution: "@faker-js/faker@npm:7.3.0"
-  checksum: ef5b64af30ce0ec76cb22798fbbe50184946fac389b4d81235f9d8d9eaaa77d67a80f46954fa993996b7c774bae23314529a95a42a6b68794f0795976c9be82b
+"@faker-js/faker@npm:^8.0.0":
+  version: 8.2.0
+  resolution: "@faker-js/faker@npm:8.2.0"
+  checksum: febc17018acfb841a348591bfe415e815ea981bf7fa0a12670ac2b449479ad7e9e7b130c42878ec30210da964c13a620a3303dc00d63cb13ded00c6fc701e2be
   languageName: node
   linkType: hard
 
@@ -7958,7 +7958,7 @@ __metadata:
     "@apollo/server": ^4.6.0
     "@aws-sdk/client-s3": ^3.449.0
     "@aws-sdk/lib-storage": ^3.449.0
-    "@faker-js/faker": ^7.3.0
+    "@faker-js/faker": ^8.0.0
     "@nestjs/apollo": ^11.0.5
     "@nestjs/common": ^9.4.0
     "@nestjs/core": ^9.4.0
