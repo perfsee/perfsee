@@ -22,7 +22,9 @@ function isMixedAsset(asset: Asset) {
   let sourceCodeExists = false
   let libsExist = false
   asset.modules.forEach((m) => {
-    if (m.ignored) {
+    // in some circumstances, a module may have no path. e.g. `vite/dynamic-import-helper`
+    // usually those codes are injected by bundlers or plugins.
+    if (m.ignored || !m.path) {
       return
     }
 
