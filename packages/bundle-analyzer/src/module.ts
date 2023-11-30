@@ -138,6 +138,11 @@ export function getPackageMeta(modulePath: string, repoPath: string, buildPath: 
 
   const realPath = trimModuleName(modulePath)
 
+  // not like a true file path
+  if (!realPath.includes('/') && !realPath.includes('.')) {
+    return null
+  }
+
   const path = resolvePathFunctions(buildPath)
   const nodeModulePath = resolveNodeModulePath(path.resolve(buildPath, realPath), repoPath)
 
