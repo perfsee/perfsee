@@ -113,7 +113,7 @@ const getContentFromType = (type: string, content: any) => {
         />
       )
     case 'numeric':
-      return content
+      return content?.value ?? content
     default:
       return typeof content !== 'object' ? String(content) : ''
   }
@@ -154,9 +154,14 @@ export const LabAuditDetailWithPanel = ({ details }: DetailProps) => {
     return null
   }
 
-  return (
-    <CollapsiblePanel header="Detail">
-      <LabAuditDetail details={details} />
-    </CollapsiblePanel>
-  )
+  // @ts-expect-error
+  const detail = details.headings?.length ? (
+    <LabAuditDetail details={details} />
+  ) : // @ts-expect-error
+  details?.items?.[0]?.items ? (
+    // @ts-expect-error
+    details.items.map((item, i) => <LabAuditDetail details={item} key={i} />)
+  ) : null
+
+  return <CollapsiblePanel header="Detail">{detail}</CollapsiblePanel>
 }
