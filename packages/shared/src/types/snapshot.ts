@@ -153,6 +153,8 @@ export type LHStoredSchema = {
   userTimings?: UserTimingSchema[]
   lighthouseVersion?: string
   scripts?: { fileName: string }[]
+  entities?: LH.Result.Entities
+  fullPageScreenshot?: LH.Result.FullPageScreenshot
 }
 
 export interface DomNode {

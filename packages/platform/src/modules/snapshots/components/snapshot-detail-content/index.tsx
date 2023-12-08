@@ -36,9 +36,9 @@ import {
   FlamechartTab,
   SourceCoverageTab,
   UserFlowTab,
-  ReportTab,
   ReactTab,
   SourceStatisticsTab,
+  LogTab,
 } from '../../utils/format-lighthouse'
 import { LoadingShimmer } from '../loading-shimmer'
 
@@ -107,7 +107,6 @@ const overviewPivot = <PivotItem itemKey={OverviewTab.id} key={OverviewTab.id} h
 const userFlowPivot = <PivotItem itemKey={UserFlowTab.id} key={UserFlowTab.id} headerText={UserFlowTab.title} />
 const breakdownPivot = <PivotItem itemKey={BreakdownTab.id} key={BreakdownTab.id} headerText={BreakdownTab.title} />
 const assetPivot = <PivotItem itemKey={AssetTab.id} key={AssetTab.id} headerText={AssetTab.title} />
-const analysisPivot = <PivotItem itemKey={ReportTab.id} key={ReportTab.id} headerText={ReportTab.title} />
 const flamechartPivot = <PivotItem itemKey={FlamechartTab.id} key={FlamechartTab.id} headerText={FlamechartTab.title} />
 const flamechartLoadingPivot = (
   <PivotItem
@@ -121,6 +120,7 @@ const sourceCoveragePivot = (
   <PivotItem itemKey={SourceCoverageTab.id} key={SourceCoverageTab.id} headerText={SourceCoverageTab.title} />
 )
 const reactPivot = <PivotItem itemKey={ReactTab.id} key={ReactTab.id} headerText={ReactTab.title} />
+const logPivot = <PivotItem itemKey={LogTab.id} key={LogTab.id} headerText={LogTab.title} />
 const sourceCoverageLoadingPivot = (
   <PivotItem
     itemKey={SourceCoverageTab.id}
@@ -175,8 +175,8 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
           {sourceStatisticsPivot}
           {report.flameChartLink ? flamechartPivot : sourceOnGoing ? flamechartLoadingPivot : undefined}
           {report.sourceCoverageLink ? sourceCoveragePivot : sourceOnGoing ? sourceCoverageLoadingPivot : undefined}
-          {page?.isE2e ? undefined : analysisPivot}
           {report.reactProfileLink ? reactPivot : undefined}
+          {logPivot}
         </Pivot>
         <PivotContent snapshot={detail} type={tabName} />
         <LighthouseBrand tokens={{ childrenGap: 8 }} horizontal horizontalAlign="center" verticalAlign="center">

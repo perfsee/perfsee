@@ -49,7 +49,7 @@ export function useElementSize(element: RefObject<HTMLElement> | HTMLElement | W
       }
     }
     window.addEventListener('resize', update)
-    update()
+    setTimeout(update)
     return () => window.removeEventListener('resize', update)
   }, [element])
 

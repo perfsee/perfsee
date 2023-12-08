@@ -14,58 +14,55 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack, Link } from '@fluentui/react'
-import { stringifyUrl } from 'query-string'
+import { Stack } from '@fluentui/react'
+import { ArrowUpRightIcon } from '@fluentui/react-icons-mdl2'
 import { PropsWithChildren, ReactNode, useCallback, useMemo } from 'react'
 import { useHistory, useParams } from 'react-router'
 
+import { useQueryString, useWideScreen } from '@perfsee/components'
 import { ChartHeader } from '@perfsee/components/chart'
-import { LighthouseScoreType } from '@perfsee/shared'
 import { RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
-import { SnapshotDetailType, SnapshotUserFlowDetailType } from '../../../snapshot-type'
+import { AnalysisReportTabType, SnapshotDetailType, SnapshotUserFlowDetailType } from '../../../snapshot-type'
 import { isLHCalculator } from '../../../utils/is-lh-calculator'
 import { ExecutionTimeline } from '../../chart'
 import { AssetTransferred } from '../pivot-content-asset/asset-transferred'
+import { AnalysisReportContent } from '../pivot-content-performance'
 
+import { LHScore, ScoreCircle } from './lh-score'
 import { LighthouseScoreBlock } from './lighthouse-score-block'
 import { RenderTimeline } from './render-timeline'
 import { SnapshotVideo } from './render-video'
 import {
   OverviewZoneContent,
   OverviewZoneTitle,
-  ColorScore,
-  ScoreContainer,
-  OverviewScoreWrap,
   RenderTimelineHead,
+  OverviewMainBlock,
+  OverviewMainBlockSeparator,
+  OverviewMainBlockContainer,
+  PivotOverviewPartition,
+  PivotReportPartition,
+  LHMetricScoreContainer,
+  OperationButton,
 } from './style'
-import { getCategoryCount } from './util'
 
 type Props = {
   snapshot: SnapshotDetailType | SnapshotUserFlowDetailType
 }
 
-const metricInsightStyle = { margin: '-20px 16px 1px', fontSize: 12 }
-
-export const OverviewPivotContent = (props: Props) => {
-  const { traceData, timings, metricScores, timelines, categories, audits } = props.snapshot
+export const OverviewContent = (props: Props) => {
+  const { traceData, timings, metricScores, timelines, categories } = props.snapshot
   const report = 'report' in props.snapshot ? props.snapshot.report : null
   const { projectId, reportId } = useParams<RouteTypes['project']['lab']['report']>()
   const history = useHistory()
+  const [{ category = AnalysisReportTabType.Performance }] = useQueryString<{ category?: string }>()
 
-  const onLCPClick = useCallback(() => {
-    history.push(
-      stringifyUrl({
-        url: pathFactory.project.lab.report({
-          projectId,
-          reportId,
-          tabName: 'flamechart',
-        }),
-        query: {
-          insight: 'lcp',
-        },
-      }),
-    )
+  const goToFlamechart = useCallback(() => {
+    history.push(pathFactory.project.lab.report({ projectId, reportId, tabName: 'flamechart' }))
+  }, [history, projectId, reportId])
+
+  const goToAssets = useCallback(() => {
+    history.push(pathFactory.project.lab.report({ projectId, reportId, tabName: 'asset' }))
   }, [history, projectId, reportId])
 
   const [scores, otherScores] = useMemo(() => {
@@ -76,60 +73,35 @@ export const OverviewPivotContent = (props: Props) => {
     const others = []
     for (const detail of metricScores) {
       if (isLHCalculator(detail.id, categories?.performance)) {
-        if (LighthouseScoreType.LCP === detail.id) {
-          scores.push(
-            <Stack key={detail.id}>
-              <LighthouseScoreBlock key={detail.id} detail={detail} colorful={true} />
-              {(detail.score ?? 0) < 90 &&
-                // @ts-expect-error
-                audits['cause-for-lcp']?.details?.items?.[0] && (
-                  <Link style={metricInsightStyle} onClick={onLCPClick}>
-                    why slow
-                  </Link>
-                )}
-            </Stack>,
-          )
-        } else {
-          scores.push(<LighthouseScoreBlock key={detail.id} detail={detail} colorful={true} />)
-        }
+        scores.push(
+          <Stack styles={{ root: { position: 'relative' } }} key={detail.id}>
+            <LighthouseScoreBlock detail={detail} colorful={true} />
+            <Stack styles={{ root: { position: 'absolute', right: 16, bottom: 20 } }}>
+              <ScoreCircle score={detail.score} size={28} fontSize={14} />
+            </Stack>
+          </Stack>,
+        )
       } else {
         others.push(<LighthouseScoreBlock key={detail.id} detail={detail} />)
       }
     }
     return [scores, others]
-  }, [metricScores, categories, onLCPClick, audits])
+  }, [metricScores, categories])
 
   return (
     <Stack tokens={{ childrenGap: '24px' }}>
-      <OverviewZone padding={true}>
-        <AssetTransferred chartType="donut" requests={props.snapshot.requests} />
-        <OverviewScoreWrap>
-          {categories &&
-            Object.values(categories).map((tab) => {
-              const { passed, opportunity, notApply } = getCategoryCount(audits, tab.auditRefs)
-              return (
-                <ScoreContainer key={tab.id}>
-                  <b>{tab.title}</b>
-                  <ColorScore score={tab.score} size={36}>
-                    {tab.score ? Math.round(tab.score * 100) : '-'}
-                  </ColorScore>
-                  <p>
-                    Opportunities: <b>{opportunity}</b>
-                  </p>
-                  <p>
-                    Not applicable: <b>{notApply}</b>
-                  </p>
-                  <p>
-                    Passed audits: <b>{passed}</b>
-                  </p>
-                </ScoreContainer>
-              )
-            })}
-        </OverviewScoreWrap>
-      </OverviewZone>
+      <OverviewMainBlockContainer horizontal horizontalAlign="space-around" verticalAlign="center">
+        <OverviewMainBlock style={{ flex: '1 1 40%' }}>
+          <LHScore category={categories?.[category] ?? ({} as LH.Result.Category)} />
+        </OverviewMainBlock>
+        <OverviewMainBlockSeparator />
+        <OverviewMainBlock verticalAlign="center" style={{ padding: '12px 24px' }}>
+          <SnapshotVideo video={report?.screencastLink ?? undefined} cover={timelines?.slice(-1)?.[0].data} />
+        </OverviewMainBlock>
+      </OverviewMainBlockContainer>
       {!!scores.length && (
-        <OverviewZone title="Performance Metrics" padding={false}>
-          {scores}
+        <OverviewZone title="Performance Metrics" padding={false} bordered={false}>
+          <LHMetricScoreContainer>{scores}</LHMetricScoreContainer>
         </OverviewZone>
       )}
       {!!otherScores.length && (
@@ -137,33 +109,62 @@ export const OverviewPivotContent = (props: Props) => {
           {otherScores}
         </OverviewZone>
       )}
-      {!!timelines?.length && (
-        <OverviewZone
-          bordered={false}
-          title={
-            <RenderTimelineHead>
-              <b>Render Timeline</b>
-              {report?.screencastLink && <SnapshotVideo video={report.screencastLink} />}
-            </RenderTimelineHead>
-          }
-        >
-          <RenderTimeline timelines={timelines} />
-        </OverviewZone>
-      )}
 
-      {traceData && (
+      <Stack styles={{ root: { position: 'sticky', top: 128 } }} tokens={{ childrenGap: '28px' }}>
+        {!!timelines?.length && (
+          <OverviewZone
+            bordered={false}
+            title={
+              <RenderTimelineHead>
+                <b>Render Timeline</b>
+              </RenderTimelineHead>
+            }
+          >
+            <RenderTimeline timelines={timelines} />
+          </OverviewZone>
+        )}
+
+        {traceData && (
+          <OverviewZone
+            title={
+              <Stack horizontal horizontalAlign="space-between" verticalAlign="center">
+                <ChartHeader
+                  title="Main thread execution timeline"
+                  desc="Blocking tasks that took more than 50ms to execute during page load."
+                />
+                <Stack verticalAlign="center">
+                  <OperationButton onClick={goToFlamechart}>
+                    View in flamechart <ArrowUpRightIcon />
+                  </OperationButton>
+                </Stack>
+              </Stack>
+            }
+            bordered={false}
+          >
+            <ExecutionTimeline tasks={traceData} timings={timings} />
+          </OverviewZone>
+        )}
+
         <OverviewZone
           title={
-            <ChartHeader
-              title="Main thread execution timeline"
-              desc="Blocking tasks that took more than 50ms to execute during page load."
-            />
+            <Stack horizontal horizontalAlign="space-between">
+              <RenderTimelineHead>
+                <b>Assets transferred by type</b>
+              </RenderTimelineHead>
+              <Stack verticalAlign="center">
+                <OperationButton onClick={goToAssets}>
+                  View in assets <ArrowUpRightIcon />
+                </OperationButton>
+              </Stack>
+            </Stack>
           }
           bordered={false}
         >
-          <ExecutionTimeline tasks={traceData} timings={timings} />
+          <Stack grow={1}>
+            <AssetTransferred requests={props.snapshot.requests} title="" />
+          </Stack>
         </OverviewZone>
-      )}
+      </Stack>
     </Stack>
   )
 }
@@ -189,5 +190,20 @@ const OverviewZone = ({
         {children}
       </OverviewZoneContent>
     </div>
+  )
+}
+
+export const OverviewPivotContent = (props: Props) => {
+  useWideScreen()
+
+  return (
+    <Stack horizontal horizontalAlign="space-between">
+      <PivotOverviewPartition>
+        <OverviewContent {...props} />
+      </PivotOverviewPartition>
+      <PivotReportPartition>
+        <AnalysisReportContent {...props} />
+      </PivotReportPartition>
+    </Stack>
   )
 }

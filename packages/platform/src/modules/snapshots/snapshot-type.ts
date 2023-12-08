@@ -52,6 +52,7 @@ export enum PerformanceTabType {
   Report = 'analysis-report',
   Flamechart = 'flamechart',
   SourceCoverage = 'source-coverage',
+  Log = 'log',
   SourceStatistics = 'source-statistics',
   Breakdown = 'breakdown', // for multi reports
   React = 'react', // for react profile
@@ -78,6 +79,8 @@ export type SnapshotDetailType = {
   userFlow?: SnapshotUserFlowDetailType[]
   userTimings?: UserTimingSchema[]
   lighthouseVersion?: string
+  entities?: LH.Result.Entities
+  fullPageScreenshot?: LH.Result.FullPageScreenshot
 }
 
 export type SnapshotUserFlowDetailType = Omit<SnapshotDetailType, 'userFlow' | 'report'> & {
@@ -91,6 +94,7 @@ export enum LighthouseGroupType {
   manual = 'manual',
   passed = 'passed',
   notApply = 'notApply',
+  diagnostic = 'diagnostic',
 }
 
 export type LighthouseAudit = LH.Audit.Result & {

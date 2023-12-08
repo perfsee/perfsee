@@ -21,13 +21,14 @@ import { FC, memo, createRef, useState, useCallback } from 'react'
 import { useToggleState } from '@perfsee/components'
 import { formatTime } from '@perfsee/platform/common'
 
-import { VideoButton, VideoTime } from './style'
+import { VideoButton, VideoTime, VideoContainer } from './style'
 
 type VideoProps = {
-  video: string
+  video?: string
+  cover?: string // base64
 }
 
-export const SnapshotVideo: FC<VideoProps> = memo(({ video }) => {
+export const SnapshotVideo: FC<VideoProps> = memo(({ video, cover }) => {
   const videoRef = createRef<HTMLVideoElement>()
   const [videoTime, setVideoTime] = useState<number>(0)
   const [visible, show, hide] = useToggleState(false)
@@ -43,16 +44,25 @@ export const SnapshotVideo: FC<VideoProps> = memo(({ video }) => {
 
   return (
     <>
-      <VideoButton onClick={show}>
-        <PlayCircleFilled />
-        Render video
-      </VideoButton>
+      <VideoContainer>
+        <img src={cover} />
+        <VideoButton onClick={show}>
+          <PlayCircleFilled style={{ fontSize: '2.5rem' }} />
+        </VideoButton>
+      </VideoContainer>
       <Modal
         isOpen={visible}
         onDismiss={hide}
         styles={{ main: { minWidth: 'auto' }, scrollableContent: { display: 'flex' } }}
       >
-        <video ref={videoRef} onTimeUpdate={onTimeUpdate} controls src={video} style={{ cursor: 'pointer' }} />
+        <video
+          ref={videoRef}
+          onTimeUpdate={onTimeUpdate}
+          controls
+          src={video}
+          style={{ cursor: 'pointer', height: '62vh' }}
+          autoPlay={visible}
+        />
         <VideoTime>
           {formatted.value}
           {formatted.unit}

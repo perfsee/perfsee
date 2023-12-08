@@ -198,7 +198,6 @@ export const ExecutionTimeline: React.FunctionComponent<Props> = ({ tasks, timin
           disableDetailView
           timings={timings}
           bottomPadding={1.25}
-          hiddenFrameLabels
           theme={flamechartTheme}
           disableSearchBox
         />

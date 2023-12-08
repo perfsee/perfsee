@@ -22,7 +22,7 @@ import { NeutralColors } from '@perfsee/dls'
 
 const Header = styled.div<{ spaceBetween?: boolean }>(({ spaceBetween }) => ({
   fontWeight: 500,
-  padding: '12px 0',
+  padding: '6px 0',
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
