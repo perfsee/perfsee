@@ -67,7 +67,7 @@ export const auditJumps: Record<string, JumpProps> = {
         tabName: 'assets',
       }),
   },
-  'bootup-time': {
+  'long-tasks': {
     text: (
       <>
         View sources <ArrowUpRightIcon />
