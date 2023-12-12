@@ -15,11 +15,31 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { Pivot, SharedColors } from '@fluentui/react'
+import {
+  CommandButton,
+  CommunicationColors,
+  DefaultButton,
+  NeutralColors,
+  Pivot,
+  SharedColors,
+  Stack,
+} from '@fluentui/react'
 
 export const AuditTitle = styled.h3({
-  paddingTop: '16px',
-  marginLeft: '20px',
+  padding: '16px 0 0 16px',
+  display: 'flex',
+  alignItems: 'self-start',
+
+  '& > button': {
+    height: '26px',
+    color: CommunicationColors.shade10,
+    marginLeft: 12,
+  },
+
+  '&:not(:has(+div))': {
+    paddingBottom: 16,
+    borderBottom: `1px solid ${NeutralColors.gray40}`,
+  },
 })
 
 export const StyledPivot = styled(Pivot)(({ theme }) => ({
@@ -49,3 +69,36 @@ export const StyledPivot = styled(Pivot)(({ theme }) => ({
     },
   },
 }))
+
+export const RelevantChoiceContainer = styled(Stack)({
+  height: 56,
+  position: 'absolute',
+  right: 12,
+
+  '& > label': {
+    color: NeutralColors.gray120,
+    marginRight: 12,
+  },
+})
+
+export const RelevantChoiceButton = styled(CommandButton)({
+  height: 24,
+  '&.selected': {
+    backgroundColor: CommunicationColors.tint10,
+    color: NeutralColors.white,
+  },
+})
+
+export const AuditJumpButton = styled(DefaultButton)({
+  height: 20,
+  fontWeight: 300,
+  padding: 6,
+  borderRadius: 12,
+  whiteSpace: 'pre',
+
+  span: {
+    fontWeight: 400,
+    fontSize: 12,
+    color: CommunicationColors.tint10,
+  },
+})

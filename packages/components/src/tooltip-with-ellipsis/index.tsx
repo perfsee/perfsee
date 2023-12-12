@@ -33,7 +33,7 @@ export const TooltipWithEllipsis: FC<Props> = ({ content, tooltipContent, always
         root: {
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
+          whiteSpace: 'normal',
           display: 'block',
         },
       }}

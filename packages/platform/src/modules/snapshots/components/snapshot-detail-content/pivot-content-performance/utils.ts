@@ -24,32 +24,41 @@ export const getGroupedAuditLists = (
   hideRelevant?: boolean,
 ) => {
   const result: Record<LighthouseGroupType, LighthouseAudit[]> = {
-    [LighthouseGroupType.passed]: [], // score >= 0.9
     [LighthouseGroupType.opportunity]: [], //  0 <= score < 0.9
-    [LighthouseGroupType.notApply]: [],
+    [LighthouseGroupType.diagnostic]: [],
     [LighthouseGroupType.manual]: [],
+    [LighthouseGroupType.passed]: [], // score >= 0.9
+    [LighthouseGroupType.notApply]: [],
   }
 
   const relevantAuditMap = new Map<string, string[]>()
+  const auditRelevantMap = new Map<string, string[]>()
 
   if (!auditRefs || !auditRefs.length) {
-    return result
+    return { result, relevantAuditMap }
   }
 
   auditRefs.forEach((ref) => {
     if (!ref.relevantAudits || hideRelevant) return
 
     ref.relevantAudits.forEach((id) => {
-      const arr = relevantAuditMap.get(id) ?? []
+      const arr = auditRelevantMap.get(id) ?? []
       ref.acronym && arr.push(ref.acronym)
-      relevantAuditMap.set(id, arr)
+      auditRelevantMap.set(id, arr)
+      arr.forEach((r) => {
+        if (!relevantAuditMap.has(r)) {
+          relevantAuditMap.set(r, [])
+        }
+
+        relevantAuditMap.get(r)!.push(id)
+      })
     })
   })
 
   auditRefs.forEach((ref) => {
     const item = audits[ref.id] as LighthouseAudit
     if (!hideRelevant) {
-      item.relevant = relevantAuditMap.get(ref.id)
+      item.relevant = auditRelevantMap.get(ref.id)
     }
 
     if (typeof item.score !== 'number') {
@@ -59,6 +68,9 @@ export const getGroupedAuditLists = (
       if (item.scoreDisplayMode === 'manual') {
         result[LighthouseGroupType.manual].push(item)
       }
+      if (item.scoreDisplayMode === 'informative' && (item.displayValue || item.metricSavings || item.explanation)) {
+        result[LighthouseGroupType.diagnostic].push(item)
+      }
     } else if (item.score >= 0.9) {
       result[LighthouseGroupType.passed].push(item)
     } else if (item.score < 0.9 && item.details) {
@@ -66,5 +78,5 @@ export const getGroupedAuditLists = (
     }
   })
 
-  return result
+  return { result, relevantAuditMap }
 }

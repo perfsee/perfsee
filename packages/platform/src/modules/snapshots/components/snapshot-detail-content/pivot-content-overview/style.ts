@@ -15,45 +15,20 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { Stack } from '@fluentui/react'
-import { NeutralColors } from '@fluentui/theme'
+import { DefaultButton, Stack } from '@fluentui/react'
+import { CommunicationColors, NeutralColors, SharedColors } from '@fluentui/theme'
 
-import { getScoreColor } from '@perfsee/components'
-import { darken } from '@perfsee/dls'
-
-export const ScoreContainer = styled(Stack)(({ theme }) => ({
-  alignSelf: 'flex-start',
-  flex: 1,
-  padding: '0 20px',
-  borderLeft: `1px solid ${theme.border.color}`,
-  '> div': {
-    width: '100%',
-  },
-  p: {
-    display: 'inline-flex',
-    justifyContent: 'space-between',
-    paddingBottom: '4px',
-    fontSize: '12px',
-    color: theme.text.colorSecondary,
-    '> b': {
-      color: darken(theme.text.colorSecondary, 0.2),
-    },
-  },
-}))
-
-export const ColorScore = styled.b<{ score?: number | null; size?: number }>(({ score, size, theme }) => {
-  let color = NeutralColors.black
-  if (typeof score === 'number') {
-    color = getScoreColor(score * 100)
-  }
-
+export const LHMetricScoreContainer = styled.div(({ theme }) => {
   return {
-    fontSize: size,
-    color,
-    '> span': {
-      fontSize: '18px',
-      color: darken(theme.text.colorSecondary, 0.3),
-      fontWeight: 400,
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 24,
+
+    '& > div': {
+      flex: '0 0 206px',
+      border: `1px solid ${theme.border.color}`,
     },
   }
 })
@@ -87,6 +62,10 @@ export const VideoButton = styled.span(({ theme }) => ({
   '> span': {
     paddingRight: '4px',
   },
+
+  '&:hover': {
+    filter: 'brightness(1.4)',
+  },
 }))
 
 export const VideoTime = styled.div({
@@ -113,12 +92,6 @@ export const TimelineRow = styled.div({
   overflowX: 'auto',
 })
 
-export const OverviewScoreWrap = styled.div({
-  flexGrow: 1,
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
-})
-
 export const RenderTimelineHead = styled.div({
   display: 'flex',
 
@@ -126,3 +99,173 @@ export const RenderTimelineHead = styled.div({
     flexGrow: 1,
   },
 })
+
+export const VideoContainer = styled.div({
+  padding: 8,
+  borderRadius: '4px',
+  border: `1px solid ${NeutralColors.gray50}`,
+  position: 'relative',
+  height: 'auto',
+  maxHeight: '100%',
+  width: '100%',
+  maxWidth: 'fit-content',
+
+  '& > img': {
+    height: '100%',
+    width: '100%',
+  },
+
+  '& > span': {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
+})
+
+export const OverviewMainBlockSeparator = styled.div({
+  width: 1,
+  height: 120,
+  background: NeutralColors.gray50,
+  margin: '0 48px',
+})
+
+export const LHGauge = styled.svg({
+  strokeLinecap: 'round',
+})
+
+export const LHGaugeContainer = styled(Stack)({
+  position: 'relative',
+  '&.fail': {
+    color: SharedColors.red10,
+    stroke: SharedColors.red10,
+    fill: SharedColors.red10,
+  },
+  '&.average': {
+    color: SharedColors.orange20,
+    stroke: SharedColors.orange10,
+    fill: SharedColors.orange10,
+  },
+  '&.passed': {
+    color: SharedColors.greenCyan10,
+    stroke: SharedColors.greenCyan10,
+    fill: SharedColors.greenCyan10,
+  },
+  '&.unavalible': {
+    color: NeutralColors.gray110,
+    stroke: NeutralColors.gray110,
+    fill: NeutralColors.gray110,
+  },
+})
+
+export const LHGaugeBase = styled.circle({
+  opacity: 0.1,
+})
+
+export const LHGaugeArc = styled.circle({
+  fill: 'none',
+  transformOrigin: '50% 50%',
+})
+
+export const LHGaugePercentage = styled.div({
+  position: 'absolute',
+  lineHeight: 0,
+  textAlign: 'center',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+})
+
+export const LHGaugeLabel = styled.div({
+  fontSize: '1.5rem',
+  fontWeight: 500,
+})
+
+export const LHGaugeDescription = styled.div({
+  maxWidth: '80%',
+  color: NeutralColors.gray120,
+  fontSize: '0.8rem',
+})
+
+export const OverviewMainBlockContainer = styled(Stack)({
+  height: 300,
+})
+
+export const OverviewMainBlock = styled(Stack)({
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '24px 0 16px',
+  height: '100%',
+})
+
+export const LHGaugeScoreScale = styled.div({
+  fontSize: 12,
+  display: 'flex',
+  alignItems: 'center',
+  whiteSpace: 'nowrap',
+  justifyContent: 'space-around',
+  width: '450px',
+  verticalAlign: 'center',
+})
+
+export const LHGaugeScoreScaleFail = styled.span({
+  '&::before': {
+    content: '""',
+    width: 12,
+    height: 12,
+    display: 'inline-block',
+    margin: '0 14px 0 2px',
+    borderLeft: '6px solid transparent',
+    borderRight: '6px solid transparent',
+    borderBottom: `12px solid ${SharedColors.red10}`,
+    transform: 'translateY(1px)',
+  },
+})
+
+export const LHGaugeScoreScaleAverage = styled.span({
+  '&::before': {
+    content: '""',
+    width: 12,
+    height: 12,
+    display: 'inline-block',
+    margin: '0 14px 0 2px',
+    background: SharedColors.orange10,
+    transform: 'translateY(1px)',
+  },
+})
+
+export const LHGaugeScoreScalePassed = styled.span({
+  '&::before': {
+    content: '""',
+    width: 12,
+    height: 12,
+    display: 'inline-block',
+    margin: '0 14px 0 2px',
+    borderRadius: 12,
+    background: SharedColors.greenCyan10,
+    transform: 'translateY(1px)',
+  },
+})
+
+export const PivotOverviewPartition = styled(Stack)({
+  flex: 1,
+  minWidth: 900,
+  marginRight: 48,
+
+  '& > div': {
+    height: '100%',
+  },
+})
+
+export const PivotReportPartition = styled(Stack)({
+  flex: 1,
+})
+
+export const OperationButton = styled(DefaultButton)(({ theme }) => ({
+  borderColor: theme.text.colorSecondary,
+  whiteSpace: 'pre',
+
+  span: {
+    color: CommunicationColors.tint10,
+  },
+}))

@@ -45,6 +45,8 @@ import {
   SnapshotTrigger,
   setSnapshotHashMutation,
   deleteSnapshotReportMutation,
+  snapshotQuery,
+  SnapshotQuery,
 } from '@perfsee/schema'
 
 import { ProjectModule } from '../../shared'
@@ -230,6 +232,30 @@ export class LabListModule extends EffectModule<State> {
   }
 
   @Effect()
+  getSnapshot(payload$: Observable<{ snapshotId: number }>) {
+    return payload$.pipe(
+      withLatestFrom(this.projectModule.state$),
+      filter(([, { project }]) => !!project),
+      switchMap(([{ snapshotId }, { project }]) => {
+        return this.client
+          .query({
+            query: snapshotQuery,
+            variables: {
+              projectId: project!.id,
+              snapshotId,
+            },
+          })
+          .pipe(
+            createErrorCatcher('Failed to fetch snapshot'),
+            map((data) => {
+              return this.getActions().appendSnapshot(data.project.snapshot)
+            }),
+          )
+      }),
+    )
+  }
+
+  @Effect()
   rerunSnapshotReport(payload$: Observable<{ snapshotId: number; id: number }>) {
     return payload$.pipe(
       withLatestFrom(this.state$, this.projectModule.state$),
@@ -307,6 +333,11 @@ export class LabListModule extends EffectModule<State> {
   setSnapshots(state: Draft<State>, { pageInfo, edges }: SnapshotsQuery['project']['snapshots']) {
     state.snapshots = edges.map((edge) => this.formatSnapshotNode(edge.node))
     state.totalCount = pageInfo.totalCount
+  }
+
+  @ImmerReducer()
+  appendSnapshot(state: Draft<State>, snapshot: SnapshotQuery['project']['snapshot']) {
+    state.snapshots.push(this.formatSnapshotNode(snapshot))
   }
 
   @ImmerReducer()

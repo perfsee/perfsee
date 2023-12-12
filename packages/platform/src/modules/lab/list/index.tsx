@@ -115,22 +115,37 @@ type Props = {
 const SnapshotList: FC<Props> = (props) => {
   const [{ snapshots, reportsWithId, loading }, dispatcher] = useModule(LabListModule)
 
-  const [panelVisible, showPanel, hidePanel] = useToggleState(false)
-  const [activeSnapshotId, setActiveSnapshotId] = useState<number | null>(null)
+  const [{ snapshotId }, updateQueryString] = useQueryString<{ snapshotId?: string }>()
+  const [panelVisible, showPanel, hidePanel] = useToggleState(!!snapshotId)
+  const [activeSnapshotId, setActiveSnapshotId] = useState<number | null>(Number(snapshotId))
 
   const onClickItem = useCallback(
     (item: SnapshotSchema) => {
       setActiveSnapshotId(item.id)
       showPanel()
-
-      const snapshotId = item.id
-      const reports = (reportsWithId[snapshotId] as ReportsPayload<false>)?.reports
-      if (!reports?.length) {
-        dispatcher.getSnapshotReports(snapshotId)
-      }
     },
-    [dispatcher, reportsWithId, showPanel],
+    [showPanel],
   )
+
+  const onHidePanel = useCallback(() => {
+    setActiveSnapshotId(null)
+    hidePanel()
+  }, [hidePanel])
+
+  useEffect(() => {
+    updateQueryString({ snapshotId: activeSnapshotId ? `${activeSnapshotId}` : undefined })
+  }, [activeSnapshotId, updateQueryString])
+
+  useEffect(() => {
+    if (activeSnapshotId) {
+      if (!snapshots.find((s) => s.id === activeSnapshotId)) {
+        dispatcher.getSnapshot({ snapshotId: activeSnapshotId })
+      }
+      if (!(reportsWithId[activeSnapshotId] as ReportsPayload<false>)?.reports?.length) {
+        dispatcher.getSnapshotReports(activeSnapshotId)
+      }
+    }
+  }, [activeSnapshotId, dispatcher, reportsWithId, snapshotId, snapshots])
 
   if (loading) {
     return <CardsShimmer size={SNAPSHOT_PAGE_SIZE} />
@@ -159,7 +174,7 @@ const SnapshotList: FC<Props> = (props) => {
           <SnapshotItem key={snapshot.id} item={snapshot} onClick={onClickItem} />
         ))}
       </SnapshotListWrap>
-      <SnapshotDrawer visible={panelVisible} snapshotId={activeSnapshotId} onClose={hidePanel} />
+      <SnapshotDrawer visible={panelVisible} snapshotId={activeSnapshotId} onClose={onHidePanel} />
     </>
   )
 }

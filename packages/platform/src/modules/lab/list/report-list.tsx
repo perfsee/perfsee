@@ -61,7 +61,7 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
   const [deleteModalVisible, showDeleteModal, hideDeleteModal] = useToggleState(false)
   const deletingReport = useRef<SnapshotReportSchema | null>()
 
-  const { loading, reports } = state
+  const { loading, reports } = state ?? { loading: true, reports: [] }
 
   const onDeleteReport = useCallback(
     (artifact: SnapshotReportSchema) => {

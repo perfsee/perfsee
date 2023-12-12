@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
+import { SharedColors, Stack } from '@fluentui/react'
 import { ReactNode } from 'react'
 
 import { StyledAuditItem, StyledItemContent, StyledAuditAdorn, StyledAuditDesc } from './style'
@@ -26,10 +26,11 @@ type Props = {
   labels?: string[]
   description?: ReactNode
   children?: ReactNode
+  extra?: ReactNode
 }
 
 export const AuditItem = (props: Props) => {
-  const { title, icon, score, labels = [], description, children } = props
+  const { title, icon, score, labels = [], description, children, extra } = props
 
   return (
     <StyledAuditItem>
@@ -38,8 +39,14 @@ export const AuditItem = (props: Props) => {
         <b>{title}</b>
         {score !== undefined && <StyledAuditAdorn>{score}</StyledAuditAdorn>}
         {labels.map((key) => (
-          <StyledAuditAdorn key={key}>{key}</StyledAuditAdorn>
+          <StyledAuditAdorn
+            key={key}
+            style={{ color: key.includes('Potential savings') ? SharedColors.orange20 : undefined }}
+          >
+            {key}
+          </StyledAuditAdorn>
         ))}
+        {extra}
       </Stack>
       <StyledItemContent>
         <StyledAuditDesc>{description}</StyledAuditDesc>

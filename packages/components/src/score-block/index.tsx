@@ -6,6 +6,7 @@ import { darken } from '@perfsee/dls'
 const ScoreDesc = styled.span({
   textOverflow: 'clip',
   fontWeight: 500,
+  fontSize: '0.84rem',
 })
 
 const FailedContent = styled.span(({ theme }) => ({
@@ -42,7 +43,7 @@ export const ScoreTitle = styled.b<{ small: boolean }>(({ small }) => ({
 
 export const ScoreBlock = ({ title, value, color, unit, small }: ScoreBlockProps) => {
   return (
-    <Stack styles={{ root: { minWidth: '190px', padding: '12px 16px' } }}>
+    <Stack styles={{ root: { minWidth: '190px', padding: '12px 14px' } }}>
       <ScoreDesc>{title}</ScoreDesc>
       {typeof value === 'undefined' ? (
         <FailedContent>Failed to calculate</FailedContent>

@@ -57,7 +57,7 @@ export const ProjectNav = () => {
 
   const handleLinkClick = useCallback(
     (item?: PivotItem) => {
-      if (!item || routeParams.feature === item.props.itemKey) {
+      if (!item) {
         return
       }
 

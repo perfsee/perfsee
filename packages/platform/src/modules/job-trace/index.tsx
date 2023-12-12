@@ -27,9 +27,14 @@ import { useProject } from '../shared'
 import { JobTraceModule } from './module'
 import { Log, LogsWrapper, PageWrapper } from './style'
 
-export const Trace = () => {
+export interface TraceProps {
+  type?: string
+  entityId?: string
+}
+
+export const Trace = (props: TraceProps) => {
   const project = useProject()
-  const { type, entityId } = useParams<RouteTypes['project']['jobTrace']>()
+  const { type = props.type, entityId = props.entityId } = useParams<RouteTypes['project']['jobTrace']>()
   const [state, dispatcher] = useModule(JobTraceModule)
   const scrollableRef = useRef<HTMLDivElement>(null)
 
@@ -38,7 +43,7 @@ export const Trace = () => {
       dispatcher.getJobTrace({
         projectId: project.id,
         type: type as JobType,
-        entityId,
+        entityId: entityId!,
       })
     }
 

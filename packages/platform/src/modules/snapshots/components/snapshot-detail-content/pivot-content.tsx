@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { lazy } from '@perfsee/platform/common'
+import { Trace } from '@perfsee/platform/modules/job-trace'
 
 import { PerformanceTabType, SnapshotDetailType } from '../../snapshot-type'
 
@@ -62,6 +63,8 @@ export const PivotContent = (props: PivotContentProps) => {
       return <ReactPivotContent snapshot={snapshot} />
     case PerformanceTabType.SourceStatistics:
       return <SourceStatisticsContent snapshot={snapshot} />
+    case PerformanceTabType.Log:
+      return <Trace type="LabAnalyze" entityId={snapshot.report.id.toString()} />
     default:
       return null
   }

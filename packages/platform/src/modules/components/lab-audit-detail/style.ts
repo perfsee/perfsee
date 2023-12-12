@@ -20,7 +20,6 @@ import { darken } from '@perfsee/dls'
 
 export const StyledBorderWrapper = styled.div(({ theme }) => ({
   width: '100%',
-  padding: '20px',
   wordBreak: 'break-word',
   whiteSpace: 'normal',
   '> div': {
@@ -29,3 +28,11 @@ export const StyledBorderWrapper = styled.div(({ theme }) => ({
     border: `1px solid ${darken(theme.border.color, 0.2)}`,
   },
 }))
+
+export const AuditDetailContainer = styled.div({
+  width: '100%',
+
+  '.lh-table': {
+    width: '100%',
+  },
+})

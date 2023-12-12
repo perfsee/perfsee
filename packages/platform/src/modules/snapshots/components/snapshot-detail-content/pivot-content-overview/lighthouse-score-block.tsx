@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { QuestionCircleOutlined } from '@ant-design/icons'
+import { NeutralColors, Stack, TooltipHost } from '@fluentui/react'
+
 import { getScoreColor, ScoreBlock } from '@perfsee/components'
 import { formatTime } from '@perfsee/platform/common'
 import { MetricScoreSchema } from '@perfsee/shared'
+
+import { cardGroups } from './card-groups'
 
 type Props = {
   detail: MetricScoreSchema
@@ -39,5 +44,19 @@ export const LighthouseScoreBlock = (props: Props) => {
     color = getScoreColor(detail.score * 100)
   }
 
-  return <ScoreBlock title={hideTitle ? null : detail.title} color={color} value={value} unit={unit} />
+  const title = hideTitle ? null : (
+    <Stack horizontal>
+      {detail.title}
+      {cardGroups[detail.id] ? (
+        <TooltipHost content={cardGroups[detail.id].detail}>
+          <QuestionCircleOutlined
+            size={12}
+            style={{ cursor: 'pointer', marginLeft: 6, color: NeutralColors.gray120 }}
+          />
+        </TooltipHost>
+      ) : null}
+    </Stack>
+  )
+
+  return <ScoreBlock title={title} color={color} value={value} unit={unit} />
 }

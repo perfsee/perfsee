@@ -51,6 +51,11 @@ export const SourceCoverageTab = {
   title: 'Treemap',
 }
 
+export const LogTab = {
+  id: PerformanceTabType.Log,
+  title: 'Log',
+}
+
 export const ReactTab = {
   id: PerformanceTabType.React,
   title: 'React',

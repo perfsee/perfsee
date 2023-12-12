@@ -1,0 +1,14 @@
+query snapshot($projectId: ID!, $snapshotId: Int!) {
+  project(id: $projectId) {
+    snapshot(snapshotId: $snapshotId) {
+      id
+      trigger
+      status
+      startedAt
+      createdAt
+      failedReason
+      title
+      hash
+    }
+  }
+}
