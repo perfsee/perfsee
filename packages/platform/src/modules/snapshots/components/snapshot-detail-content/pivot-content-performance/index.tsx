@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled, InfoCircleFilled } from '@ant-design/icons'
+import { MinusCircleFilled, InfoCircleFilled } from '@ant-design/icons'
 import { css, useTheme } from '@emotion/react'
 import { CommandButton, IPivotItemProps, PivotItem } from '@fluentui/react'
 import { FC, memo, useCallback, useEffect, useState } from 'react'
@@ -30,9 +30,14 @@ import {
   AnalysisReportTabType,
 } from '../../../snapshot-type'
 import { ScoreBadge } from '../../../style'
+import {
+  LHGaugeScoreScalePassed,
+  LHGaugeScoreScaleAverage,
+  LHGaugeScoreScaleFail,
+} from '../pivot-content-overview/style'
 
 import { AuditJump, auditJumps } from './jumps'
-import { AuditTitle, StyledPivot, RelevantChoiceContainer, RelevantChoiceButton } from './style'
+import { AuditTitle, StyledPivot, RelevantChoiceContainer, RelevantChoiceButton, WarnLabel, ErrorLabel } from './style'
 import { getGroupedAuditLists } from './utils'
 
 type Props = {
@@ -126,20 +131,35 @@ export const PerformanceContent = memo((props: Props) => {
   )
 })
 
-const RenderIconAndTitle = (type: LighthouseGroupType) => {
+const RenderTitle = (type: LighthouseGroupType) => {
+  switch (type) {
+    case LighthouseGroupType.opportunity:
+      return 'Opportunities'
+    case LighthouseGroupType.passed:
+      return 'Passed audits'
+    case LighthouseGroupType.notApply:
+      return 'Not applicable'
+    case LighthouseGroupType.manual:
+      return 'Items to manually check'
+    case LighthouseGroupType.diagnostic:
+      return 'Diagnostics'
+  }
+}
+
+const RenderIcon = (type: LighthouseGroupType, audit: LighthouseAudit) => {
   const theme = useTheme()
 
   switch (type) {
     case LighthouseGroupType.opportunity:
-      return [<CloseCircleFilled key={type} style={{ color: theme.colors.error }} />, 'Opportunities']
+      return (audit.score || 0) >= 0.5 ? <LHGaugeScoreScaleAverage /> : <LHGaugeScoreScaleFail />
     case LighthouseGroupType.passed:
-      return [<CheckCircleFilled key={type} style={{ color: theme.colors.success }} />, 'Passed audits']
+      return <LHGaugeScoreScalePassed />
     case LighthouseGroupType.notApply:
-      return [<MinusCircleFilled key={type} style={{ color: theme.colors.disabled }} />, 'Not applicable']
+      return <MinusCircleFilled key={type} style={{ color: theme.colors.disabled }} />
     case LighthouseGroupType.manual:
-      return [<InfoCircleFilled key={type} style={{ color: theme.colors.disabled }} />, 'Items to manually check']
+      return <InfoCircleFilled key={type} style={{ color: theme.colors.disabled }} />
     case LighthouseGroupType.diagnostic:
-      return [<InfoCircleFilled key={type} style={{ color: theme.colors.disabled }} />, 'Diagnostics']
+      return <InfoCircleFilled key={type} style={{ color: theme.colors.disabled }} />
   }
 }
 
@@ -150,7 +170,7 @@ export const AdviceList = (props: {
   fullPageScreenshot?: LH.Result.FullPageScreenshot
 }) => {
   const { list, type, entities, fullPageScreenshot } = props
-  const [icon, title] = RenderIconAndTitle(type) as [JSX.Element, string]
+  const title = RenderTitle(type)
   const [show, setShow] = useState(![LighthouseGroupType.passed, LighthouseGroupType.notApply].includes(type))
 
   const onShowClick = useCallback(() => {
@@ -163,13 +183,25 @@ export const AdviceList = (props: {
   }
 
   const items = list.map((item) => {
-    const labels = item?.relevant
-      ? [...item.relevant, item.displayValue, item.explanation]
-      : [item.displayValue, item.explanation]
+    const labels: (string | JSX.Element | undefined)[] = item?.relevant
+      ? [...item.relevant, item.explanation]
+      : [item.explanation]
 
     if (item.scoreDisplayMode === 'numeric' && item.score) {
       labels.unshift(`Score: ${(item.score * 100).toFixed(0)}`)
     }
+
+    if (item.scoreDisplayMode === 'metricSavings') {
+      if ((item.score || 0) >= 0.5) {
+        labels.push(<WarnLabel>{item.displayValue}</WarnLabel>)
+      } else {
+        labels.push(<ErrorLabel>{item.displayValue}</ErrorLabel>)
+      }
+    } else {
+      labels.push(item.displayValue)
+    }
+
+    const icon = RenderIcon(type, item)
 
     const auditJump = auditJumps[item.id] ? <AuditJump {...auditJumps[item.id]} /> : null
 

@@ -209,41 +209,50 @@ export const LHGaugeScoreScale = styled.div({
 })
 
 export const LHGaugeScoreScaleFail = styled.span({
+  display: 'flex',
+  alignItems: 'center',
   '&::before': {
     content: '""',
     width: 12,
     height: 12,
-    display: 'inline-block',
-    margin: '0 14px 0 2px',
+    margin: '0 1px',
     borderLeft: '6px solid transparent',
     borderRight: '6px solid transparent',
     borderBottom: `12px solid ${SharedColors.red10}`,
-    transform: 'translateY(1px)',
+  },
+
+  span: {
+    marginLeft: 14,
   },
 })
 
 export const LHGaugeScoreScaleAverage = styled.span({
+  display: 'flex',
+  alignItems: 'center',
   '&::before': {
     content: '""',
     width: 12,
     height: 12,
-    display: 'inline-block',
-    margin: '0 14px 0 2px',
+    margin: '0 1px',
     background: SharedColors.orange10,
-    transform: 'translateY(1px)',
+  },
+  span: {
+    marginLeft: 14,
   },
 })
 
 export const LHGaugeScoreScalePassed = styled.span({
+  display: 'flex',
+  alignItems: 'center',
   '&::before': {
     content: '""',
-    width: 12,
-    height: 12,
-    display: 'inline-block',
-    margin: '0 14px 0 2px',
-    borderRadius: 12,
+    width: 14,
+    height: 14,
+    borderRadius: 14,
     background: SharedColors.greenCyan10,
-    transform: 'translateY(1px)',
+  },
+  span: {
+    marginLeft: 14,
   },
 })
 
@@ -259,6 +268,7 @@ export const PivotOverviewPartition = styled(Stack)({
 
 export const PivotReportPartition = styled(Stack)({
   flex: 1,
+  maxWidth: 'calc(50% - 24px)',
 })
 
 export const OperationButton = styled(DefaultButton)(({ theme }) => ({
