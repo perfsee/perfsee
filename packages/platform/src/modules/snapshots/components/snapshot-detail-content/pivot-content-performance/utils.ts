@@ -78,5 +78,8 @@ export const getGroupedAuditLists = (
     }
   })
 
+  result[LighthouseGroupType.opportunity].sort((a, b) => (a.score || 0) - (b.score || 0))
+  result[LighthouseGroupType.passed].sort((a, b) => (a.score || 0) - (b.score || 0))
+
   return { result, relevantAuditMap }
 }

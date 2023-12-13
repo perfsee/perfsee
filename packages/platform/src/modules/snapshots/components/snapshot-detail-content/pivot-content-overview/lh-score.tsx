@@ -118,9 +118,15 @@ export const LHScore: FC<ScoreProps> = memo(({ category }) => {
       <LHGaugeLabel>{title}</LHGaugeLabel>
       <LHGaugeDescription>{categoryDescirptions[category.id]}</LHGaugeDescription>
       <LHGaugeScoreScale>
-        <LHGaugeScoreScaleFail>0-49</LHGaugeScoreScaleFail>
-        <LHGaugeScoreScaleAverage>50-89</LHGaugeScoreScaleAverage>
-        <LHGaugeScoreScalePassed>90-100</LHGaugeScoreScalePassed>
+        <LHGaugeScoreScaleFail>
+          <span>90-100</span>
+        </LHGaugeScoreScaleFail>
+        <LHGaugeScoreScaleAverage>
+          <span>50-89</span>
+        </LHGaugeScoreScaleAverage>
+        <LHGaugeScoreScalePassed>
+          <span>90-100</span>
+        </LHGaugeScoreScalePassed>
       </LHGaugeScoreScale>
     </Stack>
   )

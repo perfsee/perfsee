@@ -102,3 +102,11 @@ export const AuditJumpButton = styled(DefaultButton)({
     color: CommunicationColors.tint10,
   },
 })
+
+export const WarnLabel = styled.span({
+  color: SharedColors.orange20,
+})
+
+export const ErrorLabel = styled.span({
+  color: SharedColors.red10,
+})

@@ -34,5 +34,6 @@ export const AuditDetailContainer = styled.div({
 
   '.lh-table': {
     width: '100%',
+    wordBreak: 'break-all',
   },
 })
