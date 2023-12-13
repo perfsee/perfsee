@@ -196,6 +196,7 @@ export const OverviewMainBlock = styled(Stack)({
   justifyContent: 'center',
   margin: '24px 0 16px',
   height: '100%',
+  minWidth: '30%',
 })
 
 export const LHGaugeScoreScale = styled.div({
