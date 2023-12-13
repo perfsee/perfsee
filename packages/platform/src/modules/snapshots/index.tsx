@@ -38,11 +38,8 @@ export const SnapshotDetail = () => {
 
   useEffect(() => {
     dispatcher.fetchSnapshotReport(reportId)
-  }, [dispatcher, reportId])
-
-  useEffect(() => {
     return dispatcher.reset
-  }, [dispatcher])
+  }, [dispatcher, reportId])
 
   const onRenderHeader = useCallback(() => {
     if (!snapshotReport) {
