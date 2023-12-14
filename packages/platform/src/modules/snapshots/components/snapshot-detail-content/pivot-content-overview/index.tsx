@@ -76,7 +76,7 @@ export const OverviewContent = (props: Props) => {
         scores.push(
           <Stack styles={{ root: { position: 'relative' } }} key={detail.id}>
             <LighthouseScoreBlock detail={detail} colorful={true} />
-            <Stack styles={{ root: { position: 'absolute', right: 16, bottom: 20 } }}>
+            <Stack styles={{ root: { position: 'absolute', right: 12, bottom: 20 } }}>
               <ScoreCircle score={detail.score} size={28} fontSize={14} />
             </Stack>
           </Stack>,

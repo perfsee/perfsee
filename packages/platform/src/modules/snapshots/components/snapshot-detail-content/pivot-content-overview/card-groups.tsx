@@ -21,7 +21,7 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         First Contentful Paint marks the time at which the first text or image is painted.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/first-contentful-paint">
+        <Link href="https://developer.chrome.com/docs/lighthouse/performance/first-contentful-paint" target="_blank">
           Learn more about the First Contentful Paint metric.
         </Link>
       </p>
@@ -31,7 +31,10 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         Largest Contentful Paint marks the time at which the largest text or image is painted.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint">
+        <Link
+          href="https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint"
+          target="_blank"
+        >
           Learn more about the Largest Contentful Paint metric
         </Link>
       </p>
@@ -41,7 +44,7 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         Speed Index shows how quickly the contents of a page are visibly populated.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/speed-index">
+        <Link href="https://developer.chrome.com/docs/lighthouse/performance/speed-index" target="_blank">
           Learn more about the Speed Index metric.
         </Link>
       </p>
@@ -51,7 +54,10 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         Cumulative Layout Shift measures the movement of visible elements within the viewport.{' '}
-        <Link href="Cumulative Layout Shift measures the movement of visible elements within the viewport.">
+        <Link
+          href="Cumulative Layout Shift measures the movement of visible elements within the viewport."
+          target="_blank"
+        >
           Learn more about the Cumulative Layout Shift metric.
         </Link>
       </p>
@@ -62,7 +68,10 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
       <p>
         Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms, expressed in
         milliseconds.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/lighthouse-total-blocking-time">
+        <Link
+          href="https://developer.chrome.com/docs/lighthouse/performance/lighthouse-total-blocking-time"
+          target="_blank"
+        >
           Learn more about the Total Blocking Time metric.
         </Link>
       </p>
@@ -72,7 +81,9 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         Time to interactive is the amount of time it takes for the page to bacome fully interactive.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/interactive">Learn More.</Link>
+        <Link href="https://developer.chrome.com/docs/lighthouse/performance/interactive" target="_blank">
+          Learn More.
+        </Link>
       </p>
     ),
   },
@@ -80,7 +91,9 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         First meaningful paint measures when the primary content of a page is visiable.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/first-meaningful-paint">Learn More.</Link>
+        <Link href="https://developer.chrome.com/docs/lighthouse/performance/first-meaningful-paint" target="_blank">
+          Learn More.
+        </Link>
       </p>
     ),
   },
@@ -89,7 +102,10 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
       <p>
         The maximum potential First Input Delay that your users could experience is the duration, in milliseconds, of
         the longest task.{' '}
-        <Link href="https://developer.chrome.com/docs/lighthouse/performance/lighthouse-max-potential-fid">
+        <Link
+          href="https://developer.chrome.com/docs/lighthouse/performance/lighthouse-max-potential-fid"
+          target="_blank"
+        >
           Learn More.
         </Link>
       </p>
@@ -99,7 +115,10 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
     detail: (
       <p>
         Time to first byte is a metric that measures the time between the request for a resource and when the first byte
-        of a response begins to arrive. <Link href="https://web.dev/articles/ttfb">Learn More.</Link>
+        of a response begins to arrive.{' '}
+        <Link href="https://web.dev/articles/ttfb" target="_blank">
+          Learn More.
+        </Link>
       </p>
     ),
   },

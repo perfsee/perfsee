@@ -39,36 +39,50 @@ const categoryDescirptions = {
   performance: (
     <p>
       Values are estimated and may vary.{' '}
-      <Link href="https://developer.chrome.com/docs/lighthouse/performance/performance-scoring">
+      <Link href="https://developer.chrome.com/docs/lighthouse/performance/performance-scoring" target="_blank">
         The performance score is calculated
       </Link>{' '}
       directly from these metrics.{' '}
-      <Link href="https://googlechrome.github.io/lighthouse/scorecalc">See calculator.</Link>
+      <Link href="https://googlechrome.github.io/lighthouse/scorecalc" target="_blank">
+        See calculator.
+      </Link>
     </p>
   ),
   accessibility: (
     <p>
       These checks highlight opportunities to{' '}
-      <Link href="https://developer.chrome.com/docs/lighthouse/accessibility/scoring">
+      <Link href="https://developer.chrome.com/docs/lighthouse/accessibility/scoring" target="_blank">
         improve the accessibility of your web app
       </Link>
       . Automatic detection can only detect a subset of issues and does not guarantee the accessibility of your web app,
-      so <Link href="https://web.dev/articles/how-to-review">manual testing</Link> is also encouraged.
+      so{' '}
+      <Link href="https://web.dev/articles/how-to-review" target="_blank">
+        manual testing
+      </Link>{' '}
+      is also encouraged.
     </p>
   ),
   seo: (
     <p>
       These checks ensure that your page is following basic search engine optimization advice. There are many additional
       factors Lighthouse does not score here that may affect your search ranking, including performance on{' '}
-      <Link href="https://web.dev/explore/learn-core-web-vitals">Core Web Vitals</Link>.{' '}
-      <Link href="https://developers.google.com/search/docs/essentials">Learn more about Google Search Essentials</Link>
+      <Link href="https://web.dev/explore/learn-core-web-vitals" target="_blank">
+        Core Web Vitals
+      </Link>
+      .{' '}
+      <Link href="https://developers.google.com/search/docs/essentials" target="_blank">
+        Learn more about Google Search Essentials
+      </Link>
       .
     </p>
   ),
   pwa: (
     <p>
       These checks validate the aspects of a Progressive Web App.{' '}
-      <Link href="https://web.dev/articles/pwa-checklist">Learn what makes a good Progressive Web App</Link>.
+      <Link href="https://web.dev/articles/pwa-checklist" target="_blank">
+        Learn what makes a good Progressive Web App
+      </Link>
+      .
     </p>
   ),
 }
