@@ -22,7 +22,7 @@ export const LHMetricScoreContainer = styled.div(({ theme }) => {
   return {
     display: 'flex',
     width: '100%',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     flexWrap: 'wrap',
     gap: 24,
 
@@ -196,7 +196,7 @@ export const OverviewMainBlock = styled(Stack)({
   justifyContent: 'center',
   margin: '24px 0 16px',
   height: '100%',
-  minWidth: '30%',
+  maxWidth: 500,
 })
 
 export const LHGaugeScoreScale = styled.div({

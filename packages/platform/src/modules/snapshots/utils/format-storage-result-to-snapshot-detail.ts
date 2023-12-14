@@ -32,6 +32,7 @@ export const formatStorageResultToSnapshotDetail = (payload: LHStoredSchema): Om
     userTimings: payload.userTimings,
     entities: payload.entities,
     fullPageScreenshot: payload.fullPageScreenshot,
+    stackPacks: payload.stackPacks,
     userFlow: payload.userFlow?.map((uf) => ({
       stepName: uf.stepName,
       stepUrl: uf.stepUrl,

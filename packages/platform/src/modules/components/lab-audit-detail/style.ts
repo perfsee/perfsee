@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
+import { Stack } from '@fluentui/react'
 
 import { darken } from '@perfsee/dls'
 
@@ -34,6 +35,19 @@ export const AuditDetailContainer = styled.div({
 
   '.lh-table': {
     width: '100%',
-    wordBreak: 'break-all',
+    wordBreak: 'break-word',
+
+    '*': {
+      textWrap: 'wrap',
+    },
+  },
+})
+
+export const AuditStackPacks = styled(Stack)({
+  gap: 12,
+  paddingBottom: 6,
+  img: {
+    minWidth: 'auto',
+    maxWidth: 48,
   },
 })

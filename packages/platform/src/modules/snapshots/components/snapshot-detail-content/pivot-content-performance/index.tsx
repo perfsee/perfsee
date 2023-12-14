@@ -89,7 +89,7 @@ export const PerformanceContent = memo((props: Props) => {
     return null
   }
 
-  const { result, relevantAuditMap } = getGroupedAuditLists(audits, performance.auditRefs)
+  const { result, relevantAuditMap } = getGroupedAuditLists(audits, performance.auditRefs, false, snapshot.stackPacks)
   const options = [...relevantAuditMap.keys()].map((r) => ({ key: r, text: r }))
   const relevantFilter = options.length ? (
     <RelevantChoiceContainer horizontal horizontalAlign="end" verticalAlign="center">
@@ -214,7 +214,12 @@ export const AdviceList = (props: {
         extra={auditJump}
       >
         {formatMDLink(item.description)}
-        <LabAuditDetailWithPanel details={item.details} entities={entities} fullPageScreenshot={fullPageScreenshot} />
+        <LabAuditDetailWithPanel
+          details={item.details}
+          entities={entities}
+          fullPageScreenshot={fullPageScreenshot}
+          stackPacks={item.stackPacks}
+        />
       </AuditItem>
     )
   })

@@ -153,6 +153,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             lhrCategories: lhr.categories,
             entities: lhr.entities,
             fullPageScreenshot: lhr.fullPageScreenshot,
+            stackPacks: lhr.stackPacks,
             traceData,
             artifactsResult: requests,
             artifactsResultBaseTimestamp: requestsBaseTimestamp,

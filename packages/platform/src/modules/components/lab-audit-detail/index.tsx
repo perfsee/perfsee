@@ -16,24 +16,24 @@ limitations under the License.
 
 import { useRef, useLayoutEffect } from 'react'
 
-import { CollapsiblePanel } from '@perfsee/components'
+import { CollapsiblePanel, formatMDLink } from '@perfsee/components'
 
 import { LighthouseAudit } from '../../snapshots/snapshot-type'
 
-import { AuditDetailContainer } from './style'
+import { AuditDetailContainer, AuditStackPacks } from './style'
 
 const { DetailsRenderer } = require('./renderer/details-renderer')
 const { DOM } = require('./renderer/dom')
 
 require('./renderer/styles.css')
 
-export type DetailProps = Pick<LighthouseAudit, 'details'> & {
+export type DetailProps = Pick<LighthouseAudit, 'details' | 'stackPacks'> & {
   entities?: LH.Result.Entities
   fullPageScreenshot?: LH.Result.FullPageScreenshot
 }
 
 export const LabAuditDetail = (props: DetailProps) => {
-  const { details, entities, fullPageScreenshot } = props
+  const { details, entities, fullPageScreenshot, stackPacks } = props
   const containerRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -46,7 +46,16 @@ export const LabAuditDetail = (props: DetailProps) => {
     }
   }, [entities, fullPageScreenshot, details])
 
-  return <AuditDetailContainer ref={containerRef} />
+  return (
+    <AuditDetailContainer ref={containerRef}>
+      {stackPacks?.map((pack) => (
+        <AuditStackPacks key={pack.title} horizontal>
+          <img src={pack.iconDataURL} alt={pack.title} />
+          <span>{formatMDLink(pack.description)}</span>
+        </AuditStackPacks>
+      ))}
+    </AuditDetailContainer>
+  )
 }
 
 export const LabAuditDetailWithPanel = (props: DetailProps) => {
