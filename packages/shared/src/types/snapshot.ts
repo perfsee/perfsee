@@ -155,6 +155,7 @@ export type LHStoredSchema = {
   scripts?: { fileName: string }[]
   entities?: LH.Result.Entities
   fullPageScreenshot?: LH.Result.FullPageScreenshot
+  stackPacks?: LH.Result.StackPack[]
 }
 
 export interface DomNode {

@@ -81,6 +81,7 @@ export type SnapshotDetailType = {
   lighthouseVersion?: string
   entities?: LH.Result.Entities
   fullPageScreenshot?: LH.Result.FullPageScreenshot
+  stackPacks?: LH.Result.StackPack[]
 }
 
 export type SnapshotUserFlowDetailType = Omit<SnapshotDetailType, 'userFlow' | 'report'> & {
@@ -99,6 +100,7 @@ export enum LighthouseGroupType {
 
 export type LighthouseAudit = LH.Audit.Result & {
   relevant?: string[] // metrics keys
+  stackPacks?: { title: string; iconDataURL: string; description: string }[]
 }
 
 export enum RequestType {
