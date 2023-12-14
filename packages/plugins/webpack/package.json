@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/webpack",
-  "version": "1.8.4",
+  "version": "1.10.0",
   "description": "perfsee webpack plugin",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
