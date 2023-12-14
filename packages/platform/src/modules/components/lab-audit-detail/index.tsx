@@ -24,6 +24,7 @@ import { AuditDetailContainer, AuditStackPacks } from './style'
 
 const { DetailsRenderer } = require('./renderer/details-renderer')
 const { DOM } = require('./renderer/dom')
+const { ElementScreenshotRenderer } = require('./renderer/element-screenshot-renderer')
 
 require('./renderer/styles.css')
 
@@ -38,6 +39,9 @@ export const LabAuditDetail = (props: DetailProps) => {
 
   useLayoutEffect(() => {
     if (containerRef.current) {
+      if (fullPageScreenshot) {
+        ElementScreenshotRenderer.installFullPageScreenshot(containerRef.current, fullPageScreenshot.screenshot)
+      }
       const elem = new DetailsRenderer(new DOM(document, containerRef.current), {
         entities,
         fullPageScreenshot,
