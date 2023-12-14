@@ -49,7 +49,7 @@ export const LabAuditDetail = (props: DetailProps) => {
   return (
     <AuditDetailContainer ref={containerRef}>
       {stackPacks?.map((pack) => (
-        <AuditStackPacks key={pack.title} horizontal>
+        <AuditStackPacks key={pack.title} horizontal verticalAlign="center">
           <img src={pack.iconDataURL} alt={pack.title} />
           <span>{formatMDLink(pack.description)}</span>
         </AuditStackPacks>

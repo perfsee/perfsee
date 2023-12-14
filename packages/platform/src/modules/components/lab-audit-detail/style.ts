@@ -44,8 +44,8 @@ export const AuditDetailContainer = styled.div({
 })
 
 export const AuditStackPacks = styled(Stack)({
-  gap: 12,
-  paddingBottom: 6,
+  gap: 16,
+  padding: '0 6px 8px',
   img: {
     minWidth: 'auto',
     maxWidth: 48,

@@ -40,6 +40,11 @@ export const getGroupedAuditLists = (
   }
 
   auditRefs.forEach((ref) => {
+    const item = audits[ref.id] as LighthouseAudit
+    if (item) {
+      item.stackPacks = []
+    }
+
     if (!ref.relevantAudits || hideRelevant) return
 
     ref.relevantAudits.forEach((id) => {
