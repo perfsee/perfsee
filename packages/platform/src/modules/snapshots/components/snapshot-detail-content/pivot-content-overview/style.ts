@@ -205,8 +205,9 @@ export const LHGaugeScoreScale = styled.div({
   alignItems: 'center',
   whiteSpace: 'nowrap',
   justifyContent: 'space-around',
-  width: '450px',
+  minWidth: '150px',
   verticalAlign: 'center',
+  width: '100%',
 })
 
 export const LHGaugeScoreScaleFail = styled.span({
@@ -259,7 +260,7 @@ export const LHGaugeScoreScalePassed = styled.span({
 
 export const PivotOverviewPartition = styled(Stack)({
   flex: 1,
-  minWidth: 900,
+  minWidth: 670,
   marginRight: 48,
 
   '& > div': {
