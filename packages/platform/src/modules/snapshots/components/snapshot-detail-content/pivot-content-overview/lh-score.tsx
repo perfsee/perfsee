@@ -127,7 +127,12 @@ export const ScoreCircle = ({
 export const LHScore: FC<ScoreProps> = memo(({ category }) => {
   const { score, title } = category
   return (
-    <Stack verticalAlign="center" horizontalAlign="center" tokens={{ childrenGap: '16px' }}>
+    <Stack
+      verticalAlign="center"
+      horizontalAlign="center"
+      tokens={{ childrenGap: '16px' }}
+      styles={{ root: { width: '100%' } }}
+    >
       <ScoreCircle score={score} size="6rem" fontSize="2rem" />
       <LHGaugeLabel>{title}</LHGaugeLabel>
       <LHGaugeDescription>{categoryDescirptions[category.id]}</LHGaugeDescription>

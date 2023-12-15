@@ -91,7 +91,7 @@ export const OverviewContent = (props: Props) => {
   return (
     <Stack tokens={{ childrenGap: '24px' }}>
       <OverviewMainBlockContainer horizontal horizontalAlign="space-around" verticalAlign="center">
-        <OverviewMainBlock style={{ flex: '1 1 40%' }}>
+        <OverviewMainBlock style={{ flex: '1 1 500px' }}>
           <LHScore category={categories?.[category] ?? ({} as LH.Result.Category)} />
         </OverviewMainBlock>
         <OverviewMainBlockSeparator />
