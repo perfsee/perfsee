@@ -64,7 +64,7 @@ export const OverviewFirstRequest: FC<Props> = ({ snapshots }) => {
     return snapshots.map((snapshot, i) => {
       const report = snapshot.report as NonNullable<SnapshotReportSchema>
       const ttfb = snapshot.audits[LighthouseScoreType.TTFB].numericValue ?? 0
-      const timings = (snapshot.requests[0] as RequestSchema).timings ?? []
+      const timings = (snapshot.requests?.[0] as RequestSchema)?.timings ?? []
       const temp = {} as { [K in Timing]: number }
       timings.forEach(({ name, value }) => {
         temp[name] = value
@@ -80,7 +80,7 @@ export const OverviewFirstRequest: FC<Props> = ({ snapshots }) => {
   }, [snapshots])
 
   const columns = useMemo(() => {
-    const timings = (snapshots[0].requests[0] as RequestSchema).timings ?? []
+    const timings = (snapshots[0].requests?.[0] as RequestSchema)?.timings ?? []
     const result = timings.map(({ name }) => {
       return {
         key: name,

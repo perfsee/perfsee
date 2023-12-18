@@ -124,9 +124,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const lighthouseFile = `snapshots/${uuid()}.json`
     const jsCoverageFile = `js-coverage/${uuid()}.json`
     const reactProfileFile = `react-profile/${uuid()}.json`
+    const traceDataFile = `traceData/${uuid()}.json`
+    const requestsFile = `requests/${uuid()}.json`
     let lighthouseStorageKey
     let jsCoverageStorageKey
     let reactProfileStorageKey
+    let traceDataStorageKey
+    let requestsStorageKey
 
     // delete useless lighthouse data
     // @ts-expect-error
@@ -154,8 +158,6 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             entities: lhr.entities,
             fullPageScreenshot: lhr.fullPageScreenshot,
             stackPacks: lhr.stackPacks,
-            traceData,
-            artifactsResult: requests,
             artifactsResultBaseTimestamp: requestsBaseTimestamp,
             timings,
             timelines,
@@ -169,6 +171,26 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       this.logger.error('Failed to upload audit result', { error: e })
       return {
         failedReason: 'Upload lighthouse result timeout',
+        screencastStorageKey,
+      }
+    }
+
+    try {
+      traceDataStorageKey = await this.client.uploadArtifact(traceDataFile, Buffer.from(JSON.stringify(traceData)))
+    } catch (e) {
+      this.logger.error('Failed to upload trace data', { error: e })
+      return {
+        failedReason: 'Upload trace data failed',
+        screencastStorageKey,
+      }
+    }
+
+    try {
+      requestsStorageKey = await this.client.uploadArtifact(requestsFile, Buffer.from(JSON.stringify(requests)))
+    } catch (e) {
+      this.logger.error('Failed to upload trace data', { error: e })
+      return {
+        failedReason: 'Upload trace data failed',
         screencastStorageKey,
       }
     }
@@ -204,6 +226,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       jsCoverageStorageKey,
       traceEventsStorageKey,
       reactProfileStorageKey,
+      traceDataStorageKey,
+      requestsStorageKey,
       metrics,
     }
   }

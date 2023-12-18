@@ -126,6 +126,16 @@ export class ReportResolver {
   sourceAnalyzeStatisticsLink(@Parent() report: SnapshotReport) {
     return artifactLink(report.sourceAnalyzeStatisticsStorageKey)
   }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to trace data detail file' })
+  traceDataLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.traceDataStorageKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to all requests detail file' })
+  requestsLink(@Parent() report: SnapshotReport) {
+    return artifactLink(report.requestsStorageKey)
+  }
 }
 
 @Resolver(() => Project)
