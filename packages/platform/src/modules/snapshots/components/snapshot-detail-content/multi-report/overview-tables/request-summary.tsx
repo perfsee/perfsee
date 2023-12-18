@@ -102,49 +102,51 @@ type Props = {
 
 export const OverviewRequestSummary: FC<Props> = ({ snapshots }) => {
   const items: SummaryType[] = useMemo(() => {
-    return snapshots.map((snapshot, i) => {
-      const metricTimings = (snapshot.timings ?? {}) as TraceTimesWithoutFCP
-      const report = snapshot.report as NonNullable<SnapshotReportSchema>
-      const fcp = metricTimings[TimingType.FCP] ?? 0
-      const fmp = metricTimings[TimingType.FMP] ?? 0
-      const lcp = metricTimings[TimingType.LCP] ?? 0
+    return snapshots
+      .filter((snapshot) => snapshot.requests)
+      .map((snapshot, i) => {
+        const metricTimings = (snapshot.timings ?? {}) as TraceTimesWithoutFCP
+        const report = snapshot.report as NonNullable<SnapshotReportSchema>
+        const fcp = metricTimings[TimingType.FCP] ?? 0
+        const fmp = metricTimings[TimingType.FMP] ?? 0
+        const lcp = metricTimings[TimingType.LCP] ?? 0
 
-      const { beforeCount, beforeSize, totalSize } = snapshot.requests.reduce(
-        (p, c) => {
-          const req = c as RequestSchema
-          if (req.startTime <= fcp) {
-            p.beforeCount.fcp++
-            p.beforeSize.fcp += req.size
-          }
-          if (req.startTime <= fmp) {
-            p.beforeCount.fmp++
-            p.beforeSize.fmp += req.size
-          }
+        const { beforeCount, beforeSize, totalSize } = snapshot.requests!.reduce(
+          (p, c) => {
+            const req = c as RequestSchema
+            if (req.startTime <= fcp) {
+              p.beforeCount.fcp++
+              p.beforeSize.fcp += req.size
+            }
+            if (req.startTime <= fmp) {
+              p.beforeCount.fmp++
+              p.beforeSize.fmp += req.size
+            }
 
-          if (req.startTime <= lcp) {
-            p.beforeCount.lcp++
-            p.beforeSize.lcp += req.size
-          }
-          p.totalSize += req.size
-          return p
-        },
-        {
-          beforeCount: { fcp: 0, fmp: 0, lcp: 0 },
-          beforeSize: { fcp: 0, fmp: 0, lcp: 0 },
-          totalSize: 0,
-        },
-      )
+            if (req.startTime <= lcp) {
+              p.beforeCount.lcp++
+              p.beforeSize.lcp += req.size
+            }
+            p.totalSize += req.size
+            return p
+          },
+          {
+            beforeCount: { fcp: 0, fmp: 0, lcp: 0 },
+            beforeSize: { fcp: 0, fmp: 0, lcp: 0 },
+            totalSize: 0,
+          },
+        )
 
-      return {
-        index: i + 1,
-        name: report.page.name,
-        title: report.snapshot.title ?? `Snapshot #${report.snapshot.id}`,
-        beforeCount,
-        beforeSize,
-        totalSize,
-        totalCount: snapshot.requests.length,
-      }
-    })
+        return {
+          index: i + 1,
+          name: report.page.name,
+          title: report.snapshot.title ?? `Snapshot #${report.snapshot.id}`,
+          beforeCount,
+          beforeSize,
+          totalSize,
+          totalCount: snapshot.requests!.length,
+        }
+      })
   }, [snapshots])
 
   return (

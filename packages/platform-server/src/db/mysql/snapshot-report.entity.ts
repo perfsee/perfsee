@@ -119,6 +119,12 @@ export class SnapshotReport extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   traceEventsStorageKey!: string | null
 
+  @Column({ type: 'varchar', nullable: true })
+  traceDataStorageKey!: string | null
+
+  @Column({ type: 'varchar', nullable: true })
+  requestsStorageKey!: string | null
+
   @Field(() => String, {
     nullable: true,
     description:

@@ -143,9 +143,9 @@ type LHTosUserFlowSchema = {
 export type LHStoredSchema = {
   lhrAudit: AuditsSchema
   lhrCategories: Record<string, LH.Result.Category>
-  traceData: Task[]
+  traceData?: Task[]
   timings: TraceTimesWithoutFCP
-  artifactsResult: RequestSchema[]
+  artifactsResult?: RequestSchema[]
   artifactsResultBaseTimestamp?: number
   timelines: TimelineSchema[]
   metricScores: MetricScoreSchema[]

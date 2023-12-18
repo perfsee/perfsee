@@ -48,7 +48,7 @@ export const MultiContentOverview: FC<Props> = ({ snapshots }) => {
         const report = snapshot.report as NonNullable<SnapshotReportSchema>
         return (
           <div key={report.id}>
-            <AssetTransferred title={report.page.name} requests={snapshot.requests} />
+            <AssetTransferred title={report.page.name} requests={snapshot.requests || []} />
           </div>
         )
       })}

@@ -91,7 +91,7 @@ export const FlameChartPivotContent = (props: Props) => {
       <FlamechartContainer>
         <FlamechartView
           flameChartLink={snapshot.report.flameChartLink}
-          requests={snapshot.requests}
+          requests={snapshot.requests || []}
           requestsBaseTimestamp={snapshot.requestsBaseTimestamp}
           tasks={snapshot.traceData}
           tasksBaseTimestamp={tasksBaseTimestamp}

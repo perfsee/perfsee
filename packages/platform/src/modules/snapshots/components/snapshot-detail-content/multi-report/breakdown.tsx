@@ -77,7 +77,7 @@ export const MultiContentBreakdown: FC<Props> = (props) => {
             <b>
               {i + 1}.{report.page.name} - {title}
             </b>
-            <ConnectionByDomainTable requests={snapshot.requests} />
+            <ConnectionByDomainTable requests={snapshot.requests || []} />
           </div>
         )
       })}

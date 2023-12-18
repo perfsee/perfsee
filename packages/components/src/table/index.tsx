@@ -72,9 +72,9 @@ function formatRawColumn<T = any>(columns: TableColumnProps<T>[]) {
           return (
             <span
               style={{
-                color: item.$setColorValue[col.key].isBest
+                color: item.$setColorValue[col.key]?.isBest
                   ? SharedColors.green10
-                  : item.$setColorValue[col.key].isWorst
+                  : item.$setColorValue[col.key]?.isWorst
                   ? SharedColors.red10
                   : undefined,
               }}

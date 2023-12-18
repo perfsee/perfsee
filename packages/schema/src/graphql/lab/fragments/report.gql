@@ -8,6 +8,8 @@ fragment report on SnapshotReport {
   sourceCoverageLink
   reactProfileLink
   sourceAnalyzeStatisticsLink
+  traceDataLink
+  requestsLink
   sourceStatus
   failedReason
   createdAt
@@ -28,5 +30,5 @@ fragment report on SnapshotReport {
   snapshot {
     title
     id
-  } 
+  }
 }

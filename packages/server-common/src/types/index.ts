@@ -187,6 +187,8 @@ export interface SourceAnalyzeJob {
     jsCoverageStorageKey: string
     lighthouseStorageKey: string
     reactProfileStorageKey?: string | null
+    traceDataStorageKey?: string | null
+    requestsStorageKey?: string | null
     scripts?: { fileName: string }[]
   }
 }
@@ -205,4 +207,6 @@ export type SourceAnalyzeJobResult =
       sourceCoverageStorageKey?: string
       statisticsStorageKey?: string
       reactProfileStorageKey?: string
+      traceDataStorageKey?: string
+      requestsStorageKey?: string
     }

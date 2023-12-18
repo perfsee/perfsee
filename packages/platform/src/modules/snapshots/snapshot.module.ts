@@ -16,12 +16,13 @@ limitations under the License.
 
 import { Module, EffectModule, Effect, DefineAction, Reducer, ImmerReducer } from '@sigi/core'
 import { Draft, freeze } from 'immer'
-import { from, forkJoin, Observable } from 'rxjs'
-import { switchMap, map, withLatestFrom, filter, startWith, mergeMap, endWith } from 'rxjs/operators'
+import { from, forkJoin, Observable, merge } from 'rxjs'
+import { switchMap, map, withLatestFrom, filter, startWith, mergeMap, endWith, tap } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import { snapshotReportsByIdsQuery, snapshotReportQuery } from '@perfsee/schema'
-import { LHStoredSchema } from '@perfsee/shared'
+import { LHStoredSchema, RequestSchema } from '@perfsee/shared'
+import { Task } from '@perfsee/tracehouse'
 
 import { ProjectModule } from '../shared'
 
@@ -145,8 +146,83 @@ export class SnapshotModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  fetchReportsRequestsAndTraceData() {
+    const requestsFetching = new Set<string>()
+    const newRequests$ = new Observable<[string, string]>((subscriber) => {
+      this.state$.subscribe((state) => {
+        Object.values(state.snapshotReports).forEach((report) => {
+          if (
+            !report.reportLink ||
+            !state.snapshotReportsDetail[report.reportLink] ||
+            state.snapshotReportsDetail[report.reportLink]?.['requests'] ||
+            requestsFetching.has(report.reportLink)
+          ) {
+            return
+          }
+          if (report.requestsLink) {
+            subscriber.next([report.reportLink, report.requestsLink])
+          }
+          requestsFetching.add(report.reportLink)
+        })
+      })
+    })
+
+    const traceDataFetching = new Set<string>()
+    const newTraceData$ = new Observable<[string, string]>((subscriber) => {
+      this.state$.subscribe((state) => {
+        Object.values(state.snapshotReports).forEach((report) => {
+          if (
+            !report.reportLink ||
+            !state.snapshotReportsDetail[report.reportLink] ||
+            state.snapshotReportsDetail[report.reportLink]?.['traceData'] ||
+            traceDataFetching.has(report.reportLink)
+          ) {
+            return
+          }
+          if (report.traceDataLink) {
+            subscriber.next([report.reportLink, report.traceDataLink])
+          }
+          traceDataFetching.add(report.reportLink)
+        })
+      })
+    })
+
+    const fetchTraceData$ = newTraceData$.pipe(
+      mergeMap(([id, link]) =>
+        this.fetch.get<Task[]>(link).pipe(
+          createErrorCatcher('Failed to fetch snapshot trace data.'),
+          map((tasks) => this.getActions().setReportTraceData({ key: id, traceData: tasks })),
+          tap(() => traceDataFetching.delete(id)),
+        ),
+      ),
+    )
+
+    const fetchRequests$ = newRequests$.pipe(
+      mergeMap(([id, link]) =>
+        this.fetch.get<RequestSchema[]>(link).pipe(
+          createErrorCatcher('Failed to fetch snapshot requests.'),
+          map((requests) => this.getActions().setReportRequests({ key: id, requests })),
+          tap(() => requestsFetching.delete(id)),
+        ),
+      ),
+    )
+
+    return merge(fetchTraceData$, fetchRequests$)
+  }
+
   @ImmerReducer()
   setReportDetail(state: Draft<State>, payload: { key: string; detail: LHStoredSchema }) {
     state.snapshotReportsDetail[payload.key] = freeze({ ...formatStorageResultToSnapshotDetail(payload.detail) })
+  }
+
+  @ImmerReducer()
+  setReportTraceData(state: Draft<State>, payload: { key: string; traceData: Task[] }) {
+    state.snapshotReportsDetail[payload.key]['traceData'] = payload.traceData
+  }
+
+  @ImmerReducer()
+  setReportRequests(state: Draft<State>, payload: { key: string; requests: RequestSchema[] }) {
+    state.snapshotReportsDetail[payload.key]['requests'] = payload.requests
   }
 }

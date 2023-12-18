@@ -67,6 +67,8 @@ export class SourceService implements OnApplicationBootstrap {
     statisticsStorageKey,
     reactProfileStorageKey,
     lighthouseStorageKey,
+    traceDataStorageKey,
+    requestsStorageKey,
   }: Extract<SourceAnalyzeJobResult, { status: SourceStatus.Completed }>) {
     await this.updateReport(
       reportId,
@@ -76,6 +78,8 @@ export class SourceService implements OnApplicationBootstrap {
       statisticsStorageKey,
       reactProfileStorageKey,
       lighthouseStorageKey,
+      traceDataStorageKey,
+      requestsStorageKey,
     )
     await this.saveSourceIssues(projectId, reportId, diagnostics)
     const project = await Project.findOneByOrFail({ id: projectId })
@@ -94,6 +98,8 @@ export class SourceService implements OnApplicationBootstrap {
     statisticsStorageKey: string | undefined,
     reactProfileStorageKey: string | undefined,
     lighthouseStorageKey: string,
+    traceDataStorageKey: string | undefined,
+    requestsStorageKey: string | undefined,
   ) {
     await SnapshotReport.update(id, {
       sourceCoverageStorageKey,
@@ -101,6 +107,8 @@ export class SourceService implements OnApplicationBootstrap {
       sourceAnalyzeStatisticsStorageKey: statisticsStorageKey,
       reactProfileStorageKey,
       lighthouseStorageKey,
+      traceDataStorageKey,
+      requestsStorageKey,
     })
     await SnapshotReportWithArtifact.insert(artifactIds.map((artifactId) => ({ snapshotReportId: id, artifactId })))
   }
@@ -227,6 +235,8 @@ export class SourceService implements OnApplicationBootstrap {
         traceEventsStorageKey: snapshotReport.traceEventsStorageKey,
         reactProfileStorageKey: snapshotReport.reactProfileStorageKey,
         lighthouseStorageKey: snapshotReport.lighthouseStorageKey,
+        traceDataStorageKey: snapshotReport.traceDataStorageKey,
+        requestsStorageKey: snapshotReport.requestsStorageKey,
         pageUrl: page.url,
         scripts: lighthouseResult.scripts,
       },

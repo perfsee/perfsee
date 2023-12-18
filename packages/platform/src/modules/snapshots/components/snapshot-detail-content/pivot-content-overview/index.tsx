@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
+import { Spinner, SpinnerSize, Stack } from '@fluentui/react'
 import { ArrowUpRightIcon } from '@fluentui/react-icons-mdl2'
 import { PropsWithChildren, ReactNode, useCallback, useMemo } from 'react'
 import { useHistory, useParams } from 'react-router'
@@ -51,7 +51,7 @@ type Props = {
 }
 
 export const OverviewContent = (props: Props) => {
-  const { traceData, timings, metricScores, timelines, categories } = props.snapshot
+  const { traceData, timings, metricScores, timelines, categories, requests } = props.snapshot
   const report = 'report' in props.snapshot ? props.snapshot.report : null
   const { projectId, reportId } = useParams<RouteTypes['project']['lab']['report']>()
   const history = useHistory()
@@ -124,7 +124,7 @@ export const OverviewContent = (props: Props) => {
           </OverviewZone>
         )}
 
-        {traceData && (
+        {traceData ? (
           <OverviewZone
             title={
               <Stack horizontal horizontalAlign="space-between" verticalAlign="center">
@@ -143,27 +143,33 @@ export const OverviewContent = (props: Props) => {
           >
             <ExecutionTimeline tasks={traceData} timings={timings} />
           </OverviewZone>
+        ) : (
+          <Spinner size={SpinnerSize.medium} />
         )}
 
-        <OverviewZone
-          title={
-            <Stack horizontal horizontalAlign="space-between">
-              <RenderTimelineHead>
-                <b>Assets transferred by type</b>
-              </RenderTimelineHead>
-              <Stack verticalAlign="center">
-                <OperationButton onClick={goToAssets}>
-                  View in assets <ArrowUpRightIcon />
-                </OperationButton>
+        {requests ? (
+          <OverviewZone
+            title={
+              <Stack horizontal horizontalAlign="space-between">
+                <RenderTimelineHead>
+                  <b>Assets transferred by type</b>
+                </RenderTimelineHead>
+                <Stack verticalAlign="center">
+                  <OperationButton onClick={goToAssets}>
+                    View in assets <ArrowUpRightIcon />
+                  </OperationButton>
+                </Stack>
               </Stack>
+            }
+            bordered={false}
+          >
+            <Stack grow={1}>
+              <AssetTransferred requests={requests} title="" />
             </Stack>
-          }
-          bordered={false}
-        >
-          <Stack grow={1}>
-            <AssetTransferred requests={props.snapshot.requests} title="" />
-          </Stack>
-        </OverviewZone>
+          </OverviewZone>
+        ) : (
+          <Spinner size={SpinnerSize.medium} />
+        )}
       </Stack>
     </Stack>
   )

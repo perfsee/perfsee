@@ -40,6 +40,7 @@ import {
   SourceAnalyzeStatistics,
   CallFrame,
   CauseForLcp,
+  RequestSchema,
 } from '@perfsee/shared'
 import { generateSourceCoverageTreemapData, GenerateSourceCoverageTreemapDataOptions } from '@perfsee/source-coverage'
 
@@ -104,6 +105,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   private callFrameKeys: string[] | null = null
   private callFrames: CallFrame[] = []
   private lhResult: LHStoredSchema | null = null
+  private requestsResult: RequestSchema[] | null = null
   private result!: ProfileAnalyzeResult
 
   protected async before() {
@@ -194,13 +196,27 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     }
 
     let lighthouseStorageKey = this.payload.snapshotReport.lighthouseStorageKey
-    if (this.lhResult && callFrames) {
+    if (this.lhResult && callFrames?.length) {
       this.logger.info(`Start uploading lh result with parsed function callframes`)
       try {
         const lighthouseStorageName = `lh-result/${uuid()}.json`
         lighthouseStorageKey = await this.client.uploadArtifact(
           lighthouseStorageName,
           Buffer.from(JSON.stringify(this.lhResult), 'utf-8'),
+        )
+      } catch (e) {
+        this.logger.error('Failed to uploading lh result', { error: e })
+      }
+    }
+
+    let requestsStorageKey = this.payload.snapshotReport.requestsStorageKey
+    if (this.requestsResult && callFrames?.length) {
+      this.logger.info(`Start uploading lh result with parsed function callframes`)
+      try {
+        const requestsStorageName = `requests/${uuid()}.json`
+        requestsStorageKey = await this.client.uploadArtifact(
+          requestsStorageName,
+          Buffer.from(JSON.stringify(this.requestsResult), 'utf-8'),
         )
       } catch (e) {
         this.logger.error('Failed to uploading lh result', { error: e })
@@ -218,6 +234,8 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       statisticsStorageKey: statisticsStorageKey,
       reactProfileStorageKey,
       lighthouseStorageKey,
+      requestsStorageKey,
+      traceDataStorageKey: payload.snapshotReport.traceDataStorageKey,
     } as SourceAnalyzeJobResult
 
     this.logger.info('Return source analysis result', { result })
@@ -409,7 +427,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
   }
 
   private async prepareCallFrames() {
-    const { lighthouseStorageKey } = this.payload.snapshotReport
+    const { lighthouseStorageKey, requestsStorageKey } = this.payload.snapshotReport
     if (!lighthouseStorageKey) {
       return
     }
@@ -417,12 +435,21 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     this.logger.info('Start preparing call frames.')
     this.logger.info('Downloading lighthouse result.')
 
+    if (requestsStorageKey) {
+      try {
+        const buf = await this.client.getArtifact(requestsStorageKey)
+        this.requestsResult = JSON.parse(buf.toString('utf-8'))
+      } catch (e) {
+        this.logger.error('Failed to download reqeusts', { error: e })
+      }
+    }
+
     try {
       const buf = await this.client.getArtifact(lighthouseStorageKey)
       const lhResult = JSON.parse(buf.toString('utf-8')) as LHStoredSchema
       this.lhResult = lhResult
       this.logger.verbose(`Downloading lighthouse result ${lighthouseStorageKey} finished`)
-      const initiatorCallFrames = lhResult.artifactsResult.flatMap((network) => {
+      const initiatorCallFrames = (lhResult.artifactsResult || this.requestsResult)?.flatMap((network) => {
         const frames = []
         for (let stack = network.initiator.stack; stack; stack = stack.parent) {
           frames.push(...stack.callFrames)
@@ -432,7 +459,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
       // @ts-expect-error
       const causeForLcp = lhResult.lhrAudit['cause-for-lcp'].details?.items?.[0] as CauseForLcp | undefined
       const lcpLongtaskCallFrames = causeForLcp?.longtasks.flatMap((t) => t.hotFunctionsStackTraces ?? []).flat() ?? []
-      this.callFrames = initiatorCallFrames.concat(...lcpLongtaskCallFrames)
+      this.callFrames = initiatorCallFrames?.concat(...lcpLongtaskCallFrames) || []
 
       const callFrameKeys = this.callFrames.map(getKeyForCallFrame).filter(Boolean) as string[]
       this.callFrameKeys = callFrameKeys

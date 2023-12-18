@@ -68,7 +68,7 @@ export enum AnalysisReportTabType {
 
 export type SnapshotDetailType = {
   report: SnapshotReportSchema
-  requests: RequestSchema[]
+  requests?: RequestSchema[]
   requestsBaseTimestamp?: number
   audits: AuditsSchema
   traceData?: Task[]
