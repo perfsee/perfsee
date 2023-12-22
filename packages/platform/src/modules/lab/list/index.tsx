@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Stack, DocumentCard, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useEffect, FC, useState } from 'react'
+import { useCallback, useEffect, FC, useState, useMemo } from 'react'
 
 import { Pagination, useQueryString, useToggleState, ContentCard, Empty } from '@perfsee/components'
 import { SnapshotTrigger } from '@perfsee/schema'
@@ -136,16 +136,25 @@ const SnapshotList: FC<Props> = (props) => {
     updateQueryString({ snapshotId: activeSnapshotId ? `${activeSnapshotId}` : undefined })
   }, [activeSnapshotId, updateQueryString])
 
+  const activeSnapshotLoaded = useMemo(() => {
+    return !!snapshots.find((s) => s.id === activeSnapshotId)
+  }, [snapshots, activeSnapshotId])
+
+  const activeSnapshotReportsLoaded = useMemo(() => {
+    return activeSnapshotId && (reportsWithId[activeSnapshotId] as ReportsPayload<false>)?.reports?.length
+  }, [reportsWithId, activeSnapshotId])
+
   useEffect(() => {
-    if (activeSnapshotId) {
-      if (!snapshots.find((s) => s.id === activeSnapshotId)) {
-        dispatcher.getSnapshot({ snapshotId: activeSnapshotId })
-      }
-      if (!(reportsWithId[activeSnapshotId] as ReportsPayload<false>)?.reports?.length) {
-        dispatcher.getSnapshotReports(activeSnapshotId)
-      }
+    if (activeSnapshotId && !activeSnapshotReportsLoaded) {
+      dispatcher.getSnapshotReports(activeSnapshotId)
     }
-  }, [activeSnapshotId, dispatcher, reportsWithId, snapshotId, snapshots])
+  }, [activeSnapshotId, dispatcher, activeSnapshotReportsLoaded])
+
+  useEffect(() => {
+    if (activeSnapshotId && !activeSnapshotLoaded) {
+      dispatcher.getSnapshot({ snapshotId: activeSnapshotId })
+    }
+  }, [activeSnapshotId, dispatcher, activeSnapshotLoaded])
 
   if (loading) {
     return <CardsShimmer size={SNAPSHOT_PAGE_SIZE} />
