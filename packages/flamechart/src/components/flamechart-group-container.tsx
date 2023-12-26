@@ -1,4 +1,4 @@
-import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, MouseEventHandler, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Color } from '../lib/color'
 import { Flamechart, FlamechartFrame } from '../lib/flamechart'
@@ -48,28 +48,32 @@ export interface FlamechartGroupContainerProps {
   useSimpleDetailView?: boolean
 }
 
-const CollapseButton = memo<{ collapsed: boolean }>(({ collapsed }) => {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 48 48"
-      fill="none"
-      style={{
-        verticalAlign: 'text-top',
-        margin: '0 4px',
-        transform: !collapsed ? 'rotateZ(90deg)' : 'rotateZ(0deg)',
-      }}
-    >
-      <path
-        d="M15 24V11.8756L25.5 17.9378L36 24L25.5 30.0622L15 36.1244V24Z"
-        fill="#333"
-        stroke="#333"
-        strokeWidth="4"
-      />
-    </svg>
-  )
-})
+const CollapseButton = memo<{ collapsed: boolean; onClick: MouseEventHandler<SVGSVGElement> }>(
+  ({ collapsed, onClick }) => {
+    return (
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 48 48"
+        fill="none"
+        style={{
+          verticalAlign: 'text-top',
+          margin: '0 4px',
+          transform: !collapsed ? 'rotateZ(90deg)' : 'rotateZ(0deg)',
+          cursor: 'pointer',
+        }}
+        onClick={onClick}
+      >
+        <path
+          d="M15 24V11.8756L25.5 17.9378L36 24L25.5 30.0622L15 36.1244V24Z"
+          fill="#333"
+          stroke="#333"
+          strokeWidth="4"
+        />
+      </svg>
+    )
+  },
+)
 
 const SimpleDetailView: React.FunctionComponent<{ frame: FlamechartFrame; theme: Theme }> = ({ frame, theme }) => {
   return (
@@ -133,10 +137,10 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       const [searchEngine, setSearchEngine] = useState<ProfileSearchEngine | null>()
       const [searchBoxVisibility, setSearchBoxVisibility] = useState<boolean>()
       const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame | null>()
+      const [splitCollapsed, setSplitCollapsed] = useState<(boolean | undefined)[]>([])
 
-      const [splitCollapsed, setSplitCollapsed] = useState<boolean[]>([])
       let firstVisibleSplit = -1
-      for (let i = 0; i < splitCollapsed.length; i++) {
+      for (let i = 0; i < profiles.length; i++) {
         if (splitCollapsed[i]) {
           firstVisibleSplit = i
         } else {
@@ -149,9 +153,27 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         [profiles.length, splitCollapsed],
       )
       const [configSplitSize, setConfigSplitSize] = useState<number[]>([])
+
+      const onSizeChange = useCallback(
+        (sizes: number[]) => {
+          setConfigSplitSize((oldSizes) => {
+            return sizes.map((s, i) => {
+              if (splitCollapsed[i] === true) {
+                return oldSizes[i] ?? (i === 0 ? 125 : 100)
+              }
+              return s
+            })
+          })
+        },
+        [splitCollapsed],
+      )
+
       const finalSplitSize = useMemo(
-        () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 24 : configSplitSize[i]) ?? 0),
-        [configSplitSize, profiles.length, splitCollapsed],
+        () =>
+          new Array(profiles.length)
+            .fill(0)
+            .map((_, i) => (splitCollapsed[i] ? 24 : configSplitSize[i]) ?? splitMinSize[i]),
+        [configSplitSize, profiles.length, splitCollapsed, splitMinSize],
       )
       const splitGrow = useMemo(
         () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 0 : profiles[i].grow ?? 1)),
@@ -194,7 +216,6 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
           fontSize: '12px',
           border: `1px solid ${globalTheme.borderColor}`,
           borderWidth: '1px 0 1px',
-          userSelect: 'none',
           background: Color.fromCSSHex(globalTheme.bgPrimaryColor).withAlpha(0.5).toCSS(),
           color: globalTheme.fgPrimaryColor,
         }),
@@ -283,7 +304,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
 
       const lastVisibleView = useMemo(() => {
         let lastVisibleSplit = profiles.length - 1
-        for (let i = splitCollapsed.length - 1; i >= 0; i--) {
+        for (let i = profiles.length - 1; i >= 0; i--) {
           if (!splitCollapsed[i]) {
             lastVisibleSplit = i
             break
@@ -299,8 +320,8 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         const hasOwnedTiming = !!item.timings
         return (width: number, height: number) => (
           <Fragment key={index}>
-            <div onClick={handleClickSash[index]} style={sashStyle}>
-              <CollapseButton collapsed={collapsed} />
+            <div style={sashStyle}>
+              <CollapseButton collapsed={collapsed} onClick={handleClickSash[index]} />
               {item.name}
             </div>
             <FlamechartViewContainer
@@ -401,7 +422,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
                 minSize={splitMinSize}
                 size={finalSplitSize}
                 grow={splitGrow}
-                onSizeChange={setConfigSplitSize}
+                onSizeChange={onSizeChange}
                 direction="column"
               >
                 {views}

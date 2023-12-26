@@ -8,6 +8,7 @@ import {
   useMemo,
   FunctionComponent,
   MouseEvent as ReactMouseEvent,
+  useLayoutEffect,
 } from 'react'
 
 import { createStyle, useDomEvent } from './utils'
@@ -168,6 +169,14 @@ const SplitView: React.FunctionComponent<ISplitViewProps> = memo(
       }
       return [...size]
     }, [direction, grow, width, height, minSize, size])
+
+    // set initial split sizes for parent
+    useLayoutEffect(() => {
+      setTimeout(() => {
+        onSizeChange?.(finalSize)
+      }, 200)
+      // eslint-disable-next-line
+    }, [])
 
     const handleSashMouseDown = useCallback(
       (index: number, e: ReactMouseEvent) => {
