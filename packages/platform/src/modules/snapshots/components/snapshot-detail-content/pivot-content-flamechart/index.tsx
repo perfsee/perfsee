@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Panel } from '@fluentui/react'
+import { Panel, LayerHost } from '@fluentui/react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useQueryString } from '@perfsee/components'
@@ -31,6 +31,8 @@ import { FlamechartContainer } from './style'
 type Props = {
   snapshot: SnapshotDetailType
 }
+
+const panelLayerProps = { hostId: 'layer-host' }
 
 export const FlameChartPivotContent = (props: Props) => {
   const { snapshot } = props
@@ -75,6 +77,8 @@ export const FlameChartPivotContent = (props: Props) => {
       headerText={metricInsightTitle}
       isBlocking={false}
       type={3}
+      layerProps={panelLayerProps}
+      styles={{ root: { zIndex: 100 } }}
     >
       <FlamechartOperationContext.Provider value={flamechartOperations}>
         {metricInsightContent}
@@ -88,7 +92,8 @@ export const FlameChartPivotContent = (props: Props) => {
         ? snapshot.traceData[0].event.ts - snapshot.traceData[0].startTime * 1000
         : undefined
     return (
-      <FlamechartContainer>
+      <FlamechartContainer id="full-screen-elem">
+        <LayerHost id={panelLayerProps.hostId} />
         <FlamechartView
           flameChartLink={snapshot.report.flameChartLink}
           requests={snapshot.requests || []}

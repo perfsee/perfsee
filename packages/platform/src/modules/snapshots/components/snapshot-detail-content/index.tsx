@@ -14,8 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { InfoCircleOutlined } from '@ant-design/icons'
-import { Pivot, PivotItem, MessageBarType, Stack, TooltipHost, SharedColors, IButtonProps } from '@fluentui/react'
+import { FullscreenOutlined, InfoCircleOutlined } from '@ant-design/icons'
+import {
+  Pivot,
+  PivotItem,
+  MessageBarType,
+  Stack,
+  TooltipHost,
+  SharedColors,
+  IButtonProps,
+  DefaultButton,
+} from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { parse, stringifyUrl } from 'query-string'
 import { useMemo, useCallback, FC, useEffect, memo } from 'react'
@@ -132,6 +141,17 @@ const sourceCoverageLoadingPivot = (
 const sourceStatisticsPivot = (
   <PivotItem itemKey={SourceStatisticsTab.id} key={SourceStatisticsTab.id} headerText={SourceStatisticsTab.title} />
 )
+const onClickFullScreen = () => {
+  const elem = document.querySelector('#full-screen-elem')
+  if (elem) {
+    void elem.requestFullscreen()
+  }
+}
+const fullScreenButton = (
+  <DefaultButton styles={{ label: { fontWeight: 400 }, root: { whiteSpace: 'pre' } }} onClick={onClickFullScreen}>
+    <FullscreenOutlined /> Full Screen
+  </DefaultButton>
+)
 
 export const ReportContent: FC<ReportContentProps> = (props) => {
   const { tabName, snapshotReports, onLinkClick } = props
@@ -168,16 +188,19 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
 
     return (
       <div>
-        <Pivot styles={{ root: { marginBottom: '16px' } }} selectedKey={tabName} onLinkClick={onLinkClick}>
-          {overviewPivot}
-          {page?.isE2e ? userFlowPivot : undefined}
-          {assetPivot}
-          {sourceStatisticsPivot}
-          {report.flameChartLink ? flamechartPivot : sourceOnGoing ? flamechartLoadingPivot : undefined}
-          {report.sourceCoverageLink ? sourceCoveragePivot : sourceOnGoing ? sourceCoverageLoadingPivot : undefined}
-          {report.reactProfileLink ? reactPivot : undefined}
-          {logPivot}
-        </Pivot>
+        <Stack horizontal verticalAlign="baseline" horizontalAlign="space-between">
+          <Pivot styles={{ root: { marginBottom: '16px' } }} selectedKey={tabName} onLinkClick={onLinkClick}>
+            {overviewPivot}
+            {page?.isE2e ? userFlowPivot : undefined}
+            {assetPivot}
+            {sourceStatisticsPivot}
+            {report.flameChartLink ? flamechartPivot : sourceOnGoing ? flamechartLoadingPivot : undefined}
+            {report.sourceCoverageLink ? sourceCoveragePivot : sourceOnGoing ? sourceCoverageLoadingPivot : undefined}
+            {report.reactProfileLink ? reactPivot : undefined}
+            {logPivot}
+          </Pivot>
+          {tabName === FlamechartTab.id ? fullScreenButton : null}
+        </Stack>
         <PivotContent snapshot={detail} type={tabName} />
         <LighthouseBrand tokens={{ childrenGap: 8 }} horizontal horizontalAlign="center" verticalAlign="center">
           <InfoCircleOutlined />
