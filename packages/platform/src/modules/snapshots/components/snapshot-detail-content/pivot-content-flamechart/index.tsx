@@ -77,7 +77,7 @@ export const FlameChartPivotContent = (props: Props) => {
       headerText={metricInsightTitle}
       isBlocking={false}
       type={3}
-      layerProps={panelLayerProps}
+      layerProps={document.fullscreenElement?.id === 'full-screen-elem' ? panelLayerProps : undefined}
       styles={{ root: { zIndex: 100 } }}
     >
       <FlamechartOperationContext.Provider value={flamechartOperations}>
