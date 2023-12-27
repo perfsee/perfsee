@@ -21,7 +21,7 @@ export const FlamechartContainer = styled.div(({ theme }) => ({
   width: '100%',
   height: 'calc(100vh - 350px)',
   minHeight: '500px',
-  background: theme.colors.primaryBackground,
+  background: theme.colors.white,
 }))
 
 export const DetailContentContainer = styled(Stack)({
