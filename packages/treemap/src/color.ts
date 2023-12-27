@@ -67,12 +67,7 @@ export class Color {
     return new Color(r / 255, g / 255, b / 255, a)
   }
 
-  constructor(
-    public readonly r: number = 0,
-    public readonly g: number = 0,
-    public readonly b: number = 0,
-    public readonly a: number = 1,
-  ) {}
+  constructor(public readonly r = 0, public readonly g = 0, public readonly b = 0, public readonly a = 1) {}
 
   withAlpha(a: number): Color {
     return new Color(this.r, this.g, this.b, a)

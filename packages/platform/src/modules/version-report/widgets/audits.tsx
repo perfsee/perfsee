@@ -112,7 +112,7 @@ const LabAuditItem = ({ audit }: { audit: LighthouseAudit }) => {
 }
 
 const LongTaskAudit = ({ issue }: LongTaskAuditProps) => {
-  if (!issue || !issue.issues?.length) {
+  if (!issue?.issues?.length) {
     return null
   }
 

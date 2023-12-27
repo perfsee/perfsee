@@ -31,7 +31,7 @@ export class Logger {
   error = this.getLineLogger(console.error.bind(console), chalk.bgHex('#250201').hex('#ef8784'))
   success = this.getLineLogger(console.log.bind(console), chalk.green)
 
-  constructor(private readonly tag: string = '') {}
+  constructor(private readonly tag = '') {}
 
   getLineLogger(logLine: (...line: string[]) => void, color: (...text: string[]) => string = identity) {
     return (...args: StringLike[]) => {

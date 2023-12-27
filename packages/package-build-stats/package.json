@@ -50,7 +50,7 @@
     "@babel/core": "^7.13.8",
     "@babel/parser": "^7.13.9",
     "@babel/plugin-proposal-export-default-from": "^7.12.13",
-    "@babel/traverse": "^7.13.0",
+    "@babel/traverse": "^7.23.6",
     "autoprefixer": "^9.7.6",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.3.0",
@@ -91,7 +91,7 @@
     "svelte-loader": "^2.13.6",
     "terser": "^5.6.0",
     "terser-webpack-plugin": "^4.2.3",
-    "vm2": "^3.9.7",
+    "vm2": "^3.9.19",
     "webpack": "^4.44.2",
     "webpack-merge": "^5.9.0",
     "write-file-webpack-plugin": "^4.5.1"

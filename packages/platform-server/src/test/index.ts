@@ -24,9 +24,11 @@ export * from './database'
 export * from './graphql-client'
 export * from './client'
 
+// eslint-disable-next-line
 interface Type<T = any> extends Function {
   new (...args: any[]): T
 }
+// eslint-disable-next-line
 interface Abstract<T> extends Function {
   prototype: T
 }

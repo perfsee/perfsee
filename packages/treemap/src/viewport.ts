@@ -37,7 +37,7 @@ export default class ViewportController {
   lastMousePosition: Vec2 | null = null
   lastGestureScale: number | null = null
 
-  constructor(private element: HTMLCanvasElement, private readonly logicalToPosition: AffineTransform) {
+  constructor(private readonly element: HTMLCanvasElement, private readonly logicalToPosition: AffineTransform) {
     this.applyDraggingEventListener()
     this.applyHoverListener()
     this.applyResizeListener()

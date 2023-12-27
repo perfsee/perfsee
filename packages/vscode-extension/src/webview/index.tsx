@@ -121,7 +121,7 @@ const App = () => {
   })
 
   const timings = useMemo<Timing[] | undefined>(() => {
-    if (!props || !props.metrics) return
+    if (!props?.metrics) return
     return Object.keys(props.metrics)
       .map((key) => getTimingsFromMetric(key as MetricType, props.metrics![key]))
       .filter((v) => !!v) as Timing[]

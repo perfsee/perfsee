@@ -128,7 +128,7 @@ export const SnapshotMetricsList = () => {
     }))
   }, [project, reports])
 
-  if (!data || !data.length) {
+  if (!data?.length) {
     return null
   }
 

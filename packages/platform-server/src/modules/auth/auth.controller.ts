@@ -123,7 +123,7 @@ export class AuthController implements OnApplicationBootstrap {
       return
     }
 
-    if (!email || !email.trim()) {
+    if (!email?.trim()) {
       throw new HttpException("Email can't be empty", HttpStatus.BAD_REQUEST)
     }
 
@@ -160,11 +160,11 @@ export class AuthController implements OnApplicationBootstrap {
 
   @Post('/reset-password')
   async resetPassword(@Body() body: ResetPasswordBody, @Res() res: Response, @Query('returnUrl') returnUrl: string) {
-    if (!body.resetToken || !body.resetToken.trim()) {
+    if (!body.resetToken?.trim()) {
       throw new HttpException("Reset token can't be empty", HttpStatus.BAD_REQUEST)
     }
 
-    if (!body.password || !body.password.trim()) {
+    if (!body.password?.trim()) {
       throw new HttpException("Password can't be empty", HttpStatus.BAD_REQUEST)
     }
 
@@ -198,15 +198,15 @@ export class AuthController implements OnApplicationBootstrap {
       throw new ForbiddenException('Signup is disabled')
     }
 
-    if (!body.email || !body.email.trim()) {
+    if (!body.email?.trim()) {
       throw new HttpException("Email can't be empty", HttpStatus.BAD_REQUEST)
     }
 
-    if (!body.password || !body.password.trim()) {
+    if (!body.password?.trim()) {
       throw new HttpException("Password can't be empty", HttpStatus.BAD_REQUEST)
     }
 
-    if (!body.username || !body.username.trim()) {
+    if (!body.username?.trim()) {
       throw new HttpException("Username can't be empty", HttpStatus.BAD_REQUEST)
     }
 

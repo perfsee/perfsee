@@ -92,7 +92,7 @@ export class GithubIntegrationResolver {
   })
   async getGithubInstallation(@CurrentUser() user: User) {
     const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
-    if (!githubAccount || !githubAccount.accessToken) {
+    if (!githubAccount?.accessToken) {
       throw new UserError('Please connect your github account first.')
     }
 
@@ -111,7 +111,7 @@ export class GithubIntegrationResolver {
     paginationInput: PaginationInput,
   ) {
     const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
-    if (!githubAccount || !githubAccount.accessToken) {
+    if (!githubAccount?.accessToken) {
       throw new UserError('Please connect your github account first.')
     }
 
@@ -146,7 +146,7 @@ export class GithubIntegrationResolver {
     paginationInput: PaginationInput,
   ) {
     const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
-    if (!githubAccount || !githubAccount.accessToken) {
+    if (!githubAccount?.accessToken) {
       throw new UserError('Please connect your github account first.')
     }
 

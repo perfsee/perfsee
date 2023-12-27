@@ -35,7 +35,7 @@ export const getGroupedAuditLists = (
   const relevantAuditMap = new Map<string, string[]>()
   const auditRelevantMap = new Map<string, string[]>()
 
-  if (!auditRefs || !auditRefs.length) {
+  if (!auditRefs?.length) {
     return { result, relevantAuditMap }
   }
 

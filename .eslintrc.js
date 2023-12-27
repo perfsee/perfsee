@@ -125,7 +125,6 @@ const config = {
         'no-use-before-define': 0,
         'require-await': 0,
         '@typescript-eslint/require-array-sort-compare': [2, { ignoreStringArrays: true }],
-        '@typescript-eslint/no-duplicate-imports': 2,
         '@typescript-eslint/adjacent-overload-signatures': 2,
         '@typescript-eslint/await-thenable': 2,
         '@typescript-eslint/consistent-type-assertions': 2,

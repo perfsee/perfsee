@@ -213,7 +213,7 @@ const BuildUtils = {
     }
 
     if (options.splitCustomImports) {
-      if (!options.customImports || !options.customImports.length) {
+      if (!options.customImports?.length) {
         return { assets: [] }
       }
       options.customImports.forEach((importt) => {

@@ -10,8 +10,8 @@
   "dependencies": {
     "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.9.3",
-    "@fluentui/react": "^8.105.5",
-    "@fluentui/theme": "^2.6.22",
+    "@fluentui/react": "^8.114.0",
+    "@fluentui/theme": "^2.6.39",
     "color-converters": "^0.1.1",
     "react": "^18.2.0"
   }

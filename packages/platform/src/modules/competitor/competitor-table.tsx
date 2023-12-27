@@ -63,7 +63,7 @@ const metricColumns = ['FCP', 'FMP', 'LCP', 'SI', 'TTI', 'TBT', 'WS'].map((key) 
     },
     onRender: (item) => {
       const payload = item[MetricType[key]]
-      if (!payload || !payload.sample.length) {
+      if (!payload?.sample.length) {
         return '-'
       }
       const { mean, rme } = evaluate(payload.sample)
@@ -117,7 +117,7 @@ const tableColumns = [
     },
     onRender: (item) => {
       const payload = item[LighthouseScoreMetric.Performance]
-      if (!payload || !payload.sample.length) {
+      if (!payload?.sample.length) {
         return '-'
       }
       const { mean, rme } = evaluate(payload.sample)
@@ -141,7 +141,7 @@ const tableColumns = [
     },
     onRender: (item) => {
       const payload = item[LighthouseScoreMetric.Accessibility]
-      if (!payload || !payload.sample.length) {
+      if (!payload?.sample.length) {
         return '-'
       }
       const { mean, rme } = evaluate(payload.sample)

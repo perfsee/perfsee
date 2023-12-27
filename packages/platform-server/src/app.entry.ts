@@ -70,7 +70,7 @@ export async function createApp() {
   app.useGlobalFilters(new AnyErrorFilter(app.getHttpAdapter()))
   app.useGlobalFilters(new QueryErrorFilter())
   app.useGlobalFilters(new UnauthorizedExceptionFilter())
-  app.useGlobalGuards(new RedisThrottleGuard({ limit: 120, ttl: 60 }, redis, metrics, app.get(Reflector)))
+  app.useGlobalGuards(new RedisThrottleGuard([{ limit: 120, ttl: 60 }], redis, metrics, app.get(Reflector)))
   app.useGlobalGuards(new PreAuthGuard(app.get(AuthService)))
 
   async function start() {

@@ -266,7 +266,7 @@
     "@types/diff": "^5.0.2",
     "@types/vscode": "^1.50.0",
     "diff": "^5.1.0",
-    "graphql": "^16.0.0",
+    "graphql": "^16.8.1",
     "isomorphic-git": "^1.18.3",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.2",

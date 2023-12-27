@@ -84,7 +84,7 @@ export class GithubService {
     repo: string,
   ): Promise<{ ok: false; error: string } | { ok: true; caseSensitiveRepo: string; caseSensitiveOwner: string }> {
     const githubAccount = await this.userService.getUserConnectedAccount(user, ExternalAccount.github)
-    if (!githubAccount || !githubAccount.accessToken) {
+    if (!githubAccount?.accessToken) {
       return {
         ok: false,
         error: `Please connect your github account first.`,
