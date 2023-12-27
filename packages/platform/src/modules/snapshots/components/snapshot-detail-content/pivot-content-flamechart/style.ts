@@ -17,11 +17,12 @@ limitations under the License.
 import styled from '@emotion/styled'
 import { NeutralColors, Stack } from '@fluentui/react'
 
-export const FlamechartContainer = styled.div({
+export const FlamechartContainer = styled.div(({ theme }) => ({
   width: '100%',
   height: 'calc(100vh - 350px)',
   minHeight: '500px',
-})
+  background: theme.colors.primaryBackground,
+}))
 
 export const DetailContentContainer = styled(Stack)({
   overflow: 'hidden',
