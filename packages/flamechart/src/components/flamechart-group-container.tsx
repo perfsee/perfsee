@@ -13,7 +13,7 @@ import { FlamechartBindingManager } from '../views/flamechart-binding-manager'
 import { withErrorBoundary } from './error-catcher'
 import { FlamechartFactory, FlamechartFactoryMap } from './flamechart-factory'
 import { FlamechartViewContainer, FlamechartViewContainerRef } from './flamechart-view-container'
-import { SearchBox, useSearchBoxShortcut } from './search-box'
+import { SearchBox, searchBoxStyles, searchHint, useSearchBoxShortcut } from './search-box'
 import SplitView from './split-view'
 import { useElementSize } from './utils'
 
@@ -46,6 +46,9 @@ export interface FlamechartGroupContainerProps {
   onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
   focusedFrame?: { key: string; parentKeys?: string[] }
   useSimpleDetailView?: boolean
+  onSplitChange?: (collapsed: (boolean | undefined)[], sizes: number[]) => void
+  initCollapsed?: (boolean | undefined)[]
+  initSplitSizes?: number[]
 }
 
 const CollapseButton = memo<{ collapsed: boolean; onClick: MouseEventHandler<SVGSVGElement> }>(
@@ -100,12 +103,6 @@ const SimpleDetailView: React.FunctionComponent<{ frame: FlamechartFrame; theme:
 
 const styles = {
   container: { position: 'relative', height: '100%', overflow: 'hidden' } as React.CSSProperties,
-  searchBox: {
-    position: 'absolute',
-    right: '0px',
-    top: '0px',
-    zIndex: 10,
-  } as React.CSSProperties,
 }
 
 export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponent<FlamechartGroupContainerProps>>(
@@ -127,6 +124,9 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       images = [],
       focusedFrame,
       useSimpleDetailView,
+      onSplitChange,
+      initCollapsed,
+      initSplitSizes,
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
       const bindingManager = useMemo(() => {
@@ -137,7 +137,7 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       const [searchEngine, setSearchEngine] = useState<ProfileSearchEngine | null>()
       const [searchBoxVisibility, setSearchBoxVisibility] = useState<boolean>()
       const [selectedFrame, setSelectedFrame] = useState<FlamechartFrame | null>()
-      const [splitCollapsed, setSplitCollapsed] = useState<(boolean | undefined)[]>([])
+      const [splitCollapsed, setSplitCollapsed] = useState<(boolean | undefined)[]>(initCollapsed || [])
 
       let firstVisibleSplit = -1
       for (let i = 0; i < profiles.length; i++) {
@@ -152,7 +152,11 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 24 : i === 0 ? 125 : 100)),
         [profiles.length, splitCollapsed],
       )
-      const [configSplitSize, setConfigSplitSize] = useState<number[]>([])
+      const [configSplitSize, setConfigSplitSize] = useState<number[]>(initSplitSizes || [])
+
+      useEffect(() => {
+        onSplitChange?.(splitCollapsed, configSplitSize)
+      }, [splitCollapsed, configSplitSize, onSplitChange])
 
       const onSizeChange = useCallback(
         (sizes: number[]) => {
@@ -161,11 +165,13 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
               if (splitCollapsed[i] === true) {
                 return oldSizes[i] ?? (i === 0 ? 125 : 100)
               }
-              return s
+              return containerHeight
+                ? Math.min(Number(s.toFixed(0)), containerHeight - 100 * (sizes.length - 2) - 25)
+                : Number(s.toFixed(0))
             })
           })
         },
-        [splitCollapsed],
+        [splitCollapsed, containerHeight],
       )
 
       const finalSplitSize = useMemo(
@@ -407,14 +413,18 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       return (
         <>
           <div style={styles.container} ref={containerRef}>
-            {!disableSearchBox && searchBoxVisibility && (
-              <SearchBox
-                onSearch={handleSearch}
-                theme={lightTheme}
-                style={styles.searchBox}
-                onClose={handleCloseSearchBox}
-              />
-            )}
+            {!disableSearchBox ? (
+              searchBoxVisibility ? (
+                <SearchBox
+                  onSearch={handleSearch}
+                  theme={lightTheme}
+                  style={searchBoxStyles}
+                  onClose={handleCloseSearchBox}
+                />
+              ) : (
+                searchHint
+              )
+            ) : null}
             {containerWidth && containerHeight && (
               <SplitView
                 width={containerWidth}

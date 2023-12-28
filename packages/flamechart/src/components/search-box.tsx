@@ -9,6 +9,15 @@ interface Props {
   theme: Theme
   style?: React.CSSProperties
 }
+export const searchBoxStyles = {
+  position: 'absolute',
+  right: '0px',
+  top: '0px',
+  zIndex: 10,
+} as React.CSSProperties
+export const searchHint = (
+  <span style={{ ...searchBoxStyles, color: '#7a7574', fontSize: 12 }}>Ctrl/Command + F to search</span>
+)
 
 export const SearchBox: React.FC<Props> = ({ onSearch, onClose, theme, style }) => {
   const [queryText, setQueryText] = useState<string>()
