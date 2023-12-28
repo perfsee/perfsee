@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Panel, LayerHost } from '@fluentui/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useQueryString } from '@perfsee/components'
 import { Timing } from '@perfsee/flamechart'
@@ -68,6 +68,15 @@ export const FlameChartPivotContent = (props: Props) => {
       },
     }
   }, [])
+
+  useEffect(() => {
+    const handler = () => {
+      onTimingPanelDismiss()
+    }
+    document.addEventListener('fullscreenchange', handler)
+
+    return () => document.removeEventListener('fullscreenchange', handler)
+  }, [onTimingPanelDismiss])
 
   const metricInsightPanel = (
     <Panel

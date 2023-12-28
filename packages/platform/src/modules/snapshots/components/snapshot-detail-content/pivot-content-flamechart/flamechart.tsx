@@ -16,7 +16,7 @@ limitations under the License.
 
 import { SharedColors } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 
 import { ReactLogoIcon, useWideScreen } from '@perfsee/components'
 import {
@@ -86,6 +86,9 @@ const reactLogoImage = FlamechartImage.createFromSvgStr(
 
 const images = [reactLogoImage]
 
+const FLAME_CHART_LOCAL_STORAGE_KEY = 'perfsee_flamechart_config_v1'
+const getStorageKey = (flamechartLink: string) => flamechartLink.split('/').slice(-1)[0].split('.')[0]
+
 export const FlamechartView: React.FunctionComponent<{
   flameChartLink: string
   reactProfileLink: string | null
@@ -125,6 +128,26 @@ export const FlamechartView: React.FunctionComponent<{
       dispatcher.fetchFlamechartData(flameChartLink)
       return dispatcher.reset
     }, [dispatcher, flameChartLink])
+
+    const onSplitChange = useCallback(
+      (collapsed: (boolean | undefined)[], sizes: number[]) => {
+        const storageConfig = JSON.parse(localStorage.getItem(FLAME_CHART_LOCAL_STORAGE_KEY) || '{}')
+        localStorage.setItem(
+          FLAME_CHART_LOCAL_STORAGE_KEY,
+          JSON.stringify({ ...storageConfig, [getStorageKey(flameChartLink)]: [collapsed, sizes] }),
+        )
+      },
+      [flameChartLink],
+    )
+    const [initCollapsed, initSplitSizes] = useMemo(() => {
+      try {
+        const storageConfig = JSON.parse(localStorage.getItem(FLAME_CHART_LOCAL_STORAGE_KEY) || '{}')
+        const storageKey = getStorageKey(flameChartLink)
+        return [storageConfig[storageKey]?.[0], storageConfig[storageKey]?.[1]]
+      } catch {
+        return []
+      }
+    }, [flameChartLink])
 
     const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
     const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
@@ -288,6 +311,9 @@ export const FlamechartView: React.FunctionComponent<{
           images={images}
           onClickTiming={onClickTiming}
           focusedFrame={focusedFrame}
+          onSplitChange={onSplitChange}
+          initCollapsed={initCollapsed}
+          initSplitSizes={initSplitSizes}
         />
       </>
     )

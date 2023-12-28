@@ -10,7 +10,7 @@ import { lightTheme, Theme } from '../themes/theme'
 import { withErrorBoundary } from './error-catcher'
 import { FlamechartFactory, FlamechartFactoryMap } from './flamechart-factory'
 import { FlamechartViewContainer, FlamechartViewContainerRef } from './flamechart-view-container'
-import { SearchBox, useSearchBoxShortcut } from './search-box'
+import { SearchBox, searchBoxStyles, searchHint, useSearchBoxShortcut } from './search-box'
 import { useElementSize } from './utils'
 
 export interface FlamechartProps {
@@ -114,12 +114,6 @@ export interface FlamechartProps {
 
 const styles = {
   container: { position: 'relative', height: '100%', overflow: 'hidden' } as React.CSSProperties,
-  searchBox: {
-    position: 'absolute',
-    right: '0px',
-    top: '0px',
-    zIndex: 10,
-  } as React.CSSProperties,
 }
 
 export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<FlamechartProps>>(
@@ -225,14 +219,18 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
 
         return (
           <div style={styles.container} ref={containerRef}>
-            {!disableSearchBox && searchBoxVisibility && (
-              <SearchBox
-                onSearch={handleSearch}
-                theme={lightTheme}
-                style={styles.searchBox}
-                onClose={handleCloseSearchBox}
-              />
-            )}
+            {!disableSearchBox ? (
+              searchBoxVisibility ? (
+                <SearchBox
+                  onSearch={handleSearch}
+                  theme={lightTheme}
+                  style={searchBoxStyles}
+                  onClose={handleCloseSearchBox}
+                />
+              ) : (
+                searchHint
+              )
+            ) : null}
             {!!containerWidth && !!containerHeight && (
               <FlamechartViewContainer
                 ref={setView}
