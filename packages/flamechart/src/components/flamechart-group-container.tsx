@@ -24,6 +24,7 @@ export interface FlamechartGroupContainerProps {
     timings?: Timing[]
     flamechartFactory?: FlamechartFactory | keyof typeof FlamechartFactoryMap
     grow?: number
+    shrink?: number
     theme?: Theme
   }[]
   timings?: Timing[]
@@ -148,11 +149,31 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         }
       }
       firstVisibleSplit += 1
+
+      const lastVisibleView = useMemo(() => {
+        let lastVisibleSplit = profiles.length - 1
+        for (let i = profiles.length - 1; i >= 0; i--) {
+          if (!splitCollapsed[i]) {
+            lastVisibleSplit = i
+            break
+          }
+        }
+        return lastVisibleSplit
+      }, [splitCollapsed, profiles])
+
       const splitMinSize = useMemo(
-        () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 24 : i === 0 ? 125 : 100)),
-        [profiles.length, splitCollapsed],
+        () =>
+          new Array(profiles.length)
+            .fill(0)
+            .map((_, i) => (splitCollapsed[i] ? 24 : i === lastVisibleView ? 200 : i === 0 ? 125 : 100)),
+        [profiles.length, splitCollapsed, lastVisibleView],
       )
       const [configSplitSize, setConfigSplitSize] = useState<number[]>(initSplitSizes || [])
+
+      const splitMaxSize = useMemo(
+        () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 24 : containerHeight ?? Infinity)),
+        [profiles.length, splitCollapsed, containerHeight],
+      )
 
       useEffect(() => {
         onSplitChange?.(splitCollapsed, configSplitSize)
@@ -181,8 +202,13 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
             .map((_, i) => (splitCollapsed[i] ? 24 : configSplitSize[i]) ?? splitMinSize[i]),
         [configSplitSize, profiles.length, splitCollapsed, splitMinSize],
       )
+
       const splitGrow = useMemo(
         () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 0 : profiles[i].grow ?? 1)),
+        [profiles, splitCollapsed],
+      )
+      const splitShrink = useMemo(
+        () => new Array(profiles.length).fill(0).map((_, i) => (splitCollapsed[i] ? 0 : profiles[i].shrink ?? 1)),
         [profiles, splitCollapsed],
       )
 
@@ -308,17 +334,6 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
         })
       }, [viewsRef, flamecharts, focusedSearchEngine])
 
-      const lastVisibleView = useMemo(() => {
-        let lastVisibleSplit = profiles.length - 1
-        for (let i = profiles.length - 1; i >= 0; i--) {
-          if (!splitCollapsed[i]) {
-            lastVisibleSplit = i
-            break
-          }
-        }
-        return lastVisibleSplit
-      }, [splitCollapsed, profiles])
-
       const views = profiles.map((item, index) => {
         const isFirstVisible = index === firstVisibleSplit
         const collapsed = !!splitCollapsed[index]
@@ -430,8 +445,10 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
                 width={containerWidth}
                 height={containerHeight - (useSimpleDetailView ? 24 /** simple detail view height */ : 0)}
                 minSize={splitMinSize}
+                maxSize={splitMaxSize}
                 size={finalSplitSize}
                 grow={splitGrow}
+                shrink={splitShrink}
                 onSizeChange={onSizeChange}
                 direction="column"
               >

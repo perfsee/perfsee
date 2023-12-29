@@ -22,7 +22,9 @@ interface ISplitViewProps {
   width: number
   height: number
   grow: number[]
+  shrink: number[]
   minSize: number[]
+  maxSize: number[]
   direction?: 'row' | 'column'
 }
 
@@ -43,17 +45,17 @@ const styles = createStyle({
     position: 'absolute',
     pointerEvents: 'auto',
     touchAction: 'none',
-    zIndex: 1,
+    zIndex: 2,
   },
   sashVertical: {
     top: 0,
-    width: 4,
+    width: 8,
     height: '100%',
     cursor: 'col-resize',
   },
   sashHorizontal: {
     left: 0,
-    height: 4,
+    height: 8,
     width: '100%',
     cursor: 'row-resize',
   },
@@ -138,7 +140,20 @@ const SplitViewChildContinter: React.FunctionComponent<ISplitViewChildContinterP
 }
 
 const SplitView: React.FunctionComponent<ISplitViewProps> = memo(
-  ({ className, style, size, onSizeChange, children, width, height, grow, minSize, direction = 'row' }) => {
+  ({
+    className,
+    style,
+    size,
+    onSizeChange,
+    children,
+    width,
+    height,
+    grow,
+    shrink,
+    minSize,
+    maxSize,
+    direction = 'row',
+  }) => {
     const length = size.length
 
     const [activeSashIndex, setActiveSashIndex] = useState<number>()
@@ -148,27 +163,40 @@ const SplitView: React.FunctionComponent<ISplitViewProps> = memo(
     const finalSize = useMemo(() => {
       const minSizeTotal = minSize.reduce((pre, value) => pre + value, 0)
       const targetSizeTotal = Math.max(direction === 'row' ? width : height, minSizeTotal)
-      const sizeOffsetTotal = targetSizeTotal - size.reduce((pre, value, i) => pre + Math.max(value, minSize[i]), 0)
+      let sizeOffsetTotal = targetSizeTotal - size.reduce((pre, value, i) => pre + Math.max(value, minSize[i]), 0)
+      let repeatTime = 0
       if (sizeOffsetTotal >= 0) {
-        const growTotal = grow.reduce((pre, value) => pre + value, 0)
-        const growOffset = grow.map((grow) => {
-          return growTotal !== 0 ? (grow / growTotal) * sizeOffsetTotal : 0
-        })
-        const newSize = size.map((size, index) => {
-          return Math.max(size + growOffset[index], minSize[index])
-        })
-        const newSizeTotal = newSize.reduce((pre, value) => pre + value, 0)
-
-        let remainingSize = targetSizeTotal - newSizeTotal
-        for (let i = newSize.length - 1; i >= 0; i--) {
-          const tmp = Math.max(minSize[i], newSize[i] + remainingSize)
-          remainingSize -= tmp - newSize[i]
-          newSize[i] = tmp
+        let newSize = size
+        while (sizeOffsetTotal > 0 && repeatTime++ < 5) {
+          const newGrow = grow.map((grow, i) => (newSize[i] >= maxSize[i] ? 0 : grow))
+          const growTotal = newGrow.reduce((pre, value) => pre + value, 0)
+          const growOffset = newGrow.map((grow) => {
+            return growTotal !== 0 ? (grow / growTotal) * sizeOffsetTotal : 0
+          })
+          newSize = newSize.map((size, index) => {
+            return Math.min(size + growOffset[index], maxSize[index])
+          })
+          const newSizeTotal = newSize.reduce((pre, value) => pre + value, 0)
+          sizeOffsetTotal = targetSizeTotal - newSizeTotal
+        }
+        return newSize
+      } else {
+        let newSize = size
+        while (sizeOffsetTotal < 0 && repeatTime++ < 5) {
+          const newShrink = shrink.map((shrink, i) => (newSize[i] <= minSize[i] ? 0 : shrink))
+          const shrinkTotal = newShrink.reduce((pre, value) => pre + value, 0)
+          const shrinkOffset = newShrink.map((shrink) => {
+            return shrinkTotal !== 0 ? (shrink / shrinkTotal) * sizeOffsetTotal : 0
+          })
+          newSize = newSize.map((size, index) => {
+            return Math.max(size + shrinkOffset[index], minSize[index])
+          })
+          const newSizeTotal = newSize.reduce((pre, value) => pre + value, 0)
+          sizeOffsetTotal = targetSizeTotal - newSizeTotal
         }
         return newSize
       }
-      return [...size]
-    }, [direction, grow, width, height, minSize, size])
+    }, [direction, grow, width, height, minSize, maxSize, size, shrink])
 
     // set initial split sizes for parent
     useLayoutEffect(() => {
