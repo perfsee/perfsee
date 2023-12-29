@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/bundle-report",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "bundle report module frontend part",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
