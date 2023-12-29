@@ -22,8 +22,11 @@ import { renderTimingNameTooltip } from './tooltip/timing-tooltip'
 import { TimingTreeNodeTooltip } from './tooltip/timingnode-tooltip'
 
 const SplitViewDefaultGrow = [1, 0]
+const SplitViewDefaultShrink = [1, 1]
 const SplitViewDefaultSize = [150, 0]
 const SplitViewMinSize = [150, 150]
+const SplitViewMaxSize = [Infinity, Infinity]
+const SplitViewMaxSizeNoDetailView = [Infinity, 0]
 const SplitViewMinSizeNoDetailView = [150, 0]
 
 export type FlamechartDblclickCallback = (dblclick: {
@@ -275,8 +278,10 @@ export const FlamechartViewContainer = memo(
               width={width}
               height={height}
               minSize={selectedFrame ? SplitViewMinSize : SplitViewMinSizeNoDetailView}
+              maxSize={selectedFrame ? SplitViewMaxSize : SplitViewMaxSizeNoDetailView}
               size={selectedFrame ? splitSize : SplitViewDefaultSize}
               grow={SplitViewDefaultGrow}
+              shrink={SplitViewDefaultShrink}
               onSizeChange={selectedFrame ? setSplitSize : void 0}
               direction="column"
             >
