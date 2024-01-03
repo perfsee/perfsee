@@ -131,11 +131,19 @@ export const FlamechartView: React.FunctionComponent<{
 
     const onSplitChange = useCallback(
       (collapsed: (boolean | undefined)[], sizes: number[]) => {
-        const storageConfig = JSON.parse(localStorage.getItem(FLAME_CHART_LOCAL_STORAGE_KEY) || '{}')
-        localStorage.setItem(
-          FLAME_CHART_LOCAL_STORAGE_KEY,
-          JSON.stringify({ ...storageConfig, [getStorageKey(flameChartLink)]: [collapsed, sizes] }),
-        )
+        try {
+          const storageConfig = JSON.parse(localStorage.getItem(FLAME_CHART_LOCAL_STORAGE_KEY) || '{}')
+          localStorage.setItem(
+            FLAME_CHART_LOCAL_STORAGE_KEY,
+            JSON.stringify({ ...storageConfig, [getStorageKey(flameChartLink)]: [collapsed, sizes] }),
+          )
+        } catch (e) {
+          try {
+            localStorage.removeItem(FLAME_CHART_LOCAL_STORAGE_KEY)
+          } catch {
+            //
+          }
+        }
       },
       [flameChartLink],
     )
