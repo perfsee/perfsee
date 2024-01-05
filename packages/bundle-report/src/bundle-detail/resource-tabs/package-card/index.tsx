@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react'
 import { ForeignLink } from '@perfsee/components'
 import { PackageInfo as Package } from '@perfsee/shared'
 
-const packageSuggestions = new Map<string, string>([
+export const packageSuggestions = new Map<string, string>([
   ['moment', 'use dayjs to reduce size.'],
   ['lodash', 'use lodash-es for better modularization or import plugin to minimize package size'],
   ['process', 'process is always required by webpack because of using node api like `setImmediate`, `nextTick`'],

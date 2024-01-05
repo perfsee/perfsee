@@ -19,10 +19,9 @@ import { parse, stringify } from 'query-string'
 import { FC, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
-import { EntryDiff } from '@perfsee/shared'
+import { AssetInfo, EntryDiff, ModuleTreeNode } from '@perfsee/shared'
 
 import { AssetsTable } from './assets-table'
-import { Audits } from './audits'
 import { PackagesTable } from './packages-table'
 
 enum Tab {
@@ -35,9 +34,10 @@ enum Tab {
 interface Props {
   diff: EntryDiff
   visualizationLink?: string
+  getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
 }
 
-export const ResourceTabs: FC<Props> = ({ diff, visualizationLink }) => {
+export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent }) => {
   const history = useHistory()
   const location = useLocation()
   const queries: { tab?: string } = parse(location.search)
@@ -63,13 +63,10 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink }) => {
   return (
     <Pivot onLinkClick={onChange} selectedKey={queries.tab ?? Tab.Assets}>
       <PivotItem headerText="Assets" itemKey={Tab.Assets}>
-        <AssetsTable diff={diff} />
+        <AssetsTable diff={diff} getAssetContent={getAssetContent} />
       </PivotItem>
       <PivotItem headerText="Packages" itemKey={Tab.Packages}>
         <PackagesTable diff={diff} />
-      </PivotItem>
-      <PivotItem headerText="Audits" itemKey={Tab.Audits}>
-        <Audits audits={diff.audits} />
       </PivotItem>
       {visualizationLink && <PivotItem headerText="Visualization" itemKey={Tab.Visualization} />}
     </Pivot>

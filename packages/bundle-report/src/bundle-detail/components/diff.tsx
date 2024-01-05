@@ -123,6 +123,8 @@ export type ByteSizeWithDiffProps = Diff<Size> & {
   showDiffBellow?: boolean
   hideIfNonComparable?: boolean
   underline?: boolean
+  showNewBellow?: boolean
+  showNewIfIsNew?: boolean
 }
 
 export function ByteSizeWithDiff({
@@ -132,7 +134,9 @@ export function ByteSizeWithDiff({
   showDiffBellow = true,
   underline = false,
   hideIfNonComparable = false,
+  showNewIfIsNew = false,
 }: ByteSizeWithDiffProps) {
+  const theme = useTheme()
   const plainCardProps = useMemo<IPlainCardProps>(
     () => ({
       onRenderPlainCard: () => (
@@ -150,16 +154,14 @@ export function ByteSizeWithDiff({
   )
 
   if (showDiffBellow) {
+    const numberDiff = (
+      <NumberDiff current={current.raw} baseline={baseline?.raw} isBytes hideIfNonComparable={hideIfNonComparable} />
+    )
     return (
       <HoverCard plainCardProps={plainCardProps} type={HoverCardType.plain}>
         <Stack>
           <ByteSize underline={underline} size={current.raw} className={className} />
-          <NumberDiff
-            current={current.raw}
-            baseline={baseline?.raw}
-            isBytes
-            hideIfNonComparable={hideIfNonComparable}
-          />
+          {showNewIfIsNew ? baseline ? numberDiff : <span style={{ color: theme.colors.error }}>new</span> : numberDiff}
         </Stack>
       </HoverCard>
     )

@@ -14,8 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { SelectionMode } from '@fluentui/react'
-import { FC, useMemo } from 'react'
+import { FallOutlined, RiseOutlined } from '@ant-design/icons'
+import { useTheme } from '@emotion/react'
+import styled from '@emotion/styled'
+import { CommandButton, SelectionMode } from '@fluentui/react'
+import { partition } from 'lodash'
+import { FC, useCallback, useMemo, useState } from 'react'
 
 import {
   CollapsiblePanel,
@@ -24,13 +28,25 @@ import {
   ForeignLink,
   AuditItem as AuditItemBase,
 } from '@perfsee/components'
-import { BundleAuditResult, BundleAuditDetail } from '@perfsee/shared'
+import { BundleAuditResult, BundleAuditDetail, BundleAuditScore } from '@perfsee/shared'
 
 import { ByteSizeWithDiff } from '../components'
 
 import { useAuditScore } from './use-audit-score'
 
 type Unwrap<T> = T extends Array<infer S> ? S : unknown
+
+const AuditTitle = styled.h3({
+  padding: '16px 0 0 8px',
+  display: 'flex',
+  alignItems: 'self-start',
+
+  '& > button': {
+    height: '26px',
+    color: '#106ebe',
+    marginLeft: 12,
+  },
+})
 
 export function AuditItemDetail({ detail }: { detail: BundleAuditDetail }) {
   const columns = useMemo(() => {
@@ -86,9 +102,18 @@ export function AuditItemDetail({ detail }: { detail: BundleAuditDetail }) {
   )
 }
 
-function AuditItem({ audit }: { audit: BundleAuditResult }) {
+function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAuditResult } }) {
   const scoreItemsMap = useAuditScore()
   const icon = scoreItemsMap[audit.score].icon
+  const theme = useTheme()
+
+  const diffScore = useMemo(() => {
+    if (audit.weight && audit.numericScore && audit.baseline) {
+      return 100 * audit.numericScore.value - 100 * audit.baseline.numericScore!.value
+    }
+
+    return null
+  }, [audit])
 
   return (
     <AuditItemBase
@@ -101,7 +126,20 @@ function AuditItem({ audit }: { audit: BundleAuditResult }) {
       }
       labels={
         audit.weight && audit.numericScore
-          ? [`Score: ${(100 * audit.numericScore.value).toFixed(0)}`, `Weight: ${audit.weight}`]
+          ? [
+              audit.baseline && diffScore ? (
+                <span style={{ whiteSpace: 'pre' }}>
+                  Score: {(100 * audit.numericScore.value).toFixed(0)}
+                  {'  '}
+                  <span style={{ color: diffScore > 0 ? theme.colors.success : theme.colors.error }}>
+                    {diffScore > 0 ? <RiseOutlined /> : <FallOutlined />} {diffScore.toFixed(0)}
+                  </span>
+                </span>
+              ) : (
+                `Score: ${(100 * audit.numericScore.value).toFixed(0)}`
+              ),
+              `Weight: ${audit.weight}`,
+            ]
           : []
       }
     >
@@ -116,14 +154,52 @@ function AuditItem({ audit }: { audit: BundleAuditResult }) {
 
 interface Props {
   audits: BundleAuditResult[]
+  baseline?: BundleAuditResult[] | null
 }
 
-export const Audits: FC<Props> = ({ audits }) => {
+export const Audits: FC<Props> = (props) => {
+  const audits = useMemo(() => {
+    return props.audits.map((a) => {
+      const baseline = props.baseline?.find((b) => b.id === a.id)
+      return {
+        ...a,
+        baseline,
+      }
+    })
+  }, [props.audits, props.baseline])
+  const [notPassed, passed] = partition(audits, (audit) => audit.score < BundleAuditScore.Good)
+  const [opportunities, diagnostics] = partition(notPassed, (a) => a.score <= BundleAuditScore.Warn)
+  const [show, setShow] = useState(false)
+  const onClick = useCallback(() => {
+    setShow((show) => !show)
+  }, [])
   return (
-    <div>
-      {audits.map((audit, i) => (
-        <AuditItem key={i} audit={audit} />
-      ))}
+    <div style={{ margin: '12px 0' }}>
+      {opportunities.length ? (
+        <div>
+          <AuditTitle>Opportunities &#8231; {opportunities.length}</AuditTitle>
+          {opportunities.map((audit, i) => (
+            <AuditItem key={i} audit={audit} />
+          ))}
+        </div>
+      ) : null}
+      {diagnostics.length ? (
+        <div>
+          <AuditTitle>Diagnostics &#8231; {diagnostics.length}</AuditTitle>
+          {diagnostics.map((audit, i) => (
+            <AuditItem key={i} audit={audit} />
+          ))}
+        </div>
+      ) : null}
+      {passed.length ? (
+        <div>
+          <AuditTitle>
+            Passed &#8231; {passed.length}
+            <CommandButton onClick={onClick}>{show ? 'Hide' : 'Show'}</CommandButton>
+          </AuditTitle>
+          {show ? passed.map((audit, i) => <AuditItem key={i} audit={audit} />) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

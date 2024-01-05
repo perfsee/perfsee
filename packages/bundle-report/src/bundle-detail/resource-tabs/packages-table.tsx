@@ -16,9 +16,10 @@ limitations under the License.
 
 import { PartitionOutlined } from '@ant-design/icons'
 import { SelectionMode, HoverCard, HoverCardType } from '@fluentui/react'
-import { useMemo, useCallback, useState, FC } from 'react'
+import { useMemo, useCallback, useState, FC, MouseEvent } from 'react'
 
-import { TableColumnProps, Table } from '@perfsee/components'
+import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
+import { lighten } from '@perfsee/dls'
 import {
   OLD_SOURCE_CODE_PATH,
   SOURCE_CODE_PATH,
@@ -28,15 +29,18 @@ import {
   EntryDiff,
   getDefaultSize,
   addSize,
+  BundleAuditScore,
 } from '@perfsee/shared'
 
 import { ByteSizeWithDiff } from '../components'
 import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
+import { ItemAudit } from '../types'
 
 import { ImportTraceModal } from './import-trace-modal'
-import { PackageCard } from './package-card'
+import { PackageCard, packageSuggestions } from './package-card'
 import { PackageFilter, Package } from './package-filter'
 import { onPackageTableRenderRow, LoadType } from './package-table-row'
+import { useAuditScore } from './use-audit-score'
 
 function getPackagePath(path: string) {
   return path === OLD_SOURCE_CODE_PATH
@@ -62,21 +66,28 @@ const getAssetType = (asset: AssetInfo) => {
   return 'async'
 }
 
+interface PackageRow extends Package {
+  audits: ItemAudit[]
+}
+
 interface Props {
   diff: EntryDiff
 }
 
 export const PackagesTable: FC<Props> = ({ diff }) => {
-  const { packagesDiff, packageIssueMap, assetsDiff } = diff
+  const { packagesDiff, packageIssueMap, assetsDiff, audits } = diff
   const [filterPackages, setFilterPackages] = useState<Package[] | null>(null)
   const [traceSourceRef, setTraceSourceRef] = useState<number | null>(null)
+
+  const scoreItemsMap = useAuditScore()
 
   const onChangePackages = useCallback((packages: Package[] | null) => {
     setFilterPackages(packages)
   }, [])
 
   const onShowTraceModal = useCallback(
-    (ref: number) => () => {
+    (ref: number) => (e: MouseEvent<HTMLElement>) => {
+      e.stopPropagation()
       setTraceSourceRef(ref)
     },
     [],
@@ -119,7 +130,43 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
     return Array.from(packagesMap.values())
   }, [packagesDiff])
 
-  const packages = useMemo(() => filterPackages ?? allPackages, [allPackages, filterPackages])
+  const packageAuditMap: Record<string, ItemAudit[]> = useMemo(() => {
+    const packageAuditMap: Record<string, ItemAudit[]> = {}
+    audits.current.forEach((audit) => {
+      if (audit.score === BundleAuditScore.Good) {
+        return
+      }
+      audit.detail?.items.forEach((i) => {
+        const key = (i as Record<string, any>).name
+        packageAuditMap[key] ||= []
+        packageAuditMap[key].push({
+          desc: (i as Record<string, any>).desc || audit.desc,
+          title: audit.title,
+          score: audit.score,
+          link: audit.link,
+        })
+      })
+    })
+    return packageAuditMap
+  }, [audits])
+
+  const packages: PackageRow[] = useMemo(() => {
+    return (filterPackages ?? allPackages).map((p) => {
+      const audits = packageAuditMap[p.path] || packageAuditMap[p.name] || []
+      const suggestion = packageSuggestions.get(p.name)
+      if (suggestion) {
+        audits.push({
+          title: 'Package suggestion',
+          desc: suggestion,
+          score: BundleAuditScore.Notice,
+        })
+      }
+      return {
+        ...p,
+        audits,
+      }
+    })
+  }, [allPackages, filterPackages, packageAuditMap])
 
   const packagesLoadTypeMap = useMemo(() => {
     const map = new Map<number, LoadType>()
@@ -147,8 +194,42 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
     return map
   }, [assetsDiff])
 
-  const columns = useMemo<TableColumnProps<Package>[]>(
+  const columns = useMemo<TableColumnProps<PackageRow>[]>(
     () => [
+      ...(Object.keys(packageAuditMap).length
+        ? [
+            {
+              key: 'audit',
+              name: '',
+              minWidth: 16,
+              maxWidth: 16,
+              onRender: (pkg: PackageRow) => {
+                const lowestScore = pkg.audits.sort((a, b) => a.score - b.score)[0]?.score || null
+                const scoreItem = lowestScore && lowestScore < BundleAuditScore.Good ? scoreItemsMap[lowestScore] : null
+                const auditTooltipContent = (
+                  <ul style={{ paddingLeft: 24 }}>
+                    {pkg.audits.map((a, i) => (
+                      <li key={i}>
+                        <b>{a.title}: </b>
+                        {a.desc}
+                        {a.link ? <ForeignLink href={a.link}>Learn More</ForeignLink> : null}
+                      </li>
+                    ))}
+                  </ul>
+                )
+                return (
+                  <TooltipWithEllipsis
+                    tooltipContent={auditTooltipContent}
+                    alwaysShown
+                    background={scoreItem ? lighten(scoreItem.color, 0.2) : undefined}
+                  >
+                    {scoreItem?.icon}
+                  </TooltipWithEllipsis>
+                )
+              },
+            },
+          ]
+        : []),
       {
         key: 'name',
         name: 'Name',
@@ -187,11 +268,18 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
       },
       {
         key: 'size',
-        name: 'size',
+        name: 'Size',
         minWidth: 100,
         maxWidth: 200,
         onRender: (pkg) => (
-          <ByteSizeWithDiff underline={true} current={pkg.size} baseline={pkg.base} hideIfNonComparable={true} />
+          <ByteSizeWithDiff
+            underline={true}
+            current={pkg.size}
+            baseline={pkg.base}
+            hideIfNonComparable={true}
+            showDiffBellow={!!packagesDiff.baseline}
+            showNewIfIsNew
+          />
         ),
         sorter: (pkg1, pkg2) => pkg1.size.raw - pkg2.size.raw,
         isSorted: true,
@@ -249,7 +337,7 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
 
           return (
             <>
-              <TraceIconWrap onClick={onShowTraceModal(pkg.ref)}>
+              <TraceIconWrap onClick={onShowTraceModal(pkg.ref)} className="button">
                 <PartitionOutlined />
               </TraceIconWrap>
             </>
@@ -257,7 +345,15 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         },
       },
     ],
-    [allPackages, onChangePackages, onShowTraceModal, packagesLoadTypeMap],
+    [
+      allPackages,
+      onChangePackages,
+      onShowTraceModal,
+      packagesLoadTypeMap,
+      packagesDiff.baseline,
+      scoreItemsMap,
+      packageAuditMap,
+    ],
   )
 
   if (!packagesDiff) {

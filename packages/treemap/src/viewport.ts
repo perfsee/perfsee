@@ -178,7 +178,7 @@ export default class ViewportController {
     this.lastMousePosition = new Vec2(e.clientX, e.clientY)
   }
 
-  handleWindowMousemove = (e: MouseEvent) => {
+  handleDraggingMousemove = (e: MouseEvent) => {
     if (this.mouseDown && this.lastMousePosition) {
       this.dragging = true
       const height = this.logicalSpaceRect.height()
@@ -191,7 +191,7 @@ export default class ViewportController {
     }
   }
 
-  handleWindowMouseup = (e: MouseEvent) => {
+  handleMouseup = (e: MouseEvent) => {
     if (!this.mouseDown) {
       return
     }
@@ -216,7 +216,7 @@ export default class ViewportController {
     }
   }
 
-  handleWindowBlur = () => {
+  handleBlur = () => {
     this.mouseDown = false
     this.dragging = false
   }
@@ -225,21 +225,21 @@ export default class ViewportController {
     this.element.addEventListener('wheel', this.handleWheel)
     this.element.addEventListener('mousedown', this.handleMousedown)
 
-    window.addEventListener('mousemove', this.handleWindowMousemove)
-    window.addEventListener('mouseup', this.handleWindowMouseup)
-    window.addEventListener('blur', this.handleWindowBlur)
+    this.element.addEventListener('mousemove', this.handleDraggingMousemove)
+    this.element.addEventListener('mouseup', this.handleMouseup)
+    this.element.addEventListener('blur', this.handleBlur)
   }
 
   removeDraggingEventListener() {
     this.element.removeEventListener('wheel', this.handleWheel)
     this.element.removeEventListener('mousedown', this.handleMousedown)
 
-    window.removeEventListener('mousemove', this.handleWindowMousemove)
-    window.removeEventListener('mouseup', this.handleWindowMouseup)
-    window.removeEventListener('blur', this.handleWindowBlur)
+    this.element.removeEventListener('mousemove', this.handleDraggingMousemove)
+    this.element.removeEventListener('mouseup', this.handleMouseup)
+    this.element.removeEventListener('blur', this.handleBlur)
   }
 
-  handleMousemove = (e: MouseEvent) => {
+  handleHoverMousemove = (e: MouseEvent) => {
     this.updateHoverPosition(new Vec2(e.offsetX, e.offsetY))
   }
 
@@ -269,17 +269,15 @@ export default class ViewportController {
   }
 
   applyHoverListener() {
-    this.element.addEventListener('mousemove', this.handleMousemove)
+    this.element.addEventListener('mousemove', this.handleHoverMousemove)
     this.element.addEventListener('mouseleave', this.handleHoverEnd)
-    window.addEventListener('mouseleave', this.handleHoverEnd)
-    window.addEventListener('blur', this.handleHoverEnd)
+    this.element.addEventListener('blur', this.handleHoverEnd)
   }
 
   removeHoverListener() {
-    this.element.removeEventListener('mousemove', this.handleMousemove)
+    this.element.removeEventListener('mousemove', this.handleHoverMousemove)
     this.element.removeEventListener('mouseleave', this.handleHoverEnd)
-    window.removeEventListener('mouseleave', this.handleHoverEnd)
-    window.removeEventListener('blur', this.handleHoverEnd)
+    this.element.removeEventListener('blur', this.handleHoverEnd)
   }
 
   handleResize = () => {

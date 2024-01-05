@@ -18,13 +18,14 @@ import { TooltipOverflowMode, TooltipHost } from '@fluentui/react'
 import { FC, ReactNode } from 'react'
 
 type Props = {
-  content: string
-  tooltipContent?: string
+  content?: JSX.Element | string
+  tooltipContent?: JSX.Element | string
   alwaysShown?: boolean
   children?: ReactNode
+  background?: string
 }
 
-export const TooltipWithEllipsis: FC<Props> = ({ content, tooltipContent, alwaysShown, children }) => {
+export const TooltipWithEllipsis: FC<Props> = ({ content, tooltipContent, alwaysShown, children, background }) => {
   return (
     <TooltipHost
       content={tooltipContent ?? content}
@@ -40,7 +41,14 @@ export const TooltipWithEllipsis: FC<Props> = ({ content, tooltipContent, always
       calloutProps={{
         styles: {
           calloutMain: {
-            wordBreak: 'break-all',
+            wordBreak: 'break-word',
+            background,
+          },
+          beakCurtain: {
+            background,
+          },
+          beak: {
+            background,
           },
         },
       }}

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { GitHost, BundleDiff, EntryDiff, Diff, Size } from '@perfsee/shared'
+import { GitHost, BundleDiff, EntryDiff, Diff, Size, BundleAuditScore } from '@perfsee/shared'
 
 export interface ArtifactDiff {
   project?: {
@@ -32,6 +32,13 @@ export interface ArtifactDiff {
   version?: {
     commitMessage?: string | null
   } | null
+}
+
+export interface ItemAudit {
+  desc: string
+  title: string
+  score: BundleAuditScore
+  link?: string
 }
 
 export { BundleDiff, EntryDiff, Diff, Size }

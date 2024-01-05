@@ -17,19 +17,23 @@ limitations under the License.
 import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
 import { parse, stringify } from 'query-string'
-import { memo, useEffect, useMemo, useCallback } from 'react'
+import { memo, useEffect, useMemo, useCallback, useRef } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import { BundleReport } from '@perfsee/bundle-report'
 import { useToggleState } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
+import { AssetInfo, ModuleTreeNode } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { ArtifactSelect, ArtifactSelectEventPayload } from '../../components'
 import { ProjectModule, useProjectRouteGenerator } from '../../shared'
+import { BundleContentModule } from '../bundle-content/module'
 
 import { BundleModule } from './module'
 import { SuspiciousBundle } from './suspicious-job'
+
+let resolveContent: ((content: ModuleTreeNode[]) => void) | undefined = undefined
 
 export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bundleId: string }>>(
   ({ match, location, history }) => {
@@ -40,6 +44,37 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
     const hasBaselineInQueries = !!queries.baseline
 
     const [state, dispatcher] = useModule(BundleModule)
+    const [{ content }, bundleContentDispatcher] = useModule(BundleContentModule)
+    const contentPromise = useRef(
+      new Promise<ModuleTreeNode[]>((resolve) => {
+        resolveContent = resolve
+      }),
+    )
+
+    useEffect(() => {
+      if (content && resolveContent) {
+        resolveContent(content)
+      }
+    }, [content])
+
+    useEffect(() => {
+      return bundleContentDispatcher.dispose
+    }, [bundleContentDispatcher, routeBundleId])
+
+    const getAssetContent = useCallback(
+      async (asset: AssetInfo) => {
+        let moduleTreeNodes = content
+
+        if (!moduleTreeNodes) {
+          bundleContentDispatcher.getContent(bundleId)
+          moduleTreeNodes = await contentPromise.current
+        }
+
+        return moduleTreeNodes.filter((node) => node.name === asset.name)
+      },
+      [bundleContentDispatcher, bundleId, content],
+    )
+
     const project = useModuleState(ProjectModule, {
       selector: (s) => s.project,
       dependencies: [],
@@ -112,6 +147,8 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
             onEntryPointChange={onSelectEntryPoint}
             onBaselineSelectorOpen={showArtifactSelect}
             contentLink={contentPath}
+            downloadLink={state.current.buildLink}
+            getAssetContent={getAssetContent}
           />
 
           {artifactSelectVisible && (

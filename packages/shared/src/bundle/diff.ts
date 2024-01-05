@@ -147,9 +147,9 @@ export interface EntryDiff extends EntryDiffBrief {
   initialAssetsDiff: Diff<AssetInfo[]>
   chunksDiff: Diff<Chunk[]>
   packagesDiff: Diff<PackageInfo[]>
-  duplicatedPackages: DuplicatePackage[]
+  duplicatedPackages: Diff<DuplicatePackage[]>
   packageIssueMap: PackageIssueMap
-  audits: BundleAuditResult[]
+  audits: Diff<BundleAuditResult[]>
 }
 
 export function briefEntryDiff(entryDiff: EntryDiff): EntryDiffBrief {
@@ -301,8 +301,14 @@ export function diffBundleResult(job: BundleResult, base?: BundleResult | null):
         current: Object.keys(entryPoint.duplicatedPackages).length,
         baseline: Object.keys(baseEntryPoint?.duplicatedPackages ?? {}).length,
       },
-      duplicatedPackages: entryPoint.duplicatedPackages,
-      audits: entryPoint.audits,
+      duplicatedPackages: {
+        current: entryPoint.duplicatedPackages,
+        baseline: baseEntryPoint?.duplicatedPackages ?? null,
+      },
+      audits: {
+        current: entryPoint.audits,
+        baseline: baseEntryPoint?.audits ?? null,
+      },
       packageIssueMap: generatePackageIssueMap(entryPoint.packages),
       score: {
         current: entryPoint.score,

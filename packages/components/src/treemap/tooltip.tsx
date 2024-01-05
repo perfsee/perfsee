@@ -48,6 +48,7 @@ interface Props {
   }
   onMouseEnter: React.MouseEventHandler<HTMLElement>
   onMouseLeave: React.MouseEventHandler<HTMLElement>
+  host?: HTMLElement | null
 }
 
 export const TreeMapTooltipContainer: FC<PropsWithChildren<Props>> = ({
@@ -55,6 +56,7 @@ export const TreeMapTooltipContainer: FC<PropsWithChildren<Props>> = ({
   onMouseEnter,
   onMouseLeave,
   children,
+  host,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -110,6 +112,6 @@ export const TreeMapTooltipContainer: FC<PropsWithChildren<Props>> = ({
     <Container ref={containerRef} style={{ left: 0, top: 0 }} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       <ScrollArea>{children}</ScrollArea>
     </Container>,
-    document.body,
+    host || document.body,
   )
 }

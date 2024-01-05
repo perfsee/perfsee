@@ -21,36 +21,12 @@ import { useMemo, useCallback, FC, useState, useEffect } from 'react'
 import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import { Empty, Select, useWideScreen } from '@perfsee/components'
-import { TreeMapChart } from '@perfsee/components/treemap'
+import { Select, useWideScreen } from '@perfsee/components'
 import { ModuleTreeNode } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
-import { hierarchy, SearchEngine, Match } from '@perfsee/treemap'
 
 import { ChartWrapper, Header, Container, ShortcutTips } from './styled'
-import { BundleAnalyzerTooltip } from './tooltip'
-
-class BundleContentSearchEngine implements SearchEngine<ModuleTreeNode> {
-  private readonly cache = new WeakMap<ModuleTreeNode, Match | null>()
-  private readonly query: string
-
-  constructor(query: string) {
-    this.query = query.toLowerCase()
-  }
-
-  getMatch(node: ModuleTreeNode): Match | null {
-    const cachedMatch = this.cache.get(node)
-    if (cachedMatch !== undefined) {
-      return cachedMatch
-    }
-    const match =
-      node.name.toLowerCase().includes(this.query) ||
-      node.modules?.some((item) => item.toLowerCase().includes(this.query))
-    const result = match ? { score: 1 } : null
-    this.cache.set(node, result)
-    return result
-  }
-}
+import { Treemap } from './treemap'
 
 export interface BundleContentProps {
   content: ModuleTreeNode[]
@@ -87,23 +63,7 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
       : content
   }, [content, entryPoints, filteredEntryPoints])
 
-  const treeMapData = useMemo(() => {
-    if (filteredContent.length > 0) {
-      return hierarchy<ModuleTreeNode>({
-        name: 'root',
-        children: filteredContent,
-        value: 0,
-      } as ModuleTreeNode)
-        .sum((d) => (d.children ? 0 : d.value || 0))
-        .sort((a, b) => b.data.value - a.data.value)
-    } else {
-      return null
-    }
-  }, [filteredContent])
-
   const history = useHistory()
-
-  const handleSearchEngine = useCallback((queryText: string) => new BundleContentSearchEngine(queryText), [])
 
   return (
     <Container>
@@ -140,16 +100,7 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
         </ShortcutTips>
       </Header>
       <ChartWrapper>
-        {treeMapData ? (
-          <TreeMapChart
-            onSearchEngine={handleSearchEngine}
-            data={treeMapData}
-            tooltip={BundleAnalyzerTooltip}
-            skipRoot
-          />
-        ) : (
-          <Empty withIcon title="No data" styles={{ root: { height: '100%' } }} />
-        )}
+        <Treemap content={filteredContent} />
       </ChartWrapper>
     </Container>
   )

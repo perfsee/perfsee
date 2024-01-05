@@ -44,6 +44,7 @@ import {
   PivotReportPartition,
   LHMetricScoreContainer,
   OperationButton,
+  PivotOverviewContainer,
 } from './style'
 
 type Props = {
@@ -203,13 +204,13 @@ export const OverviewPivotContent = (props: Props) => {
   useWideScreen()
 
   return (
-    <Stack horizontal horizontalAlign="space-between">
+    <PivotOverviewContainer>
       <PivotOverviewPartition>
         <OverviewContent {...props} />
       </PivotOverviewPartition>
       <PivotReportPartition>
         <AnalysisReportContent {...props} />
       </PivotReportPartition>
-    </Stack>
+    </PivotOverviewContainer>
   )
 }
