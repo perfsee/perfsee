@@ -14,32 +14,50 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Stack, SelectionMode, IGroup, TooltipHost } from '@fluentui/react'
 import { groupBy } from 'lodash'
-import { FC, useMemo, useState } from 'react'
+import { FC, MouseEvent, useCallback, useMemo, useState } from 'react'
 
-import { TableColumnProps, Table, TooltipWithEllipsis } from '@perfsee/components'
-import { SharedColors } from '@perfsee/dls'
-import { AssetTypeEnum, AssetInfo, EntryDiff } from '@perfsee/shared'
+import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
+import { SharedColors, lighten } from '@perfsee/dls'
+import { AssetTypeEnum, AssetInfo, EntryDiff, BundleAuditScore, ModuleTreeNode } from '@perfsee/shared'
 
 import { ColoredSize, TransferTime } from '../components'
-import { TableHeaderFilterWrap } from '../style'
+import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
+import { ItemAudit } from '../types'
 
 import { AssetFilter } from './asset-filter'
 import { onAssetTableRenderRow } from './assets-table-row'
+import { ContentModal } from './content-modal'
+import { useAuditScore } from './use-audit-score'
 
 type AssetRow = AssetInfo & {
   isNew: boolean
+  audits: ItemAudit[]
 }
 
 interface Props {
   diff: EntryDiff
+  getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
 }
-export const AssetsTable: FC<Props> = ({ diff }) => {
+export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
   const { current: currentAllAssets, baseline: baselineAssets } = diff.assetsDiff
+  const audits = diff.audits
 
+  const [contentRef, setContentRef] = useState<AssetInfo | undefined>()
   const [searchText, setSearchText] = useState<string>('')
+  const scoreItemsMap = useAuditScore()
+  const onShowContentModal = useCallback(
+    (asset: AssetInfo) => (e: MouseEvent<HTMLElement>) => {
+      e.stopPropagation()
+      setContentRef(asset)
+    },
+    [],
+  )
+  const onHideContentModal = useCallback(() => {
+    setContentRef(undefined)
+  }, [])
 
   const currentAssets = useMemo(
     () => currentAllAssets.filter((asset) => asset.name.includes(searchText)),
@@ -52,6 +70,23 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
     const items: AssetRow[] = []
     const groups: IGroup[] = []
 
+    const assetsAuditMap: Record<string, ItemAudit[]> = {}
+    audits.current.forEach((audit) => {
+      if (audit.score === BundleAuditScore.Good) {
+        return
+      }
+      audit.detail?.items.forEach((i) => {
+        const key = (i as Record<string, any>).name
+        assetsAuditMap[key] ||= []
+        assetsAuditMap[key].push({
+          desc: (i as Record<string, any>).desc || audit.desc,
+          title: audit.title,
+          score: audit.score,
+          link: audit.link,
+        })
+      })
+    })
+
     Object.entries(grouped).forEach(([type, assets]) => {
       groups.push({
         key: type,
@@ -61,10 +96,13 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
         isCollapsed: type !== AssetTypeEnum.Js,
       })
       items.push(
-        ...assets.map((asset) => ({
-          ...asset,
-          isNew: !baselineAssets?.find((a) => a.name === asset.name),
-        })),
+        ...assets.map((asset) => {
+          return {
+            ...asset,
+            isNew: !baselineAssets?.find((a) => a.name === asset.name),
+            audits: assetsAuditMap[asset.name] || [],
+          }
+        }),
       )
     })
 
@@ -72,7 +110,7 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
       groups,
       items,
     }
-  }, [baselineAssets, currentAssets])
+  }, [baselineAssets, currentAssets, audits])
 
   const columns: TableColumnProps<AssetRow>[] = useMemo(
     () => [
@@ -89,7 +127,35 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
             </TableHeaderFilterWrap>
           )
         },
-        onRender: (asset) => <TooltipWithEllipsis content={asset.name} />,
+        onRender: (asset) => {
+          const lowestScore = asset.audits.sort((a, b) => a.score - b.score)[0]?.score || null
+          const scoreItem = lowestScore && lowestScore < BundleAuditScore.Good ? scoreItemsMap[lowestScore] : null
+          const auditTooltipContent = (
+            <ul style={{ paddingLeft: 24 }}>
+              {asset.audits.map((a, i) => (
+                <li key={i}>
+                  <b>{a.title}: </b>
+                  {a.desc}
+                  {a.link ? <ForeignLink href={a.link}>Learn More</ForeignLink> : null}
+                </li>
+              ))}
+            </ul>
+          )
+          return (
+            <span style={{ position: 'relative', display: 'flex' }}>
+              <span style={{ position: 'absolute', left: -36 }}>
+                <TooltipWithEllipsis
+                  tooltipContent={auditTooltipContent}
+                  alwaysShown
+                  background={scoreItem ? lighten(scoreItem.color, 0.2) : undefined}
+                >
+                  {scoreItem?.icon}
+                </TooltipWithEllipsis>
+              </span>
+              <TooltipWithEllipsis content={asset.name} />
+            </span>
+          )
+        },
       },
       {
         key: 'new',
@@ -166,8 +232,24 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
         },
         sorter: (a, b) => (a.packages?.length ?? 0) - (b.packages?.length ?? 0),
       },
+      {
+        key: 'content',
+        name: 'Content',
+        minWidth: 100,
+        maxWidth: 100,
+        onRender: (asset) => {
+          if (asset.type !== AssetTypeEnum.Js || !asset.packages.length) {
+            return null
+          }
+          return (
+            <TraceIconWrap onClick={onShowContentModal(asset)} className="button">
+              <AppstoreOutlined />
+            </TraceIconWrap>
+          )
+        },
+      },
     ],
-    [searchText],
+    [searchText, scoreItemsMap, onShowContentModal],
   )
 
   return (
@@ -176,10 +258,11 @@ export const AssetsTable: FC<Props> = ({ diff }) => {
         items={items}
         groups={groups.length > 0 ? groups : undefined}
         selectionMode={SelectionMode.none}
-        columns={columns}
+        columns={baselineAssets ? columns : columns.filter((c) => c.key !== 'new')}
         disableVirtualization={items.length < 100}
         onRenderRow={onAssetTableRenderRow}
       />
+      <ContentModal asset={contentRef} getAssetContent={getAssetContent} onClose={onHideContentModal} />
     </Stack>
   )
 }

@@ -14,17 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack, IDropdownOption, DefaultButton } from '@fluentui/react'
+import { Stack, IDropdownOption, DefaultButton, ActionButton } from '@fluentui/react'
 import { useMemo, useCallback, FC, useState } from 'react'
 
 import { ContentCard, Select } from '@perfsee/components'
-import { BundleDiff } from '@perfsee/shared'
+import { AssetInfo, BundleDiff, ModuleTreeNode } from '@perfsee/shared'
 import { PrettyBytes } from '@perfsee/utils'
 
 import { BuildHistory } from './build-history'
-import { DuplicatePackages } from './duplicate-packages'
 import { Overview } from './overview'
 import { ResourceTabs } from './resource-tabs'
+import { Audits } from './resource-tabs/audits'
 import { cardGap } from './style'
 import { ArtifactDiff } from './types'
 
@@ -35,6 +35,8 @@ export interface BundleReportProps {
   defaultEntryPoint?: string
   onEntryPointChange?: (entryPoint: string) => void
   contentLink?: string
+  downloadLink?: string
+  getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
 }
 
 export const BundleReport: FC<BundleReportProps> = ({
@@ -42,8 +44,10 @@ export const BundleReport: FC<BundleReportProps> = ({
   diff,
   defaultEntryPoint,
   contentLink,
+  downloadLink,
   onBaselineSelectorOpen,
   onEntryPointChange,
+  getAssetContent,
 }) => {
   const dropdownOptions = useMemo<IDropdownOption<string>[]>(() => {
     return Object.entries(diff).map(([entryName, diff]) => ({
@@ -66,9 +70,23 @@ export const BundleReport: FC<BundleReportProps> = ({
     [entryPoint, onEntryPointChange],
   )
 
+  const onDownloadBundle = useCallback(() => {
+    window.open(downloadLink)
+  }, [downloadLink])
+
   const onRenderHeader = useCallback(() => {
-    return <span>Bundle #{artifact.id}</span>
-  }, [artifact])
+    if (!downloadLink) {
+      return <span>Bundle #{artifact.id}</span>
+    }
+    return (
+      <Stack horizontal verticalAlign="center" horizontalAlign="space-between" styles={{ root: { width: '100%' } }}>
+        <span>Bundle #{artifact.id}</span>
+        <ActionButton iconProps={{ iconName: 'Download' }} onClick={onDownloadBundle}>
+          Download
+        </ActionButton>
+      </Stack>
+    )
+  }, [artifact, onDownloadBundle, downloadLink])
 
   const currentEntryPointDiff = diff[entryPoint]
 
@@ -95,8 +113,8 @@ export const BundleReport: FC<BundleReportProps> = ({
         </Stack>
         <BuildHistory artifact={artifact} onBaselineSelectorOpen={onBaselineSelectorOpen} />
         <Overview artifact={artifact} diff={currentEntryPointDiff} />
-        <DuplicatePackages diff={currentEntryPointDiff} />
-        <ResourceTabs diff={currentEntryPointDiff} visualizationLink={contentLink} />
+        <Audits audits={currentEntryPointDiff.audits.current} baseline={currentEntryPointDiff.audits.baseline} />
+        <ResourceTabs diff={currentEntryPointDiff} visualizationLink={contentLink} getAssetContent={getAssetContent} />
       </Stack>
     </ContentCard>
   )

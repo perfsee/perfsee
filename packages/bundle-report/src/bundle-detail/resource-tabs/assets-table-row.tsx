@@ -42,6 +42,9 @@ const DetailRowItem = (props: IDetailsRowProps) => {
     () => ({
       cell: {
         cursor: 'pointer',
+        overflow: 'visible',
+      },
+      root: {
         backgroundColor: opened ? NeutralColors.gray20 : undefined,
       },
     }),

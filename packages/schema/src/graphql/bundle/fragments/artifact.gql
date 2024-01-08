@@ -8,6 +8,7 @@ fragment artifact on Artifact {
   failedReason
   reportLink
   contentLink
+  buildLink
   score
   createdAt
   version {

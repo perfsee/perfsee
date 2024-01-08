@@ -18,7 +18,7 @@ import styled from '@emotion/styled'
 
 export const StyledAuditItem = styled.div(({ theme }) => {
   return {
-    padding: '12px 16px 8px',
+    padding: '12px 10px 8px',
     borderBottom: `1px solid ${theme.border.color}`,
   }
 })

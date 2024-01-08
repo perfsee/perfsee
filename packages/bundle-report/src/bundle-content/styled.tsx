@@ -29,6 +29,7 @@ export const Header = styled.div({
   alignItems: 'center',
   justifyContent: 'space-between',
   margin: '8px 0',
+  padding: '0 24px',
 
   a: {
     height: '16px',

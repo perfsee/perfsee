@@ -65,6 +65,7 @@ import {
   FileSearchOutlined,
   FileProtectOutlined,
   LineChartOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
 import {
@@ -144,6 +145,7 @@ registerIcons({
     arrowLeft: <ArrowLeftOutlined />,
     arrowRight: <ArrowRightOutlined />,
     packages: <CubeShapeIcon style={{ lineHeight: 0, textAlign: 'center', verticalAlign: '0.475rem' }} />,
+    download: <DownloadOutlined />,
 
     // for password text field
     Hide: <HideIcon />,

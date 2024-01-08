@@ -18,7 +18,7 @@ import { FilterFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { IStackTokens, Pivot, Stack } from '@fluentui/react'
 
-import { lighten, NeutralColors } from '@perfsee/dls'
+import { NeutralColors } from '@perfsee/dls'
 
 export const cardGap: IStackTokens = { childrenGap: '12px' }
 
@@ -49,39 +49,6 @@ export const BuildRound = styled.span(({ theme }) => ({
   marginRight: '8px',
   fontWeight: 'bold',
 }))
-
-export const DuplicatePackagesContainer = styled(BundleCard)(({ theme }) => ({
-  backgroundColor: lighten(theme.colors.warning, 0.5),
-  color: theme.text.colorInWaringBlock,
-  userSelect: 'text',
-  padding: '0',
-
-  ol: {
-    lineHeight: '24px',
-  },
-  '*::selection': {
-    background: 'lightpink',
-  },
-}))
-
-export const DuplicatePackagesHeader = styled.div(({ theme }) => ({
-  position: 'sticky',
-  display: 'flex',
-  alignItems: 'center',
-  top: '60px',
-  backgroundColor: lighten(theme.colors.warning, 0.4),
-  padding: '6px 16px',
-  cursor: 'pointer',
-
-  h4: {
-    marginLeft: '6px',
-    userSelect: 'none',
-  },
-}))
-
-export const DuplicatePackagesInner = styled.div({
-  padding: '6px 16px',
-})
 
 export const PackageDiffWrap = styled.div(({ theme }) => ({
   display: 'flex',
@@ -192,7 +159,7 @@ export const TraceIconWrap = styled(BaseIconWrap)(({ theme }) => ({
 }))
 
 export const TableExtraWrap = styled(Stack)({
-  padding: '8px 10px',
+  padding: '8px 10px 0px 36px',
 })
 
 export const StyledPivot = styled(Pivot)(() => {

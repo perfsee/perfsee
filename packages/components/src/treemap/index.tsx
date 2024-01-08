@@ -42,6 +42,7 @@ export const TreeMapChart = <TData extends TreeMapData>({
   onSearchEngine,
 }: Props<TData>) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [treeMap, setTreeMap] = useState<TreeMap<TData> | null>(null)
   const [{ tooltip }, dispatcher] = useModule(TreeMapControllerModule)
   const [searchQuery, setSearchQuery] = useState<string | null>()
@@ -133,13 +134,14 @@ export const TreeMapChart = <TData extends TreeMapData>({
   useEffect(() => dispatcher.reset, [dispatcher])
 
   return (
-    <Container>
+    <Container ref={containerRef}>
       <Canvas ref={canvasRef} style={{ height: '100%', width: '100%' }} />
       {tooltip && Tooltip && (
         <TreeMapTooltipContainer
           targetClientRect={tooltip.targetClientRect}
           onMouseEnter={handleMouseEnterTooltip}
           onMouseLeave={handleMouseLeaveTooltip}
+          host={containerRef.current}
         >
           <Tooltip data={tooltip.data as TData} />
         </TreeMapTooltipContainer>

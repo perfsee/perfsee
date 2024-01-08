@@ -261,7 +261,6 @@ export const LHGaugeScoreScalePassed = styled.span({
 export const PivotOverviewPartition = styled(Stack)({
   flex: 1,
   minWidth: 670,
-  marginRight: 48,
 
   '& > div': {
     height: '100%',
@@ -271,6 +270,10 @@ export const PivotOverviewPartition = styled(Stack)({
 export const PivotReportPartition = styled(Stack)({
   flex: 1,
   maxWidth: 'calc(50% - 24px)',
+
+  '@media screen and (max-width:1500px)': {
+    maxWidth: '100%',
+  },
 })
 
 export const OperationButton = styled(DefaultButton)(({ theme }) => ({
@@ -281,3 +284,14 @@ export const OperationButton = styled(DefaultButton)(({ theme }) => ({
     color: CommunicationColors.tint10,
   },
 }))
+
+export const PivotOverviewContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  gap: 48,
+
+  '@media screen and (max-width:1500px)': {
+    flexDirection: 'column',
+  },
+})

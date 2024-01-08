@@ -38,7 +38,7 @@ import { Switch, Route, MemoryRouter } from 'react-router'
 
 import { MDXComponents } from '@perfsee/components'
 import { ThemeProvider } from '@perfsee/dls'
-import { diffBundleResult } from '@perfsee/shared'
+import { AssetInfo, ModuleTreeNode, diffBundleResult } from '@perfsee/shared'
 
 import { BundleReport, BundleContent } from './index'
 
@@ -66,11 +66,20 @@ const ContentContainer = styled('div')({
   margin: '0 48px',
 })
 
+const getAssetContent = (asset: AssetInfo) => {
+  return Promise.resolve((window.bundleContent as ModuleTreeNode[]).filter((node) => node.name === asset.name))
+}
+
 function BundleReportContainer() {
   const bundleDiff = diffBundleResult(window.bundleReport)
   return (
     <ReportContainer>
-      <BundleReport artifact={window.artifact} diff={bundleDiff} contentLink="/content" />
+      <BundleReport
+        artifact={window.artifact}
+        diff={bundleDiff}
+        contentLink="/content"
+        getAssetContent={getAssetContent}
+      />
     </ReportContainer>
   )
 }
