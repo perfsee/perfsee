@@ -76,7 +76,10 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
         return
       }
       audit.detail?.items.forEach((i) => {
-        const key = (i as Record<string, any>).name
+        const key = (i as Record<string, any>).name ?? (i as string)
+        if (!key) {
+          return
+        }
         assetsAuditMap[key] ||= []
         assetsAuditMap[key].push({
           desc: (i as Record<string, any>).desc || audit.desc,

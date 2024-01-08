@@ -137,7 +137,10 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         return
       }
       audit.detail?.items.forEach((i) => {
-        const key = (i as Record<string, any>).name
+        const key = (i as Record<string, any>).name || (i as Record<string, any>).path || (i as string)
+        if (!key) {
+          return
+        }
         packageAuditMap[key] ||= []
         packageAuditMap[key].push({
           desc: (i as Record<string, any>).desc || audit.desc,
