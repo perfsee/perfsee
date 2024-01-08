@@ -197,9 +197,13 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
     return map
   }, [assetsDiff])
 
+  const hasPackageAudit = useMemo(() => {
+    return packages.some((p) => packageAuditMap[p.name] || packageAuditMap[p.path])
+  }, [packages, packageAuditMap])
+
   const columns = useMemo<TableColumnProps<PackageRow>[]>(
     () => [
-      ...(Object.keys(packageAuditMap).length
+      ...(hasPackageAudit
         ? [
             {
               key: 'audit',
@@ -207,8 +211,9 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
               minWidth: 16,
               maxWidth: 16,
               onRender: (pkg: PackageRow) => {
-                const lowestScore = pkg.audits.sort((a, b) => a.score - b.score)[0]?.score || null
-                const scoreItem = lowestScore && lowestScore < BundleAuditScore.Good ? scoreItemsMap[lowestScore] : null
+                const lowestScore = pkg.audits.sort((a, b) => a.score - b.score)[0]?.score ?? null
+                const scoreItem =
+                  lowestScore !== null && lowestScore < BundleAuditScore.Good ? scoreItemsMap[lowestScore] : null
                 const auditTooltipContent = (
                   <ul style={{ paddingLeft: 24 }}>
                     {pkg.audits.map((a, i) => (
@@ -355,7 +360,7 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
       packagesLoadTypeMap,
       packagesDiff.baseline,
       scoreItemsMap,
-      packageAuditMap,
+      hasPackageAudit,
     ],
   )
 
