@@ -131,8 +131,9 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
           )
         },
         onRender: (asset) => {
-          const lowestScore = asset.audits.sort((a, b) => a.score - b.score)[0]?.score || null
-          const scoreItem = lowestScore && lowestScore < BundleAuditScore.Good ? scoreItemsMap[lowestScore] : null
+          const lowestScore = asset.audits.sort((a, b) => a.score - b.score)[0]?.score ?? null
+          const scoreItem =
+            lowestScore !== null && lowestScore < BundleAuditScore.Good ? scoreItemsMap[lowestScore] : null
           const auditTooltipContent = (
             <ul style={{ paddingLeft: 24 }}>
               {asset.audits.map((a, i) => (
