@@ -51,6 +51,7 @@ export type TableProps<T> = Omit<IShimmeredDetailsListProps, 'items' | 'columns'
   onRowClick?: (item: T) => void
   columnVerticalCentered?: boolean
   disableVirtualization?: boolean
+  disableAutoResizable?: boolean
 }
 
 type ComparableItem<T> = T & {
@@ -64,9 +65,10 @@ type ComparableItem<T> = T & {
 
 const EMPTY_ITEM = '__EMPTY__'
 
-function formatRawColumn<T = any>(columns: TableColumnProps<T>[]) {
+function formatRawColumn<T = any>(columns: TableColumnProps<T>[], disableAutoResizable?: boolean) {
   return columns.map((col) => ({
     ...col,
+    isResizable: disableAutoResizable ? col.isResizable : true,
     onRender: col.comparator
       ? (item: ComparableItem<T>, i?: number, column?: TableColumnProps<T>) => {
           return (
@@ -97,15 +99,16 @@ export function Table<T = any>({
   columnVerticalCentered = true,
   onShouldVirtualize,
   disableVirtualization = true,
+  disableAutoResizable,
   ...restProps
 }: TableProps<T>) {
   const [columns, setColumns] = useState(() => {
-    return formatRawColumn(rawColumns)
+    return formatRawColumn(rawColumns, disableAutoResizable)
   })
 
   useEffect(() => {
-    setColumns(formatRawColumn(rawColumns))
-  }, [rawColumns])
+    setColumns(formatRawColumn(rawColumns, disableAutoResizable))
+  }, [rawColumns, disableAutoResizable])
 
   const onHeaderClick = useCallback(
     (e?: MouseEvent<HTMLElement>, column?: TableColumnProps<T>) => {

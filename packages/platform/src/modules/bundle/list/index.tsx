@@ -14,7 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { CalendarOutlined, HistoryOutlined, BranchesOutlined, NodeIndexOutlined } from '@ant-design/icons'
+import {
+  CalendarOutlined,
+  HistoryOutlined,
+  BranchesOutlined,
+  NodeIndexOutlined,
+  SelectOutlined,
+} from '@ant-design/icons'
 import {
   IColumn,
   SelectionMode,
@@ -41,12 +47,13 @@ import {
   Modal,
   ModalType,
   useToggleState,
+  ForeignLink,
 } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 import { formatMsDuration } from '@perfsee/platform/common'
 import { BundleJobStatus, JobType, Permission } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
-import { pathFactory } from '@perfsee/shared/routes'
+import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
 import { BranchSelector, ArtifactNameSelector } from '../../components'
 import { Commit } from '../../components/commit'
@@ -377,7 +384,12 @@ export const BundleList = memo(() => {
     <>
       <ContentCard onRenderHeader={onRenderHeader}>
         {!state.loading && !state.totalCount ? (
-          <Empty title="No bundle uploaded" />
+          <Stack horizontalAlign="center" tokens={{ childrenGap: 12 }}>
+            <Empty title="No bundle uploaded" />
+            <ForeignLink href={staticPath.docs.home + '/bundle/get-started'}>
+              See how to upload bundles <SelectOutlined />
+            </ForeignLink>
+          </Stack>
         ) : (
           <>
             <Table

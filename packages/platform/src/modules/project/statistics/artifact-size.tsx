@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { SelectOutlined } from '@ant-design/icons'
 import { IconButton, IIconProps, SelectionMode, Stack, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { groupBy } from 'lodash'
@@ -21,11 +22,11 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import { Table, TableColumnProps } from '@perfsee/components'
+import { ForeignLink, Table, TableColumnProps } from '@perfsee/components'
 import { PrettyBytes } from '@perfsee/platform/common'
 import { useProject } from '@perfsee/platform/modules/shared'
 import { Size } from '@perfsee/shared'
-import { pathFactory } from '@perfsee/shared/routes'
+import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
 import { ArtifactNameSelector, BranchSelector } from '../../components'
 import { useProjectRouteGenerator } from '../../shared'
@@ -233,6 +234,13 @@ export const ArtifactSize = () => {
         shimmerLines={5}
         detailsListStyles={tableHeaderStyles}
       />
+      {!aggregatedBundle?.length ? (
+        <Stack horizontalAlign="center">
+          <ForeignLink href={staticPath.docs.home + '/bundle/get-started'}>
+            See how to upload bundles <SelectOutlined />
+          </ForeignLink>
+        </Stack>
+      ) : null}
       {!loadMore && aggregatedBundle && aggregatedBundle.length > 5 && <LoadMore onClick={handleLoadMore} />}
     </ChartPartWrap>
   )
