@@ -127,12 +127,13 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
       labels={
         audit.weight && audit.numericScore
           ? [
-              audit.baseline && diffScore && Math.abs(diffScore) >= 1 ? (
+              audit.baseline && diffScore && Math.abs(diffScore) >= 0.5 ? (
                 <span style={{ whiteSpace: 'pre' }}>
                   Score: {(100 * audit.numericScore.value).toFixed(0)}
                   {'  '}
                   <span style={{ color: diffScore > 0 ? theme.colors.success : theme.colors.error }}>
-                    {diffScore > 0 ? <RiseOutlined /> : <FallOutlined />} {Math.abs(diffScore).toFixed(0)}
+                    {diffScore > 0 ? <RiseOutlined /> : <FallOutlined />} {diffScore > 0 ? '+' : '-'}
+                    {Math.abs(diffScore).toFixed(0)}
                   </span>
                 </span>
               ) : (
