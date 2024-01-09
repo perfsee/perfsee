@@ -14,12 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { SelectOutlined } from '@ant-design/icons'
 import { Stack, DocumentCard, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useCallback, useEffect, FC, useState, useMemo } from 'react'
 
-import { Pagination, useQueryString, useToggleState, ContentCard, Empty } from '@perfsee/components'
+import { Pagination, useQueryString, useToggleState, ContentCard, Empty, ForeignLink } from '@perfsee/components'
 import { SnapshotTrigger } from '@perfsee/schema'
+import { staticPath } from '@perfsee/shared/routes'
 
 import { SnapshotFilters, CreateSnapshot } from '../operator-comps/'
 import { SnapshotTitle } from '../style'
@@ -91,7 +93,12 @@ export const PaginationSnapshotList = () => {
   return (
     <ContentCard title="Lab Report" onRenderHeader={onRenderHeader}>
       {!loading && totalCount === 0 && noFilter ? (
-        <Empty title={'No Snapshot found'} />
+        <Stack horizontalAlign="center" tokens={{ childrenGap: 12 }}>
+          <Empty title="No Snapshot found" />
+          <ForeignLink href={staticPath.docs.home + '/lab/get-started'}>
+            See how to take a snapshot <SelectOutlined />
+          </ForeignLink>
+        </Stack>
       ) : (
         <>
           <SnapshotList trigger={trigger} />

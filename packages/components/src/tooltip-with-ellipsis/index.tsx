@@ -34,7 +34,7 @@ export const TooltipWithEllipsis: FC<Props> = ({ content, tooltipContent, always
         root: {
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          whiteSpace: 'normal',
+          whiteSpace: 'break-all',
           display: 'block',
         },
       }}

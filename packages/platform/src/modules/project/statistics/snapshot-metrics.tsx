@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IconButton, IIconProps, SelectionMode, TooltipHost } from '@fluentui/react'
+import { SelectOutlined } from '@ant-design/icons'
+import { IconButton, IIconProps, SelectionMode, Stack, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { stringifyUrl } from 'query-string'
@@ -22,11 +23,11 @@ import { useEffect, useMemo, useState, memo, useCallback } from 'react'
 import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import { Select, Space, Table, TableColumnProps, getScoreColor } from '@perfsee/components'
+import { ForeignLink, Select, Space, Table, TableColumnProps, getScoreColor } from '@perfsee/components'
 import { formatTime } from '@perfsee/platform/common'
 import { PageSchema, useProjectRouteGenerator } from '@perfsee/platform/modules/shared'
 import { LighthouseScoreType } from '@perfsee/shared'
-import { pathFactory } from '@perfsee/shared/routes'
+import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
 import { PropertyModule } from '../../shared'
 
@@ -330,6 +331,13 @@ export const SnapshotMetrics = memo(() => {
         enableShimmer={!data}
         onRowClick={handleRowClick}
       />
+      {!data?.length ? (
+        <Stack horizontalAlign="center">
+          <ForeignLink href={staticPath.docs.home + '/lab/get-started'}>
+            See how to take a snapshot <SelectOutlined />
+          </ForeignLink>
+        </Stack>
+      ) : null}
       {!loadMore && (selectedPages ?? []).length > 5 && <LoadMore onClick={handleLoadMore} />}
     </ChartPartWrap>
   )
