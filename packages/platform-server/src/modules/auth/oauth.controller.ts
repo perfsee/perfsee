@@ -162,6 +162,7 @@ export class OAuth2Controller {
         // for some old data, isFulfilled is not set, but has connected accounts
         await this.user.updateUnfulfilledUser(connectedUser)
       }
+      await this.user.updateAccountToken(connectedUser, provider, token)
       return connectedUser
     }
 

@@ -83,6 +83,18 @@ export class UserService {
     })
   }
 
+  async updateAccountToken(user: User, provider: ExternalAccount, token: string) {
+    await UserConnectedAccount.update(
+      {
+        userId: user.id,
+        provider,
+      },
+      {
+        accessToken: token,
+      },
+    )
+  }
+
   async findOrCreateByEmails(emails: string[]) {
     const users = await this.findByEmailsInternal(emails)
     const createUsers = emails
