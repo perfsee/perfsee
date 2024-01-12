@@ -567,6 +567,7 @@ export class SnapshotService implements OnApplicationBootstrap {
         status: [SnapshotStatus.Pending, SnapshotStatus.Running, SnapshotStatus.Scheduled],
       })
       .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Done, JobStatus.Failed, JobStatus.Canceled] })
+      .andWhere('job.started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
       .take(30)
       .getMany()
 
