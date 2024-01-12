@@ -557,6 +557,29 @@ export class SnapshotService implements OnApplicationBootstrap {
     }
   }
 
+  @Cron(CronExpression.EVERY_30_MINUTES, { exclusive: true, name: 'timeout-reports' })
+  async timeoutReports() {
+    const reports = await SnapshotReport.createQueryBuilder()
+      .where('status = :status', { status: SnapshotStatus.Running })
+      .andWhere('created_at < (DATE_SUB(NOW(), INTERVAL 2 HOUR))')
+      .take(30)
+      .getMany()
+
+    for (const report of reports) {
+      try {
+        await this.updateLabReport({
+          snapshotReport: {
+            id: report.id,
+            status: SnapshotStatus.Failed,
+            failedReason: 'Timeout',
+          },
+        })
+      } catch (e) {
+        this.logger.error(`Failed to timeout report: ${report.id}.`, { error: e })
+      }
+    }
+  }
+
   async setSnapshotHash(projectId: number, iid: number, hash: string) {
     const snapshot = await Snapshot.findOneByOrFail({
       projectId,
