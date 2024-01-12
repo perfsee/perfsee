@@ -29,7 +29,7 @@ export interface ContentModalProps {
 }
 
 const ChartWrapper = styled.div({
-  height: 'calc(90% - 20px)',
+  height: 'calc(95% - 20px)',
   width: '100%',
   padding: '0 12px',
 })
