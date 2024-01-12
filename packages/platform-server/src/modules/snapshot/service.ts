@@ -37,6 +37,8 @@ import {
   SnapshotTrigger,
   PageWithProfile,
   PageWithEnv,
+  Job,
+  JobStatus,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
@@ -559,11 +561,16 @@ export class SnapshotService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_30_MINUTES, { exclusive: true, name: 'timeout-reports' })
   async timeoutReports() {
-    const reports = await SnapshotReport.createQueryBuilder()
-      .where('status = :status', { status: SnapshotStatus.Running })
-      .andWhere('created_at < (DATE_SUB(NOW(), INTERVAL 2 HOUR))')
+    const reports = await SnapshotReport.createQueryBuilder('report')
+      .leftJoin(Job, 'job', 'job.entity_id = report.id and job.job_type = :jobType', { jobType: JobType.LabAnalyze })
+      .where('report.status in (:...status)', {
+        status: [SnapshotStatus.Pending, SnapshotStatus.Running, SnapshotStatus.Scheduled],
+      })
+      .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Done, JobStatus.Failed, JobStatus.Canceled] })
       .take(30)
       .getMany()
+
+    this.logger.log(`Started to timeout reports. Length: ${reports.length}`)
 
     for (const report of reports) {
       try {
