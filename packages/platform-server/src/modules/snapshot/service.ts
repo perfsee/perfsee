@@ -22,7 +22,7 @@ import {
   NotFoundException,
   OnApplicationBootstrap,
 } from '@nestjs/common'
-import { In } from 'typeorm'
+import { Brackets, In } from 'typeorm'
 
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
 import {
@@ -567,11 +567,15 @@ export class SnapshotService implements OnApplicationBootstrap {
         status: [SnapshotStatus.Pending, SnapshotStatus.Running, SnapshotStatus.Scheduled],
       })
       .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Done, JobStatus.Failed, JobStatus.Canceled] })
-      .andWhere('job.started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
+      .andWhere(
+        new Brackets((builder) => {
+          builder.where('job.started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))').orWhere('job.started_at is null')
+        }),
+      )
       .take(30)
       .getMany()
 
-    this.logger.log(`Started to timeout reports. Length: ${reports.length}`)
+    this.logger.log(`Started to timeout reports. Length: ${reports.length}`, { ids: reports.map((r) => r.id) })
 
     for (const report of reports) {
       try {
