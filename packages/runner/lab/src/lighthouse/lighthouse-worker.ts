@@ -16,6 +16,7 @@ limitations under the License.
 
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
+import { promisify } from 'util'
 
 import { groupBy, mapValues } from 'lodash'
 import { Target } from 'puppeteer-core'
@@ -464,6 +465,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     const tmpDir = `tmp/lighthouse-artifacts-${Date.now()}`
 
+    try {
+      await rm('tmp', { recursive: true, force: true })
+    } catch {
+      //
+    }
+
     if (runs > 1) {
       await mkdir(tmpDir, { recursive: true })
       this.logger.verbose(`Will run ${runs} turns for more accurate result.`)
@@ -488,7 +495,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             this.logger.info('Avaliable result: ', metrics)
             metricsList.push(metrics)
             const inputFile = join(tmpDir, `${i}-artifacts.json`)
-            await writeFile(inputFile, JSON.stringify(lhResult))
+            try {
+              await Promise.race([
+                promisify(setTimeout)(120 * 1000).then(() => Promise.reject('timeout')),
+                writeFile(inputFile, JSON.stringify(lhResult)),
+              ])
+            } catch (e) {
+              result = lhResult as LH.PerfseeRunnerResult
+              this.logger.error('Failed to write input file', { error: e })
+            }
           } else {
             result = lhResult as LH.PerfseeRunnerResult
           }
@@ -533,14 +548,23 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    await this.stopProxyServer()
+    try {
+      await this.stopProxyServer()
+    } catch (e) {
+      this.logger.error('Failed to stop proxy server', { error: e })
+    }
 
     if (metricsList.length) {
       this.logger.info('All available result: ', metricsList)
       const index = metricsList.length < 3 ? metricsList[metricsList.length - 1].index : computeMedianRun(metricsList)
       const inputFile = join(tmpDir, `${index}-artifacts.json`)
-      result = JSON.parse(await readFile(inputFile, { encoding: 'utf-8' })) as LH.PerfseeRunnerResult
-      await rm(tmpDir, { recursive: true })
+      try {
+        result = JSON.parse(await readFile(inputFile, { encoding: 'utf-8' })) as LH.PerfseeRunnerResult
+      } catch (e) {
+        this.logger.error(`Failed to read input file: ${inputFile}`, { error: e })
+      } finally {
+        await rm(tmpDir, { recursive: true })
+      }
     }
 
     if (!result) {
@@ -590,11 +614,14 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       if (screencast) {
         const uploadedFileKey = await this.client.uploadArtifactFile(screencastFile, screencast.path)
         this.logger.verbose('Cleanup screencast path')
-        await rm(dirname(screencast.path), { recursive: true, force: true })
         return uploadedFileKey
       }
     } catch (e) {
       this.logger.error('Failed to upload video', { error: e })
+    } finally {
+      if (screencast) {
+        await rm(dirname(screencast.path), { recursive: true, force: true })
+      }
     }
   }
 

@@ -302,10 +302,11 @@ export abstract class E2eJobWorker extends JobWorker<E2EJobPayload> {
     try {
       const fileKey = await this.client.uploadArtifactFile(name, screencastPath)
       this.logger.verbose('Cleanup screencast path')
-      await fs.rm(dirname(screencastPath), { recursive: true, force: true })
       return fileKey
     } catch (e) {
       this.logger.error('Failed to upload video', { error: e })
+    } finally {
+      await fs.rm(dirname(screencastPath), { recursive: true, force: true })
     }
   }
 
