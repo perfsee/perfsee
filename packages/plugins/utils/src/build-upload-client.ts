@@ -18,10 +18,11 @@ import { createReadStream, createWriteStream, statSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { Readable, pipeline } from 'stream'
+import { promisify } from 'util'
 import { createGzip } from 'zlib'
 
 import chalk from 'chalk'
-import fetch from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
 import { create } from 'tar'
 import { v4 as uuid } from 'uuid'
 
@@ -193,8 +194,6 @@ export class BuildUploadClient {
       toolkit: this.options.toolkit ?? 'webpack',
     }
 
-    const stream = createReadStream(packPath)
-
     console.info(chalk.green('[perfsee] start uploading build'), {
       size: PrettyBytes.stringify(statSync(packPath).size),
       params,
@@ -207,22 +206,31 @@ export class BuildUploadClient {
       .join('&')
 
     const platform = this.options.platform ?? getBuildEnv().platform
-    const res = await fetch(`${platform}/api/v1/artifacts?${query}`, {
-      method: 'POST',
-      body: stream,
-      headers: {
-        authorization: `Bearer ${this.options.token!}`,
-        'content-type': 'application/octet-stream',
-      },
-    })
 
-    if (res.ok) {
-      const { url } = await res.json()
+    let res: Response | undefined
+    for (const tryTime of Array.from({ length: (this.options.maxRetries || 0) + 1 }, (_, i) => i)) {
+      if (tryTime !== 0) {
+        console.error(`[perfsee] uploading failed! ${res?.statusText}. Retrying...`)
+      }
+      const stream = createReadStream(packPath)
+      res = await fetch(`${platform}/api/v1/artifacts?${query}`, {
+        method: 'POST',
+        body: stream,
+        headers: {
+          authorization: `Bearer ${this.options.token!}`,
+          'content-type': 'application/octet-stream',
+        },
+      })
 
-      console.info(chalk.green(`[perfsee] uploading succeed! The analyze result would be available at ${url} soon!`))
-    } else {
-      throw new Error(`[perfsee] uploading failed! ${res.statusText}. Response: ${await res.text()}`)
+      if (res.ok) {
+        const { url } = await res.json()
+
+        console.info(chalk.green(`[perfsee] uploading succeed! The analyze result would be available at ${url} soon!`))
+        return
+      }
+      await promisify(setTimeout)(this.options.retryDelay || 100)
     }
+    throw new Error(`[perfsee] uploading failed! ${res?.statusText}. Response: ${await res?.text()}`)
   }
 
   /**

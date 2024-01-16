@@ -110,6 +110,20 @@ export interface CommonPluginOptions {
    * Return undefined means skipping uploading.
    */
   processStats?: (stats: PerfseeReportStats) => undefined | PerfseeReportStats
+
+  /**
+   * Tetry times of uploading artifacts.
+   *
+   * @default 0
+   */
+  maxRetries?: number
+
+  /**
+   * The amount of time in milliseconds to wait between retries.
+   *
+   * @default 100
+   */
+  retryDelay?: number
 }
 
 export function getDefaultOptions(): Required<
