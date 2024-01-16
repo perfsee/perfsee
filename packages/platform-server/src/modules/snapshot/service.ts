@@ -579,6 +579,11 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     for (const report of reports) {
       try {
+        // if report has retries, detect all associated jobs
+        const jobs = await Job.find({ where: { entityId: report.id, jobType: JobType.LabAnalyze } })
+        if (jobs.some((job) => ![JobStatus.Done, JobStatus.Failed, JobStatus.Canceled].includes(job.status))) {
+          continue
+        }
         await this.updateLabReport({
           snapshotReport: {
             id: report.id,
