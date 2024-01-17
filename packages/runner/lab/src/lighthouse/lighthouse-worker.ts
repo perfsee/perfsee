@@ -16,7 +16,6 @@ limitations under the License.
 
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
-import { promisify } from 'util'
 
 import { groupBy, mapValues } from 'lodash'
 import { Target } from 'puppeteer-core'
@@ -496,10 +495,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             metricsList.push(metrics)
             const inputFile = join(tmpDir, `${i}-artifacts.json`)
             try {
-              await Promise.race([
-                promisify(setTimeout)(120 * 1000).then(() => Promise.reject('timeout')),
-                writeFile(inputFile, JSON.stringify(lhResult)),
-              ])
+              await writeFile(inputFile, JSON.stringify(lhResult))
             } catch (e) {
               result = lhResult as LH.PerfseeRunnerResult
               this.logger.error('Failed to write input file', { error: e })
