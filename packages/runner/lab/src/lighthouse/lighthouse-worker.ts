@@ -45,6 +45,7 @@ import {
   getLighthouseMetricScores,
   formatCookies,
   DEFAULT_BENCHMARK_INDEX,
+  onRequestFactory,
 } from './helpers'
 import {
   computeMedianRun,
@@ -343,11 +344,23 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   private async login() {
-    const { loginScript } = this.payload
+    const { loginScript, url } = this.payload
+    const { headers, cookies, localStorageContent } = this
+    const { host: domain } = new URL(url)
 
     if (loginScript) {
+      const onRequest = onRequestFactory(url, headers)
       const browser = await createBrowser()
       const page = await browser.newPage()
+      await page.setRequestInterception(true)
+      await page.setCookie(...formatCookies(cookies, domain))
+      await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
+        localStorage.clear()
+        localStorageContent.forEach(({ key, value }) => {
+          localStorage.setItem(key, value)
+        })
+      }, localStorageContent)
+      page.on('request', onRequest)
       const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
         browser,
         page,
