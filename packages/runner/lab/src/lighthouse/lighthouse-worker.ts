@@ -234,9 +234,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected async startProxyServer() {
+    await this.stopProxyServer()
     if (this.payload.enableProxy) {
       try {
-        this.logger.info('Found `enableProxy` flag, Start proxy server now.')
+        this.logger.info('Found `enableProxy` flag. Starting proxy server now.')
         startProxyServer()
 
         const lhFlags = this.getLighthouseFlags()
@@ -557,11 +558,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    try {
-      await this.stopProxyServer()
-    } catch (e) {
-      this.logger.error('Failed to stop proxy server', { error: e })
-    }
+    await this.stopProxyServer()
 
     if (metricsList.length) {
       this.logger.info('All available result: ', metricsList)
