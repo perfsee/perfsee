@@ -27,7 +27,7 @@ export const clearProxyCache = (function () {
       return promisify(clearCache)
     }
   } catch (e) {
-    console.warn('@perfsee/iri module is not available')
+    console.warn('@perfsee/iri module is not available, clear cache failed.')
   }
   return noop
 })()
@@ -48,7 +48,7 @@ export const startProxyServer = (function () {
           }
         })
       } catch (e) {
-        console.warn('@perfsee/iri module is not available')
+        console.warn('@perfsee/iri module is not available, start proxy server failed.')
       }
     }
   }
