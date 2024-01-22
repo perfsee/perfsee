@@ -15,13 +15,16 @@ limitations under the License.
 */
 
 import chalk from 'chalk'
+import findCacheDir from 'find-cache-dir'
+import { merge } from 'lodash'
+import fetch from 'node-fetch'
 
-import { calcBundleScore, StatsParser, PerfseeReportStats } from '@perfsee/bundle-analyzer'
+import { calcBundleScore, StatsParser, PerfseeReportStats, Audit } from '@perfsee/bundle-analyzer'
 
 import { getBuildEnv } from './build-env'
 import { formatAuditResult } from './formater'
 import { CommonPluginOptions } from './options'
-import { saveReport } from './viewer'
+import { saveReport, PACKAGE_NAME } from './viewer'
 
 export async function generateReports(stats: PerfseeReportStats, outputPath: string, options: CommonPluginOptions) {
   const { enableAudit, shouldPassAudit = (score) => score >= 80, failIfNotPass = false, processStats } = options
@@ -39,13 +42,30 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
     }
   }
 
+  stats.rules = options.rules?.filter((rule) => typeof rule === 'string') as string[]
+
   try {
     console.info('Start bundle analyzing')
     // @ts-expect-error we made it
     // eslint-disable-next-line no-console
     console.verbose = console.info
-    const statsParser = StatsParser.FromStats(stats, outputPath, console as any)
-    const { report, moduleTree } = await statsParser.parse()
+    const platform = options.platform ?? getBuildEnv().platform
+    const { report, moduleTree } = await StatsParser.FromStats(stats, outputPath, console as any)
+      .appendAuditsForLocal((options.rules?.filter((rule) => typeof rule === 'function') as Audit[]) || [])
+      .initAuditFetcher((path, init) => {
+        return fetch(
+          `${platform}${path}`,
+          merge(
+            {
+              headers: {
+                Authorization: `Bearer ${options.token!}`,
+              },
+            },
+            init,
+          ),
+        ) as any
+      }, findCacheDir({ name: PACKAGE_NAME }))
+      .parse()
     const score = calcBundleScore(report.entryPoints)
 
     // directly output formatted content in CI

@@ -71,8 +71,13 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
 
     // parse bundle
     const stats = await readStatsFile(this.statsFilePath)
-    const parser = StatsParser.FromStats(stats, parse(this.statsFilePath).dir, this.logger)
-    const { report, moduleTree, assets, moduleMap } = await parser.parse()
+    const { report, moduleTree, assets, moduleMap } = await StatsParser.FromStats(
+      stats,
+      parse(this.statsFilePath).dir,
+      this.logger,
+    )
+      .initAuditFetcher(this.client.fetch.bind(this.client))
+      .parse()
 
     const bundleReportName = `bundle-results/${uuid()}.json`
     const bundleReportKey = await this.client.uploadArtifact(bundleReportName, Buffer.from(JSON.stringify(report)))

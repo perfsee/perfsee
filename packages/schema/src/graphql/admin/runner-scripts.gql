@@ -1,6 +1,6 @@
 #import './fragments/runner-script.gql'
 
-query runnerScripts($jobType: JobType!) {
+query runnerScripts($jobType: String!) {
   runnerScripts(jobType: $jobType) {
     ...runnerScriptInfo
   }

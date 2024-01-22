@@ -16,7 +16,7 @@ limitations under the License.
 
 import { merge } from 'lodash'
 
-import { BundleResult, PerfseeReportStats } from '@perfsee/bundle-analyzer'
+import { Audit, BundleResult, PerfseeReportStats, AuditID } from '@perfsee/bundle-analyzer'
 
 import { getBuildEnv } from './build-env'
 import { ReportOptions } from './viewer'
@@ -124,6 +124,15 @@ export interface CommonPluginOptions {
    * @default 100
    */
   retryDelay?: number
+
+  /**
+   * Rules(audits) apply to this artifact
+   *
+   * Notice: Functions only works in local testing (when `enableAudit` is set to true).
+   *
+   * @default ['default']
+   */
+  rules?: (AuditID | Audit)[] | (string | Audit)[]
 }
 
 export function getDefaultOptions(): Required<

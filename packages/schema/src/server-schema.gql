@@ -911,7 +911,7 @@ type RunnerScript {
   version: String!
   description: String
   sha256: String!
-  jobType: JobType!
+  jobType: String!
 
   """runner script zipped package key in storage"""
   storageKey: String!
@@ -1474,8 +1474,9 @@ type Query {
   applications(pagination: PaginationInput = {first: 10}): PaginatedApplications!
   applicationSettings: ApplicationSettings!
   zone: Zone!
-  runnerScripts(jobType: JobType!): [RunnerScript!]!
-  activatedRunnerScripts(jobType: JobType!): RunnerScript
+  runnerScripts(jobType: String!): [RunnerScript!]!
+  extensionScripts(jobType: String!): [RunnerScript!]!
+  activatedRunnerScripts(jobType: String!): RunnerScript
   allUsagePacks: [UsagePack!]!
   publicUsagePacks: [UsagePack!]!
 
@@ -1618,7 +1619,7 @@ type Mutation {
   deleteAvailableJobZones(zones: [String!]!): [String!]!
   setDefaultJobZone(zone: String!): String!
   updateApplicationSettings(settings: UpdateApplicationSettingsInput!): ApplicationSettings!
-  updateRunnerScript(jobType: JobType!, version: String!, input: UpdateRunnerScriptInput!): RunnerScript!
+  updateRunnerScript(jobType: String!, version: String!, input: UpdateRunnerScriptInput!): RunnerScript!
   createUsagePack(input: CreateUsagePackInput!): UsagePack!
   updateUsagePack(input: UpdateUsagePackInput!): UsagePack!
   setDefaultUsagePack(id: Int!): Boolean!

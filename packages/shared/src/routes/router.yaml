@@ -32,6 +32,22 @@ paths:
   license:
     path: /license
     title: License
+  extensions:
+    base: /extensions
+    title: Extensions
+    paths:
+      part:
+        path: /:part?
+      bundleAudits:
+        base: /bundle-audits
+        paths:
+          detail:
+            path: /:auditId
+      labAudits:
+        base: /lab-audits
+        paths:
+          detail:
+            path: /:auditId
   editPassword:
     path: /edit-password
     title: Edit password

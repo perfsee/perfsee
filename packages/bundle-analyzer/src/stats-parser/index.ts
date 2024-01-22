@@ -20,6 +20,7 @@ import { join, parse } from 'path'
 import { uniqBy, chain, uniq, omit } from 'lodash'
 
 import { readStatsFile } from '../bundle-extractor'
+import { installActivatedRunnerScript } from '../install-scripts'
 import { getPackageMeta } from '../module'
 import { BundleToolkit, PerfseeReportStats, BundleModule, ID } from '../stats'
 import {
@@ -52,6 +53,7 @@ import {
   EntryPoint,
   Size,
   ModuleMap,
+  Audit,
 } from './types'
 
 const defaultLogger = getConsoleLogger()
@@ -74,6 +76,8 @@ export class StatsParser {
   private assetsMap: Map<string, Asset> = new Map()
   private packageVersionMap: Map<string, string> = new Map()
   private chunksMap: Map<ID, Chunk> = new Map()
+  private auditFetcher?: (rule: string) => Promise<string | Audit | undefined>
+  private readonly auditsForLocal: Audit[] = []
   private readonly modulesMap: Map<string, Module> = new Map()
   private readonly entryPointsMap: Map<string, EntryPoint> = new Map()
   private readonly packagePathRefMap: Map<string, BasePackage> = new Map()
@@ -96,7 +100,7 @@ export class StatsParser {
     )
     await this.parseAssets()
     this.parseChunks()
-    this.parseEntryPoints()
+    await this.parseEntryPoints()
 
     const bundleContent = this.parseBundleContent()
 
@@ -107,6 +111,25 @@ export class StatsParser {
       assets: Array.from(this.assetsMap.values()),
       moduleMap: this.serializeModuleMap(),
     }
+  }
+
+  initAuditFetcher(fetch: (path: string, init?: any) => Promise<any>, cacheDir?: string): this {
+    this.auditFetcher = async (rule: string) => {
+      const jobType = `extension.bundleAudit.${rule}`
+      let runnerScriptEntry = await installActivatedRunnerScript(this.logger, fetch, cacheDir)(jobType)
+      this.logger.info(`runner script entry ${runnerScriptEntry}`, runnerScriptEntry)
+      if (runnerScriptEntry) {
+        runnerScriptEntry = require.resolve(runnerScriptEntry)
+        return readFileSync(runnerScriptEntry, 'utf-8')
+      }
+      return undefined
+    }
+    return this
+  }
+
+  appendAuditsForLocal(audits: Audit[]) {
+    this.auditsForLocal.push(...audits)
+    return this
   }
 
   private serializeModuleMap(): ModuleMap {
@@ -167,11 +190,11 @@ export class StatsParser {
     }
   }
 
-  private parseEntryPoints() {
+  private async parseEntryPoints() {
     this.logger.info('Start parsing entry points')
     const refMappedAssets = new Map(Array.from(this.assetsMap).map(([, asset]) => [asset.ref, asset]))
 
-    Object.entries(this.stats.entrypoints!).forEach(([name, entrypoint]) => {
+    for (const [name, entrypoint] of Object.entries(this.stats.entrypoints!)) {
       this.logger.verbose(`entry: '${name}'`)
       const chunks = uniqBy(this.flatChunks(entrypoint.chunks), 'ref')
       const assets = uniq(chunks.map((chunk) => mapRefs(chunk.assets)).flat()).map((ref) => refMappedAssets.get(ref)!)
@@ -184,7 +207,7 @@ export class StatsParser {
       const initialSize = uniq(
         initialChunks.flatMap((chunk) => chunk.assets).filter((asset) => isInitialFileType(asset.type)),
       ).reduce(assetSizeReducer, getDefaultSize())
-      const audits = audit(
+      const audits = await audit(
         {
           chunks: chunks.map((chunk) => ({
             ...chunk,
@@ -196,6 +219,10 @@ export class StatsParser {
           stats: this.stats,
         },
         this.logger,
+        this.assetsPath,
+        this.stats.rules,
+        this.auditsForLocal,
+        this.auditFetcher,
       )
 
       this.entryPointsMap.set(name, {
@@ -219,7 +246,7 @@ export class StatsParser {
         audits,
         score: calcEntryPointScore(audits),
       })
-    })
+    }
   }
 
   private async parseAssets() {

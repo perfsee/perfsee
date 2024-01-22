@@ -40,6 +40,7 @@ import {
   Admin,
   AppInstaller,
   Group,
+  Extensions,
 } from './lazy-modules'
 
 export const Routes = ({ user, settings }: { user: User | null; settings: ApplicationSettings | null }) => {
@@ -57,6 +58,7 @@ export const Routes = ({ user, settings }: { user: User | null; settings: Applic
       <Route exact={true} path={staticPath.register} component={Register} />
       <Route exact={true} path={staticPath.status} component={StatusPage} />
       <Route exact={true} path={staticPath.license} component={LicensePage} />
+      <Route path={staticPath.extensions.part} component={Extensions} />
       <Route exact={true} path={staticPath.editPassword} component={EditPassword} />
       <Route exact={true} path={staticPath.resetPassword} component={ResetPassword} />
       <Route path={staticPath.project.feature} component={ProjectFeaturePage} />

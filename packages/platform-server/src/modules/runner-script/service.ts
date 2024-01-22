@@ -34,11 +34,17 @@ interface CreateRunnerScriptParams {
   enable: boolean
 }
 
+const validJobTypeRegex = /^[a-zA-Z][a-zA-Z0-9._-]+[a-zA-Z0-9]$/
+
 @Injectable()
 export class RunnerScriptService {
   constructor() {}
 
   async create(input: CreateRunnerScriptParams) {
+    if (!validJobTypeRegex.test(input.jobType)) {
+      throw new Error('Invalid job type')
+    }
+
     const script = await RunnerScript.findOne({ where: { jobType: input.jobType, version: input.version } })
 
     if (script) {
@@ -48,7 +54,7 @@ export class RunnerScriptService {
     return RunnerScript.create(input).save()
   }
 
-  getActivated(jobType: JobType) {
+  getActivated(jobType: string) {
     const builder = RunnerScript.createQueryBuilder()
     builder.where('job_type = :jobType', { jobType })
     builder.andWhere('enable = true')
@@ -57,11 +63,29 @@ export class RunnerScriptService {
     return builder.getOne()
   }
 
-  getRunnerScripts(jobType: JobType) {
+  getRunnerScripts(jobType: string) {
     return RunnerScript.find({ where: { jobType: jobType } })
   }
 
-  async updateRunnerScripts(jobType: JobType, version: string, update: Partial<RunnerScript>) {
+  async getExtensionScripts(jobType: string) {
+    const ids = (
+      await RunnerScript.createQueryBuilder()
+        .select(['MAX(id) as rid'])
+        .where('job_type like :jobType', { jobType: `${jobType}%` })
+        .andWhere('enable = true')
+        .groupBy('job_type')
+        .getRawMany<{ rid: number }>()
+    ).map(({ rid }) => rid)
+    if (!ids.length) {
+      return []
+    }
+    return RunnerScript.createQueryBuilder().where('id in (:...ids)', { ids }).getMany()
+  }
+
+  async updateRunnerScripts(jobType: string, version: string, update: Partial<RunnerScript>) {
+    if (update.jobType && !validJobTypeRegex.test(update.jobType)) {
+      throw new Error('Invalid job type')
+    }
     const script = await RunnerScript.findOneOrFail({ where: { jobType, version } })
     return RunnerScript.save(RunnerScript.merge(script, omitBy(update, isNil)))
   }

@@ -15,28 +15,40 @@ limitations under the License.
 */
 
 import { getTheme, SelectionMode, Stack } from '@fluentui/react'
-import { useModule } from '@sigi/react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useModule, useModuleState } from '@sigi/react'
+import { useCallback, useEffect, useMemo, FC } from 'react'
 
 import { ColorButton, ContentCard, Table, TableColumnProps } from '@perfsee/components'
 import { serverLink } from '@perfsee/platform/common'
 import { JobType } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
 
+import { GlobalModule } from '../../shared'
 import { JobTypeSelector } from '../runners/job-type-selector'
 
 import { RunnerScriptModule, RunnerScript } from './module'
 import { UploadButton } from './upload'
 
-export const RunnerScriptManager = () => {
+export interface Props {
+  jobType?: JobType | string
+  hideHeader?: boolean
+}
+
+export const RunnerScriptManager: FC<Props> = ({ jobType, hideHeader }) => {
   const [state, dispatcher] = useModule(RunnerScriptModule)
+  const { isAdmin } = useModuleState(GlobalModule, {
+    selector: (s) => ({
+      isAdmin: s.user?.isAdmin,
+    }),
+    dependencies: [],
+  })
   const theme = getTheme()
 
   useEffect(() => {
-    dispatcher.fetchByJobType(JobType.BundleAnalyze)
+    dispatcher.fetchByJobType(jobType || JobType.BundleAnalyze)
 
     return () => dispatcher.reset()
-  }, [dispatcher])
+  }, [dispatcher, jobType])
 
   const onChangeJobType = useCallback(
     (jobType: JobType) => {
@@ -115,7 +127,7 @@ export const RunnerScriptManager = () => {
           return (
             <Stack horizontal tokens={{ childrenGap: 4 }}>
               {/* eslint-disable-next-line react/jsx-no-bind */}
-              <ColorButton onClick={onClickDisable} color={theme.palette.red}>
+              <ColorButton onClick={onClickDisable} color={theme.palette.red} disabled={!isAdmin}>
                 {script.enable ? 'Disable' : 'Enable'}
               </ColorButton>
               <a
@@ -129,24 +141,26 @@ export const RunnerScriptManager = () => {
         },
       },
     ]
-  }, [dispatcher, state.activated?.version, theme.palette.green, theme.palette.red])
+  }, [dispatcher, state.activated?.version, theme.palette.green, theme.palette.red, isAdmin])
 
   return (
     <ContentCard>
-      <Stack tokens={{ childrenGap: 10 }}>
-        <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-between" verticalAlign="end">
-          <JobTypeSelector
-            label="Job Type"
-            jobType={state.jobType}
-            onChange={onChangeJobType}
-            styles={{ dropdown: { minWidth: 150 } }}
-          />
-          <UploadButton />
+      {hideHeader ? null : (
+        <Stack tokens={{ childrenGap: 10 }}>
+          <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-between" verticalAlign="end">
+            <JobTypeSelector
+              label="Job Type"
+              jobType={state.jobType}
+              onChange={onChangeJobType}
+              styles={{ dropdown: { minWidth: 150 } }}
+            />
+            <UploadButton />
+          </Stack>
+          <p>
+            <>Current Activated Version: {state.activated?.version}</>
+          </p>
         </Stack>
-        <p>
-          <>Current Activated Version: {state.activated?.version}</>
-        </p>
-      </Stack>
+      )}
       <Table selectionMode={SelectionMode.none} items={state.scripts} columns={scriptTableColumns} />
     </ContentCard>
   )

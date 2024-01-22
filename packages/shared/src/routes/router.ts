@@ -24,6 +24,12 @@ export interface RouteTypes {
   notFound: void
   status: void
   license: void
+  extensions: {
+    home: void
+    part: Partial<Params<'part'>>
+    bundleAudits: { home: void; detail: Params<'auditId'> }
+    labAudits: { home: void; detail: Params<'auditId'> }
+  }
   editPassword: void
   resetPassword: void
   me: { home: void; connectedAccounts: void; billing: void; accessToken: void }
@@ -81,6 +87,12 @@ export const staticPath = {
   notFound: '/404',
   status: '/status',
   license: '/license',
+  extensions: {
+    home: '/extensions',
+    part: '/extensions/:part?',
+    bundleAudits: { home: '/extensions/bundle-audits', detail: '/extensions/bundle-audits/:auditId' },
+    labAudits: { home: '/extensions/lab-audits', detail: '/extensions/lab-audits/:auditId' },
+  },
   editPassword: '/edit-password',
   resetPassword: '/reset-password',
   me: {
@@ -157,6 +169,22 @@ export const pathFactory = {
   notFound: makePathsFrom<FactoryParams<RouteTypes['notFound']>>('/404'),
   status: makePathsFrom<FactoryParams<RouteTypes['status']>>('/status'),
   license: makePathsFrom<FactoryParams<RouteTypes['license']>>('/license'),
+  extensions: {
+    home: makePathsFrom<FactoryParams<RouteTypes['extensions']['home']>>('/extensions'),
+    part: makePathsFrom<FactoryParams<RouteTypes['extensions']['part']>>('/extensions/:part?'),
+    bundleAudits: {
+      home: makePathsFrom<FactoryParams<RouteTypes['extensions']['bundleAudits']['home']>>('/extensions/bundle-audits'),
+      detail: makePathsFrom<FactoryParams<RouteTypes['extensions']['bundleAudits']['detail']>>(
+        '/extensions/bundle-audits/:auditId',
+      ),
+    },
+    labAudits: {
+      home: makePathsFrom<FactoryParams<RouteTypes['extensions']['labAudits']['home']>>('/extensions/lab-audits'),
+      detail: makePathsFrom<FactoryParams<RouteTypes['extensions']['labAudits']['detail']>>(
+        '/extensions/lab-audits/:auditId',
+      ),
+    },
+  },
   editPassword: makePathsFrom<FactoryParams<RouteTypes['editPassword']>>('/edit-password'),
   resetPassword: makePathsFrom<FactoryParams<RouteTypes['resetPassword']>>('/reset-password'),
   me: {
@@ -256,6 +284,12 @@ export const titleFactory = {
   '/404': (data: Record<string, any>) => makeTitlesFrom('Not found | Perfsee', data),
   '/status': (data: Record<string, any>) => makeTitlesFrom('Status | Perfsee', data),
   '/license': (data: Record<string, any>) => makeTitlesFrom('License | Perfsee', data),
+  '/extensions': (data: Record<string, any>) => makeTitlesFrom('Extensions | Perfsee', data),
+  '/extensions/:part?': (data: Record<string, any>) => makeTitlesFrom('Extensions | Perfsee', data),
+  '/extensions/bundle-audits': (data: Record<string, any>) => makeTitlesFrom('Extensions | Perfsee', data),
+  '/extensions/bundle-audits/:auditId': (data: Record<string, any>) => makeTitlesFrom('Extensions | Perfsee', data),
+  '/extensions/lab-audits': (data: Record<string, any>) => makeTitlesFrom('Extensions | Perfsee', data),
+  '/extensions/lab-audits/:auditId': (data: Record<string, any>) => makeTitlesFrom('Extensions | Perfsee', data),
   '/edit-password': (data: Record<string, any>) => makeTitlesFrom('Edit password | Perfsee', data),
   '/reset-password': (data: Record<string, any>) => makeTitlesFrom('Reset password | Perfsee', data),
   '/me': (data: Record<string, any>) => makeTitlesFrom('Me | Perfsee', data),

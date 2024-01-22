@@ -33,7 +33,7 @@ import {
 export type RunnerScript = RunnerScriptsQuery['runnerScripts'][number]
 
 interface RunnerScriptState {
-  jobType: JobType
+  jobType: string
   scripts: RunnerScript[]
   activated: RunnerScript | null
   uploading: boolean
@@ -57,7 +57,7 @@ export class RunnerScriptModule extends EffectModule<RunnerScriptState> {
   @ImmerReducer()
   setScripts(
     state: Draft<RunnerScriptState>,
-    payload: { jobType: JobType; scripts: RunnerScript[]; activated: RunnerScript | null },
+    payload: { jobType: string; scripts: RunnerScript[]; activated: RunnerScript | null },
   ) {
     state.scripts = payload.scripts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     state.activated = payload.activated
@@ -70,7 +70,7 @@ export class RunnerScriptModule extends EffectModule<RunnerScriptState> {
   }
 
   @Effect()
-  fetchByJobType(payload$: Observable<JobType>) {
+  fetchByJobType(payload$: Observable<string>) {
     return payload$.pipe(
       switchMap((jobType) =>
         forkJoin({
@@ -96,7 +96,7 @@ export class RunnerScriptModule extends EffectModule<RunnerScriptState> {
   }
 
   @Effect()
-  update(payload$: Observable<{ jobType: JobType; version: string; input: UpdateRunnerScriptInput }>) {
+  update(payload$: Observable<{ jobType: string; version: string; input: UpdateRunnerScriptInput }>) {
     return payload$.pipe(
       mergeMap(({ jobType, version, input }) =>
         this.client
@@ -120,7 +120,7 @@ export class RunnerScriptModule extends EffectModule<RunnerScriptState> {
   upload(
     payload$: Observable<{
       file: File
-      jobType: JobType
+      jobType: string
       version: string
       checksum: string
       enable: boolean
