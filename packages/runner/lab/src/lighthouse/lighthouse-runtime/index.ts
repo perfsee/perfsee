@@ -116,7 +116,11 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
       ...defaultConfig,
       // @ts-expect-error
       artifacts: customFlags?.dryRun
-        ? []
+        ? [
+            { id: 'DevtoolsLog', gatherer: 'devtools-log' },
+            { id: 'RequestInterception', gatherer: new RequestInterception(customFlags?.headers) },
+            { id: 'ConsoleLogger', gatherer: ConsoleLogger },
+          ]
         : [
             ...(defaultConfig.artifacts ?? []),
             { id: 'RequestInterception', gatherer: new RequestInterception(customFlags?.headers) },
@@ -126,7 +130,7 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
             ...(customFlags?.reactProfiling ? [{ id: 'ReactProfiler', gatherer: ReactProfiler }] : []),
           ],
       audits: customFlags?.dryRun
-        ? []
+        ? [await NetworkRequests()]
         : [...(defaultConfig.audits ?? []), await NetworkRequests(), await WhiteScreen(), await CauseForLCP()],
       settings: {
         additionalTraceCategories: 'disabled-by-default-v8.cpu_profiler',

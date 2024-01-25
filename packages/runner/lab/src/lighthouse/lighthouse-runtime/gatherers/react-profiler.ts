@@ -63,7 +63,8 @@ export class ReactProfiler extends GathererInstance {
     await page.setViewport(DEVICE_DESCRIPTORS['no'].viewport) // always use default view port
 
     const onResponse = async (response: HTTPResponse) => {
-      const url = response.url()
+      const urlObj = new URL(response.url())
+      const url = `${urlObj.origin}${urlObj.pathname}`
       if (!url.endsWith('.js') || this.bundleToReplace.has(url)) {
         return
       }
@@ -71,14 +72,14 @@ export class ReactProfiler extends GathererInstance {
 
       if (url.endsWith('react-dom.production.min.js') || url.endsWith('react-dom.production.js')) {
         const profilingBuild = await fetchReactDom(detectVersion(text), 'umd')
-        this.bundleToReplace.set(url, profilingBuild)
+        this.bundleToReplace.set(response.url(), profilingBuild)
       } else if (detectReactDom(text)) {
         if (isProfilingBuild(text)) {
           return
         }
 
         const generatedBundle = await generateProfilingBundle(text)
-        generatedBundle && this.bundleToReplace.set(url, generatedBundle)
+        generatedBundle && this.bundleToReplace.set(response.url(), generatedBundle)
       }
     }
 
@@ -87,7 +88,7 @@ export class ReactProfiler extends GathererInstance {
     })
 
     await page.goto(url)
-    await Promise.race([promisify(setTimeout)(10000), page.waitForNetworkIdle()])
+    await page.waitForNetworkIdle({ idleTime: 3000, timeout: 10000 })
     await page.close()
     this.lastProcessedUrl = url
   }
@@ -122,7 +123,7 @@ export class ReactProfiler extends GathererInstance {
 
   async startInstrumentation(ctx: Gatherer.Context) {
     const driver = ctx.driver
-    if (!ReactProfiler.bundleToReplace) {
+    if (!ReactProfiler.bundleToReplace.size) {
       this.resolveProfilngData(null)
       return
     }
