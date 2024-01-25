@@ -110,6 +110,7 @@ export async function lighthouse(url?: string, { customFlags, ...flags }: LH.Fla
       maxWaitForLoad: 45 * 1000,
       output: 'json',
       logLevel: 'info',
+      skipAudits: ['bf-cache'], // not working in headless mode
       ...flags,
     },
     {
