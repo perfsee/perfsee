@@ -50,6 +50,7 @@ export async function createBrowser(options: BrowserOptions = {}) {
       height: 720,
       width: 1080,
     },
+    headless: 'new', // https://developer.chrome.com/docs/chromium/new-headless
     ...options,
     args: [...chromeArgs, ...(options.args ?? [])],
   })
