@@ -234,7 +234,6 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected async startProxyServer() {
-    await this.stopProxyServer()
     if (this.payload.enableProxy) {
       try {
         this.logger.info('Found `enableProxy` flag. Starting proxy server now.')
