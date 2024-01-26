@@ -66,6 +66,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
 
   private readonly options: Options
   private outputPath!: string
+  private context?: string
   private stats!: PerfseeReportStats
   private readonly modules = new Map<string, string>()
 
@@ -89,13 +90,14 @@ export class PerfseePlugin implements WebpackPluginInstance {
 
     compiler.hooks.beforeRun.tap(PerfseePlugin.PluginName, (compiler) => {
       this.setOutputPath(compiler.outputPath)
+      this.context = compiler.options.context
     })
 
     try {
       compiler.resolverFactory.hooks.resolver.for('normal').tap(PerfseePlugin.PluginName, (resolver) => {
         try {
           resolver.hooks.result.tap(PerfseePlugin.PluginName, (request) => {
-            catchModuleVersionFromRequest(request, this.modules, process.cwd(), getBuildEnv().pwd)
+            catchModuleVersionFromRequest(request, this.modules, this.context || process.cwd(), getBuildEnv().pwd)
           })
         } catch (e) {
           console.error('failed when applying module version catcher: ', e)
@@ -120,7 +122,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
     this.stats = stats.toJson(webpackStatsToJsonOptions) as any
     this.stats.packageVersions = getAllPackagesVersions(getBuildEnv().pwd, this.modules)
     this.stats.repoPath = getBuildEnv().pwd
-    this.stats.buildPath = process.cwd()
+    this.stats.buildPath = this.context || process.cwd()
     this.stats.buildTool = BundleToolkit.Webpack
 
     return this
