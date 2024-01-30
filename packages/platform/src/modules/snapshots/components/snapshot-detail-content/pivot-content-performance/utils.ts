@@ -79,15 +79,16 @@ export const getGroupedAuditLists = (
       item.relevant = auditRelevantMap.get(ref.id)
     }
 
-    if (typeof item.score !== 'number') {
+    if (item.scoreDisplayMode === 'informative') {
+      if (item.displayValue || item.metricSavings || item.explanation) {
+        result[LighthouseGroupType.diagnostic].push(item)
+      }
+    } else if (typeof item.score !== 'number') {
       if (item.scoreDisplayMode === 'notApplicable') {
         result[LighthouseGroupType.notApply].push(item)
       }
       if (item.scoreDisplayMode === 'manual') {
         result[LighthouseGroupType.manual].push(item)
-      }
-      if (item.scoreDisplayMode === 'informative' && (item.displayValue || item.metricSavings || item.explanation)) {
-        result[LighthouseGroupType.diagnostic].push(item)
       }
     } else if (item.score >= 0.9) {
       result[LighthouseGroupType.passed].push(item)
