@@ -18,9 +18,9 @@
     "node": ">= 10.18.1"
   },
   "devDependencies": {
-    "puppeteer-core": "^21.5.0"
+    "puppeteer-core": "^21.6.1"
   },
   "peerDependencies": {
-    "puppeteer-core": ">= 13"
+    "puppeteer-core": ">= 20"
   }
 }

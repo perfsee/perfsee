@@ -43,7 +43,7 @@ export const OverviewRenderTimelines: FC<Props> = ({ snapshots }) => {
   const { minTime, distance } = useMemo(() => {
     const { maxTime, minTime } = snapshots.reduce(
       (p, c) => {
-        if (!c.timelines || !c.timelines.length) {
+        if (!c.timelines?.length) {
           return p
         }
         p.maxTime = Math.max(p.maxTime, c.timelines[c.timelines.length - 1].timing)

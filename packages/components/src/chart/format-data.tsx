@@ -35,7 +35,7 @@ export function formatChartData<T, S extends Record<string, any>>(
   const xAxisData = new Set<S[typeof xKey]>()
 
   rawData.forEach((data) => {
-    const formatted = formatter ? formatter(data) : (data as S)
+    const formatted = formatter ? formatter(data) : (data as any as S)
     const groupKey = formatted[seriesKey]
 
     const rawGroup = groupData[groupKey] ?? {}

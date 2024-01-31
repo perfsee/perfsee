@@ -17,7 +17,7 @@ limitations under the License.
 import { ExecutionContext } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { GqlContextType } from '@nestjs/graphql'
-import { ThrottlerException, ThrottlerGuard, ThrottlerModuleOptions } from '@nestjs/throttler'
+import { ThrottlerException, ThrottlerGuard, ThrottlerModuleOptions, ThrottlerOptions } from '@nestjs/throttler'
 import { Request, Response } from 'express'
 
 import { Metric } from '../../metrics'
@@ -36,17 +36,18 @@ export class RedisThrottleGuard extends ThrottlerGuard {
   }
 
   getTracker(req: Request) {
-    return `throttle:${req.headers.authorization ?? req.ip}`
+    return Promise.resolve(`throttle:${req.headers.authorization ?? req.ip}`)
   }
 
   getRequestResponse(context: ExecutionContext): { req: Request; res: Response } {
     return getRequestResponseFromContext(context)
   }
 
-  async handleRequest(context: ExecutionContext, limit: number, ttl: number) {
+  async handleRequest(context: ExecutionContext, limit: number, ttl: number, throttler: ThrottlerOptions) {
     const { req, res } = this.getRequestResponse(context)
-    if (Array.isArray(this.options.ignoreUserAgents)) {
-      for (const pattern of this.options.ignoreUserAgents) {
+    const option = throttler
+    if (Array.isArray(option.ignoreUserAgents)) {
+      for (const pattern of option.ignoreUserAgents) {
         const ua = req.headers['user-agent']
         if (ua && pattern.test(ua)) {
           return true
@@ -54,13 +55,13 @@ export class RedisThrottleGuard extends ThrottlerGuard {
       }
     }
 
-    let tracker = this.getTracker(req)
+    let tracker = await this.getTracker(req)
 
-    if (limit !== this.options.limit || ttl !== this.options.ttl) {
+    if (limit !== option.limit || ttl !== option.ttl) {
       tracker += ';custom'
     }
 
-    const key = this.generateKey(context, tracker)
+    const key = this.generateKey(context, tracker, throttler.name || 'default')
     const { timeToExpire, totalHits } = await this.storageService.increment(key, ttl)
     if (totalHits >= limit) {
       res.header('Retry-After', timeToExpire.toString())
@@ -73,9 +74,9 @@ export class RedisThrottleGuard extends ThrottlerGuard {
     return true
   }
 
-  generateKey(context: ExecutionContext, suffix: string) {
+  generateKey(context: ExecutionContext, suffix: string, name: string) {
     if (suffix.endsWith(';custom')) {
-      return super.generateKey(context, suffix)
+      return super.generateKey(context, suffix, name)
     }
 
     return suffix

@@ -78,7 +78,7 @@ export const CommitFlameGraph = ({ chartData }: CommitFlameGraphProps) => {
     <Stack tokens={containerTokens} onMouseMove={onMouseMove} style={containerStyles}>
       {tooltip}
       <AutoSizer>
-        {({ height, width }) => {
+        {({ height, width }: { height: number; width: number }) => {
           const itemData: ItemData = {
             chartData,
             onElementMouseEnter: handleElementMouseEnter,

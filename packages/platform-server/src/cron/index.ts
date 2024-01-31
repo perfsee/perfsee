@@ -61,8 +61,8 @@ class CronService implements OnApplicationBootstrap {
             }
 
             const ret = rawFire.call(job)
-            if (ret instanceof Promise) {
-              await ret
+            if ((ret as any) instanceof Promise) {
+              await (ret as any as Promise<any>)
             }
 
             this.metrics.cronJobStatus(1, { name })
@@ -100,7 +100,7 @@ export const Cron = (cronTime: string | Date, options?: CronOptions) => {
     }
     EXCLUSIVE_CRONS.add(options.name)
   }
-  return applyDecorators(RawCron(cronTime, options))
+  return applyDecorators(RawCron(cronTime, options as RawCronOptions))
 }
 
 export { CronExpression } from '@nestjs/schedule'

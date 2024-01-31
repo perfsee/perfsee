@@ -115,7 +115,7 @@ export class OAuth2Controller {
       throw new HttpException('invalid callback state parameter', HttpStatus.BAD_REQUEST)
     }
 
-    if (!state || !state.state) {
+    if (!state?.state) {
       throw new HttpException('Invalid callback state parameter', HttpStatus.BAD_REQUEST)
     }
 

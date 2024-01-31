@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Module } from '@nestjs/common'
-import { RouterModule } from 'nest-router'
+import { RouterModule } from '@nestjs/core'
 
 import {
   FileModule,
@@ -29,7 +29,7 @@ import {
 
 @Module({
   imports: [
-    RouterModule.forRoutes([
+    RouterModule.register([
       {
         path: '/api',
         children: [

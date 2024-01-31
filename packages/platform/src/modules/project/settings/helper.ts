@@ -69,8 +69,7 @@ export const getDeviceTitleByKey = (devices: DeviceType[], key: string) => {
 
 export const disableSavePage = (page: Partial<PageSchema>, relation: Pick<PageRelation, 'profileIds' | 'envIds'>) => {
   return (
-    !page ||
-    !page.name ||
+    !page?.name ||
     !page.url ||
     (page.isE2e && !page.e2eScript) ||
     !relation.profileIds.length ||

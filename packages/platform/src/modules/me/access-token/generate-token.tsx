@@ -35,7 +35,7 @@ export const GenerateToken: FC<Props> = ({ generateResult, onGenerate, onHideRes
   }, [])
 
   const confirmDisabled = useMemo(() => {
-    return !nameInput || !nameInput.trim()
+    return !nameInput?.trim()
   }, [nameInput])
 
   const onCreate = useCallback(() => {

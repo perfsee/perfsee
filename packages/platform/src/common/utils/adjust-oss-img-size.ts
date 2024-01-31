@@ -26,7 +26,7 @@ const SIZE_FIELD = 'image_size'
 const DEFAULT_SIZE_VALUE = 'noop'
 
 export const adjustOSSImgSize = (url: string, options: AdjustImgSizeOption = {}) => {
-  if (!url || !url.trim()) {
+  if (!url?.trim()) {
     return url
   }
 

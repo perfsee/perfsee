@@ -10,8 +10,8 @@
     "@ant-design/icons": "^5.0.0",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
-    "@fluentui/react": "^8.105.5",
-    "@fluentui/theme": "^2.6.22",
+    "@fluentui/react": "^8.114.0",
+    "@fluentui/theme": "^2.6.39",
     "@mdx-js/react": "^2.1.2",
     "@perfsee/dls": "workspace:*",
     "@perfsee/schema": "workspace:*",
@@ -20,7 +20,7 @@
     "@sigi/core": "^2.12.1",
     "@sigi/react": "^2.12.2",
     "dayjs": "^1.11.3",
-    "echarts": "^5.3.3",
+    "echarts": "^5.4.3",
     "immer": "^9.0.15",
     "lodash": "^4.17.21",
     "query-string": "^7.1.1",
@@ -29,7 +29,7 @@
     "react-helmet": "^6.1.0",
     "react-router": "^5.2.1",
     "react-router-dom": "^5.3.0",
-    "rxjs": "^7.5.6"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@types/react-helmet": "^6.1.5"
