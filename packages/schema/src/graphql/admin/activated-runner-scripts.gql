@@ -1,4 +1,4 @@
-query activatedRunnerScripts($jobType: JobType!) {
+query activatedRunnerScripts($jobType: String!) {
   activatedRunnerScripts(jobType: $jobType) {
     version
     description

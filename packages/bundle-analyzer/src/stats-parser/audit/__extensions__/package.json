@@ -1,0 +1,6 @@
+{
+  "name": "custom-audit",
+  "description": "Description for this audit. [Read More](https://readmore.link)",
+  "version": "0.0.1",
+  "private": true
+}

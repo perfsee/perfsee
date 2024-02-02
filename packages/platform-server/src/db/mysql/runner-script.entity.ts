@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql'
-import { JobType } from '@perfsee/server-common'
 import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @ObjectType({ description: 'runner script' })
@@ -37,8 +36,8 @@ export class RunnerScript extends BaseEntity {
   sha256!: string
 
   @Column({ type: 'varchar' })
-  @Field(() => JobType)
-  jobType!: JobType
+  @Field(() => String)
+  jobType!: string
 
   @Column({ type: 'varchar' })
   @Field(() => String, { description: 'runner script zipped package key in storage' })

@@ -119,6 +119,8 @@ export class BuildUploadClient {
     const statsFile = join(this.outputPath, `webpack-stats-${uuid()}.jsonr.gz`)
 
     return new Promise<string>((resolve, reject) => {
+      stats.rules = this.options.rules?.filter((rule) => typeof rule === 'string') as string[]
+
       pipeline(Readable.from(encodeStatsJson(stats)), createGzip(), createWriteStream(statsFile), (err) => {
         if (err) {
           reject(err)

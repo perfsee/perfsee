@@ -1,6 +1,6 @@
 #import './fragments/runner-script.gql'
 
-mutation updateRunnerScript($jobType: JobType!, $version: String!, $input: UpdateRunnerScriptInput!) {
+mutation updateRunnerScript($jobType: String!, $version: String!, $input: UpdateRunnerScriptInput!) {
   updateRunnerScript(jobType: $jobType, version: $version, input: $input) {
     ...runnerScriptInfo
   }

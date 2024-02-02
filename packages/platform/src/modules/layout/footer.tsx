@@ -49,6 +49,8 @@ export const Footer = memo(({ isAdmin }: { isAdmin?: boolean }) => {
       <Container>
         <Line />
         <Links>
+          <FooterLink to={staticPath.extensions.home}>Extensions</FooterLink>
+          <wbr />
           <FooterForeignLink href={staticPath.docs.home}>Documents</FooterForeignLink>
           <wbr />
           <FooterForeignLink href={staticPath.docs.api}>API</FooterForeignLink>

@@ -25,7 +25,7 @@ const options: IDropdownOption[] = Object.values(JobType).map((type) => ({
 }))
 
 type JobTypeSelectorProps = Omit<IDropdownProps, 'jobType' | 'onChange' | 'options'> & {
-  jobType?: JobType | null
+  jobType?: JobType | string | null
   onChange: (jobType: JobType) => void
 }
 

@@ -105,5 +105,21 @@ interface Options {
      */
     fileName?: string
   }
+
+  /**
+   * Used to modify the webpack stats file prcessed by perfsee plugin before uploading.
+   *
+   * Return undefined means skipping uploading.
+   */
+  processStats?: (stats: PerfseeReportStats) => undefined | PerfseeReportStats
+
+  /**
+   * Rules(audits) apply to this artifact
+   *
+   * Notice: Functions only works in local testing (when `enableAudit` is set to true).
+   *
+   * @default ['default']
+   */
+  rules?: (string | Audit)[]
 }
 ```

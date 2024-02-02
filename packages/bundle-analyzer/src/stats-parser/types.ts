@@ -26,6 +26,8 @@ import {
 
 export * from '../types'
 
+export { AuditID } from './audit'
+
 export enum LogLevel {
   verbose,
   info,
@@ -85,5 +87,8 @@ export type AuditParam = {
 }
 
 export type Audit = {
-  (param: Readonly<AuditParam>): BundleAuditResult | BundleAuditResult[]
+  (param: Readonly<AuditParam>):
+    | BundleAuditResult
+    | BundleAuditResult[]
+    | Promise<BundleAuditResult | BundleAuditResult[]>
 }

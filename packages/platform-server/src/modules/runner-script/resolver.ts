@@ -26,28 +26,34 @@ import { RunnerScriptService } from './service'
 @InputType()
 export class UpdateRunnerScriptInput extends PartialType(PickType(RunnerScript, ['enable']), InputType) {}
 
-@Auth('admin')
+@Auth()
 export class RunnerScriptResolver {
   constructor(private readonly service: RunnerScriptService) {}
 
   @Query(() => [RunnerScript], { name: 'runnerScripts' })
-  getRunnerScripts(@Args({ type: () => JobType, name: 'jobType' }) jobType: JobType): Promise<RunnerScript[]> {
-    return this.service.getRunnerScripts(jobType)
+  getRunnerScripts(@Args({ type: () => String, name: 'jobType' }) jobType: string): Promise<RunnerScript[]> {
+    return this.service.getRunnerScripts(JobType[jobType] || jobType)
+  }
+
+  @Query(() => [RunnerScript], { name: 'extensionScripts' })
+  getExtensionScripts(@Args({ type: () => String, name: 'jobType' }) jobType: string): Promise<RunnerScript[]> {
+    return this.service.getExtensionScripts(jobType)
   }
 
   @Query(() => RunnerScript, { name: 'activatedRunnerScripts', nullable: true })
   getActivatedRunnerScript(
-    @Args({ type: () => JobType, name: 'jobType' }) jobType: JobType,
+    @Args({ type: () => String, name: 'jobType' }) jobType: string,
   ): Promise<RunnerScript | null> {
-    return this.service.getActivated(jobType)
+    return this.service.getActivated(JobType[jobType] || jobType)
   }
 
+  @Auth('admin')
   @Mutation(() => RunnerScript)
   async updateRunnerScript(
-    @Args({ type: () => JobType, name: 'jobType' }) jobType: JobType,
+    @Args({ type: () => String, name: 'jobType' }) jobType: string,
     @Args({ type: () => String, name: 'version' }) version: string,
     @Args({ type: () => UpdateRunnerScriptInput, name: 'input' }) input: UpdateRunnerScriptInput,
   ) {
-    return this.service.updateRunnerScripts(jobType, version, input)
+    return this.service.updateRunnerScripts(JobType[jobType] || jobType, version, input)
   }
 }

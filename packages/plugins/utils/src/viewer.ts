@@ -22,7 +22,7 @@ import open from 'open'
 
 import { BundleResult, calcBundleScore, ModuleTreeNode } from '@perfsee/bundle-analyzer'
 
-const PACKAGE_NAME = '@perfsee/plugin-utils'
+export const PACKAGE_NAME = '@perfsee/plugin-utils'
 
 interface Data {
   branch: string

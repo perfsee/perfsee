@@ -104,7 +104,7 @@ export class RunnerScriptController {
     @Headers('x-runner-token') token?: string,
     @CurrentUser() user?: User,
   ) {
-    if (!user?.isAdmin) {
+    if (!user) {
       if (!token) {
         throw new ForbiddenException('Runner token is required')
       }
@@ -137,7 +137,7 @@ export class RunnerScriptController {
     @Headers('x-runner-token') token?: string,
     @CurrentUser() user?: User,
   ) {
-    if (!user?.isAdmin) {
+    if (!user) {
       if (!token) {
         throw new ForbiddenException('Runner token is required')
       }

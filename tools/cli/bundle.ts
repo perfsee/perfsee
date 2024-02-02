@@ -80,6 +80,22 @@ const webpackConfigs: { [index: string]: webpack.Configuration } = {
       runtimeChunk: false,
     },
   },
+  '@perfsee/bundle-analyzer': {
+    entry: {
+      main: packagePath('@perfsee/bundle-analyzer', 'src', 'stats-parser', 'audit', '__extensions__', 'index.ts'),
+    },
+    devtool: false,
+    output: {
+      path: packagePath('@perfsee/bundle-analyzer', 'tmp', 'audit'),
+      filename: 'index.js',
+      asyncChunks: false,
+      iife: false,
+    },
+    optimization: {
+      splitChunks: false,
+      runtimeChunk: false,
+    },
+  },
 }
 
 /**

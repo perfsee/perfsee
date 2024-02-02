@@ -214,4 +214,5 @@ export interface PerfseeReportStats extends WebpackStats {
       modules: Record<string, RollupRenderedModule>
     }
   >
+  rules?: string[]
 }

@@ -14,30 +14,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BundleAuditResult, AuditParam, Logger, EntryPoint } from '../types'
+import { BundleAuditResult, AuditParam, Logger, EntryPoint, Audit } from '../types'
 
-import { webAudits } from './rules'
+import { getAudits } from './rules'
 
 export * from './rules'
+export { runInVm } from './vm'
 
-export const audit: (param: Readonly<AuditParam>, logger: Logger) => BundleAuditResult[] = (param, logger) => {
+export const audit: (
+  param: Readonly<AuditParam>,
+  logger: Logger,
+  assetsPath: string,
+  rules?: string[],
+  audits?: Audit[],
+  auditFetcher?: (rule: string) => Promise<string | Audit | undefined>,
+) => Promise<BundleAuditResult[]> = async (param, logger, assetsPath, rules, audits, auditFetcher) => {
   logger.info('Start auditing bundle.')
-  const auditResult = webAudits
-    .map((func) => {
-      let ruleResult = func(param)
-      if (!Array.isArray(ruleResult)) {
-        ruleResult = [ruleResult]
-      }
+  const auditResult = []
+  const funcs = (await getAudits(logger, assetsPath, rules, auditFetcher)).concat(audits || [])
 
-      ruleResult.forEach((rule) => {
-        logger.verbose(`[weight=${rule.weight},score=${rule.numericScore?.value ?? 1}] Audit: ${rule.title}`)
-      })
+  for (const func of funcs) {
+    let ruleResult = func(param)
+    if (ruleResult instanceof Promise) {
+      ruleResult = await ruleResult
+    }
+    if (!Array.isArray(ruleResult)) {
+      ruleResult = [ruleResult]
+    }
 
-      return ruleResult
+    ruleResult.forEach((rule) => {
+      logger.verbose(`[weight=${rule.weight},score=${rule.numericScore?.value ?? 1}] Audit: ${rule.title}`)
     })
-    .flat()
+    auditResult.push(ruleResult)
+  }
   logger.info('Bundle auditing finished.')
-  return auditResult
+  return auditResult.flat()
 }
 
 export function calcBundleScore(entries: EntryPoint[]) {

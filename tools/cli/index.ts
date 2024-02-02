@@ -25,6 +25,7 @@ import { ExtractCommand } from './extract'
 import { GenerateLicenseCommand } from './generate-license'
 import { GenerateReactCommand } from './generate-react'
 import { UpdateWorkspaceCommand } from './update-workspace'
+import { UploadExtensionsCommand } from './upload-extensions'
 import { UploadScriptsCommand } from './upload-scripts'
 import { VscodeExtensionCommand } from './vscode'
 
@@ -41,6 +42,7 @@ cli.register(ExampleCommand)
 cli.register(CodegenCommand)
 cli.register(GenerateLicenseCommand)
 cli.register(VscodeExtensionCommand)
+cli.register(UploadExtensionsCommand)
 cli.register(UpdateWorkspaceCommand)
 cli.register(ExtractCommand)
 cli.register(UploadScriptsCommand)
