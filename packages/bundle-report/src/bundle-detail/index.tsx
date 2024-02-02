@@ -113,7 +113,11 @@ export const BundleReport: FC<BundleReportProps> = ({
         </Stack>
         <BuildHistory artifact={artifact} onBaselineSelectorOpen={onBaselineSelectorOpen} />
         <Overview artifact={artifact} diff={currentEntryPointDiff} />
-        <Audits audits={currentEntryPointDiff.audits.current} baseline={currentEntryPointDiff.audits.baseline} />
+        <Audits
+          key={entryPoint}
+          audits={currentEntryPointDiff.audits.current}
+          baseline={currentEntryPointDiff.audits.baseline}
+        />
         <ResourceTabs diff={currentEntryPointDiff} visualizationLink={contentLink} getAssetContent={getAssetContent} />
       </Stack>
     </ContentCard>

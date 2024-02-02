@@ -179,16 +179,16 @@ export const Audits: FC<Props> = (props) => {
       {opportunities.length ? (
         <div>
           <AuditTitle>Opportunities &#8231; {opportunities.length}</AuditTitle>
-          {opportunities.map((audit, i) => (
-            <AuditItem key={i} audit={audit} />
+          {opportunities.map((audit) => (
+            <AuditItem key={audit.id} audit={audit} />
           ))}
         </div>
       ) : null}
       {diagnostics.length ? (
         <div>
           <AuditTitle>Diagnostics &#8231; {diagnostics.length}</AuditTitle>
-          {diagnostics.map((audit, i) => (
-            <AuditItem key={i} audit={audit} />
+          {diagnostics.map((audit) => (
+            <AuditItem key={audit.id} audit={audit} />
           ))}
         </div>
       ) : null}
@@ -198,7 +198,7 @@ export const Audits: FC<Props> = (props) => {
             Passed &#8231; {passed.length}
             <CommandButton onClick={onClick}>{show ? 'Hide' : 'Show'}</CommandButton>
           </AuditTitle>
-          {show ? passed.map((audit, i) => <AuditItem key={i} audit={audit} />) : null}
+          {show ? passed.map((audit) => <AuditItem key={audit.id} audit={audit} />) : null}
         </div>
       ) : null}
     </div>
