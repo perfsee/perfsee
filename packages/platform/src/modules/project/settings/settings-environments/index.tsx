@@ -24,7 +24,15 @@ import { SharedColors } from '@perfsee/dls'
 import { DeleteProgress, EnvSchema, PropertyModule } from '../../../shared'
 import { SettingCards } from '../cards'
 import { ButtonOperators, DeleteContent, SettingDialogs, CountBlock, DialogVisible } from '../settings-common-comp'
-import { PropertyCard, PropertyCardTop, PropertyIcon, PropertyInfos, PropertyName, StyledDesc } from '../style'
+import {
+  PropertyCard,
+  PropertyCardTop,
+  PropertyIcon,
+  PropertyInfos,
+  PropertyName,
+  StyledDesc,
+  PropertyId,
+} from '../style'
 
 import { EnvEditForm } from './env-edit-form'
 
@@ -98,7 +106,10 @@ export const SettingsEnvironments = () => {
           <PropertyCardTop style={item.disable ? { color: SharedColors.gray10 } : undefined}>
             <PropertyIcon disable={!!item.disable}>{item.disable ? <StopOutlined /> : <GlobalOutlined />}</PropertyIcon>
             <PropertyInfos>
-              <PropertyName style={item.disable ? { color: SharedColors.gray10 } : undefined}>{item.name}</PropertyName>
+              <Stack horizontal horizontalAlign="space-between">
+                <PropertyName>{item.name}</PropertyName>
+                <PropertyId>#{item.id}</PropertyId>
+              </Stack>
               <div>
                 <CountBlock title="cookie" count={cookieCount} />
                 <CountBlock title="header" count={headerCount} />

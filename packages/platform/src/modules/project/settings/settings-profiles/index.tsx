@@ -34,6 +34,7 @@ import {
   PropertyIcon,
   PropertyInfos,
   PropertyDescription,
+  PropertyId,
 } from '../style'
 
 import { ProfileForm } from './profile-edit-form'
@@ -115,7 +116,10 @@ export const SettingsProfiles = () => {
                 {item.disable ? <StopOutlined /> : <DesktopOutlined />}
               </PropertyIcon>
               <PropertyInfos>
-                <PropertyName>{item.name}</PropertyName>
+                <Stack horizontal horizontalAlign="space-between">
+                  <PropertyName>{item.name}</PropertyName>
+                  <PropertyId>#{item.id}</PropertyId>{' '}
+                </Stack>
                 <PropertyDescription>
                   {<StyledDesc>{deviceTitle}</StyledDesc>}
                   {<StyledDesc>{bandWidthTitle}</StyledDesc>}

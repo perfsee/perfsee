@@ -24,7 +24,15 @@ import { FC } from 'react'
 import { PageSchema, PropertyModule } from '@perfsee/platform/modules/shared'
 
 import { ButtonOperators, PagePropertyItem, PagePropertyType } from '../settings-common-comp'
-import { EllipsisText, PropertyCard, PropertyCardTop, PropertyName, PropertyIcon, PropertyInfos } from '../style'
+import {
+  EllipsisText,
+  PropertyCard,
+  PropertyCardTop,
+  PropertyName,
+  PropertyIcon,
+  PropertyInfos,
+  PropertyId,
+} from '../style'
 
 import { PageHeaderInfo, PageHeaderLink, PageHeaderWrap } from './style'
 import WebIcon from './web.svg'
@@ -115,6 +123,7 @@ const PageHeader: FC<{ item: PageSchema; warning: boolean; disable: boolean }> =
             {item.name}
           </TooltipHost>
         </PropertyName>
+        <PropertyId>#{item.id}</PropertyId>
       </PageHeaderInfo>
       <PageHeaderLink>{item.url}</PageHeaderLink>
     </PageHeaderWrap>

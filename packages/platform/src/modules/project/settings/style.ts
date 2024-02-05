@@ -115,11 +115,21 @@ export const PagePropertyIcon = styled.span(({ theme }) => ({
 
 export const PagePropertyValue = styled.span({})
 
-export const PropertyCard = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
+export const PropertyId = styled.span({
+  color: NeutralColors.gray80,
+  fontSize: 12,
+  display: 'none',
 })
+
+export const PropertyCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &:hover ${PropertyId} {
+    display: block;
+  }
+`
 
 export const PropertyCardTop = styled.div({
   padding: '16px',
