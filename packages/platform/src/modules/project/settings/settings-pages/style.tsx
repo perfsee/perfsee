@@ -52,6 +52,8 @@ export const PageHeaderInfo = styled.div({
   display: 'flex',
   alignItems: 'center',
   overflow: 'hidden',
+  justifyContent: 'space-between',
+  width: '100%',
 
   '> * + *': {
     marginLeft: '8px',
