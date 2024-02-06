@@ -19,10 +19,10 @@ import { FC } from 'react'
 
 import { AuditItemDetail } from '@perfsee/bundle-report/bundle-detail/resource-tabs/audits'
 import { CollapsiblePanel, ForeignLink, formatMDLink } from '@perfsee/components'
+import { LabAuditDetail } from '@perfsee/lab-report/lab-audit-detail'
+import { LighthouseAudit } from '@perfsee/lab-report/snapshot-type'
 import { BundleAuditResult } from '@perfsee/shared'
 
-import { LabAuditDetail } from '../../components'
-import { LighthouseAudit } from '../../snapshots/snapshot-type'
 import { VersionIssue } from '../types'
 
 import { IssueInfo } from './issue'

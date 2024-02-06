@@ -18,10 +18,10 @@ import { SelectionMode, TooltipHost } from '@fluentui/react'
 import { FC, useMemo } from 'react'
 
 import { HeaderWithVerticalLineStyles, onRenderVerticalLineRow, Table, TableColumnProps } from '@perfsee/components'
+import { SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 import { formatMsDuration } from '@perfsee/platform/common'
 import { LighthouseScoreType, RequestSchema, Timing } from '@perfsee/shared'
 
-import { SnapshotDetailType, SnapshotReportSchema } from '../../../../snapshot-type'
 import { HeaderTitle } from '../style'
 
 type Props = {

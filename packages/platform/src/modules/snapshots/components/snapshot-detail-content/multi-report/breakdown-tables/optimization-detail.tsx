@@ -26,10 +26,9 @@ import {
   HeaderWithVerticalLineStyles,
 } from '@perfsee/components'
 import { ChartHeaderTitle } from '@perfsee/components/chart/style'
+import { needOptimizeCache, needOptimizeCompression } from '@perfsee/lab-report/pivot-content-asset/utils'
+import { RequestType, SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 import { RequestSchema } from '@perfsee/shared'
-
-import { RequestType, SnapshotDetailType, SnapshotReportSchema } from '../../../../snapshot-type'
-import { needOptimizeCache, needOptimizeCompression } from '../../pivot-content-asset/utils'
 
 type ItemType = {
   name: string

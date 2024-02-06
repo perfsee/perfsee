@@ -25,6 +25,7 @@
     "@perfsee/bundle-report": "workspace:*",
     "@perfsee/dls": "workspace:*",
     "@perfsee/flamechart": "workspace:*",
+    "@perfsee/lab-report": "workspace:*",
     "@perfsee/package-report": "workspace:*",
     "@perfsee/schema": "workspace:*",
     "@perfsee/shared": "workspace:*",

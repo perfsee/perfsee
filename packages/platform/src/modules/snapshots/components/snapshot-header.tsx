@@ -23,13 +23,13 @@ import { memo, useCallback, useMemo } from 'react'
 import { useHistory, useParams } from 'react-router'
 
 import { ForeignLink, Select } from '@perfsee/components'
+import { PerformanceTabType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
+import { SnapshotKey, SnapshotHeaderTime, OperationButton } from '@perfsee/lab-report/style'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { LabListModule, ReportsPayload } from '../../lab/list/module'
 import { CompareModule, useProject } from '../../shared'
-import { PerformanceTabType, SnapshotReportSchema } from '../snapshot-type'
 import { SnapshotModule } from '../snapshot.module'
-import { SnapshotKey, SnapshotHeaderTime, OperationButton } from '../style'
 
 type Props = {
   report: SnapshotReportSchema

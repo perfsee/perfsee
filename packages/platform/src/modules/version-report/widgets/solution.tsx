@@ -19,10 +19,10 @@ import { useModuleState } from '@sigi/react'
 import { useCallback, useMemo } from 'react'
 
 import { Empty, useQueryString } from '@perfsee/components'
+import { getGroupedAuditLists } from '@perfsee/lab-report/pivot-content-performance/utils'
+import { LighthouseAudit, LighthouseGroupType } from '@perfsee/lab-report/snapshot-type'
 import { LighthouseScoreMetric } from '@perfsee/shared'
 
-import { getGroupedAuditLists } from '../../snapshots/components/snapshot-detail-content/pivot-content-performance/utils'
-import { LighthouseAudit, LighthouseGroupType } from '../../snapshots/snapshot-type'
 import { EntryPointSchema } from '../types'
 import { HashReportModule } from '../version-report.module'
 

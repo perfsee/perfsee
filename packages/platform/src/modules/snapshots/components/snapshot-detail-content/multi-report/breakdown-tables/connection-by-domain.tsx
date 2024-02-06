@@ -19,10 +19,9 @@ import { groupBy } from 'lodash'
 import { FC, useMemo } from 'react'
 
 import { TableColumnProps, Table, TooltipWithEllipsis } from '@perfsee/components'
+import { getRequestDomain, getRequestSize, getTransferred } from '@perfsee/lab-report/pivot-content-asset/utils'
 import { formatMsDuration } from '@perfsee/platform/common'
 import { RequestSchema, PrettyBytes } from '@perfsee/shared'
-
-import { getRequestDomain, getRequestSize, getTransferred } from '../../pivot-content-asset/utils'
 
 type Props = {
   requests: RequestSchema[]

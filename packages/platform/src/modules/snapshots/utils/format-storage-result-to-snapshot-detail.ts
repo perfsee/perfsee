@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
 import { LHStoredSchema } from '@perfsee/shared'
-
-import { SnapshotDetailType } from '../snapshot-type'
 
 export const formatStorageResultToSnapshotDetail = (payload: LHStoredSchema): Omit<SnapshotDetailType, 'report'> => {
   return {

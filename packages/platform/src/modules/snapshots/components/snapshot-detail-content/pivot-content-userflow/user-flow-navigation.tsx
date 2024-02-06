@@ -18,9 +18,8 @@ import styled from '@emotion/styled'
 import { MouseEventHandler, useCallback, useEffect, useState } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
+import { SnapshotUserFlowDetailType } from '@perfsee/lab-report/snapshot-type'
 import { TimelineSchema } from '@perfsee/shared'
-
-import { SnapshotUserFlowDetailType } from '../../../snapshot-type'
 
 interface Props {
   steps: SnapshotUserFlowDetailType[]

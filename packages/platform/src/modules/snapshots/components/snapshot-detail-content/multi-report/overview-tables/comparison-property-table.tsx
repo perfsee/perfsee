@@ -21,11 +21,11 @@ import { FC, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { HeaderWithVerticalLineStyles, onRenderVerticalLineRow, Table, TableColumnProps } from '@perfsee/components'
+import { PerformanceTabType, SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 import { useProject } from '@perfsee/platform/modules/shared'
 import { LighthouseScoreMetric } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { PerformanceTabType, SnapshotDetailType, SnapshotReportSchema } from '../../../../snapshot-type'
 import { HeaderTitle } from '../style'
 
 type Props = {

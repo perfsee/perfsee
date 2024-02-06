@@ -31,13 +31,13 @@ import { useMemo, useCallback, FC, useEffect, memo } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 
 import { ForeignLink, MessageBar } from '@perfsee/components'
+import { PerformanceTabType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
+import { LighthouseBrand } from '@perfsee/lab-report/style'
 import { useProject } from '@perfsee/platform/modules/shared'
 import { SnapshotStatus, SourceStatus } from '@perfsee/schema'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { PerformanceTabType, SnapshotReportSchema } from '../../snapshot-type'
 import { SnapshotModule } from '../../snapshot.module'
-import { LighthouseBrand } from '../../style'
 import {
   OverviewTab,
   AssetTab,

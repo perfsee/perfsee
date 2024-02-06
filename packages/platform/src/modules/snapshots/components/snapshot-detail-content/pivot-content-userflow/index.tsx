@@ -17,10 +17,11 @@ limitations under the License.
 import styled from '@emotion/styled'
 import { useCallback, useState } from 'react'
 
-import { AnalysisReportTabType, SnapshotDetailType } from '../../../snapshot-type'
+import { OverviewZoneContent, OverviewZoneTitle } from '@perfsee/lab-report/pivot-content-overview/style'
+import { PerformanceContent } from '@perfsee/lab-report/pivot-content-performance'
+import { AnalysisReportTabType, SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
+
 import { OverviewPivotContent } from '../pivot-content-overview'
-import { OverviewZoneContent, OverviewZoneTitle } from '../pivot-content-overview/style'
-import { PerformanceContent } from '../pivot-content-performance'
 
 import { UserFlowNavigation } from './user-flow-navigation'
 

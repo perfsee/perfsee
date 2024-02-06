@@ -28,12 +28,12 @@ import {
   HeaderWithVerticalLineStyles,
   ForeignLink,
 } from '@perfsee/components'
+import { PerformanceTabType } from '@perfsee/lab-report/snapshot-type'
 import { formatTime } from '@perfsee/platform/common'
 import { LighthouseScoreMetric, MetricType } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { PropertyModule, useProjectRouteGenerator } from '../shared'
-import { PerformanceTabType } from '../snapshots/snapshot-type'
 
 import { SnapshotReport } from './module'
 import { evaluate, getMean, MetricKeys } from './utils'

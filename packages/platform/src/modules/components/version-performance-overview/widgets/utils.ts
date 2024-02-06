@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { PerformanceTabType } from '@perfsee/lab-report/snapshot-type'
 import { formatTime } from '@perfsee/platform/common'
-import { PerformanceTabType } from '@perfsee/platform/modules/snapshots/snapshot-type'
 import { ReportNode } from '@perfsee/platform/modules/version-report/types'
 import { LighthouseScoreType } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
