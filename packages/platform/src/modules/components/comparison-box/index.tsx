@@ -22,10 +22,10 @@ import { useCallback, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import { Badge, TeachingBubbleHost, TooltipWithEllipsis } from '@perfsee/components'
+import { PerformanceTabType } from '@perfsee/lab-report/snapshot-type'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { CompareModule, CompetitorMaxCount, useProject } from '../../shared'
-import { PerformanceTabType } from '../../snapshots/snapshot-type'
 
 import {
   CalloutHeader,

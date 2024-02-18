@@ -57,6 +57,12 @@
       "@perfsee/jsonr/*": [
         "packages/jsonr/src/*"
       ],
+      "@perfsee/lab-report": [
+        "packages/lab-report/src"
+      ],
+      "@perfsee/lab-report/*": [
+        "packages/lab-report/src/*"
+      ],
       "@perfsee/ori": [
         "packages/ori/src"
       ],

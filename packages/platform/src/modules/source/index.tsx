@@ -42,12 +42,12 @@ import {
   useWideScreen,
 } from '@perfsee/components'
 import { ConstantColors } from '@perfsee/dls'
+import { FlamechartPlaceholder } from '@perfsee/lab-report/flamechart'
 import { formatTime, stopPropagation } from '@perfsee/platform/common'
 import { getCommitLink } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { CommitHashSelector } from '../components'
-import { FlamechartPlaceholder } from '../flamechart'
 import { ProjectModule, ProjectInfo, useProjectRouteGenerator } from '../shared'
 
 import { FlamechartView } from './flamechart'

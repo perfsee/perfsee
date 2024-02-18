@@ -28,7 +28,9 @@ const browserStyleReset = readFileSync(require.resolve('modern-css-reset'), 'utf
 export function getFrontendConfig() {
   const pkg = getPackage('@perfsee/platform')
   return {
-    resolve: { mainFields: ['esnext', 'browser', 'module', 'main'] },
+    resolve: {
+      mainFields: ['esnext', 'browser', 'module', 'main'],
+    },
     plugins: [
       new HtmlWebpackPlugin({
         favicon: pathToRoot('assets', 'favicon.ico'),

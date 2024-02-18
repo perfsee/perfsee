@@ -26,10 +26,9 @@ import {
   HeaderWithVerticalLineStyles,
 } from '@perfsee/components'
 import { ChartHeaderTitle } from '@perfsee/components/chart/style'
+import { getRecordTypeParams } from '@perfsee/lab-report/chart/helper'
+import { RecordType, SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 import { formatMsDuration } from '@perfsee/platform/common'
-
-import { RecordType, SnapshotDetailType, SnapshotReportSchema } from '../../../../snapshot-type'
-import { getRecordTypeParams } from '../../../chart/helper'
 
 type TimingByResourceKind = { [key: string]: number } & { name: string; title: string; total: number; index: number }
 

@@ -16,13 +16,12 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Empty, ScoreBlock, Tag } from '@perfsee/components'
+import { SnapshotDetailType, SnapshotUserFlowDetailType } from '@perfsee/lab-report/snapshot-type'
 import { Commit } from '@perfsee/platform/modules/components/commit'
 import { useProjectRouteGenerator } from '@perfsee/platform/modules/shared'
 import { JobType, SourceStatus } from '@perfsee/schema'
 import { PrettyBytes, SourceAnalyzeStatistics } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
-
-import { SnapshotDetailType, SnapshotUserFlowDetailType } from '../../../snapshot-type'
 
 import { SourceAnalyzeStatisticsModule } from './module'
 import { SourceStatusTag } from './status-tag'

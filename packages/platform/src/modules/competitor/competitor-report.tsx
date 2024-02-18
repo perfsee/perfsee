@@ -21,12 +21,12 @@ import { useEffect, useMemo, useCallback } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 
 import { ContentCard } from '@perfsee/components'
+import { PerformanceTabType } from '@perfsee/lab-report/snapshot-type'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { PropertyModule, CompetitorMaxCount, useProjectRouteGenerator } from '../shared'
 import { LoadingShimmer } from '../snapshots/components/loading-shimmer'
 import { ReportContent } from '../snapshots/components/snapshot-detail-content'
-import { PerformanceTabType } from '../snapshots/snapshot-type'
 import { SnapshotModule } from '../snapshots/snapshot.module'
 
 export const CompetitorReport = () => {

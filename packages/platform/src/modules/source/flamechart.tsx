@@ -20,9 +20,9 @@ import { memo, useCallback, useEffect, useMemo } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 import { buildProfileFromFlameChartData, FlamechartContainer, Timing } from '@perfsee/flamechart'
+import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/lab-report/flamechart'
 import { MetricType } from '@perfsee/shared'
 
-import { FlamechartModule, FlamechartPlaceholder } from '../flamechart'
 import { ProjectModule } from '../shared'
 
 import { SourceIssue } from './source.module'

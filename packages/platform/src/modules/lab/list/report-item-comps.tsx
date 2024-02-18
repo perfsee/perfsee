@@ -20,12 +20,12 @@ import { useDispatchers, useModule } from '@sigi/react'
 import { FC, useCallback, useMemo, MouseEvent } from 'react'
 
 import { TooltipWithEllipsis } from '@perfsee/components'
+import { PerformanceTabType } from '@perfsee/lab-report/snapshot-type'
 import { Permission, SnapshotStatus } from '@perfsee/schema'
 import { PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { CompareModule, ProjectInfo } from '../../shared'
-import { PerformanceTabType } from '../../snapshots/snapshot-type'
 import { DisabledText, NoticeLabel } from '../style'
 
 import { LabListModule, SnapshotReportSchema } from './module'

@@ -18,10 +18,9 @@ import { Separator, Stack } from '@fluentui/react'
 import { FC, useMemo } from 'react'
 
 import { IconWithTips } from '@perfsee/components'
-
-import { SnapshotDetailType, SnapshotReportSchema } from '../../../snapshot-type'
-import { ExecutionChart } from '../../chart'
-import { getChartEndTime } from '../../chart/helper'
+import { ExecutionChart } from '@perfsee/lab-report/chart'
+import { getChartEndTime } from '@perfsee/lab-report/chart/helper'
+import { SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 
 import { ConnectionByDomainTable, TimingByResourceKindTable, OptimizationTable } from './breakdown-tables'
 import { HeaderTitle } from './style'

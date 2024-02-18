@@ -14,28 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { AssetContent } from '@perfsee/lab-report/pivot-content-asset'
+import { AnalysisReportContent } from '@perfsee/lab-report/pivot-content-performance'
+import { PerformanceTabType, SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
 import { lazy } from '@perfsee/platform/common'
 import { Trace } from '@perfsee/platform/modules/job-trace'
 
-import { PerformanceTabType, SnapshotDetailType } from '../../snapshot-type'
-
 import { MultiContentOverview, MultiContentBreakdown } from './multi-report'
-import { AssetContent } from './pivot-content-asset'
 import { OverviewPivotContent } from './pivot-content-overview'
-import { AnalysisReportContent } from './pivot-content-performance'
 import { SourceStatisticsContent } from './pivot-content-source'
 import { UserFlowPivotContent } from './pivot-content-userflow'
 
 export const FlameChartPivotContent = lazy(
-  () => import(/* webpackChunkName: "pivot-content-flamechart" */ './pivot-content-flamechart'),
+  // @ts-expect-error
+  () => import(/* webpackChunkName: "pivot-content-flamechart" */ '@perfsee/lab-report/pivot-content-flamechart'),
 )
 
 export const SourceCoveragePivotContent = lazy(
-  () => import(/* webpackChunkName: "pivot-content-source-coverage" */ './pivot-content-source-coverage'),
+  () =>
+    // @ts-expect-error
+    import(/* webpackChunkName: "pivot-content-source-coverage" */ '@perfsee/lab-report/pivot-content-source-coverage'),
 )
 
 export const ReactPivotContent = lazy(
-  () => import(/* webpackChunkName: "pivot-content-react" */ './pivot-content-react'),
+  // @ts-expect-error
+  () => import(/* webpackChunkName: "pivot-content-react" */ '@perfsee/lab-report/pivot-content-react'),
 )
 
 type PivotContentProps = {

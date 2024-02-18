@@ -30,6 +30,9 @@
       "path": "../packages/jsonr"
     },
     {
+      "path": "../packages/lab-report"
+    },
+    {
       "path": "../packages/ori"
     },
     {
