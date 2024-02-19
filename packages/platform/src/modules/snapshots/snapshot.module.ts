@@ -20,14 +20,13 @@ import { from, forkJoin, Observable, merge } from 'rxjs'
 import { switchMap, map, withLatestFrom, filter, startWith, mergeMap, endWith, tap } from 'rxjs/operators'
 
 import { SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
+import { formatStorageResultToSnapshotDetail } from '@perfsee/lab-report/util'
 import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import { snapshotReportsByIdsQuery, snapshotReportQuery } from '@perfsee/schema'
 import { LHStoredSchema, RequestSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
 import { ProjectModule } from '../shared'
-
-import { formatStorageResultToSnapshotDetail } from './utils/format-storage-result-to-snapshot-detail'
 
 interface State {
   snapshotReports: { [reportId: number]: SnapshotReportSchema }

@@ -18,7 +18,7 @@ import { Panel, LayerHost } from '@fluentui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useQueryString } from '@perfsee/components'
-import { Timing } from '@perfsee/flamechart'
+import { PerfseeFlameChartData, ReactDevtoolProfilingDataExport, Timing } from '@perfsee/flamechart'
 
 import { FlamechartPlaceholder } from '../flamechart'
 import { SnapshotDetailType } from '../snapshot-type'
@@ -30,6 +30,8 @@ import { FlamechartContainer } from './style'
 
 type Props = {
   snapshot: SnapshotDetailType
+  flamechartData?: PerfseeFlameChartData
+  reactProfileData?: ReactDevtoolProfilingDataExport
 }
 
 const panelLayerProps = { hostId: 'layer-host' }
@@ -114,6 +116,9 @@ export const FlameChartPivotContent = (props: Props) => {
           reactProfileLink={snapshot.report.reactProfileLink}
           onClickTiming={onClickTiming}
           focusedFrame={focusedFrame}
+          flamechartData={props.flamechartData}
+          reactProfileData={props.reactProfileData}
+          disableFetch={'flamechartData' in props || 'reactProfileData' in props}
         />
         {metricInsightPanel}
       </FlamechartContainer>

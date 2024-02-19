@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react'
 
 import { useWideScreen } from '@perfsee/components'
 import { TreeMapChart } from '@perfsee/components/treemap'
+import { SourceCoverageResult } from '@perfsee/shared'
 import { hierarchy, HierarchyNode } from '@perfsee/treemap'
 
 import { SnapshotDetailType, SnapshotReportSchema } from '../snapshot-type'
@@ -30,6 +31,7 @@ import { SourceCoverageTooltip } from './tooltip'
 
 type Props = {
   snapshot: SnapshotDetailType
+  data?: SourceCoverageResult
 }
 
 type SourceCoverageTreeMapData = LH.Treemap.Node & { highlight?: number }
@@ -41,10 +43,12 @@ export const SourceCoveragePivotContent = (props: Props) => {
   const [{ data, loading }, dispatcher] = useModule(SourceCoverageModule)
 
   useEffect(() => {
-    if (storageLink) {
+    if ('data' in props) {
+      props.data && dispatcher.setData(props.data)
+    } else if (storageLink) {
       dispatcher.fetchSourceCoverageResult(storageLink)
     }
-  }, [dispatcher, storageLink])
+  }, [dispatcher, storageLink, props])
 
   useEffect(() => {
     return dispatcher.reset

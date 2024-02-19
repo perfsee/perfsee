@@ -40,9 +40,23 @@ export const getCategoryCount = (audits: AuditsSchema, auditRefs: LH.Result.Audi
   return { passed, notApply, opportunity }
 }
 
+// Only those metrics contribute to Lighthouse Performance score. (lighthouse v7)
+/**
+ * @deprecated
+ */
+const LHCalculator = [
+  LighthouseScoreType.FCP,
+  LighthouseScoreType.LCP,
+  LighthouseScoreType.SI,
+  LighthouseScoreType.TTI,
+  LighthouseScoreType.TBT,
+  LighthouseScoreType.CLS,
+]
+
 export const isLHCalculator = (id: LighthouseScoreType, categories?: LH.Result.Category) => {
   if (categories) {
     return !!categories.auditRefs.find((ref) => ref.id === id)?.weight
   }
-  return false
+
+  return LHCalculator.includes(id)
 }
