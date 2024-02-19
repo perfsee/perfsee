@@ -74,7 +74,7 @@ export class GraphQLClient {
 
     return defer(() => {
       if (__IS_SERVER__) {
-        const expressHttpContext = require('express-http-context')
+        const expressHttpContext = eval("require('express-http-context')")
 
         context = {
           ...context,
