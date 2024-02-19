@@ -33,6 +33,9 @@ import {
   buildTimelineProfilesFromReactDevtoolProfileData,
   FlamechartFrame,
   FlamechartImage,
+  PerfseeFlameChartData,
+  ReactDevtoolProfilingDataExport,
+  prepareProfilingDataFrontendFromExport,
 } from '@perfsee/flamechart'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
@@ -101,6 +104,9 @@ export const FlamechartView: React.FunctionComponent<{
   onSelectFrame?: (frame: FlamechartFrame | null) => void
   onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
   focusedFrame?: { key: string; parentKeys?: string[] }
+  flamechartData?: PerfseeFlameChartData
+  reactProfileData?: ReactDevtoolProfilingDataExport
+  disableFetch?: boolean
 }> = memo(
   ({
     flameChartLink,
@@ -114,20 +120,32 @@ export const FlamechartView: React.FunctionComponent<{
     onSelectFrame,
     onClickTiming,
     focusedFrame,
+    flamechartData,
+    reactProfileData,
+    disableFetch,
   }) => {
     useWideScreen()
     const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
     const [{ reactProfile }, reactFlameDispatcher] = useModule(ReactFlameGraphModule)
 
     useEffect(() => {
-      reactProfileLink && reactFlameDispatcher.fetchReactProfileData(reactProfileLink)
+      if (disableFetch) {
+        reactProfileData &&
+          reactFlameDispatcher.setReactProfile(prepareProfilingDataFrontendFromExport(reactProfileData))
+      } else if (reactProfileLink) {
+        reactFlameDispatcher.fetchReactProfileData(reactProfileLink)
+      }
       return reactFlameDispatcher.reset
-    }, [reactProfileLink, reactFlameDispatcher])
+    }, [reactProfileLink, reactFlameDispatcher, disableFetch, reactProfileData])
 
     useEffect(() => {
-      dispatcher.fetchFlamechartData(flameChartLink)
+      if (disableFetch) {
+        flamechartData && dispatcher.setFlamechart(flamechartData)
+      } else {
+        dispatcher.fetchFlamechartData(flameChartLink)
+      }
       return dispatcher.reset
-    }, [dispatcher, flameChartLink])
+    }, [dispatcher, flameChartLink, flamechartData, disableFetch])
 
     const onSplitChange = useCallback(
       (collapsed: (boolean | undefined)[], sizes: number[]) => {

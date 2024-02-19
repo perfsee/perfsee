@@ -22,6 +22,8 @@ import { useWideScreen } from '@perfsee/components'
 import {
   buildProfilesFromReactDevtoolExportProfileData,
   FlamechartReactDevtoolProfileContainer,
+  prepareProfilingDataFrontendFromExport,
+  ReactDevtoolProfilingDataExport,
 } from '@perfsee/flamechart'
 
 import { SnapshotDetailType } from '../snapshot-type'
@@ -34,18 +36,23 @@ import { NoCommitData, NoCommitDataHeader, Container } from './styles'
 
 export interface Props {
   snapshot: SnapshotDetailType
+  profile?: ReactDevtoolProfilingDataExport
 }
 
-export const PivotContentReact = ({ snapshot }: Props) => {
-  const { reactProfileLink } = snapshot.report
+export const PivotContentReact = (props: Props) => {
+  const { reactProfileLink } = props.snapshot.report
   const [{ reactProfile, selectedCommitIndex, rootID, selectedFiberID }, dispatcher] = useModule(ReactFlameGraphModule)
 
   useWideScreen()
 
   useEffect(() => {
-    reactProfileLink && dispatcher.fetchReactProfileData(reactProfileLink)
+    if ('profile' in props) {
+      props.profile && dispatcher.setReactProfile(prepareProfilingDataFrontendFromExport(props.profile))
+    } else if (reactProfileLink) {
+      dispatcher.fetchReactProfileData(reactProfileLink)
+    }
     return dispatcher.reset
-  }, [dispatcher, reactProfileLink])
+  }, [dispatcher, reactProfileLink, props])
 
   const reactProfiles = useMemo(() => {
     if (!reactProfile) {
