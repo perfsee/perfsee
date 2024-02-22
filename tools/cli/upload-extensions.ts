@@ -60,7 +60,15 @@ export class UploadExtensionsCommand extends Command {
         pkg.name,
         source,
         '',
-        { assets: [], packages: [], chunks: [], size: { raw: 0, gzip: 0, brotli: 0 }, stats: {} },
+        {
+          assets: [],
+          packages: [],
+          chunks: [],
+          size: { raw: 0, gzip: 0, brotli: 0 },
+          stats: {},
+          assetsPath: '',
+          entryName: '',
+        },
         console as any,
       )
       if (validateAuditResult(result)) {
