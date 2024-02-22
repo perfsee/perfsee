@@ -24,14 +24,13 @@ export { runInVm } from './vm'
 export const audit: (
   param: Readonly<AuditParam>,
   logger: Logger,
-  assetsPath: string,
   rules?: string[],
   audits?: Audit[],
   auditFetcher?: (rule: string) => Promise<string | Audit | undefined>,
-) => Promise<BundleAuditResult[]> = async (param, logger, assetsPath, rules, audits, auditFetcher) => {
+) => Promise<BundleAuditResult[]> = async (param, logger, rules, audits, auditFetcher) => {
   logger.info('Start auditing bundle.')
   const auditResult = []
-  const funcs = (await getAudits(logger, assetsPath, rules, auditFetcher)).concat(audits || [])
+  const funcs = (await getAudits(logger, param.assetsPath, rules, auditFetcher)).concat(audits || [])
 
   for (const func of funcs) {
     let ruleResult = func(param)

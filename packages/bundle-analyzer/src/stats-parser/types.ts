@@ -84,6 +84,8 @@ export type AuditParam = {
   packages: Package[]
   size: Size
   stats: PerfseeReportStats
+  assetsPath: string
+  entryName: string
 }
 
 export type Audit = {
