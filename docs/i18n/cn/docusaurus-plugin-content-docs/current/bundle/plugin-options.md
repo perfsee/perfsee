@@ -100,5 +100,28 @@ interface Options {
      */
     fileName?: string
   }
+
+  /**
+   * 用于 Perfsee 在上传产物之前修改 stats file，通常用于自定义聚合文件展示逻辑或修改报告结果.
+   *
+   * 如果返回 undefined 则会跳过上传.
+   */
+  processStats?: (stats: PerfseeReportStats) => undefined | PerfseeReportStats
+
+  /**
+   * 应用到产物分析结果的审计规则集
+   *
+   * 注意: 若传入的是方法，则只在本地分析时生效 (当 `enableAudit` 为 true 时).
+   *
+   * @default ['default']
+   */
+  rules?: (AuditID | Audit)[] | (string | Audit)[]
+
+  /**
+   * 分析结果时是否计算辅助文件
+   *
+   * @default false
+   */
+  includeAuxiliary?: boolean
 }
 ```

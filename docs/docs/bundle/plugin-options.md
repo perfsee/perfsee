@@ -115,5 +115,12 @@ interface Options {
    * @default ['default']
    */
   rules?: (string | Audit)[]
+
+  /**
+   * Whether to include auxiliary files to the bundle result.
+   *
+   * @default false
+   */
+  includeAuxiliary?: boolean
 }
 ```
