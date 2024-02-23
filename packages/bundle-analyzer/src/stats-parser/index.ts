@@ -358,9 +358,9 @@ export class StatsParser {
 
     let moduleRef = 1
     const chunks = this.stats.chunks!.map(
-      ({ id, initial, names, entry, reason, files, children, modules: chunkModules }, i) => {
+      ({ id, initial, names, entry, reason, files, children, modules: chunkModules, auxiliaryFiles }, i) => {
         const chunkAssetsMap = new Map<string, Asset>()
-        files.forEach((file) => {
+        files.concat((this.stats.includeAuxiliary && auxiliaryFiles) || []).forEach((file) => {
           const asset = this.assetsMap.get(file)
           if (asset) {
             chunkAssetsMap.set(file, asset)

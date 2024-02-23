@@ -133,6 +133,13 @@ export interface CommonPluginOptions {
    * @default ['default']
    */
   rules?: (AuditID | Audit)[] | (string | Audit)[]
+
+  /**
+   * Whether to include auxiliary files to the bundle result.
+   *
+   * @default false
+   */
+  includeAuxiliary?: boolean
 }
 
 export function getDefaultOptions(): Required<

@@ -120,6 +120,7 @@ export class BuildUploadClient {
 
     return new Promise<string>((resolve, reject) => {
       stats.rules = this.options.rules?.filter((rule) => typeof rule === 'string') as string[]
+      stats.includeAuxiliary = this.options.includeAuxiliary
 
       pipeline(Readable.from(encodeStatsJson(stats)), createGzip(), createWriteStream(statsFile), (err) => {
         if (err) {

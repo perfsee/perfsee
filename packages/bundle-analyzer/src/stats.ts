@@ -128,6 +128,7 @@ export interface BundleChunk {
   initial: boolean
   children: number[]
   files: string[]
+  auxiliaryFiles?: string[]
   modules?: BundleModule[]
   names: string[]
   origins?: Array<{
@@ -215,4 +216,5 @@ export interface PerfseeReportStats extends WebpackStats {
     }
   >
   rules?: string[]
+  includeAuxiliary?: boolean
 }
