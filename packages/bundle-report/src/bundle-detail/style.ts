@@ -16,7 +16,7 @@ limitations under the License.
 
 import { FilterFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { IStackTokens, Pivot, Stack } from '@fluentui/react'
+import { CommunicationColors, IStackTokens, Pivot, SharedColors, Stack } from '@fluentui/react'
 
 import { NeutralColors } from '@perfsee/dls'
 
@@ -179,3 +179,117 @@ export const StyledInfoItem = styled.div(({ theme }) => ({
     fontWeight: 'bold',
   },
 }))
+
+export const CodeContainer = styled.div`
+  padding: 0 12px;
+
+  pre {
+    margin: 0 0 0 3rem;
+  }
+
+  pre code {
+    text-wrap: wrap;
+    word-break: break-all;
+    counter-reset: listing;
+    display: flex;
+    flex-direction: column;
+  }
+
+  span.line {
+    position: relative;
+    counter-increment: listing;
+  }
+
+  span.line:empty {
+    visibility: hidden;
+  }
+
+  span.line:last-child:empty {
+    visibility: unset;
+    height: 24px;
+
+    &::before {
+      visibility: hidden;
+    }
+
+    &::after {
+      content: '...';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      color: ${NeutralColors.gray90};
+    }
+  }
+
+  span.line:empty + span.line:not(:empty) {
+    margin-top: 24px;
+
+    &::after {
+      content: '...';
+      position: absolute;
+      top: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: ${NeutralColors.gray90};
+    }
+  }
+
+  span.line::before {
+    content: counter(listing) '  ';
+    display: inline-block;
+    text-align: right;
+    color: ${NeutralColors.gray90};
+    position: absolute;
+    left: -3rem;
+    width: 3rem;
+  }
+
+  span.highlighted-word {
+    background-color: #f6f6f7;
+    border: 1px solid #c2c2c4;
+    padding: 1px 3px;
+    margin: -1px -3px;
+    border-radius: 4px;
+  }
+
+  span.highlighted-word::after {
+    content: attr(data-type);
+    color: ${SharedColors.orange20};
+    font-size: 12px;
+    float: right;
+    margin-left: 8px;
+    padding: 0 8px;
+    line-height: 21px;
+    background: ${CommunicationColors.tint40};
+  }
+`
+
+export const ModulePath = styled.div({
+  fontSize: 16,
+  padding: '12px 28px',
+  fontWeight: 500,
+  margin: '12px 0',
+  borderBottom: `1px solid ${NeutralColors.gray50}`,
+  borderTop: `1px solid ${NeutralColors.gray50}`,
+  alignItems: 'center',
+  display: 'flex',
+  wordBreak: 'break-word',
+
+  svg: {
+    width: '16px !important',
+    height: '16px !important',
+    marginRight: 12,
+  },
+
+  div: {
+    display: 'flex',
+  },
+})
+
+export const MoreResults = styled.div({
+  display: 'flex',
+  justifyContent: 'center',
+  margin: '12px 0',
+  color: NeutralColors.gray120,
+})

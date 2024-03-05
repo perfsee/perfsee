@@ -32,13 +32,15 @@ import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Switch, Route, MemoryRouter } from 'react-router'
 
 import { MDXComponents } from '@perfsee/components'
 import { ThemeProvider } from '@perfsee/dls'
-import { AssetInfo, ModuleTreeNode, diffBundleResult } from '@perfsee/shared'
+import { AssetInfo, ModuleSource, ModuleTreeNode, diffBundleResult } from '@perfsee/shared'
+
+import { PackageTraceContext } from './bundle-detail/context'
 
 import { BundleReport, BundleContent } from './index'
 
@@ -70,16 +72,31 @@ const getAssetContent = (asset: AssetInfo) => {
   return Promise.resolve((window.bundleContent as ModuleTreeNode[]).filter((node) => node.name === asset.name))
 }
 
+const getModuleSource = () => {
+  return Promise.resolve(window.bundleModuleSource as ModuleSource)
+}
+
 function BundleReportContainer() {
   const bundleDiff = diffBundleResult(window.bundleReport)
+  const [packageTrace, setPackageTrace] = useState<number | null>(null)
+  const contextValue = useMemo(() => {
+    return {
+      ref: packageTrace,
+      setRef: (ref: number | null) => setPackageTrace(ref),
+    }
+  }, [packageTrace])
+
   return (
     <ReportContainer>
-      <BundleReport
-        artifact={window.artifact}
-        diff={bundleDiff}
-        contentLink="/content"
-        getAssetContent={getAssetContent}
-      />
+      <PackageTraceContext.Provider value={contextValue}>
+        <BundleReport
+          artifact={window.artifact}
+          diff={bundleDiff}
+          contentLink="/content"
+          getAssetContent={getAssetContent}
+          getModuleSource={window.bundleModuleSource && getModuleSource}
+        />
+      </PackageTraceContext.Provider>
     </ReportContainer>
   )
 }

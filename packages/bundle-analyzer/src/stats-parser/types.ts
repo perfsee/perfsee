@@ -62,8 +62,14 @@ export type Chunk = Omit<AcquiredChunk, 'assetRefs'> & {
 
 type AcquiredPackage = BasePackage & PackageAppendix
 
-export type Issuer = PackageMeta & {
+export interface Reason {
   type: ModuleReasonType
+  loc: string
+  moduleId: ID
+}
+
+export type Issuer = PackageMeta & {
+  reasons: Reason[]
 }
 
 export type Package = Omit<AcquiredPackage, 'assetRefs' | 'issuerRefs'> & {

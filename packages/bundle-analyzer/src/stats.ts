@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ModuleSource } from './types'
+
 export type ID = number | string
 
 export const SOURCE_CODE_PATH = '(Source Code)'
@@ -120,6 +122,7 @@ export interface BundleModule {
   providedExports?: any
   reasons: ModuleReason[]
   usedExports?: boolean
+  source?: string
 }
 
 export interface BundleChunk {
@@ -217,4 +220,5 @@ export interface PerfseeReportStats extends WebpackStats {
   >
   rules?: string[]
   includeAuxiliary?: boolean
+  moduleSourceMap?: ModuleSource
 }

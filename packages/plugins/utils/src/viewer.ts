@@ -20,7 +20,7 @@ import { join, resolve } from 'path'
 import findCacheDir from 'find-cache-dir'
 import open from 'open'
 
-import { BundleResult, calcBundleScore, ModuleTreeNode } from '@perfsee/bundle-analyzer'
+import { BundleResult, calcBundleScore, ModuleSource, ModuleTreeNode } from '@perfsee/bundle-analyzer'
 
 export const PACKAGE_NAME = '@perfsee/plugin-utils'
 
@@ -29,6 +29,7 @@ interface Data {
   hash: string
   report: BundleResult
   content: ModuleTreeNode[]
+  moduleSource?: ModuleSource
 }
 
 export interface ReportOptions {
@@ -66,6 +67,7 @@ export function renderReportViewer(data: Data) {
 			};
 			window.bundleReport = ${JSON.stringify(data.report).replace(/</gu, '\\u003c')};
 			window.bundleContent = ${JSON.stringify(data.content).replace(/</gu, '\\u003c')};
+      window.bundleModuleSource = ${JSON.stringify(data.moduleSource).replace(/</gu, '\\u003c')};
 		</script>
 	</head>
 

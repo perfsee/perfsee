@@ -23,11 +23,11 @@ export const outRepoLibs: Audit = ({ packages, stats }) => {
     return []
   }
 
-  const outRepoLibs = new Set<string>()
+  const outRepoLibs = new Set<[string, number]>()
 
   packages.forEach((pkg) => {
     if (!pkg.version && !pkg.ignored && pkg.path !== SOURCE_CODE_PATH && pkg.path !== WEBPACK_INTERNAL_PATH) {
-      outRepoLibs.add(pkg.path)
+      outRepoLibs.add([pkg.path, pkg.ref])
     }
   })
 
@@ -38,8 +38,17 @@ export const outRepoLibs: Audit = ({ packages, stats }) => {
 which will cause those dependencies' versions can't be controlled by npm or yarn.
 In other words, they may cause duplicate versions of same packages bundled or, even worse, cause critical compatibility bugs.`,
     detail: {
-      type: 'list',
-      items: Array.from(outRepoLibs).slice(0, 10),
+      type: 'table',
+      headings: [
+        { key: 'name', itemType: 'text', name: 'Name' },
+        { key: 'ref', itemType: 'trace', name: '' },
+      ],
+      items: Array.from(outRepoLibs)
+        .slice(0, 10)
+        .map(([path, ref]) => ({
+          name: path,
+          ref,
+        })),
     },
     score: outRepoLibs.size ? BundleAuditScore.Bad : BundleAuditScore.Good,
     numericScore: {

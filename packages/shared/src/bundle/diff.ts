@@ -16,6 +16,8 @@ limitations under the License.
 
 import { keyBy, sortBy, uniq, pick } from 'lodash'
 
+import { Reason } from '@perfsee/bundle-analyzer'
+
 import {
   Asset,
   AssetTypeEnum,
@@ -47,6 +49,7 @@ export type PackageInfo = Omit<BasePackage & PackageAppendix, 'issuerRefs' | 'no
   issuers: string[]
   notes?: string[]
   issuerRefs: number[]
+  reasons: Reason[][]
 }
 
 export function parseResult(job: BundleResult) {
@@ -197,6 +200,8 @@ export type PackageIssueMap = Record<
     ref: number
     issuerRefs: number[]
     name: string
+    reasons: Reason[][]
+    version?: string
   }
 >
 
@@ -323,40 +328,17 @@ export function diffBundleResult(job: BundleResult, base?: BundleResult | null):
 function generatePackageIssueMap(packages: PackageInfo[]) {
   const result: PackageIssueMap = {}
 
-  packages.forEach(({ ref, name, issuerRefs }) => {
+  packages.forEach(({ ref, name, issuerRefs, reasons, version }) => {
     result[ref] = {
       ref,
       name,
       issuerRefs,
+      reasons,
+      version,
     }
   })
 
   return result
-}
-
-export function formatPackageIssueMap(job: BundleResult) {
-  const { entryPoints, packages } = job
-  const packagesMap = new Map(packages?.map((pkg) => [pkg.ref, pkg]))
-
-  const entryPointMap: Record<string, PackageIssueMap> = {}
-
-  entryPoints.forEach((entrypoint) => {
-    const { packageAppendixes = [] } = entrypoint
-
-    const result: PackageIssueMap = {}
-
-    packageAppendixes.forEach(({ ref, issuerRefs }) => {
-      result[ref] = {
-        ref,
-        issuerRefs,
-        name: packagesMap.get(ref)?.name ?? '',
-      }
-    })
-
-    entryPointMap[entrypoint.name] = result
-  })
-
-  return entryPointMap
 }
 
 const generatePackage = (

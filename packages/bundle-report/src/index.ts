@@ -15,4 +15,4 @@ limitations under the License.
 */
 
 export { BundleContent, BundleContentProps } from './bundle-content'
-export { BundleReport, BundleReportProps } from './bundle-detail'
+export { BundleReport, BundleReportProps, PackageTraceContext } from './bundle-detail'

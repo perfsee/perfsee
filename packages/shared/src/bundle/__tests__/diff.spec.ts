@@ -20,7 +20,7 @@ import { resolve } from 'path'
 import test from 'ava'
 
 import { BundleResult } from '../../types'
-import { analysisPackages, diffBundleResult, formatPackageIssueMap } from '../diff'
+import { analysisPackages, diffBundleResult } from '../diff'
 
 test('diff bundle result', (t) => {
   const file = readFileSync(resolve(__dirname, '.', 'fixtures', 'report.json'), 'utf-8')
@@ -28,14 +28,6 @@ test('diff bundle result', (t) => {
   const result = diffBundleResult(report, report)
 
   t.snapshot(result, 'diff bundle')
-})
-
-test('format package issue map', (t) => {
-  const file = readFileSync(resolve(__dirname, '.', 'fixtures', 'report.json'), 'utf-8')
-  const report = JSON.parse(file) as BundleResult
-  const result = formatPackageIssueMap(report)
-
-  t.snapshot(result, 'format package issue map')
 })
 
 test('analysis packages', (t) => {

@@ -34,6 +34,7 @@ import {
   isInitialFileType,
   detectFileType,
   getConsoleLogger,
+  hashCode,
 } from '../utils'
 
 import { assetModulesParser } from './asset-parser'
@@ -54,6 +55,7 @@ import {
   Size,
   ModuleMap,
   Audit,
+  Reason,
 } from './types'
 
 const defaultLogger = getConsoleLogger()
@@ -81,6 +83,7 @@ export class StatsParser {
   private readonly modulesMap: Map<string, Module> = new Map()
   private readonly entryPointsMap: Map<string, EntryPoint> = new Map()
   private readonly packagePathRefMap: Map<string, BasePackage> = new Map()
+  private readonly reasonsMap: Map<ID, Reason[]> = new Map()
 
   private constructor(
     private readonly stats: PerfseeReportStats,
@@ -110,6 +113,7 @@ export class StatsParser {
       moduleTree: bundleContent,
       assets: Array.from(this.assetsMap.values()),
       moduleMap: this.serializeModuleMap(),
+      moduleSource: this.stats.moduleSourceMap,
     }
   }
 
@@ -130,6 +134,11 @@ export class StatsParser {
   appendAuditsForLocal(audits: Audit[]) {
     this.auditsForLocal.push(...audits)
     return this
+  }
+
+  parseReasons() {
+    this.parseChunks()
+    return this.reasonsMap
   }
 
   private serializeModuleMap(): ModuleMap {
@@ -242,6 +251,9 @@ export class StatsParser {
             .map((issuer) => this.packagePathRefMap.get(issuer.path)?.ref)
             .filter(isNotNil) as number[],
           assetRefs: mapRefs(assets),
+          reasons: issuers
+            .filter((issuer) => isNotNil(this.packagePathRefMap.get(issuer.path)?.ref))
+            .map((issuer) => issuer.reasons),
           notes,
         })),
         audits,
@@ -341,14 +353,55 @@ export class StatsParser {
         if (!meta) {
           return
         }
+        const moduleId =
+          typeof reason.moduleIdentifier === 'string' ? hashCode(reason.moduleIdentifier!) : reason.moduleIdentifier!
+
         return {
           name: meta.name,
           path: meta.path,
           type: reason.type,
+          loc: reason.loc,
+          moduleId,
         }
       })
-      .filter((value): value is Issuer => !!value && value.path !== path)
-      .uniqBy('path')
+      .filter((value) => !!value && value.path !== path)
+      .groupBy('path')
+      .mapValues((issuers) => {
+        const reasons = chain(issuers)
+          .map((issuer) => ({
+            type: issuer!.type,
+            loc: issuer!.loc,
+            moduleId: issuer!.moduleId,
+          }))
+          .uniqWith((a, b) => a.loc === b.loc && a.moduleId === b.moduleId && a.type === b.type)
+          .groupBy('moduleId')
+          .mapValues((issuers) => {
+            if (issuers.some((i) => i.type !== 'harmony import specifier')) {
+              return issuers.filter((i) => i.type !== 'harmony import specifier')
+            }
+            return issuers.slice(0, 1)
+          })
+          .values()
+          .flatten()
+          .value()
+
+        reasons.forEach((reason) => {
+          let reasons = this.reasonsMap.get(reason.moduleId)
+          if (!reasons) {
+            reasons = []
+            this.reasonsMap.set(reason.moduleId, reasons)
+          }
+
+          reasons.push(reason)
+        })
+
+        return {
+          name: issuers[0]!.name,
+          path: issuers[0]!.path,
+          reasons,
+        }
+      })
+      .reduce((issuers, issuer) => issuers.concat(issuer), [] as Issuer[])
       .value()
   }
 
@@ -370,18 +423,28 @@ export class StatsParser {
         const parseModules = (rawModules: BundleModule[] = [], concatenatedWith = '') => {
           return rawModules
             .map((fnModule) => {
-              const m = isNotNil(fnModule.id)
-                ? this.modulesMap.get(String(fnModule.id))
-                : // concatenated module
-                  ({
-                    id: null,
-                    size: getDefaultSize(),
-                    assets: [],
-                    concatenating: [],
-                  } as unknown as Module)
+              let m: Module | undefined
+              if (isNotNil(fnModule.id)) {
+                m = this.modulesMap.get(String(fnModule.id))
+              } else {
+                // concatenated module
+                m = {
+                  id: fnModule.identifier,
+                  size: getDefaultSize(),
+                  assets: [],
+                  concatenating: [],
+                } as unknown as Module
+                this.modulesMap.set(fnModule.identifier, m)
+              }
 
               if (!m) {
-                return
+                m = {
+                  id: fnModule.identifier,
+                  size: getDefaultSize(),
+                  assets: [],
+                  concatenating: [],
+                } as unknown as Module
+                this.modulesMap.set(fnModule.identifier, m)
               }
 
               const meta = this.getPackageMeta(fnModule.name)

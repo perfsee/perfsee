@@ -19,7 +19,7 @@ import { parse, stringify } from 'query-string'
 import { FC, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
-import { AssetInfo, EntryDiff, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, EntryDiff, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
 
 import { AssetsTable } from './assets-table'
 import { PackagesTable } from './packages-table'
@@ -35,9 +35,10 @@ interface Props {
   diff: EntryDiff
   visualizationLink?: string
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
+  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
 }
 
-export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent }) => {
+export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent, getModuleSource }) => {
   const history = useHistory()
   const location = useLocation()
   const queries: { tab?: string } = parse(location.search)
@@ -66,7 +67,7 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
         <AssetsTable diff={diff} getAssetContent={getAssetContent} />
       </PivotItem>
       <PivotItem headerText="Packages" itemKey={Tab.Packages}>
-        <PackagesTable diff={diff} />
+        <PackagesTable diff={diff} getModuleSource={getModuleSource} />
       </PivotItem>
       {visualizationLink && <PivotItem headerText="Visualization" itemKey={Tab.Visualization} />}
     </Pivot>
