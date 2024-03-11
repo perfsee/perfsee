@@ -23,11 +23,10 @@ import chalk from 'chalk'
 import esbuild from 'esbuild'
 import { glob } from 'glob'
 
-import { getBuildEnv } from '@perfsee/plugin-utils'
-
 import { analyze } from './analyzer'
 import { runBrowser } from './benchmark/browser'
 import { runNode } from './benchmark/node'
+import { getBuildEnv } from './build-env'
 import { BenchmarkResult, PackageJson, PackOptions } from './types'
 
 const bundlingAndRunBenchmark = async (path: string, outdir: string, options: PackOptions = {}) => {

@@ -21,8 +21,7 @@ import chalk from 'chalk'
 import findCacheDir from 'find-cache-dir'
 import open from 'open'
 
-import { getBuildEnv } from '@perfsee/plugin-utils'
-
+import { getBuildEnv } from './build-env'
 import { GraphQLClient } from './gql-client'
 
 const PACKAGE_NAME = '@perfsee/package'
