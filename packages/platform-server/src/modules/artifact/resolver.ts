@@ -205,6 +205,16 @@ export class ArtifactResolver {
   contentLink(@Parent() artifact: Artifact) {
     return artifactLink(artifact.contentKey)
   }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to modules detail of a build' })
+  moduleMapLink(@Parent() artifact: Artifact) {
+    return artifactLink(artifact.moduleMapKey)
+  }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to modules sources of a build' })
+  moduleSourceLink(@Parent() artifact: Artifact) {
+    return artifactLink(artifact.moduleSourceKey)
+  }
 }
 
 @Resolver(() => ArtifactEntrypoint)

@@ -69,6 +69,12 @@ type Artifact {
 
   """the link to module reference detail of a build"""
   contentLink: String
+
+  """the link to modules detail of a build"""
+  moduleMapLink: String
+
+  """the link to modules sources of a build"""
+  moduleSourceLink: String
 }
 
 enum BundleJobStatus {

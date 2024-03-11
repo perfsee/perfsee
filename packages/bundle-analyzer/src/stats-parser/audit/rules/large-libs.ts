@@ -57,8 +57,9 @@ Prefer smaller, functionally equivalent libraries to reduce your bundle size, or
       headings: [
         { key: 'name', itemType: 'text', name: 'Name' },
         { key: 'size', itemType: 'size', name: 'Size' },
+        { key: 'ref', itemType: 'trace', name: '' },
       ],
-      items: largePackages.map((pkg) => ({ name: pkg.path, size: pkg.size })),
+      items: largePackages.map((pkg) => ({ name: pkg.path, size: pkg.size, ref: pkg.ref })),
     },
     score: rangeScore(largePackages.length, 0, 5),
     numericScore: {

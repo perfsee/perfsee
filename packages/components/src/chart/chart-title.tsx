@@ -20,12 +20,9 @@ import { IconWithTips } from '../icon-with-tips'
 
 import { ChartHeaderTitle, ChartHeaderDesc } from './style'
 
-export const ChartHeader: FC<PropsWithChildren<{ title?: string; desc?: string; tips?: string }>> = ({
-  title,
-  desc,
-  children,
-  tips,
-}) => {
+export const ChartHeader: FC<
+  PropsWithChildren<{ title?: string | JSX.Element; desc?: string; tips?: JSX.Element | string }>
+> = ({ title, desc, children, tips }) => {
   return (
     <div>
       <ChartHeaderTitle>

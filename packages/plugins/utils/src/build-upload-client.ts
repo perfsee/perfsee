@@ -26,7 +26,7 @@ import fetch, { Response } from 'node-fetch'
 import { create } from 'tar'
 import { v4 as uuid } from 'uuid'
 
-import { PerfseeReportStats } from '@perfsee/bundle-analyzer'
+import { PerfseeReportStats, hashCode } from '@perfsee/bundle-analyzer'
 import JSONR from '@perfsee/jsonr'
 import { PrettyBytes } from '@perfsee/utils'
 
@@ -37,15 +37,18 @@ const filteredFields = [
   'identifier',
   'issuerPath',
   'issuer',
-  'moduleIdentifier',
+  'resolvedModuleIdentifier',
   'parents',
   'siblings',
   'origins',
   'module',
+  'optimizationBailout',
 ]
 
 function encodeStatsJson(stats: PerfseeReportStats) {
-  return JSONR.stringifyStream(stats, (key, v) => (filteredFields.includes(key) ? undefined : v))
+  return JSONR.stringifyStream(stats, (key, v) =>
+    filteredFields.includes(key) ? undefined : key === 'moduleIdentifier' && v ? hashCode(v) : v,
+  )
 }
 
 export interface BuildUploadParams {

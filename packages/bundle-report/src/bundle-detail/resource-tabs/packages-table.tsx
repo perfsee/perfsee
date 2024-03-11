@@ -16,7 +16,9 @@ limitations under the License.
 
 import { PartitionOutlined } from '@ant-design/icons'
 import { SelectionMode, HoverCard, HoverCardType } from '@fluentui/react'
-import { useMemo, useCallback, useState, FC, MouseEvent } from 'react'
+import { parse, stringify } from 'query-string'
+import { useMemo, useCallback, useState, FC, MouseEvent, useContext } from 'react'
+import { useHistory } from 'react-router'
 
 import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
 import { lighten } from '@perfsee/dls'
@@ -30,9 +32,11 @@ import {
   getDefaultSize,
   addSize,
   BundleAuditScore,
+  ModuleSource,
 } from '@perfsee/shared'
 
 import { ByteSizeWithDiff } from '../components'
+import { PackageTraceContext } from '../context'
 import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
 import { ItemAudit } from '../types'
 
@@ -72,12 +76,24 @@ interface PackageRow extends Package {
 
 interface Props {
   diff: EntryDiff
+  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
 }
 
-export const PackagesTable: FC<Props> = ({ diff }) => {
+export const PackagesTable: FC<Props> = ({ diff, getModuleSource }) => {
   const { packagesDiff, packageIssueMap, assetsDiff, audits } = diff
   const [filterPackages, setFilterPackages] = useState<Package[] | null>(null)
   const [traceSourceRef, setTraceSourceRef] = useState<number | null>(null)
+  const queries: { trace?: string } = parse(location.search)
+  const history = useHistory()
+  const packageTraceContext = useContext(PackageTraceContext)
+
+  const onCloseTrace = useCallback(() => {
+    if (packageTraceContext.setRef) {
+      packageTraceContext.setRef(null)
+    } else if (queries.trace) {
+      history.push(`${location.pathname}?${stringify({ ...queries, trace: undefined })}`)
+    }
+  }, [history, queries, packageTraceContext])
 
   const scoreItemsMap = useAuditScore()
 
@@ -94,8 +110,9 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
   )
 
   const onHideTraceModal = useCallback(() => {
+    onCloseTrace()
     setTraceSourceRef(null)
-  }, [])
+  }, [onCloseTrace])
 
   const onChangeSource = useCallback((ref: number) => {
     setTraceSourceRef(ref)
@@ -378,10 +395,11 @@ export const PackagesTable: FC<Props> = ({ diff }) => {
         onRenderRow={onPackageTableRenderRow(packagesLoadTypeMap)}
       />
       <ImportTraceModal
-        traceSourceRef={traceSourceRef}
+        traceSourceRef={traceSourceRef || (queries.trace ? Number(queries.trace) : null) || packageTraceContext.ref}
         packageIssueMap={packageIssueMap}
         onClose={onHideTraceModal}
         onChangeSource={onChangeSource}
+        getModuleSource={getModuleSource}
       />
     </>
   )

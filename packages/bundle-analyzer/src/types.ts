@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { BundleToolkit } from './stats'
+import { Reason } from './stats-parser/types'
 
 export interface Size {
   raw: number
@@ -66,6 +67,7 @@ export interface PackageAppendix {
   issuerRefs: number[]
   assetRefs: number[]
   notes: NoteType[]
+  reasons: Reason[][]
 }
 
 export interface DuplicatePackage {
@@ -73,7 +75,7 @@ export interface DuplicatePackage {
   versions: string[]
 }
 
-type TableItemType = 'text' | 'size' | 'list' | 'link'
+type TableItemType = 'text' | 'size' | 'list' | 'link' | 'trace'
 
 type TableDetail = {
   type: 'table'
@@ -138,6 +140,8 @@ export interface BundleResult {
   buildPath?: string
   buildTool?: BundleToolkit
 }
+
+export type ModuleSource = Record<string, [path: string, source: string]>
 
 export interface ModuleMap {
   [moduleId: string]: { path: string; packageRef: number; concatenatingLength: number }

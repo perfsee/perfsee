@@ -23,7 +23,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { BundleReport } from '@perfsee/bundle-report'
 import { useToggleState } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
-import { AssetInfo, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { ArtifactSelect, ArtifactSelectEventPayload } from '../../components'
@@ -34,6 +34,7 @@ import { BundleModule } from './module'
 import { SuspiciousBundle } from './suspicious-job'
 
 let resolveContent: ((content: ModuleTreeNode[]) => void) | undefined = undefined
+let resolveModuleSource: ((moduleSource: ModuleSource) => void) | undefined = undefined
 
 export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bundleId: string }>>(
   ({ match, location, history }) => {
@@ -57,6 +58,18 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       }
     }, [content])
 
+    const moduleSourcePromise = useRef(
+      new Promise<ModuleSource>((resolve) => {
+        resolveModuleSource = resolve
+      }),
+    )
+
+    useEffect(() => {
+      if (state.moduleSource && resolveModuleSource) {
+        resolveModuleSource(state.moduleSource)
+      }
+    }, [state.moduleSource])
+
     useEffect(() => {
       return bundleContentDispatcher.dispose
     }, [bundleContentDispatcher, routeBundleId])
@@ -74,6 +87,17 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       },
       [bundleContentDispatcher, bundleId, content],
     )
+
+    const getModuleSource = useCallback(async () => {
+      let moduleSource = state.moduleSource
+
+      if (!moduleSource && state.current?.moduleSourceLink) {
+        dispatcher.getModuleSource(state.current.moduleSourceLink)
+        moduleSource = await moduleSourcePromise.current
+      }
+
+      return moduleSource
+    }, [dispatcher, state])
 
     const project = useModuleState(ProjectModule, {
       selector: (s) => s.project,
@@ -149,6 +173,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
             contentLink={contentPath}
             downloadLink={state.current.buildLink}
             getAssetContent={getAssetContent}
+            getModuleSource={state.current.moduleSourceLink ? getModuleSource : undefined}
           />
 
           {artifactSelectVisible && (

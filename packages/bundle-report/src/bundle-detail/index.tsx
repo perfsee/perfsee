@@ -18,7 +18,7 @@ import { Stack, IDropdownOption, DefaultButton, ActionButton } from '@fluentui/r
 import { useMemo, useCallback, FC, useState } from 'react'
 
 import { ContentCard, Select } from '@perfsee/components'
-import { AssetInfo, BundleDiff, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, BundleDiff, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
 import { PrettyBytes } from '@perfsee/utils'
 
 import { BuildHistory } from './build-history'
@@ -27,6 +27,8 @@ import { ResourceTabs } from './resource-tabs'
 import { Audits } from './resource-tabs/audits'
 import { cardGap } from './style'
 import { ArtifactDiff } from './types'
+
+export * from './context'
 
 export interface BundleReportProps {
   artifact: ArtifactDiff
@@ -37,6 +39,7 @@ export interface BundleReportProps {
   contentLink?: string
   downloadLink?: string
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
+  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
 }
 
 export const BundleReport: FC<BundleReportProps> = ({
@@ -48,6 +51,7 @@ export const BundleReport: FC<BundleReportProps> = ({
   onBaselineSelectorOpen,
   onEntryPointChange,
   getAssetContent,
+  getModuleSource,
 }) => {
   const dropdownOptions = useMemo<IDropdownOption<string>[]>(() => {
     return Object.entries(diff).map(([entryName, diff]) => ({
@@ -118,7 +122,12 @@ export const BundleReport: FC<BundleReportProps> = ({
           audits={currentEntryPointDiff.audits.current}
           baseline={currentEntryPointDiff.audits.baseline}
         />
-        <ResourceTabs diff={currentEntryPointDiff} visualizationLink={contentLink} getAssetContent={getAssetContent} />
+        <ResourceTabs
+          diff={currentEntryPointDiff}
+          visualizationLink={contentLink}
+          getAssetContent={getAssetContent}
+          getModuleSource={getModuleSource}
+        />
       </Stack>
     </ContentCard>
   )

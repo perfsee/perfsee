@@ -51,7 +51,7 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
     // eslint-disable-next-line no-console
     console.verbose = console.info
     const platform = options.platform ?? getBuildEnv().platform
-    const { report, moduleTree } = await StatsParser.FromStats(stats, outputPath, console as any)
+    const { report, moduleTree, moduleSource } = await StatsParser.FromStats(stats, outputPath, console as any)
       .appendAuditsForLocal((options.rules?.filter((rule) => typeof rule === 'function') as Audit[]) || [])
       .initAuditFetcher((path, init) => {
         return fetch(
@@ -94,6 +94,7 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
           hash: '',
           report: report,
           content: moduleTree,
+          moduleSource,
         },
         outputPath,
         options.reportOptions,

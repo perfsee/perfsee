@@ -7590,6 +7590,7 @@ __metadata:
     query-string: ^7.1.1
     react-router: ^5.2.1
     react-router-dom: ^5.3.0
+    shiki: ^1.1.6
   peerDependencies:
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -8513,6 +8514,13 @@ __metadata:
     "@sentry/types": 6.19.7
     tslib: ^1.9.3
   checksum: a000223b9c646c64e3565e79cace1eeb75114342b768367c4dddd646476c215eb1bddfb70c63f05e2352d3bce2d7d415344e4757a001605d0e01ac74da5dd306
+  languageName: node
+  linkType: hard
+
+"@shikijs/core@npm:1.1.7":
+  version: 1.1.7
+  resolution: "@shikijs/core@npm:1.1.7"
+  checksum: 120002e1bb6223b7b0d69772f1c12e30ef4c0fdc7a3caa96387450ee9e4630fba45729e16cee1cf47a292b2e2f669becdf2e69415ade5de0f02de3b1a099cda0
   languageName: node
   linkType: hard
 
@@ -32212,6 +32220,15 @@ __metadata:
   bin:
     shjs: bin/shjs
   checksum: 7babc46f732a98f4c054ec1f048b55b9149b98aa2da32f6cf9844c434b43c6251efebd6eec120937bd0999e13811ebd45efe17410edb3ca938f82f9381302748
+  languageName: node
+  linkType: hard
+
+"shiki@npm:^1.1.6":
+  version: 1.1.7
+  resolution: "shiki@npm:1.1.7"
+  dependencies:
+    "@shikijs/core": 1.1.7
+  checksum: 4cf122e594a663cf834027b8a4c36c0ada51886a1cae9e089fd7bd396a6061825e32d63ead8be687214d295561918952e9be48815362b74953acf884a0bb12c5
   languageName: node
   linkType: hard
 

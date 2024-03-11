@@ -53,10 +53,12 @@ export const duplicateLibs: Audit = ({ packages }) => {
       headings: [
         { key: 'name', itemType: 'text', name: 'Name' },
         { key: 'versions', itemType: 'list', name: 'Versions' },
+        { key: 'refs', itemType: 'trace', name: '' },
       ],
       items: Array.from(duplicatedPackages).map(([name, packages]) => ({
         name,
         versions: packages.map((pkg) => (pkg.version ? `${pkg.path}@${pkg.version}` : pkg.path)),
+        refs: packages.map((pkg) => pkg.ref),
       })) as DuplicatePackage[],
     },
     score: rangeScore(duplicatedPackages.size, 0, 4),

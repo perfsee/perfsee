@@ -105,6 +105,9 @@ export class Artifact extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   moduleMapKey!: string | null
 
+  @Column({ type: 'varchar', nullable: true, comment: 'storage key for module source' })
+  moduleSourceKey!: string | null
+
   @Field(() => Int, { description: 'total size introduced by build, report and content files, in bytes' })
   @Column({ default: 0 })
   uploadSize!: number

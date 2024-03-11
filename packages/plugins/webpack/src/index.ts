@@ -14,12 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { sep } from 'path'
+import { relative, sep } from 'path'
 
 import chalk from 'chalk'
-import { WebpackPluginInstance, Compiler, Stats, WebpackOptionsNormalized as Configuration, Compilation } from 'webpack'
+import {
+  WebpackPluginInstance,
+  Compiler,
+  Stats,
+  WebpackOptionsNormalized as Configuration,
+  Compilation,
+  Module,
+} from 'webpack'
 
-import { BundleToolkit, PerfseeReportStats } from '@perfsee/bundle-analyzer'
+import { BundleToolkit, ID, PerfseeReportStats, Reason, StatsParser, hashCode } from '@perfsee/bundle-analyzer'
 import {
   CommonPluginOptions as Options,
   initOptions,
@@ -135,6 +142,45 @@ export class PerfseePlugin implements WebpackPluginInstance {
     await generateReports(this.stats, this.outputPath, this.options)
   }
 
+  private parseModuleSource(module: Module, reasonsMap: Map<ID, Reason[]>) {
+    // @ts-expect-error
+    module.modules?.forEach((module) => this.parseModuleSource(module, reasonsMap))
+    const source = module.originalSource()?.source()
+    if (!source) {
+      return
+    }
+    const id = hashCode(module.identifier())
+    if (source instanceof Buffer || !source || !id) {
+      return
+    }
+    const reasons = reasonsMap.get(id)
+    if (!reasons?.length) {
+      return
+    }
+    const lines = reasons.map((r) => r.loc.split(':')[0]).map((l) => Number(l) - 1)
+    const sourceFiltered = source
+      .split('\n')
+      .map((lineSource, lineNum) => {
+        if (lines.some((l) => Math.abs(l - lineNum) <= 1)) {
+          return lineSource || ' '
+        }
+        return ''
+      })
+      .join('\n')
+    const path = module.nameForCondition()
+    this.stats.moduleSourceMap ||= {}
+    this.stats.moduleSourceMap![id] = [path ? relative(this.stats.buildPath!, path) : 'unkown', sourceFiltered]
+  }
+
+  private readonly collectModuleSources = (compilation: Compilation) => {
+    try {
+      const reasonsMap = StatsParser.FromStats(this.stats, this.outputPath).parseReasons()
+      compilation.modules.forEach((module) => this.parseModuleSource(module, reasonsMap))
+    } catch (e) {
+      console.error(chalk.red(`Collect module sources failed, due to: ${(e as Error).message}`))
+    }
+  }
+
   private readonly handleEmit = (compilation: Compilation) => {
     if (!this.outputPath) {
       return
@@ -142,6 +188,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
 
     try {
       this.setStats(compilation.getStats())
+      this.collectModuleSources(compilation)
     } catch (e) {
       console.error(chalk.red(`Parse webpack stats failed, due to: ${(e as Error).message}`))
     }

@@ -14,19 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-declare module '*.svg' {
-  export const ReactComponent: import('react').ComponentClass<import('react').SVGProps<SVGSVGElement>>
-  export default ReactComponent
-}
+import { createContext } from 'react'
 
-declare module '*.mdx' {
-  export const ReactComponent: import('react').ComponentType
-  export default ReactComponent
-}
-
-declare interface Window {
-  artifact: any
-  bundleReport: any
-  bundleContent: any
-  bundleModuleSource: any
-}
+export const PackageTraceContext = createContext<{
+  ref: number | null
+  setRef?: (ref: number | null) => void
+}>({
+  ref: null,
+})

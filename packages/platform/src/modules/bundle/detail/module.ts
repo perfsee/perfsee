@@ -30,7 +30,7 @@ import {
 
 import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
 import { ArtifactQuery, artifactQuery, ArtifactWithBaselineQuery, artifactWithBaselineQuery } from '@perfsee/schema'
-import { BundleDiff, BundleResult, diffBundleResult } from '@perfsee/shared'
+import { BundleDiff, BundleResult, ModuleSource, diffBundleResult } from '@perfsee/shared'
 
 import { ProjectModule } from '../../shared'
 
@@ -43,6 +43,7 @@ interface State {
   current: Bundle | null
   baseline: Bundle | null
   diff: BundleDiff | null
+  moduleSource: ModuleSource | null
 }
 
 @Module('BundleModule')
@@ -52,6 +53,7 @@ export class BundleModule extends EffectModule<State> {
     current: null,
     baseline: null,
     diff: null,
+    moduleSource: null,
   }
 
   constructor(
@@ -155,6 +157,20 @@ export class BundleModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  getModuleSource(payload$: Observable<string>) {
+    return payload$.pipe(
+      filter(Boolean),
+      switchMap((key) =>
+        this.fetch.get<ModuleSource>(key).pipe(
+          map((moduleMap) => this.getActions().setModuleSource(moduleMap)),
+          createErrorCatcher('Failed to fetch moduleMap.', false),
+          catchError(() => EMPTY),
+        ),
+      ),
+    )
+  }
+
   @Reducer()
   setReport(state: State, report: BundleResult): State {
     if (!state.current) {
@@ -185,6 +201,11 @@ export class BundleModule extends EffectModule<State> {
     }
 
     return state
+  }
+
+  @ImmerReducer()
+  setModuleSource(state: Draft<State>, moduleSource: ModuleSource) {
+    state.moduleSource = moduleSource
   }
 
   @ImmerReducer()

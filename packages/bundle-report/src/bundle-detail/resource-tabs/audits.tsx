@@ -17,9 +17,11 @@ limitations under the License.
 import { FallOutlined, RiseOutlined } from '@ant-design/icons'
 import { useTheme } from '@emotion/react'
 import styled from '@emotion/styled'
-import { CommandButton, SelectionMode } from '@fluentui/react'
+import { CommandButton, Link, SelectionMode } from '@fluentui/react'
 import { partition } from 'lodash'
-import { FC, useCallback, useMemo, useState } from 'react'
+import { parse, stringify } from 'query-string'
+import { FC, useCallback, useContext, useMemo, useState } from 'react'
+import { useHistory } from 'react-router'
 
 import {
   CollapsiblePanel,
@@ -31,6 +33,7 @@ import {
 import { BundleAuditResult, BundleAuditDetail, BundleAuditScore } from '@perfsee/shared'
 
 import { ByteSizeWithDiff } from '../components'
+import { PackageTraceContext } from '../context'
 
 import { useAuditScore } from './use-audit-score'
 
@@ -48,7 +51,13 @@ const AuditTitle = styled.h3({
   },
 })
 
-export function AuditItemDetail({ detail }: { detail: BundleAuditDetail }) {
+export function AuditItemDetail({
+  detail,
+  onClickReason,
+}: {
+  detail: BundleAuditDetail
+  onClickReason?: (ref: number) => void
+}) {
   const columns = useMemo(() => {
     if (detail.type === 'list') {
       return [
@@ -85,13 +94,33 @@ export function AuditItemDetail({ detail }: { detail: BundleAuditDetail }) {
                     ))}
                   </ul>
                 )
+              case 'trace':
+                if (!onClickReason) {
+                  return null
+                }
+                if (Array.isArray(value)) {
+                  return (
+                    <ul>
+                      {value.map((v: any, i: number) => (
+                        <li key={i}>
+                          {
+                            // eslint-disable-next-line
+                            <Link onClick={() => onClickReason(v)}>Reason</Link>
+                          }
+                        </li>
+                      ))}
+                    </ul>
+                  )
+                }
+                // eslint-disable-next-line
+                return <Link onClick={() => onClickReason(value)}>Reason</Link>
             }
           },
         }
       })
     }
     return []
-  }, [detail])
+  }, [detail, onClickReason])
 
   if (!detail.items.length) {
     return null
@@ -106,6 +135,20 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
   const scoreItemsMap = useAuditScore()
   const icon = scoreItemsMap[audit.score].icon
   const theme = useTheme()
+  const queries: { trace?: string } = parse(location.search)
+  const history = useHistory()
+  const packageTraceContext = useContext(PackageTraceContext)
+
+  const onClickReason = useCallback(
+    (ref: number) => {
+      if (packageTraceContext.setRef) {
+        packageTraceContext.setRef(ref)
+      } else if (queries.trace !== String(ref)) {
+        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref })}`)
+      }
+    },
+    [history, queries, packageTraceContext],
+  )
 
   const diffScore = useMemo(() => {
     if (audit.weight && audit.numericScore && audit.baseline) {
@@ -146,7 +189,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
     >
       {audit.detail && audit.detail.items.length > 0 && (
         <CollapsiblePanel header="Detail">
-          <AuditItemDetail detail={audit.detail} />
+          <AuditItemDetail detail={audit.detail} onClickReason={onClickReason} />
         </CollapsiblePanel>
       )}
     </AuditItemBase>

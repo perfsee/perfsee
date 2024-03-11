@@ -24,7 +24,8 @@
     "lodash": "^4.17.21",
     "query-string": "^7.1.1",
     "react-router": "^5.2.1",
-    "react-router-dom": "^5.3.0"
+    "react-router-dom": "^5.3.0",
+    "shiki": "^1.1.6"
   },
   "devDependencies": {
     "@types/mdx-js__react": "^1.5.5"
