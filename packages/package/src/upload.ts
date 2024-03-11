@@ -21,10 +21,10 @@ import chalk from 'chalk'
 import fetch from 'node-fetch'
 import { create } from 'tar'
 
-import { getBuildEnv } from '@perfsee/plugin-utils'
 import { PrettyBytes } from '@perfsee/utils'
 
 import { anaylize } from './analyze'
+import { getBuildEnv } from './build-env'
 import { PackageUploadParams, PackageJson, PackOptions } from './types'
 
 let appVersion = 'unknown'

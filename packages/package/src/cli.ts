@@ -20,8 +20,7 @@ import { resolve } from 'path'
 import chalk from 'chalk'
 import { Cli, Command, Option } from 'clipanion'
 
-import { getBuildEnv } from '@perfsee/plugin-utils'
-
+import { getBuildEnv } from './build-env'
 import { saveReport } from './report'
 import { Minifier, PackageJson } from './types'
 import { anaylizeAndPack, uploadPack } from './upload'
