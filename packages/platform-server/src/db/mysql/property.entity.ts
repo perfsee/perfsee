@@ -183,6 +183,10 @@ export class Profile extends BaseEntity {
   })
   @Column({ type: 'boolean', default: false })
   enableProxy!: boolean
+
+  @Field(() => String, { description: 'user agent', nullable: true })
+  @Column({ type: 'text', nullable: true })
+  userAgent!: string | null
 }
 
 @ObjectType({ description: 'environment used to measure pages' })

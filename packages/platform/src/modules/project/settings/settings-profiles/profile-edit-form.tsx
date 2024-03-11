@@ -14,7 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DialogFooter, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, Stack } from '@fluentui/react'
+import {
+  DialogFooter,
+  PrimaryButton,
+  DefaultButton,
+  Dropdown,
+  IDropdownOption,
+  Stack,
+  TextField,
+} from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { pick } from 'lodash'
 import { useCallback, useState, FormEvent, useRef } from 'react'
@@ -64,6 +72,10 @@ export const ProfileForm = (props: FromProps) => {
     setProfile((profile) => ({ ...profile, name: value }))
   }, [])
 
+  const onUserAgentChange = useCallback((_: FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
+    setProfile((profile) => ({ ...profile, userAgent: value }))
+  }, [])
+
   const onDropdownChange = useCallback((e: FormEvent<HTMLDivElement>, option?: IDropdownOption<any>) => {
     if (!e.target || option === undefined) {
       return
@@ -89,6 +101,12 @@ export const ProfileForm = (props: FromProps) => {
         label="Connection speed"
         onChange={onDropdownChange}
         options={getConnectionsOptions(connections)}
+      />
+      <TextField
+        label="User agent"
+        defaultValue={profile.userAgent ?? undefined}
+        placeholder="The default user agent will be used"
+        onChange={onUserAgentChange}
       />
       <FormReact defaultEnable={defaultProfile?.reactProfiling ?? false} ref={reactProfilingRef} />
       <FormProxy defaultEnable={defaultProfile?.enableProxy ?? false} ref={proxyRef} />

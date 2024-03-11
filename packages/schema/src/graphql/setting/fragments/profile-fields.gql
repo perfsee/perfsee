@@ -6,4 +6,5 @@ fragment profileFields on Profile {
     disable
     reactProfiling
     enableProxy
+    userAgent
 }
