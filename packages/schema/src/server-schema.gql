@@ -665,6 +665,9 @@ type Profile {
 
   """Enable http2 + https proxy server"""
   enableProxy: Boolean!
+
+  """user agent"""
+  userAgent: String
 }
 
 """environment used to measure pages"""
@@ -1837,6 +1840,9 @@ input UpdateProfileInput {
 
   """Enable http2 + https proxy server"""
   enableProxy: Boolean
+
+  """user agent"""
+  userAgent: String
 }
 
 input UpdateTimerInput {

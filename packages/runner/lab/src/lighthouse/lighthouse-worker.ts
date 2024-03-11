@@ -426,7 +426,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   private getLighthouseFlags(): LH.Flags {
     const { cookies, headers, localStorageContent, reactProfiling } = this
-    const { url, deviceId, throttle } = this.payload
+    const { url, deviceId, throttle, userAgent } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const cpuSlowdownMultiplier = Number(
       (this.cpuThrottling ? (device.cpuSlowdownMultiplier * this.benchmarkIndex) / DEFAULT_BENCHMARK_INDEX : 1).toFixed(
@@ -449,7 +449,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return {
       formFactor: device.formFactor,
       screenEmulation: { disabled: true, width: device.viewport.width, height: device.viewport.height },
-      emulatedUserAgent: device.userAgent,
+      emulatedUserAgent: userAgent || device.userAgent,
       throttlingMethod: 'devtools',
       throttling: {
         cpuSlowdownMultiplier,

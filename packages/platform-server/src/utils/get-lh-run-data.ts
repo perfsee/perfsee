@@ -56,6 +56,7 @@ export function getLighthouseRunData(
       reactProfiling: profile.reactProfiling ?? false,
       enableProxy: profile.enableProxy ?? false,
       loginScript: env.loginScript,
+      userAgent: profile.userAgent,
     }
   })
 }

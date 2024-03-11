@@ -50,6 +50,7 @@ export interface LabJobPayload {
   reactProfiling: boolean
   enableProxy: boolean
   loginScript: string | null
+  userAgent: string | null
 }
 
 export type E2EJobPayload = LabJobPayload & {
