@@ -16,10 +16,12 @@ limitations under the License.
 
 import { Pivot, PivotItem } from '@fluentui/react'
 import { parse, stringify } from 'query-string'
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
 import { AssetInfo, EntryDiff, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
+
+import { PackageTraceContext } from '../context'
 
 import { AssetsTable } from './assets-table'
 import { PackagesTable } from './packages-table'
@@ -42,6 +44,7 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
   const history = useHistory()
   const location = useLocation()
   const queries: { tab?: string } = parse(location.search)
+  const { ref } = useContext(PackageTraceContext)
 
   const onChange = useCallback(
     (item?: PivotItem) => {
@@ -62,7 +65,7 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
   )
 
   return (
-    <Pivot onLinkClick={onChange} selectedKey={queries.tab ?? Tab.Assets}>
+    <Pivot onLinkClick={onChange} selectedKey={typeof ref === 'number' ? Tab.Packages : queries.tab ?? Tab.Assets}>
       <PivotItem headerText="Assets" itemKey={Tab.Assets}>
         <AssetsTable diff={diff} getAssetContent={getAssetContent} />
       </PivotItem>

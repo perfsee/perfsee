@@ -64,6 +64,14 @@ const webpackConfigs: { [index: string]: webpack.Configuration } = {
       splitChunks: false,
       runtimeChunk: false,
     },
+    module: {
+      rules: [
+        {
+          test: /\.(png|jpg|gif|svg|webp)$/,
+          type: 'asset/inline',
+        },
+      ],
+    },
   },
   '@perfsee/package-report': {
     entry: {
