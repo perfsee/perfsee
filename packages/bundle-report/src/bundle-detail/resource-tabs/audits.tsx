@@ -88,7 +88,7 @@ export function AuditItemDetail({
                 return <ByteSizeWithDiff current={value} showDiffBellow={false} />
               case 'list':
                 return (
-                  <ul>
+                  <ul style={{ width: '100%' }}>
                     {value.map((v: any, i: number) => (
                       <li key={i}>{<TooltipWithEllipsis content={v} />}</li>
                     ))}
