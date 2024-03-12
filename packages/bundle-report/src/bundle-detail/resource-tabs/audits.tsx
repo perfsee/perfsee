@@ -75,8 +75,8 @@ export function AuditItemDetail({
         return {
           key: head.key,
           name: head.name,
-          minWidth: 200,
-          maxWidth: 300,
+          minWidth: 120,
+          maxWidth: 600,
           onRender: (item: any) => {
             const value = item[head.key]
             switch (head.itemType) {
@@ -90,7 +90,7 @@ export function AuditItemDetail({
                 return (
                   <ul>
                     {value.map((v: any, i: number) => (
-                      <li key={i}>{v}</li>
+                      <li key={i}>{<TooltipWithEllipsis content={v} />}</li>
                     ))}
                   </ul>
                 )
@@ -135,7 +135,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
   const scoreItemsMap = useAuditScore()
   const icon = scoreItemsMap[audit.score].icon
   const theme = useTheme()
-  const queries: { trace?: string } = parse(location.search)
+  const queries: { trace?: string; tab?: string } = parse(location.search)
   const history = useHistory()
   const packageTraceContext = useContext(PackageTraceContext)
 
@@ -143,8 +143,8 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
     (ref: number) => {
       if (packageTraceContext.setRef) {
         packageTraceContext.setRef(ref)
-      } else if (queries.trace !== String(ref)) {
-        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref })}`)
+      } else if (queries.trace !== String(ref) || queries.tab !== 'packages') {
+        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref, tab: 'packages' })}`)
       }
     },
     [history, queries, packageTraceContext],
