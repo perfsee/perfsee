@@ -76,7 +76,7 @@ export function AuditItemDetail({
           key: head.key,
           name: head.name,
           minWidth: 120,
-          maxWidth: 600,
+          maxWidth: head.itemType === 'list' ? 600 : 300,
           onRender: (item: any) => {
             const value = item[head.key]
             switch (head.itemType) {
