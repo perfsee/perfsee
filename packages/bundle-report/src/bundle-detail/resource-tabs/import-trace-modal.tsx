@@ -41,7 +41,7 @@ type Props = {
   getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
 }
 
-type GraphNodeData = { name: string; ref?: number; symbolSize?: number; version?: string }
+type GraphNodeData = { name: string; ref?: number; symbolSize?: number; version?: string; id: string }
 
 const LoadingShimmer = () => {
   return (
@@ -115,7 +115,7 @@ export const ImportTraceModal: FC<Props> = ({
       }
 
       if (!pointsMap.has(pkg.ref)) {
-        const value = { name: pkg.name, version: pkg.version }
+        const value = { name: pkg.name, version: pkg.version, id: String(pkg.ref) }
 
         if (!sourcePkg || pkg.name === SOURCE_CODE_PATH) {
           value['symbolSize'] = 100
@@ -132,10 +132,10 @@ export const ImportTraceModal: FC<Props> = ({
 
       if (sourcePkg) {
         edges.push({
-          source: pkg.name,
-          target: sourcePkg.name,
-          ref,
-          sourceRef,
+          source: String(ref),
+          target: String(sourceRef),
+          targetName: sourcePkg.name,
+          sourceName: pkg.name,
           sourceVersion: pkg.version,
           targetVersion: sourcePkg.version,
         })
@@ -151,12 +151,12 @@ export const ImportTraceModal: FC<Props> = ({
     Object.values(packageIssueMap)
       .filter(({ issuerRefs }) => issuerRefs.some((ref) => ref === traceSourceRef))
       .forEach(({ name, ref, version }) => {
-        pointsMap.set(ref, { name, ref, itemStyle: { color: '#73c0de' }, version })
+        pointsMap.set(ref, { name, ref, itemStyle: { color: '#73c0de' }, version, id: String(ref) })
         edges.push({
-          source: traceSourceName,
-          target: name,
-          ref: traceSourceRef,
-          sourceRef: ref,
+          source: String(traceSourceRef),
+          target: String(ref),
+          targetName: name,
+          sourceName: traceSourceName,
           targetVersion: version,
           sourceVersion: packageIssueMap[traceSourceRef].version,
         })
@@ -231,10 +231,10 @@ export const ImportTraceModal: FC<Props> = ({
     (params: ChartEventParam) => {
       if (params.dataType === 'edge') {
         setCurrentSelected([
-          params.data.sourceRef,
-          params.data.ref,
-          params.data.sourceVersion ? `${params.data.source}@${params.data.sourceVersion}` : params.data.source,
-          params.data.targetVersion ? `${params.data.target}@${params.data.targetVersion}` : params.data.target,
+          Number(params.data.sourceRef),
+          Number(params.data.ref),
+          params.data.sourceVersion ? `${params.data.sourceName}@${params.data.sourceVersion}` : params.data.sourceName,
+          params.data.targetVersion ? `${params.data.targetName}@${params.data.targetVersion}` : params.data.targetName,
         ])
         return
       }
@@ -268,7 +268,7 @@ export const ImportTraceModal: FC<Props> = ({
     }
 
     const issuerIndex = packageIssue.issuerRefs.indexOf(currentSelected[1])
-    const reasons = packageIssue.reasons[issuerIndex]
+    const reasons = packageIssue.reasons?.[issuerIndex]
 
     if (!reasons.length) {
       return <Empty title="No import reasons data" withIcon />
