@@ -231,8 +231,8 @@ export const ImportTraceModal: FC<Props> = ({
     (params: ChartEventParam) => {
       if (params.dataType === 'edge') {
         setCurrentSelected([
-          Number(params.data.sourceRef),
-          Number(params.data.ref),
+          Number(params.data.source),
+          Number(params.data.target),
           params.data.sourceVersion ? `${params.data.sourceName}@${params.data.sourceVersion}` : params.data.sourceName,
           params.data.targetVersion ? `${params.data.targetName}@${params.data.targetVersion}` : params.data.targetName,
         ])
@@ -262,15 +262,15 @@ export const ImportTraceModal: FC<Props> = ({
     if (loading) {
       return <LoadingShimmer />
     }
-    const packageIssue = packageIssueMap?.[currentSelected[0]]
+    const packageIssue = packageIssueMap?.[currentSelected[1]]
     if (!packageIssue) {
       return <Empty title="No package issuers data" withIcon />
     }
 
-    const issuerIndex = packageIssue.issuerRefs.indexOf(currentSelected[1])
+    const issuerIndex = packageIssue.issuerRefs.indexOf(currentSelected[0])
     const reasons = packageIssue.reasons?.[issuerIndex]
 
-    if (!reasons.length) {
+    if (!reasons?.length) {
       return <Empty title="No import reasons data" withIcon />
     }
 
@@ -280,8 +280,8 @@ export const ImportTraceModal: FC<Props> = ({
 
     const grouped = groupBy(reasons, 'moduleId')
 
-    const elements = Object.values(grouped).map((reasons) => {
-      const module = moduleSourceMap[reasons[0].moduleId]
+    const elements = Object.entries(grouped).map(([moduleId, reasons]) => {
+      const module = moduleSourceMap[moduleId]
       if (!module) {
         return null
       }
@@ -348,7 +348,7 @@ export const ImportTraceModal: FC<Props> = ({
     })
 
     if (!elements.filter(Boolean).length) {
-      return <Empty title="No valid data" withIcon />
+      return <Empty title="No data" withIcon />
     }
 
     return elements.length >= 100
