@@ -30,8 +30,7 @@ import { SOURCE_CODE_PATH, PackageIssueMap, ModuleSource, AssetTypeEnum } from '
 import { CodeContainer, ModulePath, MoreResults } from '../style'
 
 import { AssetFilter } from './asset-filter'
-
-const TraceHintImage = require('./trace-hint.png')
+import TraceHintImage from './trace-hint.png'
 
 type Props = {
   traceSourceRef: number | null

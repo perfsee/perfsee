@@ -16,9 +16,7 @@ limitations under the License.
 
 import { PartitionOutlined } from '@ant-design/icons'
 import { SelectionMode, HoverCard, HoverCardType } from '@fluentui/react'
-import { parse, stringify } from 'query-string'
-import { useMemo, useCallback, useState, FC, MouseEvent, useContext } from 'react'
-import { useHistory } from 'react-router'
+import { useMemo, useCallback, useState, FC, MouseEvent } from 'react'
 
 import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
 import { lighten } from '@perfsee/dls'
@@ -32,15 +30,12 @@ import {
   getDefaultSize,
   addSize,
   BundleAuditScore,
-  ModuleSource,
 } from '@perfsee/shared'
 
 import { ByteSizeWithDiff } from '../components'
-import { PackageTraceContext } from '../context'
 import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
 import { ItemAudit } from '../types'
 
-import { ImportTraceModal } from './import-trace-modal'
 import { PackageCard, packageSuggestions } from './package-card'
 import { PackageFilter, Package } from './package-filter'
 import { onPackageTableRenderRow, LoadType } from './package-table-row'
@@ -76,46 +71,17 @@ interface PackageRow extends Package {
 
 interface Props {
   diff: EntryDiff
-  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
+  onShowTraceModal: (ref: number) => (e: MouseEvent<HTMLElement>) => void
 }
 
-export const PackagesTable: FC<Props> = ({ diff, getModuleSource }) => {
-  const { packagesDiff, packageIssueMap, assetsDiff, audits } = diff
+export const PackagesTable: FC<Props> = ({ diff, onShowTraceModal }) => {
+  const { packagesDiff, assetsDiff, audits } = diff
   const [filterPackages, setFilterPackages] = useState<Package[] | null>(null)
-  const [traceSourceRef, setTraceSourceRef] = useState<number | null>(null)
-  const queries: { trace?: string } = parse(location.search)
-  const history = useHistory()
-  const packageTraceContext = useContext(PackageTraceContext)
-
-  const onCloseTrace = useCallback(() => {
-    if (packageTraceContext.setRef) {
-      packageTraceContext.setRef(null)
-    } else if (queries.trace) {
-      history.push(`${location.pathname}?${stringify({ ...queries, trace: undefined })}`)
-    }
-  }, [history, queries, packageTraceContext])
 
   const scoreItemsMap = useAuditScore()
 
   const onChangePackages = useCallback((packages: Package[] | null) => {
     setFilterPackages(packages)
-  }, [])
-
-  const onShowTraceModal = useCallback(
-    (ref: number) => (e: MouseEvent<HTMLElement>) => {
-      e.stopPropagation()
-      setTraceSourceRef(ref)
-    },
-    [],
-  )
-
-  const onHideTraceModal = useCallback(() => {
-    onCloseTrace()
-    setTraceSourceRef(null)
-  }, [onCloseTrace])
-
-  const onChangeSource = useCallback((ref: number) => {
-    setTraceSourceRef(ref)
   }, [])
 
   const allPackages = useMemo(() => {
@@ -393,13 +359,6 @@ export const PackagesTable: FC<Props> = ({ diff, getModuleSource }) => {
         columns={columns}
         disableVirtualization={allPackages.length < 50}
         onRenderRow={onPackageTableRenderRow(packagesLoadTypeMap)}
-      />
-      <ImportTraceModal
-        traceSourceRef={traceSourceRef || (queries.trace ? Number(queries.trace) : null) || packageTraceContext.ref}
-        packageIssueMap={packageIssueMap}
-        onClose={onHideTraceModal}
-        onChangeSource={onChangeSource}
-        getModuleSource={getModuleSource}
       />
     </>
   )

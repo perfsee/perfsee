@@ -67,7 +67,7 @@ const webpackConfigs: { [index: string]: webpack.Configuration } = {
     module: {
       rules: [
         {
-          test: /\.(png|jpg|gif|svg|webp)$/,
+          test: /\.png$/,
           type: 'asset/inline',
         },
       ],

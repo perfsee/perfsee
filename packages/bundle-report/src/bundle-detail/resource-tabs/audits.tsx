@@ -53,10 +53,10 @@ const AuditTitle = styled.h3({
 
 export function AuditItemDetail({
   detail,
-  onClickReason,
+  onClickTrace,
 }: {
   detail: BundleAuditDetail
-  onClickReason?: (ref: number) => void
+  onClickTrace?: (ref: number) => void
 }) {
   const columns = useMemo(() => {
     if (detail.type === 'list') {
@@ -95,7 +95,7 @@ export function AuditItemDetail({
                   </ul>
                 )
               case 'trace':
-                if (!onClickReason) {
+                if (!onClickTrace) {
                   return null
                 }
                 if (Array.isArray(value)) {
@@ -105,7 +105,7 @@ export function AuditItemDetail({
                         <li key={i}>
                           {
                             // eslint-disable-next-line
-                            <Link onClick={() => onClickReason(v)}>Reason</Link>
+                            <Link onClick={() => onClickTrace(v)}>Trace</Link>
                           }
                         </li>
                       ))}
@@ -113,14 +113,14 @@ export function AuditItemDetail({
                   )
                 }
                 // eslint-disable-next-line
-                return <Link onClick={() => onClickReason(value)}>Reason</Link>
+                return <Link onClick={() => onClickTrace(value)}>Trace</Link>
             }
           },
         }
       })
     }
     return []
-  }, [detail, onClickReason])
+  }, [detail, onClickTrace])
 
   if (!detail.items.length) {
     return null
@@ -139,12 +139,12 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
   const history = useHistory()
   const packageTraceContext = useContext(PackageTraceContext)
 
-  const onClickReason = useCallback(
+  const onClickTrace = useCallback(
     (ref: number) => {
       if (packageTraceContext.setRef) {
         packageTraceContext.setRef(ref)
-      } else if (queries.trace !== String(ref) || queries.tab !== 'packages') {
-        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref, tab: 'packages' })}`)
+      } else if (queries.trace !== String(ref)) {
+        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref })}`)
       }
     },
     [history, queries, packageTraceContext],
@@ -189,7 +189,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
     >
       {audit.detail && audit.detail.items.length > 0 && (
         <CollapsiblePanel header="Detail">
-          <AuditItemDetail detail={audit.detail} onClickReason={onClickReason} />
+          <AuditItemDetail detail={audit.detail} onClickTrace={onClickTrace} />
         </CollapsiblePanel>
       )}
     </AuditItemBase>
