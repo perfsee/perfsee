@@ -42,7 +42,7 @@ export interface Diff<T = Size> {
 export type AssetInfo = Omit<Asset, 'packages'> & {
   initial: boolean
   intermediate?: boolean
-  packages: Array<string | { path: string; size: Size; name: string; version?: string }>
+  packages: Array<string | { path: string; size: Size; name: string; version?: string; ref: number }>
 }
 
 export type PackageInfo = Omit<BasePackage & PackageAppendix, 'issuerRefs' | 'notes'> & {
@@ -108,6 +108,7 @@ export function parseResult(job: BundleResult) {
                 size,
                 name: pkg.name,
                 version: pkg.version,
+                ref,
               }
             })
             .filter(Boolean),

@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Pivot, PivotItem } from '@fluentui/react'
 import { parse, stringify } from 'query-string'
-import { FC, useCallback, useContext } from 'react'
+import { FC, MouseEvent, useCallback, useContext, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
 import { AssetInfo, EntryDiff, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
@@ -24,6 +24,7 @@ import { AssetInfo, EntryDiff, ModuleSource, ModuleTreeNode } from '@perfsee/sha
 import { PackageTraceContext } from '../context'
 
 import { AssetsTable } from './assets-table'
+import { ImportTraceModal } from './import-trace-modal'
 import { PackagesTable } from './packages-table'
 
 enum Tab {
@@ -43,8 +44,34 @@ interface Props {
 export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent, getModuleSource }) => {
   const history = useHistory()
   const location = useLocation()
-  const queries: { tab?: string } = parse(location.search)
+  const queries: { tab?: string; trace?: string } = parse(location.search)
   const { ref } = useContext(PackageTraceContext)
+  const [traceSourceRef, setTraceSourceRef] = useState<number | null>(null)
+
+  const packageTraceContext = useContext(PackageTraceContext)
+  const onCloseTrace = useCallback(() => {
+    if (packageTraceContext.setRef) {
+      packageTraceContext.setRef(null)
+    } else if (queries.trace) {
+      history.push(`${location.pathname}?${stringify({ ...queries, trace: undefined })}`)
+    }
+  }, [history, queries, packageTraceContext, location])
+  const onHideTraceModal = useCallback(() => {
+    onCloseTrace()
+    setTraceSourceRef(null)
+  }, [onCloseTrace])
+
+  const onChangeSource = useCallback((ref: number) => {
+    setTraceSourceRef(ref)
+  }, [])
+
+  const onShowTraceModal = useCallback(
+    (ref: number) => (e: MouseEvent<HTMLElement>) => {
+      e.stopPropagation()
+      setTraceSourceRef(ref)
+    },
+    [],
+  )
 
   const onChange = useCallback(
     (item?: PivotItem) => {
@@ -65,14 +92,23 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
   )
 
   return (
-    <Pivot onLinkClick={onChange} selectedKey={typeof ref === 'number' ? Tab.Packages : queries.tab ?? Tab.Assets}>
-      <PivotItem headerText="Assets" itemKey={Tab.Assets}>
-        <AssetsTable diff={diff} getAssetContent={getAssetContent} />
-      </PivotItem>
-      <PivotItem headerText="Packages" itemKey={Tab.Packages}>
-        <PackagesTable diff={diff} getModuleSource={getModuleSource} />
-      </PivotItem>
-      {visualizationLink && <PivotItem headerText="Visualization" itemKey={Tab.Visualization} />}
-    </Pivot>
+    <>
+      <Pivot onLinkClick={onChange} selectedKey={typeof ref === 'number' ? Tab.Packages : queries.tab ?? Tab.Assets}>
+        <PivotItem headerText="Assets" itemKey={Tab.Assets}>
+          <AssetsTable diff={diff} getAssetContent={getAssetContent} />
+        </PivotItem>
+        <PivotItem headerText="Packages" itemKey={Tab.Packages}>
+          <PackagesTable diff={diff} getModuleSource={getModuleSource} onShowTraceModal={onShowTraceModal} />
+        </PivotItem>
+        {visualizationLink && <PivotItem headerText="Visualization" itemKey={Tab.Visualization} />}
+      </Pivot>
+      <ImportTraceModal
+        traceSourceRef={traceSourceRef || (queries.trace ? Number(queries.trace) : null) || packageTraceContext.ref}
+        packageIssueMap={diff.packageIssueMap}
+        onClose={onHideTraceModal}
+        onChangeSource={onChangeSource}
+        getModuleSource={getModuleSource}
+      />
+    </>
   )
 }

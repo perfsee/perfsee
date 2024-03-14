@@ -178,6 +178,9 @@ export const StyledInfoItem = styled.div(({ theme }) => ({
     width: '300px',
     fontWeight: 'bold',
   },
+  '> div:not(:first-of-type)': {
+    width: 150,
+  },
 }))
 
 export const CodeContainer = styled.div`
