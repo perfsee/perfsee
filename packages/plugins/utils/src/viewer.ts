@@ -65,9 +65,9 @@ export function renderReportViewer(data: Data) {
 				createdAt: new Date().toISOString(),
 				score: ${calcBundleScore(data.report.entryPoints)}
 			};
-			window.bundleReport = ${JSON.stringify(data.report).replace(/</gu, '\\u003c')};
-			window.bundleContent = ${JSON.stringify(data.content).replace(/</gu, '\\u003c')};
-      window.bundleModuleSource = ${JSON.stringify(data.moduleSource).replace(/</gu, '\\u003c')};
+			window.bundleReport = ${JSON.stringify(data.report)?.replace(/</gu, '\\u003c')};
+			window.bundleContent = ${JSON.stringify(data.content)?.replace(/</gu, '\\u003c')};
+      window.bundleModuleSource = ${JSON.stringify(data.moduleSource)?.replace(/</gu, '\\u003c')};
 		</script>
 	</head>
 
