@@ -87,6 +87,7 @@ export class BuildUploadClient {
 
     if (!this.options.project) {
       console.info(chalk.yellow('[perfsee] no project id provided, skip uploading build.'))
+      return
     }
 
     if (this.options.processStats) {
