@@ -47,7 +47,7 @@ export const unhealthyLibs: Audit = ({ packages, chunks }) => {
 
   if (
     chunks.some((chunk) =>
-      chunk.modules.some(
+      chunk.modules?.some(
         (m) =>
           (m.name === 'lodash' && /node_modules[\\/]lodash[\\/]lodash\.js/.test(m.realPath)) ||
           m.concatenating.some((m) => m.name === 'lodash' && /node_modules[\\/]lodash[\\/]index\.js/.test(m.realPath)),
