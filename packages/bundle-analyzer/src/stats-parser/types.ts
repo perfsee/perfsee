@@ -53,8 +53,8 @@ export type Asset = AcquiredAsset & {
 
 export type Chunk = Omit<AcquiredChunk, 'assetRefs'> & {
   id: ID
-  children: ID[]
-  modules: Module[]
+  children?: ID[]
+  modules?: Module[]
   assets: Asset[]
   names: string[]
   reason: string

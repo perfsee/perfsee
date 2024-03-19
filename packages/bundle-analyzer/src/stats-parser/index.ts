@@ -532,7 +532,7 @@ export class StatsParser {
   private reduceModules(chunks: Chunk[]): Package[] {
     const packagesMap = new Map<string, Package>()
 
-    const ids = chunks.flatMap(({ modules }) => modules.map((m) => m.id))
+    const ids = chunks.flatMap(({ modules }) => modules?.map((m) => m.id) || [])
 
     const existingPackages = new Set<string>()
     for (const id of ids) {
@@ -603,7 +603,7 @@ export class StatsParser {
         existed.add(id)
         const chunk = this.chunksMap.get(id)!
         if (chunk) {
-          return [chunk, ...this.flatChunks(chunk.children, existed)].filter(isNotNil)
+          return [chunk, ...this.flatChunks(chunk.children || [], existed)].filter(isNotNil)
         }
         return []
       })
