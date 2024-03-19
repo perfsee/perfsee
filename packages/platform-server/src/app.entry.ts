@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import '@abraham/reflection'
+import 'reflect-metadata'
 
 import { NestFactory, Reflector } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { raw, json } from 'body-parser'
 import session from 'express-session'
 
@@ -40,6 +41,16 @@ export async function createApp() {
   const redis = app.get(Redis)
   const config = app.get(Config)
   const metrics = app.get(Metric)
+
+  const apiDocument = new DocumentBuilder()
+    .setTitle('Perfsee RESTful API')
+    .setDescription('Documents for Perfsee RESTful open API.')
+    .setBasePath(config.path)
+    .setVersion('1.0')
+    .build()
+
+  const documents = SwaggerModule.createDocument(app, apiDocument)
+  SwaggerModule.setup(`${config.path}/api`, app, documents)
 
   if (config.dev) {
     app.enableCors({

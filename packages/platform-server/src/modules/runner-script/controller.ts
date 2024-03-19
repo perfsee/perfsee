@@ -30,6 +30,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Response } from 'express'
 import { v4 as uuid } from 'uuid'
 
@@ -43,6 +44,7 @@ import { RunnerService } from '../runner/service'
 
 import { RunnerScriptService } from './service'
 
+@ApiExcludeController()
 @Controller('/runners/scripts')
 export class RunnerScriptController {
   constructor(

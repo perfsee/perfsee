@@ -25,6 +25,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { v4 as uuid } from 'uuid'
 
 import { User } from '@perfsee/platform-server/db'
@@ -47,6 +48,7 @@ import { ProjectService } from '../project/service'
 
 import { PackageService } from './service'
 
+@ApiExcludeController()
 @Controller('v1')
 export class PackageController {
   constructor(

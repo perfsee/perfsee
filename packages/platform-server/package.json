@@ -7,7 +7,6 @@
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "dependencies": {
-    "@abraham/reflection": "^0.12.0",
     "@apollo/server": "^4.6.0",
     "@aws-sdk/client-s3": "^3.449.0",
     "@aws-sdk/lib-storage": "^3.449.0",
@@ -19,6 +18,7 @@
     "@nestjs/platform-express": "^9.4.0",
     "@nestjs/schedule": "^2.2.1",
     "@nestjs/serve-static": "^3.0.1",
+    "@nestjs/swagger": "^7.3.0",
     "@nestjs/terminus": "^9.2.2",
     "@nestjs/testing": "^9.4.0",
     "@nestjs/throttler": "^4.0.0",
@@ -47,6 +47,7 @@
     "prom-client": "14.1.1",
     "query-string": "^7.1.1",
     "redlock": "^4.2.0",
+    "reflect-metadata": "0.2.1",
     "rxjs": "^7.5.6",
     "ts-morph": "^15.1.0",
     "typeorm": "^0.3.15",

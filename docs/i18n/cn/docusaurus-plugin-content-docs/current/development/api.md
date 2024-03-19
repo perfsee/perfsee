@@ -54,6 +54,10 @@ Authorization: Bearer {token}
 
 :::
 
-## 查看 API 接口
+## 查看 GraphQL API 接口
 
-进入 [playground](https://perfsee.com/graphql) , 点击右侧 「DOCS」，展开后可以查看当前提供的所有 API
+进入 [playground](https://perfsee.com/graphql) , 点击右侧 「DOCS」，展开后可以查看当前提供的所有 GraphQL API
+
+## 查看 RESTful 接口
+
+进入 [Swagger Documents](https://perfsee.com/api) , 可以查看当前提供的所有 RESTful API

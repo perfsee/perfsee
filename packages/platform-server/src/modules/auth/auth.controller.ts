@@ -28,6 +28,7 @@ import {
   OnApplicationBootstrap,
   ForbiddenException,
 } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Response, Request } from 'express'
 import qs from 'query-string'
 
@@ -65,6 +66,7 @@ class ResetPasswordBody {
 
 const passwordResetEmailTemplate = compileEmailTemplate(emailTemplates.message)
 
+@ApiExcludeController()
 @Controller('/auth')
 export class AuthController implements OnApplicationBootstrap {
   constructor(

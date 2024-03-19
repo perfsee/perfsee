@@ -6799,6 +6799,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@microsoft/tsdoc@npm:^0.14.2":
+  version: 0.14.2
+  resolution: "@microsoft/tsdoc@npm:0.14.2"
+  checksum: b167c89e916ba73ee20b9c9d5dba6aa3a0de25ed3d50050e8a344dca7cd43cb2e1059bd515c820369b6e708901dd3fda476a42bc643ca74a35671ce77f724a3a
+  languageName: node
+  linkType: hard
+
 "@napi-rs/cli@npm:^2.11.4":
   version: 2.11.4
   resolution: "@napi-rs/cli@npm:2.11.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40napi-rs%2Fcli%2F-%2Fcli-2.11.4.tgz"
@@ -6835,11 +6842,11 @@ __metadata:
   linkType: hard
 
 "@nestjs/common@npm:^9.4.0":
-  version: 9.4.0
-  resolution: "@nestjs/common@npm:9.4.0"
+  version: 9.4.3
+  resolution: "@nestjs/common@npm:9.4.3"
   dependencies:
     iterare: 1.2.1
-    tslib: 2.5.0
+    tslib: 2.5.3
     uid: 2.0.2
   peerDependencies:
     cache-manager: <=5
@@ -6854,7 +6861,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: 751fc94111301da047e42f845415b806a393ca4ecadbe6cfcec9cf6bd230bb8be3a159faf574beb1ff98b2a436a432a726ff3dfccff21685f6ce5cb99ed8bb98
+  checksum: 45ccb5acac2521a05576f37b37ab94c63a83aefb1839ed670635090bb934c1bd532852cb7be9863ee3b9d1ad80aa84e0602be023c626623f9233257dcb754914
   languageName: node
   linkType: hard
 
@@ -6956,6 +6963,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/mapped-types@npm:2.0.5":
+  version: 2.0.5
+  resolution: "@nestjs/mapped-types@npm:2.0.5"
+  peerDependencies:
+    "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
+    class-transformer: ^0.4.0 || ^0.5.0
+    class-validator: ^0.13.0 || ^0.14.0
+    reflect-metadata: ^0.1.12 || ^0.2.0
+  peerDependenciesMeta:
+    class-transformer:
+      optional: true
+    class-validator:
+      optional: true
+  checksum: 575e68e833c6d5aacbfcca9b7cf6b2c858f5edcf70888bbb987e57365cfe1a225b175c358f39fd3904c136967e7ca8b1605d9a956c69e6252a8882f766169c96
+  languageName: node
+  linkType: hard
+
 "@nestjs/platform-express@npm:^9.4.0":
   version: 9.4.0
   resolution: "@nestjs/platform-express@npm:9.4.0"
@@ -7005,6 +7029,34 @@ __metadata:
     fastify:
       optional: true
   checksum: d7343094655b4f622f5385c06cddac7919eed317ae89df4aa4a43965eae413f583f859bd9ee48477dc581e9c7d9a7ae6cc9654b2bb4d331ca7ce155a9e4dff3a
+  languageName: node
+  linkType: hard
+
+"@nestjs/swagger@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "@nestjs/swagger@npm:7.3.0"
+  dependencies:
+    "@microsoft/tsdoc": ^0.14.2
+    "@nestjs/mapped-types": 2.0.5
+    js-yaml: 4.1.0
+    lodash: 4.17.21
+    path-to-regexp: 3.2.0
+    swagger-ui-dist: 5.11.2
+  peerDependencies:
+    "@fastify/static": ^6.0.0 || ^7.0.0
+    "@nestjs/common": ^9.0.0 || ^10.0.0
+    "@nestjs/core": ^9.0.0 || ^10.0.0
+    class-transformer: "*"
+    class-validator: "*"
+    reflect-metadata: ^0.1.12 || ^0.2.0
+  peerDependenciesMeta:
+    "@fastify/static":
+      optional: true
+    class-transformer:
+      optional: true
+    class-validator:
+      optional: true
+  checksum: acbf2f01e122dcc9c0595afb6b35b221009e8d003867a897c963fd69acba26322ae5d64b0260f1a082762037ad9f782652614195e3e8c24f8f48da030c07974f
   languageName: node
   linkType: hard
 
@@ -7999,7 +8051,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/platform-server@workspace:packages/platform-server"
   dependencies:
-    "@abraham/reflection": ^0.12.0
     "@apollo/server": ^4.6.0
     "@aws-sdk/client-s3": ^3.449.0
     "@aws-sdk/lib-storage": ^3.449.0
@@ -8012,6 +8063,7 @@ __metadata:
     "@nestjs/platform-express": ^9.4.0
     "@nestjs/schedule": ^2.2.1
     "@nestjs/serve-static": ^3.0.1
+    "@nestjs/swagger": ^7.3.0
     "@nestjs/terminus": ^9.2.2
     "@nestjs/testing": ^9.4.0
     "@nestjs/throttler": ^4.0.0
@@ -8050,6 +8102,7 @@ __metadata:
     prom-client: 14.1.1
     query-string: ^7.1.1
     redlock: ^4.2.0
+    reflect-metadata: 0.2.1
     rxjs: ^7.5.6
     sinon: ^15.0.0
     supertest: ^6.3.3
@@ -30786,6 +30839,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"reflect-metadata@npm:0.2.1":
+  version: 0.2.1
+  resolution: "reflect-metadata@npm:0.2.1"
+  checksum: 772f552a544e04b999c1bf2c868225fef10032274e9d9e315bc3e7a687a504b8b115fa71966665b9619acfd323123a941f892b593250140da809330d41564181
+  languageName: node
+  linkType: hard
+
 "reflect-metadata@npm:^0.1.13":
   version: 0.1.13
   resolution: "reflect-metadata@npm:0.1.13"
@@ -33781,6 +33841,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"swagger-ui-dist@npm:5.11.2":
+  version: 5.11.2
+  resolution: "swagger-ui-dist@npm:5.11.2"
+  checksum: 3f30ce7749481c1a3ba6c6db865f181f16927204a4aa1ae14438b4a7418afb13c49f1bcfcdc06a412bbce22d401563a698f711b3ce80b66c99735df2eb32d4b8
+  languageName: node
+  linkType: hard
+
 "swap-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "swap-case@npm:2.0.2"
@@ -34673,6 +34740,13 @@ __metadata:
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.5.3":
+  version: 2.5.3
+  resolution: "tslib@npm:2.5.3"
+  checksum: 88902b309afaf83259131c1e13da1dceb0ad1682a213143a1346a649143924d78cf3760c448b84d796938fd76127183894f8d85cbb3bf9c4fddbfcc140c0003c
   languageName: node
   linkType: hard
 
