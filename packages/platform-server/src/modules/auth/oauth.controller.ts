@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Controller, ForbiddenException, Get, HttpException, HttpStatus, Query, Req, Res } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Response, Request } from 'express'
 import qs from 'query-string'
 
@@ -29,6 +30,7 @@ import { UserService } from '../user'
 import { AuthService } from './auth.service'
 import { OAuthProviderFactory, OAuthProvider, ExternalAccountUser } from './providers'
 
+@ApiExcludeController()
 @Controller('/oauth2')
 export class OAuth2Controller {
   constructor(

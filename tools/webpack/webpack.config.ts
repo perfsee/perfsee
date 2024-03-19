@@ -194,7 +194,7 @@ const config: () => webpack.Configuration = () => {
 export async function startDevServer(entry: string, externalConfig: webpack.Configuration) {
   return Promise.all([watchRoutes(), watchGraphqlSchema()]).then(async () => {
     const compiler = webpack(merge(config(), { entry }, externalConfig))
-    const serverProxyRoutes = ['/graphql', '/auth', '/oauth2', '/health', '/github', '/docs', '/artifacts']
+    const serverProxyRoutes = ['/graphql', '/auth', '/oauth2', '/health', '/github', '/docs', '/artifacts', '/api']
     const devServer = new WebpackDevServer(
       {
         historyApiFallback: true,

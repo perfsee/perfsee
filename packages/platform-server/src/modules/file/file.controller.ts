@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Controller, Get, Query, Res, HttpException, HttpStatus, Param } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Response } from 'express'
 import FileType from 'file-type'
 
@@ -26,6 +27,7 @@ import { artifactKey } from '@perfsee/platform-server/utils'
 import { Auth, CurrentUser } from '../auth'
 import { ProjectService } from '../project/service'
 
+@ApiExcludeController()
 @Controller('/v1')
 export class FileController {
   constructor(private readonly storage: ObjectStorage, private readonly logger: Logger) {}
@@ -58,6 +60,7 @@ export class FileController {
   }
 }
 
+@ApiExcludeController()
 @Controller('/artifacts')
 export class JobArtifactController {
   constructor(

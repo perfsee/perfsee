@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { BadRequestException, Controller, ForbiddenException, Get, NotFoundException, Query, Req } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Request } from 'express'
 import { mapKeys, pick } from 'lodash'
 
@@ -51,6 +52,7 @@ function parseArrayParams(p: string | string[] | null): string[] {
   }
 }
 
+@ApiExcludeController()
 @Controller('/v1')
 export class SnapshotController {
   constructor(

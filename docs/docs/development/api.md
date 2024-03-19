@@ -56,6 +56,12 @@ If you get an error which status code is not **200**, it should be GraphQL synta
 
 ## View GraphQL Schema
 
-Check out [playground](https://perfsee.com/graphql), click `DOCS` on the right, and you can see all api provided.
+Check out [playground](https://perfsee.com/graphql), click `DOCS` on the right, and you can see all GraphQL api provided.
+
+We would document all the api as much as possible, but some of them may not be well described. You can refer to us and request for an update.
+
+## View RESTful API
+
+Check out [Swagger Documents](https://perfsee.com/api), you can see all RESTful open api provided.
 
 We would document all the api as much as possible, but some of them may not be well described. You can refer to us and request for an update.

@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Controller, Get } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import {
   MemoryHealthIndicator,
   HealthCheck,
@@ -31,6 +32,7 @@ import { HealthCheckCategory } from '@perfsee/shared'
 
 import { RedisIndicator } from './redis.indicator'
 
+@ApiExcludeController()
 @Controller('/health')
 export class HealthController {
   constructor(

@@ -25,6 +25,7 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common'
+import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import { v4 as uuid } from 'uuid'
 
 import { InternalIdUsage, User } from '@perfsee/platform-server/db'
@@ -62,6 +63,7 @@ export class ArtifactController {
     private readonly projectUsage: ProjectUsageService,
   ) {}
 
+  @ApiExcludeEndpoint()
   @Post('/artifacts')
   async uploadArtifact(@Body() file: Buffer, @Query() params: BuildUploadParams, @CurrentUser() user?: User) {
     required(params, 'projectId', 'host', 'namespace', 'name', 'artifactName', 'branch', 'commitHash')

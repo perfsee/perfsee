@@ -15,11 +15,13 @@ limitations under the License.
 */
 
 import { Body, Controller, Headers, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 
 import { RegisterRunnerParams, RegisterRunnerResponse } from '@perfsee/server-common'
 
 import { RunnerService } from './service'
 
+@ApiExcludeController()
 @Controller('/runners')
 export class RunnerController {
   constructor(private readonly service: RunnerService) {}

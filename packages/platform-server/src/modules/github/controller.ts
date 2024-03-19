@@ -15,12 +15,14 @@ limitations under the License.
 */
 
 import { Controller, Get, Res } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Response } from 'express'
 
 import { staticPath } from '@perfsee/shared/routes'
 
 import { GithubService } from './service'
 
+@ApiExcludeController()
 @Controller('/github')
 export class GithubController {
   constructor(private readonly service: GithubService) {}

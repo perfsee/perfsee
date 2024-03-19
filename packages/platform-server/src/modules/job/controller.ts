@@ -27,6 +27,7 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Response } from 'express'
 
 import { Config } from '@perfsee/platform-server/config'
@@ -50,6 +51,7 @@ import { RunnerService } from '../runner/service'
 import { RequestQueue } from './request-queue'
 import { getJobTypeConcurrency, JobService } from './service'
 
+@ApiExcludeController()
 @Controller('/jobs')
 export class JobController {
   private readonly queue!: RequestQueue
