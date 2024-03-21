@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { PerfseeReportStats, ID, ModuleReasonType } from '../stats'
+import { PerfseeReportStats, ID } from '../stats'
 import {
   Asset as AcquiredAsset,
   Chunk as AcquiredChunk,
@@ -62,11 +62,7 @@ export type Chunk = Omit<AcquiredChunk, 'assetRefs'> & {
 
 type AcquiredPackage = BasePackage & PackageAppendix
 
-export interface Reason {
-  type: ModuleReasonType
-  loc: string
-  moduleId: ID
-}
+export type Reason = [type: number, loc: string, moduleId: ID]
 
 export type Issuer = PackageMeta & {
   reasons: Reason[]

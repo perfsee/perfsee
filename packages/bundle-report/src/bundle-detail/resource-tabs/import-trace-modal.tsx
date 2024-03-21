@@ -25,7 +25,7 @@ import getWasm from 'shiki/wasm'
 import { Empty, FileIcon } from '@perfsee/components'
 import { Chart, ChartHeader, EChartsOption } from '@perfsee/components/chart'
 import { ChartEventParam } from '@perfsee/components/chart/types'
-import { SOURCE_CODE_PATH, PackageIssueMap, ModuleSource, AssetTypeEnum } from '@perfsee/shared'
+import { SOURCE_CODE_PATH, PackageIssueMap, AssetTypeEnum, ModuleReasons, ModuleReasonTypes } from '@perfsee/shared'
 
 import { CodeContainer, ModulePath, MoreResults } from '../style'
 
@@ -37,7 +37,7 @@ type Props = {
   packageIssueMap: PackageIssueMap | undefined
   onClose: () => void
   onChangeSource: (ref: number) => void
-  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
+  getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
 }
 
 type GraphNodeData = { name: string; ref?: number; symbolSize?: number; version?: string; id: string }
@@ -61,30 +61,30 @@ export const ImportTraceModal: FC<Props> = ({
   packageIssueMap,
   onClose,
   onChangeSource,
-  getModuleSource,
+  getModuleReasons,
 }) => {
   const highlighter = useRef<ReturnType<typeof getHighlighterCore> extends Promise<infer H> ? H : never>()
   const [currentSelected, setCurrentSelected] = useState<
     [sourceRef: number, targetRef: number, sourceName: string, targetName: string] | null
   >(null)
-  const [moduleSourceMap, setModuleSourceMap] = useState<ModuleSource | undefined>()
+  const [moduleReasons, setModuleReasons] = useState<ModuleReasons | undefined>()
   const [searchText, setSearchText] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (currentSelected && getModuleSource) {
+    if (currentSelected && getModuleReasons) {
       const [sourceRef, targetRef] = currentSelected
       setLoading(true)
-      getModuleSource(sourceRef, targetRef)
+      getModuleReasons(sourceRef, targetRef)
         .then((moduleSource) => {
           if (moduleSource) {
-            setModuleSourceMap(moduleSource)
+            setModuleReasons(moduleSource)
           }
         })
         .catch(() => {})
         .finally(() => setLoading(false))
     }
-  }, [currentSelected, getModuleSource])
+  }, [currentSelected, getModuleReasons])
 
   useEffect(() => {
     setCurrentSelected(null)
@@ -266,21 +266,25 @@ export const ImportTraceModal: FC<Props> = ({
       return <Empty title="No package issuers data" withIcon />
     }
 
+    if (!moduleReasons?.packageReasons) {
+      return <Empty title="No module source data" withIcon />
+    }
+
     const issuerIndex = packageIssue.issuerRefs.indexOf(currentSelected[0])
-    const reasons = packageIssue.reasons?.[issuerIndex]
+    const reasons = moduleReasons.packageReasons[currentSelected[1]]?.[issuerIndex]
 
     if (!reasons?.length) {
       return <Empty title="No import reasons data" withIcon />
     }
 
-    if (!moduleSourceMap) {
+    if (!moduleReasons?.moduleSource) {
       return <Empty title="No module source data" withIcon />
     }
 
-    const grouped = groupBy(reasons, 'moduleId')
+    const grouped = groupBy(reasons, (r) => r[2])
 
     const elements = Object.entries(grouped).map(([moduleId, reasons]) => {
-      const module = moduleSourceMap[moduleId]
+      const module = moduleReasons.moduleSource![moduleId]
       if (!module) {
         return null
       }
@@ -289,9 +293,9 @@ export const ImportTraceModal: FC<Props> = ({
         return null
       }
       const locations = reasons.map((r) => {
-        const [line, colRange] = r.loc.split(':')
+        const [line, colRange] = r[1].split(':')
         const [colStart, colEnd] = colRange.split('-')
-        return [Number(line) - 1, Number(colStart), Number(colEnd), r.type] as const
+        return [Number(line) - 1, Number(colStart), Number(colEnd), ModuleReasonTypes[r[0]]] as const
       })
 
       const filteredCode = code
@@ -357,9 +361,9 @@ export const ImportTraceModal: FC<Props> = ({
             <MoreResults>{elements.length} modules in total. Please use search to view more results.</MoreResults>,
           )
       : elements
-  }, [currentSelected, packageIssueMap, moduleSourceMap, searchText, loading])
+  }, [currentSelected, packageIssueMap, moduleReasons, searchText, loading])
 
-  const importLocations = getModuleSource ? (
+  const importLocations = getModuleReasons ? (
     <Stack
       verticalAlign="stretch"
       styles={{

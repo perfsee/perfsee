@@ -9,7 +9,7 @@ fragment artifact on Artifact {
   reportLink
   contentLink
   buildLink
-  moduleSourceLink
+  moduleReasonsLink
   score
   createdAt
   version {

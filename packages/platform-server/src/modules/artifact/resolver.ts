@@ -211,8 +211,8 @@ export class ArtifactResolver {
     return artifactLink(artifact.moduleMapKey)
   }
 
-  @ResolveField(() => String, { nullable: true, description: 'the link to modules sources of a build' })
-  moduleSourceLink(@Parent() artifact: Artifact) {
+  @ResolveField(() => String, { nullable: true, description: 'the link to modules reasons of a build' })
+  moduleReasonsLink(@Parent() artifact: Artifact) {
     return artifactLink(artifact.moduleSourceKey)
   }
 }

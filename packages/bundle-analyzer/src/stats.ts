@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Reason } from './stats-parser/types'
 import { ModuleSource } from './types'
 
 export type ID = number | string
@@ -51,46 +52,49 @@ export interface BundleAsset {
   chunkNames: Array<string>
 }
 
-export type ModuleReasonType =
-  | 'amd define'
-  | 'amd require array'
-  | 'amd require context'
-  | 'amd require'
-  | 'cjs require context'
-  | 'cjs require'
-  | 'context element'
-  | 'delegated exports'
-  | 'delegated source'
-  | 'dll entry'
-  | 'accepted harmony modules'
-  | 'harmony accept'
-  | 'harmony export expression'
-  | 'harmony export header'
-  | 'harmony export imported specifier'
-  | 'harmony export specifier'
-  | 'harmony import specifier'
-  | 'harmony side effect evaluation'
-  | 'harmony init'
-  | 'import() context development'
-  | 'import() context production'
-  | 'import() eager'
-  | 'import() weak'
-  | 'import()'
-  | 'json exports'
-  | 'loader'
-  | 'module.hot.accept'
-  | 'module.hot.decline'
-  | 'multi entry'
-  | 'null'
-  | 'prefetch'
-  | 'require.context'
-  | 'require.ensure'
-  | 'require.ensure item'
-  | 'require.include'
-  | 'require.resolve'
-  | 'single entry'
-  | 'wasm export import'
-  | 'wasm import'
+export const ModuleReasonTypes = [
+  'amd define',
+  'amd require array',
+  'amd require context',
+  'amd require',
+  'cjs require context',
+  'cjs require',
+  'context element',
+  'delegated exports',
+  'delegated source',
+  'dll entry',
+  'accepted harmony modules',
+  'harmony accept',
+  'harmony export expression',
+  'harmony export header',
+  'harmony export imported specifier',
+  'harmony export specifier',
+  'harmony import specifier',
+  'harmony side effect evaluation',
+  'harmony init',
+  'import() context development',
+  'import() context production',
+  'import() eager',
+  'import() weak',
+  'import()',
+  'json exports',
+  'loader',
+  'module.hot.accept',
+  'module.hot.decline',
+  'multi entry',
+  'null',
+  'prefetch',
+  'require.context',
+  'require.ensure',
+  'require.ensure item',
+  'require.include',
+  'require.resolve',
+  'single entry',
+  'wasm export import',
+  'wasm import',
+] as const
+
+export type ModuleReasonType = typeof ModuleReasonTypes[number]
 
 export interface ModuleReason {
   moduleId: ID | null
@@ -206,6 +210,11 @@ export interface RollupRenderedModule {
   renderedLength: number
 }
 
+export interface ModuleReasons {
+  moduleSource?: ModuleSource
+  packageReasons?: Record<number, Reason[][]>
+}
+
 export interface PerfseeReportStats extends WebpackStats {
   packageVersions?: { name: string; version: string }[]
   repoPath?: string
@@ -220,5 +229,5 @@ export interface PerfseeReportStats extends WebpackStats {
   >
   rules?: string[]
   includeAuxiliary?: boolean
-  moduleSourceMap?: ModuleSource
+  moduleReasons?: ModuleReasons
 }

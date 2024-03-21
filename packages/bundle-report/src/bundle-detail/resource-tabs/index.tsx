@@ -19,7 +19,7 @@ import { parse, stringify } from 'query-string'
 import { FC, MouseEvent, useCallback, useContext, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
-import { AssetInfo, EntryDiff, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, EntryDiff, ModuleReasons, ModuleTreeNode } from '@perfsee/shared'
 
 import { PackageTraceContext } from '../context'
 
@@ -38,10 +38,10 @@ interface Props {
   diff: EntryDiff
   visualizationLink?: string
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
-  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
+  getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
 }
 
-export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent, getModuleSource }) => {
+export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent, getModuleReasons }) => {
   const history = useHistory()
   const location = useLocation()
   const queries: { tab?: string; trace?: string } = parse(location.search)
@@ -98,7 +98,7 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
           <AssetsTable diff={diff} getAssetContent={getAssetContent} />
         </PivotItem>
         <PivotItem headerText="Packages" itemKey={Tab.Packages}>
-          <PackagesTable diff={diff} getModuleSource={getModuleSource} onShowTraceModal={onShowTraceModal} />
+          <PackagesTable diff={diff} getModuleReasons={getModuleReasons} onShowTraceModal={onShowTraceModal} />
         </PivotItem>
         {visualizationLink && <PivotItem headerText="Visualization" itemKey={Tab.Visualization} />}
       </Pivot>
@@ -107,7 +107,7 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
         packageIssueMap={diff.packageIssueMap}
         onClose={onHideTraceModal}
         onChangeSource={onChangeSource}
-        getModuleSource={getModuleSource}
+        getModuleReasons={getModuleReasons}
       />
     </>
   )

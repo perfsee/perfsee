@@ -158,7 +158,7 @@ export class BundleModule extends EffectModule<State> {
   }
 
   @Effect()
-  getModuleSource(payload$: Observable<string>) {
+  getModuleReasons(payload$: Observable<string>) {
     return payload$.pipe(
       filter(Boolean),
       switchMap((key) =>
