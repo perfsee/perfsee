@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { BundleToolkit } from './stats'
-import { Reason } from './stats-parser/types'
 
 export interface Size {
   raw: number
@@ -67,7 +66,6 @@ export interface PackageAppendix {
   issuerRefs: number[]
   assetRefs: number[]
   notes: NoteType[]
-  reasons: Reason[][]
 }
 
 export interface DuplicatePackage {

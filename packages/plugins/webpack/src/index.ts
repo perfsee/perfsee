@@ -157,7 +157,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
     if (!reasons?.length) {
       return
     }
-    const lines = reasons.map((r) => r.loc.split(':')[0]).map((l) => Number(l) - 1)
+    const lines = reasons.map((r) => r[1].split(':')[0]).map((l) => Number(l) - 1)
     const sourceFiltered = source
       .split('\n')
       .map((lineSource, lineNum) => {
@@ -168,8 +168,13 @@ export class PerfseePlugin implements WebpackPluginInstance {
       })
       .join('\n')
     const path = module.nameForCondition()
-    this.stats.moduleSourceMap ||= {}
-    this.stats.moduleSourceMap![id] = [path ? relative(this.stats.buildPath!, path) : 'unkown', sourceFiltered]
+    this.stats.moduleReasons ||= {
+      moduleSource: {},
+    }
+    this.stats.moduleReasons!.moduleSource![id] = [
+      path ? relative(this.stats.buildPath!, path) : 'unkown',
+      sourceFiltered,
+    ]
   }
 
   private readonly collectModuleSources = (compilation: Compilation) => {

@@ -18,7 +18,7 @@ import { Stack, IDropdownOption, DefaultButton, ActionButton } from '@fluentui/r
 import { useMemo, useCallback, FC, useState } from 'react'
 
 import { ContentCard, Select } from '@perfsee/components'
-import { AssetInfo, BundleDiff, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, BundleDiff, ModuleReasons, ModuleTreeNode } from '@perfsee/shared'
 import { PrettyBytes } from '@perfsee/utils'
 
 import { BuildHistory } from './build-history'
@@ -39,7 +39,7 @@ export interface BundleReportProps {
   contentLink?: string
   downloadLink?: string
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
-  getModuleSource?: (sourceRef: number, targetRef: number) => Promise<ModuleSource | null>
+  getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
 }
 
 export const BundleReport: FC<BundleReportProps> = ({
@@ -51,7 +51,7 @@ export const BundleReport: FC<BundleReportProps> = ({
   onBaselineSelectorOpen,
   onEntryPointChange,
   getAssetContent,
-  getModuleSource,
+  getModuleReasons,
 }) => {
   const dropdownOptions = useMemo<IDropdownOption<string>[]>(() => {
     return Object.entries(diff).map(([entryName, diff]) => ({
@@ -126,7 +126,7 @@ export const BundleReport: FC<BundleReportProps> = ({
           diff={currentEntryPointDiff}
           visualizationLink={contentLink}
           getAssetContent={getAssetContent}
-          getModuleSource={getModuleSource}
+          getModuleReasons={getModuleReasons}
         />
       </Stack>
     </ContentCard>

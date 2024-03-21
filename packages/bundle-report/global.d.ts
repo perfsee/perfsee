@@ -33,5 +33,5 @@ declare interface Window {
   artifact: any
   bundleReport: any
   bundleContent: any
-  bundleModuleSource: any
+  bundleModuleReasons: any
 }

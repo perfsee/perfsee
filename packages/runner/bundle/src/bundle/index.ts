@@ -71,7 +71,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
 
     // parse bundle
     const stats = await readStatsFile(this.statsFilePath)
-    const { report, moduleTree, assets, moduleMap, moduleSource } = await StatsParser.FromStats(
+    const { report, moduleTree, assets, moduleMap, moduleReasons } = await StatsParser.FromStats(
       stats,
       parse(this.statsFilePath).dir,
       this.logger,
@@ -94,11 +94,11 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     const moduleMapKey = await this.client.uploadArtifact(moduleMapName, Buffer.from(JSON.stringify(moduleMap)))
     this.logger.info(`Module map uploaded to artifacts. key is: ${moduleMapKey}`)
 
-    const moduleSourceName = `module-source/${uuid()}.json`
-    let moduleSourceKey
-    if (moduleSource && Object.keys(moduleSource).length) {
-      moduleSourceKey = await this.client.uploadArtifact(moduleSourceName, Buffer.from(JSON.stringify(moduleSource)))
-      this.logger.info(`Module source uploaded to artifacts. key is: ${moduleSourceKey}`)
+    const moduleSourceName = `module-reasons/${uuid()}.json`
+    let moduleReasonsKey
+    if (moduleReasons?.moduleSource && Object.keys(moduleReasons.moduleSource).length) {
+      moduleReasonsKey = await this.client.uploadArtifact(moduleSourceName, Buffer.from(JSON.stringify(moduleReasons)))
+      this.logger.info(`Module reasons uploaded to artifacts. key is: ${moduleReasonsKey}`)
     }
 
     let baselineResult: BundleResult | null = null
@@ -135,7 +135,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
       reportKey: bundleReportKey,
       contentKey: bundleContentKey,
       moduleMapKey: moduleMapKey,
-      moduleSourceKey,
+      moduleReasonsKey: moduleReasonsKey,
       score: calcBundleScore(report.entryPoints),
       entryPoints,
       duration: this.timeSpent,

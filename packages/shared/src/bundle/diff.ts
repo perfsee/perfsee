@@ -16,8 +16,6 @@ limitations under the License.
 
 import { keyBy, sortBy, uniq, pick } from 'lodash'
 
-import { Reason } from '@perfsee/bundle-analyzer'
-
 import {
   Asset,
   AssetTypeEnum,
@@ -49,7 +47,6 @@ export type PackageInfo = Omit<BasePackage & PackageAppendix, 'issuerRefs' | 'no
   issuers: string[]
   notes?: string[]
   issuerRefs: number[]
-  reasons: Reason[][]
 }
 
 export function parseResult(job: BundleResult) {
@@ -201,7 +198,6 @@ export type PackageIssueMap = Record<
     ref: number
     issuerRefs: number[]
     name: string
-    reasons: Reason[][]
     version?: string
   }
 >
@@ -329,12 +325,11 @@ export function diffBundleResult(job: BundleResult, base?: BundleResult | null):
 function generatePackageIssueMap(packages: PackageInfo[]) {
   const result: PackageIssueMap = {}
 
-  packages.forEach(({ ref, name, issuerRefs, reasons, version }) => {
+  packages.forEach(({ ref, name, issuerRefs, version }) => {
     result[ref] = {
       ref,
       name,
       issuerRefs,
-      reasons,
       version,
     }
   })

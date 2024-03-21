@@ -88,11 +88,11 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       [bundleContentDispatcher, bundleId, content],
     )
 
-    const getModuleSource = useCallback(async () => {
+    const getModuleReasons = useCallback(async () => {
       let moduleSource = state.moduleSource
 
-      if (!moduleSource && state.current?.moduleSourceLink) {
-        dispatcher.getModuleSource(state.current.moduleSourceLink)
+      if (!moduleSource && state.current?.moduleReasonsLink) {
+        dispatcher.getModuleReasons(state.current.moduleReasonsLink)
         moduleSource = await moduleSourcePromise.current
       }
 
@@ -173,7 +173,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
             contentLink={contentPath}
             downloadLink={state.current.buildLink}
             getAssetContent={getAssetContent}
-            getModuleSource={state.current.moduleSourceLink ? getModuleSource : undefined}
+            getModuleReasons={state.current.moduleReasonsLink ? getModuleReasons : undefined}
           />
 
           {artifactSelectVisible && (

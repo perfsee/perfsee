@@ -22,7 +22,7 @@ import { uniqBy, chain, uniq, omit } from 'lodash'
 import { readStatsFile } from '../bundle-extractor'
 import { installActivatedRunnerScript } from '../install-scripts'
 import { getPackageMeta } from '../module'
-import { BundleToolkit, PerfseeReportStats, BundleModule, ID } from '../stats'
+import { BundleToolkit, PerfseeReportStats, BundleModule, ID, ModuleReasonTypes } from '../stats'
 import {
   calcStringCompressedSize,
   addSize,
@@ -83,7 +83,8 @@ export class StatsParser {
   private readonly modulesMap: Map<string, Module> = new Map()
   private readonly entryPointsMap: Map<string, EntryPoint> = new Map()
   private readonly packagePathRefMap: Map<string, BasePackage> = new Map()
-  private readonly reasonsMap: Map<ID, Reason[]> = new Map()
+  private readonly moduleReasonsMap: Map<ID, Reason[]> = new Map()
+  private readonly packageReasonsMap: Map<number, Reason[][]> = new Map()
 
   private constructor(
     private readonly stats: PerfseeReportStats,
@@ -113,7 +114,12 @@ export class StatsParser {
       moduleTree: bundleContent,
       assets: Array.from(this.assetsMap.values()),
       moduleMap: this.serializeModuleMap(),
-      moduleSource: this.stats.moduleSourceMap,
+      moduleReasons: this.stats.moduleReasons?.moduleSource
+        ? {
+            ...this.stats.moduleReasons,
+            packageReasons: Object.fromEntries(this.packageReasonsMap.entries()),
+          }
+        : undefined,
     }
   }
 
@@ -138,7 +144,7 @@ export class StatsParser {
 
   parseReasons() {
     this.parseChunks()
-    return this.reasonsMap
+    return this.moduleReasonsMap
   }
 
   private serializeModuleMap(): ModuleMap {
@@ -244,18 +250,22 @@ export class StatsParser {
         assetRefs: mapRefs(assets),
         chunkRefs: mapRefs(chunks),
         initialChunkRefs: mapRefs(initialChunks),
-        packageAppendixes: packages.map(({ ref, issuers, assets, size, notes }) => ({
-          ref,
-          size,
-          issuerRefs: issuers
-            .map((issuer) => this.packagePathRefMap.get(issuer.path)?.ref)
-            .filter(isNotNil) as number[],
-          assetRefs: mapRefs(assets),
-          reasons: issuers
+        packageAppendixes: packages.map(({ ref, issuers, assets, size, notes }) => {
+          const reasons = issuers
             .filter((issuer) => isNotNil(this.packagePathRefMap.get(issuer.path)?.ref))
-            .map((issuer) => issuer.reasons),
-          notes,
-        })),
+            .map((issuer) => issuer.reasons)
+
+          this.packageReasonsMap.set(ref, reasons)
+          return {
+            ref,
+            size,
+            issuerRefs: issuers
+              .map((issuer) => this.packagePathRefMap.get(issuer.path)?.ref)
+              .filter(isNotNil) as number[],
+            assetRefs: mapRefs(assets),
+            notes,
+          }
+        }),
         audits,
         score: calcEntryPointScore(audits),
       })
@@ -383,13 +393,14 @@ export class StatsParser {
           })
           .values()
           .flatten()
+          .map((r) => [ModuleReasonTypes.indexOf(r.type), r.loc, r.moduleId] as Reason)
           .value()
 
         reasons.forEach((reason) => {
-          let reasons = this.reasonsMap.get(reason.moduleId)
+          let reasons = this.moduleReasonsMap.get(reason[2])
           if (!reasons) {
             reasons = []
-            this.reasonsMap.set(reason.moduleId, reasons)
+            this.moduleReasonsMap.set(reason[2], reasons)
           }
 
           reasons.push(reason)
