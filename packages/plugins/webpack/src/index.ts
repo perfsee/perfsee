@@ -157,7 +157,10 @@ export class PerfseePlugin implements WebpackPluginInstance {
     if (!reasons?.length) {
       return
     }
-    const lines = reasons.map((r) => r[1].split(':')[0]).map((l) => Number(l) - 1)
+    const lines = reasons
+      .map((r) => r[1]?.split(':')[0])
+      .filter(Boolean)
+      .map((l) => Number(l) - 1)
     const sourceFiltered = source
       .split('\n')
       .map((lineSource, lineNum) => {
