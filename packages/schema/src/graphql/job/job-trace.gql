@@ -1,6 +1,6 @@
-query jobTrace($projectId: ID!, $jobType: JobType!, $entityId: Int!, $after: Int!) {
+query jobTrace($projectId: ID!, $jobType: JobType!, $jobId: Int, $after: Int!) {
   project(id: $projectId) {
-    job(jobType: $jobType, entityId: $entityId) {
+    job(jobType: $jobType, jobId: $jobId) {
       trace(after: $after) {
         logs
         hasMore

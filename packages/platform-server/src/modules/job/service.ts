@@ -225,6 +225,24 @@ export class JobService {
     return Job.findOne({ where: { projectId, jobType, entityId: realId }, order: { id: 'desc' } })
   }
 
+  async getJobsByEntityId(jobType: JobType, entityId: number, projectId: number) {
+    const realId = await this.getEntityRealId(jobType, entityId, projectId)
+    if (!realId) {
+      return null
+    }
+
+    return Job.find({ where: { projectId, jobType, entityId: realId }, order: { id: 'desc' } })
+  }
+
+  async getJobByIid(projectId: number, iid: number) {
+    return Job.findOne({
+      where: {
+        projectId,
+        iid,
+      },
+    })
+  }
+
   async getJobPayload(job: Job): Promise<any> {
     const { jobType, entityId, extra } = job
 

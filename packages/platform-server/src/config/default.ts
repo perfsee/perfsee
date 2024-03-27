@@ -91,6 +91,11 @@ export const getDefaultPerfseeConfig: () => PerfseeConfig = () => ({
     executionTimeoutSec: 1800,
     defaultZone: 'China',
     zones: ['China'],
+    lab: {
+      distributedZones: [],
+      distributedCount: 5,
+      distributedRuns: 3,
+    },
   },
   runner: {
     validateRegistrationToken: process.env.NODE_ENV !== 'development',

@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
 
+import { ConfigModule } from '@perfsee/platform-server/config'
 import {
   Snapshot,
   Project,
@@ -27,6 +28,17 @@ import { SnapshotReportService } from '../snapshot-report/service'
 test.beforeEach(async (t) => {
   t.context.module = await createDBTestingModule({
     providers: [PageService, SnapshotService, SnapshotReportService],
+    imports: [
+      ConfigModule.forRoot({
+        job: {
+          lab: {
+            distributedZones: [],
+            distributedCount: 5,
+            distributedRuns: 3,
+          },
+        },
+      }),
+    ],
   })
     .useMocker(createMock)
     .compile()

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { NotFoundException } from '@nestjs/common'
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql'
+import { Args, Int, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql'
 import dayjs from 'dayjs'
 import { groupBy, sumBy } from 'lodash'
 
@@ -54,14 +54,31 @@ export class ProjectJobResolver {
   async job(
     @Parent() project: Project,
     @Args('jobType', { type: () => JobType }) jobType: JobType,
-    @Args('entityId') entityId: number,
+    @Args('entityId', { type: () => Int, nullable: true }) entityId: number,
+    @Args('jobId', { type: () => Int, nullable: true }) jobId: number,
   ) {
-    const job = await this.service.getJobByEntityId(jobType, entityId, project.id)
+    const job = jobId
+      ? await this.service.getJobByIid(project.id, jobId)
+      : await this.service.getJobByEntityId(jobType, entityId, project.id)
     if (!job) {
       throw new NotFoundException('Job not found')
     }
 
     return job
+  }
+
+  @ResolveField(() => [Job])
+  async jobs(
+    @Parent() project: Project,
+    @Args('jobType', { type: () => JobType }) jobType: JobType,
+    @Args('entityId', { type: () => Int }) entityId: number,
+  ) {
+    const jobs = await this.service.getJobsByEntityId(jobType, entityId, project.id)
+    if (!jobs) {
+      throw new NotFoundException('Jobs not found')
+    }
+
+    return jobs
   }
 
   @ResolveField(() => TimeUsage, { name: 'timeUsage', description: 'time usage information of project' })

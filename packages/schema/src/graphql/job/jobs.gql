@@ -1,0 +1,10 @@
+query jobs($projectId: ID!, $jobType: JobType!, $entityId: Int!) {
+  project(id: $projectId) {
+    jobs(jobType: $jobType, entityId: $entityId) {
+      id
+      extra
+      startedAt
+      status
+    }
+  }
+}

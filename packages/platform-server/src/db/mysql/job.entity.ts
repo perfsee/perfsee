@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Field, GraphQLISODateTime, ObjectType, registerEnumType } from '@nestjs/graphql'
+import { Field, GraphQLISODateTime, Int, ObjectType, registerEnumType } from '@nestjs/graphql'
+import GraphQLJSON from 'graphql-type-json'
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -51,6 +52,7 @@ export class Job extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id!: number
 
+  @Field(() => Int, { name: 'id' })
   @Column({ type: 'int' })
   iid!: number
 
@@ -101,6 +103,7 @@ export class Job extends BaseEntity {
   @ManyToOne('Runner', 'jobs')
   runner!: Runner
 
+  @Field(() => GraphQLJSON, { nullable: true })
   @Column({ type: 'json', nullable: true })
   extra!: Record<string, string> | null
 

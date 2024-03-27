@@ -5,6 +5,15 @@ import { createMock } from '@perfsee/platform-server/test'
 
 import { getLighthouseRunData } from '../get-lh-run-data'
 
+const config = {
+  job: {
+    lab: {
+      distributedZones: [],
+      distributedRuns: 3,
+    },
+  },
+}
+
 test('get lighthouse run data', (t) => {
   const pages = [
     createMock<Page>({
@@ -57,5 +66,5 @@ test('get lighthouse run data', (t) => {
     }),
   ]
 
-  t.snapshot(getLighthouseRunData(pages, profiles, envs, reports))
+  t.snapshot(getLighthouseRunData(pages, profiles, envs, reports, config as any))
 })

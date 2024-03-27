@@ -74,6 +74,7 @@ export enum SnapshotStatus {
   Completed,
   Scheduled,
   Failed,
+  PartialCompleted,
 }
 
 export enum SourceStatus {
@@ -158,10 +159,12 @@ export function isPassedBundleJobUpdate(update: BundleJobUpdate): update is Bund
 
 export type LabJobResult = {
   snapshotReport: PartialSnapshotReport & { id: number }
+  jobId?: number
 }
 
 export type E2EJobResult = {
   snapshotReport: PartialSnapshotReport & { id: number }
+  jobId?: number
 }
 
 export type PingJobResult = {

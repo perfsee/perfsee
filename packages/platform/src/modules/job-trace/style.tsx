@@ -23,7 +23,7 @@ import { Log as LogType } from './module'
 
 export const PageWrapper = styled('div')({
   width: '100%',
-  margin: '20px auto',
+  margin: '0px auto 20px',
   display: 'flex',
   alignItems: 'flex-end',
   flexDirection: 'column',
@@ -35,7 +35,7 @@ export const LogsWrapper = styled('div')({
   width: '100%',
   background: NeutralColors.gray200,
   padding: '8px 0',
-  overflow: 'hidden scroll',
+  overflow: 'hidden auto',
 })
 
 const logColors = {

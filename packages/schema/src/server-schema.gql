@@ -247,7 +247,8 @@ type Project {
 
   """get app versions by hash"""
   appVersion(hash: String!): AppVersion!
-  job(jobType: JobType!, entityId: Int!): Job!
+  job(jobType: JobType!, entityId: Int, jobId: Int): Job!
+  jobs(jobType: JobType!, entityId: Int!): [Job!]!
 
   """time usage information of project"""
   timeUsage(input: TimeUsageInput!): TimeUsage!
@@ -445,6 +446,7 @@ enum SnapshotStatus {
   Completed
   Scheduled
   Failed
+  PartialCompleted
 }
 
 """page performance report"""
@@ -822,12 +824,14 @@ type SourceIssue {
 
 """project scope jobs binding with artifacts/lab/source tasks"""
 type Job {
+  id: Int!
   jobType: JobType!
   createdAt: DateTime!
   startedAt: DateTime
   endedAt: DateTime
   duration: Int
   status: JobStatus!
+  extra: JSON
   trace(after: Int = -1): JobTrace!
 }
 

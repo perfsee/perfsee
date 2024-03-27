@@ -34,7 +34,7 @@ import {
 } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 import { JobType, SnapshotStatus } from '@perfsee/schema'
-import { PrettyBytes } from '@perfsee/shared'
+import { PrettyBytes, getReportMessage } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { useProjectRouteGenerator, useProject } from '../../shared'
@@ -105,7 +105,10 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
           return scoreA - scoreB
         },
         onRender: (report) => {
-          if (typeof report.performanceScore !== 'number' || report.status !== SnapshotStatus.Completed) {
+          if (
+            typeof report.performanceScore !== 'number' ||
+            ![SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(report.status)
+          ) {
             return 'Not available'
           }
           if (report.performanceScore === 0) {
@@ -124,27 +127,29 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
       {
         key: 'env',
         name: 'Env',
-        minWidth: 100,
+        minWidth: 80,
         maxWidth: 180,
         onRender: (report) => <TooltipWithEllipsis content={report.environment.name} />,
       },
       {
         key: 'profile',
         name: 'Profile',
-        minWidth: 100,
+        minWidth: 80,
         maxWidth: 180,
         onRender: (report) => <TooltipWithEllipsis content={report.profile.name} />,
       },
       {
         key: 'status',
         name: 'Status',
-        minWidth: 100,
-        maxWidth: 150,
+        minWidth: 120,
+        maxWidth: 180,
         onRender: (report) => {
-          const showTip = report.status === SnapshotStatus.Failed && report.failedReason
+          const showTip =
+            (report.status === SnapshotStatus.Failed && report.failedReason) ||
+            report.status === SnapshotStatus.PartialCompleted
 
           return (
-            <TooltipHost content={report.failedReason ?? ''} hidden={!showTip}>
+            <TooltipHost content={getReportMessage(report)} hidden={!showTip}>
               <StatusText
                 href={generateProjectRoute(pathFactory.project.jobTrace, {
                   type: report.page.isE2e ? JobType.E2EAnalyze : JobType.LabAnalyze,
@@ -180,7 +185,7 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
 
   const onRowClick = useCallback(
     (report: SnapshotReportSchema) => () => {
-      if (report.status === SnapshotStatus.Completed) {
+      if (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.PartialCompleted) {
         const url = getDetailUrl(report, project!.id)
         history.push(url)
       }

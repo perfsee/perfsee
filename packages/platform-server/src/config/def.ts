@@ -279,6 +279,23 @@ export interface PerfseeConfig {
      * available job zones
      */
     zones: string[]
+
+    lab: {
+      /**
+       * which zones enable distributed labs.
+       */
+      distributedZones: string[]
+
+      /**
+       * distributed count
+       */
+      distributedCount: number
+
+      /**
+       * distributed lab run times
+       */
+      distributedRuns: number
+    }
   }
 
   /**

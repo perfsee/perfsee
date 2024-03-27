@@ -158,6 +158,10 @@ perfsee.project.externalProviders = ['github']
 // # timeout for job execution
 // perfsee.job.executionTimeoutSec = 30 * 60
 
+perfsee.job.lab.distributedZones = env.DISTRIBUTED_ZONES?.split(',') || []
+perfsee.job.lab.distributedCount = Number(env.DISTRIBUTED_COUNT || 5)
+perfsee.job.lab.distributedRuns = Number(env.DISTRIBUTED_RUNS || 3)
+
 // ###############################################################
 // ##                  9. Runner settings                       ##
 // ###############################################################

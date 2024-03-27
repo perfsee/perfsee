@@ -16,6 +16,7 @@ limitations under the License.
 
 import { Module } from '@nestjs/common'
 
+import { ConfigModule } from '@perfsee/platform-server/config'
 import { DBModule } from '@perfsee/platform-server/db'
 import { StorageModule } from '@perfsee/platform-server/storage'
 
@@ -44,6 +45,7 @@ import { SnapshotReportModule } from './snapshot-report'
     EnvironmentModule,
     ProfileModule,
     ProjectUsageModule,
+    ConfigModule,
   ],
   controllers: [SnapshotController],
   providers: [SnapshotResolver, ProjectSnapshotResolver, SnapshotService],
