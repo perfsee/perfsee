@@ -18,32 +18,33 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
-  HourglassOutlined,
+  CloseOutlined,
   LoadingOutlined,
+  StarOutlined,
 } from '@ant-design/icons'
 import { Theme } from '@emotion/react'
 import styled from '@emotion/styled'
 import { FC, ComponentType } from 'react'
 
 import { Tag } from '@perfsee/components'
-import { SnapshotStatus } from '@perfsee/schema'
+import { JobStatus } from '@perfsee/schema'
 
-const statusIconMap: Record<SnapshotStatus, ComponentType> = {
-  [SnapshotStatus.Completed]: CheckCircleOutlined,
-  [SnapshotStatus.PartialCompleted]: CheckCircleOutlined,
-  [SnapshotStatus.Pending]: ClockCircleOutlined,
-  [SnapshotStatus.Running]: LoadingOutlined,
-  [SnapshotStatus.Failed]: CloseCircleOutlined,
-  [SnapshotStatus.Scheduled]: HourglassOutlined,
+const statusIconMap: Record<JobStatus | 'Picked', ComponentType> = {
+  [JobStatus.Done]: CheckCircleOutlined,
+  [JobStatus.Pending]: ClockCircleOutlined,
+  [JobStatus.Running]: LoadingOutlined,
+  [JobStatus.Failed]: CloseOutlined,
+  [JobStatus.Canceled]: CloseCircleOutlined,
+  Picked: StarOutlined,
 }
 
-const tagTypeMap: { [key in SnapshotStatus]: keyof Theme['tag'] } = {
-  [SnapshotStatus.Completed]: 'success',
-  [SnapshotStatus.PartialCompleted]: 'warning',
-  [SnapshotStatus.Pending]: 'warning',
-  [SnapshotStatus.Running]: 'info',
-  [SnapshotStatus.Failed]: 'error',
-  [SnapshotStatus.Scheduled]: 'default',
+const tagTypeMap: { [key in JobStatus | 'Picked']: keyof Theme['tag'] } = {
+  [JobStatus.Done]: 'success',
+  [JobStatus.Pending]: 'warning',
+  [JobStatus.Running]: 'info',
+  [JobStatus.Failed]: 'error',
+  [JobStatus.Canceled]: 'error',
+  Picked: 'success',
 }
 
 const StatusTag = styled(Tag)({
@@ -57,7 +58,7 @@ const StatusTag = styled(Tag)({
   },
 })
 
-export const SnapshotStatusTag: FC<{ status: SnapshotStatus }> = ({ status }) => {
+export const JobStatusTag: FC<{ status: JobStatus | 'Picked' }> = ({ status }) => {
   const Icon = statusIconMap[status]
   return (
     <StatusTag type={tagTypeMap[status]}>

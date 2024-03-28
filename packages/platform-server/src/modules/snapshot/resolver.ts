@@ -29,6 +29,7 @@ import {
 import { Snapshot, Project, User, SnapshotTrigger } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
+import { SnapshotStatus } from '@perfsee/server-common'
 
 import { CurrentUser } from '../auth'
 import { PermissionGuard, Permission } from '../permission'
@@ -186,6 +187,10 @@ export class SnapshotResolver {
 
     if (!report) {
       throw new UserError(`Snapshot Report with id ${iid} not found.`)
+    }
+
+    if (report.status !== SnapshotStatus.Failed) {
+      throw new UserError(`Only failed report can be dispatched.`)
     }
 
     return this.service

@@ -28,6 +28,7 @@ export const getStatusColor = (status: string, theme: Theme) => {
     case SnapshotStatus.Completed:
       return theme.colors.success
     case SnapshotStatus.Pending:
+    case SnapshotStatus.PartialCompleted:
       return theme.colors.warning
     case SnapshotStatus.Running:
       return theme.colors.primary

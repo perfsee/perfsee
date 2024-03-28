@@ -31,6 +31,13 @@ import {
   MetricType,
   ReactDevtoolProfilingDataExport,
   RequestSchema,
+  computeMedianRun,
+  getLCPScore,
+  getScore,
+  getTBTScore,
+  getTTI,
+  MetricsRecord,
+  getMeanValue,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
@@ -47,16 +54,7 @@ import {
   DEFAULT_BENCHMARK_INDEX,
   onRequestFactory,
 } from './helpers'
-import {
-  computeMedianRun,
-  getLCPScore,
-  getScore,
-  getTBTScore,
-  getTTI,
-  lighthouse,
-  MetricsRecord,
-  getMeanValue,
-} from './lighthouse-runtime'
+import { lighthouse } from './lighthouse-runtime'
 import { ReactProfiler } from './lighthouse-runtime/gatherers'
 
 export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
@@ -530,7 +528,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         // So we leave Browser closing job to process exiting.
       }
 
-      if (enableProxy && runs > 3 && i === runs - 1) {
+      if (enableProxy && runs >= 3 && i === runs - 1) {
         // after last run, we drop results that has a obvious variability
         const stableRuns = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 70)
         if (stableRuns.length) {

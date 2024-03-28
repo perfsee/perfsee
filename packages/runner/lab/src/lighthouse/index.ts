@@ -30,6 +30,7 @@ export class LabJobWorker extends LighthouseJobWorker {
           id: this.payload.reportId,
           status: SnapshotStatus.Running,
         },
+        jobId: this.job.jobId,
       },
     })
     await super.before()
@@ -59,6 +60,7 @@ export class LabJobWorker extends LighthouseJobWorker {
             status: SnapshotStatus.Failed,
             failedReason: failedReason,
           },
+          jobId: this.job.jobId,
         },
       })
     } else {
@@ -78,6 +80,7 @@ export class LabJobWorker extends LighthouseJobWorker {
             performanceScore: metrics![LighthouseScoreMetric.Performance],
             metrics,
           },
+          jobId: this.job.jobId,
         },
       })
     }
@@ -94,6 +97,7 @@ export class LabJobWorker extends LighthouseJobWorker {
           status: SnapshotStatus.Failed,
           failedReason: e.message,
         },
+        jobId: this.job.jobId,
       },
     })
   }

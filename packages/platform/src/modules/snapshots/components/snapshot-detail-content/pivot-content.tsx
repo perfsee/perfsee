@@ -67,7 +67,7 @@ export const PivotContent = (props: PivotContentProps) => {
     case PerformanceTabType.SourceStatistics:
       return <SourceStatisticsContent snapshot={snapshot} />
     case PerformanceTabType.Log:
-      return <Trace type="LabAnalyze" entityId={snapshot.report.id.toString()} />
+      return <Trace type="LabAnalyze" entityId={snapshot.report.id.toString()} onlyPicked />
     default:
       return null
   }

@@ -14,10 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './codebase'
-export * from './is-baseline'
-export * from './permission'
-export * from './is-wildcard-match'
-export * from './get-median-run'
-export * from './report-message'
-export * from '@perfsee/utils'
+import { SnapshotReportsQuery, SnapshotStatus } from '@perfsee/schema'
+
+export const getReportMessage = (
+  report: Pick<SnapshotReportsQuery['project']['snapshot']['snapshotReports'][0], 'failedReason' | 'status'>,
+) => {
+  if (report.status === SnapshotStatus.PartialCompleted) {
+    return 'For stability, snapshots are run multiple times to take the median. Some snapshot jobs are still running, results may change after completion'
+  }
+  return report.failedReason ?? ''
+}

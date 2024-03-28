@@ -35,6 +35,7 @@ import { PerformanceTabType, SnapshotReportSchema } from '@perfsee/lab-report/sn
 import { LighthouseBrand } from '@perfsee/lab-report/style'
 import { useProject } from '@perfsee/platform/modules/shared'
 import { SnapshotStatus, SourceStatus } from '@perfsee/schema'
+import { getReportMessage } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { SnapshotModule } from '../../snapshot.module'
@@ -85,16 +86,21 @@ export const ReportContentWithRoute: FC<Props> = memo((props) => {
     [history, routerParams, project],
   )
 
-  if (report.status !== SnapshotStatus.Completed) {
-    return <Stack horizontalAlign="center">{renderMessageBar(report.status, report.failedReason ?? '')}</Stack>
+  if (![SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(report.status)) {
+    return <Stack horizontalAlign="center">{renderMessageBar(report.status, getReportMessage(report))}</Stack>
   }
 
   return (
-    <ReportContent
-      snapshotReports={[report]}
-      tabName={routerParams.tabName as PerformanceTabType}
-      onLinkClick={onLinkClick}
-    />
+    <>
+      {report.status === SnapshotStatus.PartialCompleted
+        ? renderMessageBar(report.status, getReportMessage(report))
+        : null}
+      <ReportContent
+        snapshotReports={[report]}
+        tabName={routerParams.tabName as PerformanceTabType}
+        onLinkClick={onLinkClick}
+      />
+    </>
   )
 })
 
@@ -165,7 +171,9 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
   }, [dispatcher, snapshotReports])
 
   const completedReports = useMemo(() => {
-    return snapshotReports.filter((v) => v.status === SnapshotStatus.Completed && v.reportLink)
+    return snapshotReports.filter(
+      (v) => [SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(v.status) && v.reportLink,
+    )
   }, [snapshotReports])
 
   if (state.detailLoading) {

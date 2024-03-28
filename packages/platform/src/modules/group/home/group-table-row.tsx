@@ -83,7 +83,7 @@ const TableExtraInfo = (props: Props) => {
           <TooltipWithEllipsis content={`${report.page.name}-${report.profile.name}-${report.environment.name}`} />
         )
 
-        if (report.status !== SnapshotStatus.Completed) {
+        if (report.status !== SnapshotStatus.Completed && report.status !== SnapshotStatus.PartialCompleted) {
           return name
         }
 

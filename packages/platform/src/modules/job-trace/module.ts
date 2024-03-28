@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Module, EffectModule, Effect, Reducer, DefineAction } from '@sigi/core'
+import { Module, EffectModule, Effect, Reducer, DefineAction, ImmerReducer } from '@sigi/core'
+import { Draft } from 'immer'
 import { interval, Observable, of } from 'rxjs'
-import { switchMap, startWith, takeUntil, mergeMap, withLatestFrom, catchError } from 'rxjs/operators'
+import { switchMap, startWith, takeUntil, mergeMap, withLatestFrom, catchError, map } from 'rxjs/operators'
 
 import { GraphQLClient, notify } from '@perfsee/platform/common'
-import { JobType, jobTraceQuery, JobTraceQuery } from '@perfsee/schema'
+import { JobType, jobTraceQuery, JobTraceQuery, jobsQuery, JobsQuery } from '@perfsee/schema'
 import { JobLog, JobLogLevel } from '@perfsee/shared'
 
 type JobTraceResponse = Omit<JobTraceQuery['project']['job']['trace'], 'logs'> & { logs: JobLog[] }
@@ -38,6 +39,7 @@ interface State {
   logs: Log[] | undefined
   endCursor: number
   hasMore: boolean
+  jobs: JobsQuery['project']['jobs']
 }
 
 @Module('JobTraceModule')
@@ -46,6 +48,7 @@ export class JobTraceModule extends EffectModule<State> {
     logs: undefined,
     endCursor: -1,
     hasMore: true,
+    jobs: [],
   }
 
   @DefineAction()
@@ -56,9 +59,9 @@ export class JobTraceModule extends EffectModule<State> {
   }
 
   @Effect()
-  getJobTrace(payload$: Observable<{ projectId: string; type: JobType; entityId: string }>) {
+  getJobTrace(payload$: Observable<{ projectId: string; type: JobType; jobId: number }>) {
     return payload$.pipe(
-      switchMap(({ projectId, type, entityId }) =>
+      switchMap(({ projectId, type, jobId }) =>
         interval(3000).pipe(
           startWith(0),
           withLatestFrom(this.state$),
@@ -69,7 +72,7 @@ export class JobTraceModule extends EffectModule<State> {
                 variables: {
                   projectId,
                   jobType: type,
-                  entityId: parseInt(entityId),
+                  jobId,
                   after: endCursor,
                 },
               })
@@ -83,7 +86,7 @@ export class JobTraceModule extends EffectModule<State> {
                   }
                 }),
                 catchError(() => {
-                  notify.error({ content: 'Job trace has expired.' })
+                  notify.error({ content: "Job trace doesn't exist or has expired." })
                   return of(this.getActions().dispose$())
                 }),
               ),
@@ -92,6 +95,42 @@ export class JobTraceModule extends EffectModule<State> {
         ),
       ),
     )
+  }
+
+  @Effect()
+  getJobs(payload$: Observable<{ projectId: string; type: JobType; entityId: string }>) {
+    return payload$.pipe(
+      switchMap(({ projectId, type, entityId }) =>
+        this.client
+          .query({
+            query: jobsQuery,
+            variables: {
+              projectId,
+              jobType: type,
+              entityId: parseInt(entityId),
+            },
+          })
+          .pipe(
+            map((results) => this.getActions().setJobs(results.project.jobs)),
+            catchError(() => {
+              notify.error({ content: 'Can not get jobs' })
+              return of(this.getActions().dispose$())
+            }),
+          ),
+      ),
+    )
+  }
+
+  @ImmerReducer()
+  setJobs(state: Draft<State>, jobs: JobsQuery['project']['jobs']) {
+    state.jobs = jobs
+  }
+
+  @ImmerReducer()
+  resetTrace(state: Draft<State>) {
+    state.logs = undefined
+    state.endCursor = -1
+    state.hasMore = true
   }
 
   @Reducer()
@@ -130,6 +169,7 @@ export class JobTraceModule extends EffectModule<State> {
       endCursor,
       logs,
       hasMore,
+      jobs: state.jobs,
     }
   }
 }

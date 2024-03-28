@@ -17,6 +17,7 @@ limitations under the License.
 import { Page, Profile, SnapshotReport, Environment } from '@perfsee/platform-server/db'
 import { E2EJobPayload, LabJobPayload, PingJobPayload } from '@perfsee/server-common'
 
+import { Config } from '../config'
 import { CONNECTIONS } from '../modules/profile/constants'
 
 export const formatHeaders = (headers: Record<string, string | number>) => {
@@ -34,6 +35,7 @@ export function getLighthouseRunData(
   profiles: Profile[],
   environments: Environment[],
   reports: SnapshotReport[],
+  config: Config,
 ): (LabJobPayload | E2EJobPayload)[] {
   return reports.map((report) => {
     const profile = profiles.find((item) => item.id === report.profileId)!
@@ -43,6 +45,8 @@ export function getLighthouseRunData(
     const throttle = CONNECTIONS.find((item) => item.id === profile.bandWidth)
     const deviceId = profile.device
 
+    const distributed = config.job.lab.distributedZones.includes(env.zone)
+
     return {
       reportId: report.id,
       url: page.url,
@@ -51,7 +55,7 @@ export function getLighthouseRunData(
       headers: env.headers,
       cookies: env.cookies,
       e2eScript: page.e2eScript,
-      runs: page.isE2e || process.env.NODE_ENV === 'development' ? 1 : 5,
+      runs: page.isE2e || process.env.NODE_ENV === 'development' ? 1 : distributed ? config.job.lab.distributedRuns : 5,
       localStorage: env.localStorage ?? [],
       reactProfiling: profile.reactProfiling ?? false,
       enableProxy: profile.enableProxy ?? false,
