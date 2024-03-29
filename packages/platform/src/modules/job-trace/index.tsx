@@ -144,7 +144,11 @@ export const Trace = (props: TraceProps) => {
 
   return (
     <Stack>
-      <Pivot onLinkClick={onClickJob} defaultSelectedKey={String(defaultJob)}>
+      <Pivot
+        onLinkClick={onClickJob}
+        defaultSelectedKey={String(defaultJob)}
+        styles={{ root: { overflowX: 'auto', overflowY: 'hidden' } }}
+      >
         {state.jobs.map((job, i) => (
           <PivotItem
             itemKey={String(job.id)}
