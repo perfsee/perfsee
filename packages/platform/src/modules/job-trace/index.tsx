@@ -60,8 +60,8 @@ export const Trace = (props: TraceProps) => {
   const defaultJob = useMemo(() => {
     return (
       state.jobs.find((j) => j.extra?.['picked']) ||
-      state.jobs.find((j) => j.status === JobStatus.Done) ||
       state.jobs.find((j) => j.status === JobStatus.Running) ||
+      state.jobs.find((j) => j.status === JobStatus.Done) ||
       state.jobs[0]
     )?.id
   }, [state.jobs])

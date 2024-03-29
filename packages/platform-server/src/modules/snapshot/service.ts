@@ -521,8 +521,16 @@ export class SnapshotService implements OnApplicationBootstrap {
           }
         }
       }
-    } else if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
-      snapshotReport.status = SnapshotStatus.PartialCompleted
+    } else {
+      const report = await SnapshotReport.findOneBy({ id: snapshotReport.id })
+      if (report?.status === SnapshotStatus.PartialCompleted) {
+        snapshotReport.status = SnapshotStatus.PartialCompleted
+      } else if (
+        report?.status === SnapshotStatus.Running &&
+        [SnapshotStatus.Pending, SnapshotStatus.Scheduled].includes(snapshotReport.status!)
+      ) {
+        snapshotReport.status = SnapshotStatus.Running
+      }
     }
 
     return snapshotReport
