@@ -34,10 +34,10 @@ import {
 } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 import { JobType, SnapshotStatus } from '@perfsee/schema'
-import { PrettyBytes, getReportMessage } from '@perfsee/shared'
+import { PrettyBytes } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { useProjectRouteGenerator, useProject } from '../../shared'
+import { useProjectRouteGenerator, useProject, getReportMessage } from '../../shared'
 import { StatusText, ListCell, TableContainer } from '../style'
 
 import { LabListModule, ReportsPayload, SnapshotReportSchema } from './module'

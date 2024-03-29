@@ -20,7 +20,7 @@ export const getReportMessage = (
   report: Pick<SnapshotReportsQuery['project']['snapshot']['snapshotReports'][0], 'failedReason' | 'status'>,
 ) => {
   if (report.status === SnapshotStatus.PartialCompleted) {
-    return 'For stability, snapshots are run multiple times to take the median. Some snapshot jobs are still running, results may change after completion'
+    return 'For stability reasons, snapshots are run multiple times and the median result is taken. Some jobs are still running, results may change after completion'
   }
   return report.failedReason ?? ''
 }
