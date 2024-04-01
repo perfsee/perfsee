@@ -65,7 +65,7 @@ export async function runBrowser(
       case 'error':
         logger.error(text)
         break
-      case 'warning':
+      case 'warn':
         logger.warn(text)
         break
       default:

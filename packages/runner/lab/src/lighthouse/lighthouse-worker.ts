@@ -273,7 +273,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     lighthouseLogger._logToStdErr = (title, args) => {
       if (title.endsWith('error')) {
-        this.logger.error(args[0], args[1])
+        this.logger.warn(args[0], args[1])
       } else if (title.endsWith('warn')) {
         // @ts-expect-error
         this.logger.warn(...args)

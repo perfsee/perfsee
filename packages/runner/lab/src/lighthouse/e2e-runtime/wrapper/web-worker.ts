@@ -36,5 +36,6 @@ export const webWorkerWrapper = createWrapper<WebWorker>('WebWorker', (webWorker
     listenerCount: NotSupportFunction,
     removeAllListeners: NotSupportFunction,
     client: webWorker.client,
+    close: NotSupportFunction,
   }
 })
