@@ -47,5 +47,7 @@ export const browserWrapper = createWrapper<Browser>('Browser', (browser, option
     listenerCount: NotSupportFunction,
     removeAllListeners: NotSupportFunction,
     connected: true,
+    createBrowserContext: NotSupportFunction,
+    debugInfo: browser.debugInfo,
   }
 })

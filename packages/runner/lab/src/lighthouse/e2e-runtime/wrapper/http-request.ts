@@ -48,6 +48,8 @@ export const httpRequestWrapper: Wrapper<HTTPRequest> = createWrapper<HTTPReques
       isInterceptResolutionHandled: () => httpRequest.isInterceptResolutionHandled(),
       initiator: () => httpRequest.initiator(),
       client: httpRequest.client,
+      hasPostData: () => httpRequest.hasPostData(),
+      fetchPostData: () => httpRequest.fetchPostData(),
     }
   },
 )

@@ -78,10 +78,6 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
       httpResponseWrapper.wrapOrNull(await frame.waitForNavigation(navigationOptions), options),
     waitForSelector: async (selector, fnOptions) =>
       elementHandleWrapper.wrapOrNull(await frame.waitForSelector(selector, fnOptions), options),
-    waitForTimeout: async (timeout) => frame.waitForTimeout(timeout),
-    waitForXPath: async (xpath, fnOptions) =>
-      // @ts-expect-error
-      elementHandleWrapper.wrapOrNull(await frame.waitForXPath(xpath, fnOptions), options),
     isOOPFrame: () => frame.isOOPFrame(),
     page: () => pageWrapper.wrap(frame.page(), options),
     locator: NotSupportFunction,

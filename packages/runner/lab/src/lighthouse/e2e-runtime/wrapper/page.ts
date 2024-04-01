@@ -168,12 +168,8 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
       await flow?.startAction('type')
       return page.type(selector, text, options)
     },
-    waitForTimeout: async (timeout) => page.waitForTimeout(timeout),
     waitForSelector: async (selector, fnOptions) =>
       elementHandleWrapper.wrapOrNull(await page.waitForSelector(selector, fnOptions), options),
-    waitForXPath: async (xpath, fnOptions) =>
-      // @ts-expect-error
-      elementHandleWrapper.wrapOrNull(await page.waitForXPath(xpath, fnOptions), options),
     waitForFunction: async (pageFunction, fnOptions, ...args) =>
       jsHandleWrapper.wrap(await page.waitForFunction(pageFunction, fnOptions, ...args), options),
     listenerCount: NotSupportFunction,

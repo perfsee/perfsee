@@ -134,9 +134,6 @@ export const elementHandleWrapper: Wrapper<ElementHandle> = createWrapper<Elemen
       frame: elementHandle.frame,
       isVisible: () => elementHandle.isVisible(),
       isHidden: () => elementHandle.isHidden(),
-      waitForXPath: async (xpath, fnOptions) =>
-        // @ts-expect-error
-        elementHandleWrapper.wrapOrNull(await elementHandle.waitForXPath(xpath, fnOptions), options),
       toElement: async (tagName) => elementHandleWrapper.wrapOrNull(await elementHandle.toElement(tagName), options),
       autofill: (data) => async () => {
         await flow?.startAction('autofill')

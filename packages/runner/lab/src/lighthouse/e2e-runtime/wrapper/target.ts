@@ -33,5 +33,6 @@ export const targetWrapper: Wrapper<Target> = createWrapper<Target>('Target', (t
     type: () => target.type(),
     url: () => target.url(),
     worker: async () => webWorkerWrapper.wrapOrNull(await target.worker(), options),
+    asPage: async () => pageWrapper.wrap(await target.asPage(), options),
   }
 })
