@@ -22,11 +22,13 @@ export const getTTI = (lhr: LH.Result) => getNumericValue(lhr, 'interactive')
 export const getScore = (lhr: LH.Result, auditName: KeyAuditName) => lhr.audits[auditName]?.score ?? NaN
 export const getTBTScore = (lhr: LH.Result) => getScore(lhr, 'total-blocking-time')
 export const getLCPScore = (lhr: LH.Result) => getScore(lhr, 'largest-contentful-paint')
+export const getPerformance = (lhr: LH.Result) => lhr.categories['performance']?.score ?? NaN
 
 export type MetricsRecord = {
   index: number
   lcp: number
   tbt: number
+  performance: number
   benchmarkIndex: number
   cpuSlowdownMultiplier?: number
 }
@@ -48,35 +50,39 @@ function getMedianSortValue(value: number, median: number) {
   return distance * distance
 }
 
-function filterToValidRuns(runs: MetricsRecord[], key: keyof MetricsRecord) {
+function filterToValidRuns<T extends { index: number; [key: string]: number }>(runs: T[], key: keyof T) {
   return runs.filter((run) => Number.isFinite(run[key]))
 }
 
-export function computeMedianRun(runs: MetricsRecord[]) {
-  const runsWithLCP = filterToValidRuns(runs, 'lcp')
+export function computeMedianRun<T extends { index: number; [key: string]: number }>(
+  runs: T[],
+  primaryKey: keyof T,
+  secondaryKey: keyof T,
+) {
+  const runsWithPrimary = filterToValidRuns(runs, primaryKey)
 
-  if (!runsWithLCP.length) {
+  if (!runsWithPrimary.length) {
     return runs[0].index
   }
 
-  const runsWithTBT = filterToValidRuns(runsWithLCP, 'tbt')
-  if (runsWithTBT.length > 0 && runsWithTBT.length < 3) {
-    return runsWithTBT[0].index
+  const runsWithSecondary = filterToValidRuns(runsWithPrimary, secondaryKey)
+  if (runsWithSecondary.length > 0 && runsWithSecondary.length < 3) {
+    return runsWithSecondary[0].index
   }
 
-  const medianLCP = getMedianValue(runsWithLCP.map((run) => run.lcp))
-  const medianTBT = getMedianValue(runsWithTBT.map((run) => run.tbt))
+  const medianPrimary = getMedianValue(runsWithPrimary.map((run) => run[primaryKey]))
+  const medianSecondary = getMedianValue(runsWithSecondary.map((run) => run[secondaryKey]))
 
-  // Sort by proximity to the medians, breaking ties with the minimum TBT.
-  const sortedByProximityToMedian = runsWithLCP.sort((a, b) => {
-    const aLCP = a.lcp
-    const aTBT = a.tbt
-    const bLCP = b.lcp
-    const bTBT = b.tbt
-    const order = getMedianSortValue(aLCP, medianLCP) - getMedianSortValue(bLCP, medianLCP)
+  // Sort by proximity to the medians, breaking ties with the secondary.
+  const sortedByProximityToMedian = runsWithPrimary.sort((a, b) => {
+    const aPrimary = a[primaryKey]
+    const aSecondary = a[secondaryKey]
+    const bPrimary = b[primaryKey]
+    const bSecondary = b[secondaryKey]
+    const order = getMedianSortValue(aPrimary, medianPrimary) - getMedianSortValue(bPrimary, medianPrimary)
 
-    if (aTBT && bTBT) {
-      return order + getMedianSortValue(aTBT, medianTBT) - getMedianSortValue(bTBT, medianTBT)
+    if (!order && aSecondary && bSecondary) {
+      return getMedianSortValue(aSecondary, medianSecondary) - getMedianSortValue(bSecondary, medianSecondary)
     }
 
     return order

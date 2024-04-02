@@ -454,7 +454,7 @@ export class SnapshotService implements OnApplicationBootstrap {
           `report-result-${snapshotReport.id}-${left}`,
           JSON.stringify(Object.assign({ jobId }, snapshotReport)),
           'EX',
-          1200,
+          3600,
         )
       } else {
         completedCount = Number(await this.redis.get(`report-distribute-complete-${snapshotReport.id}`))
@@ -463,6 +463,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       if (left === 0) {
         await this.redis.del(`report-distribute-total-${snapshotReport.id}`)
         await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
+        await this.redis.del(`report-running-${snapshotReport.id}`)
         this.logger.log(`All distribution of report ${snapshotReport.id} is done. Complete count: ${completedCount}`)
 
         if (completedCount) {
@@ -482,9 +483,10 @@ export class SnapshotService implements OnApplicationBootstrap {
             reportList.map((r, i) => ({
               index: i,
               lcp: r.metrics?.['largest-contentful-paint'] || 0,
-              tbt: r.metrics?.['total-blocking-time'] || 0,
-              benchmarkIndex: 0,
+              performance: r.metrics?.performance || 0,
             })),
+            'performance',
+            'lcp',
           )
 
           this.logger.verbose(`Get median result of report ${snapshotReport.id}`, reportList[medianIndex])
