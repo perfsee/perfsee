@@ -16,6 +16,8 @@ limitations under the License.
 
 import assert from 'assert'
 
+import type { UserFlow } from 'lighthouse'
+
 import { dynamicImport } from '@perfsee/job-runner-shared'
 
 type FlowResult = LH.Gatherer.GatherResult & { lhr: LH.Result; stepName: string }
@@ -31,7 +33,7 @@ export class LighthouseFlow {
 
   private readonly steps: Omit<FlowResult, 'lhr'>[] = []
 
-  constructor(private readonly page: LH.Puppeteer.Page, private readonly flowOptions: any) {
+  constructor(private readonly page: LH.Puppeteer.Page, private readonly flowOptions: UserFlow.Options) {
     this.name = 'lighthouse flow'
   }
 

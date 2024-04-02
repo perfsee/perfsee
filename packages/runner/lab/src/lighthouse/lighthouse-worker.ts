@@ -265,7 +265,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async wrapLighthouseLogger() {
+  protected async wrapLighthouseLogger() {
     // we may have different version of `debug` lib
     // hack in this is safer
     const { default: lighthouseLogger } = (await dynamicImport(
@@ -285,7 +285,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async warmupPageLoad() {
+  protected async warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
     const { headers, cookies, localStorage, reactProfiling, url, deviceId } = this.payload
@@ -323,7 +323,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.logger.verbose('Warming up ended.')
   }
 
-  private async getBenchmarkIndex() {
+  protected async getBenchmarkIndex() {
     try {
       this.logger.info(`Warming up page ${this.payload.url}.`)
 
@@ -342,7 +342,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async login() {
+  protected async login() {
     const { loginScript, url } = this.payload
     const { headers, cookies, localStorageContent } = this
     const { host: domain } = new URL(url)
@@ -391,7 +391,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async createBrowser() {
+  protected async createBrowser() {
     const { cookies, localStorageContent } = this
     const { url, deviceId, enableProxy } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
@@ -423,7 +423,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return browser
   }
 
-  private getLighthouseFlags(): LH.Flags {
+  protected getLighthouseFlags(): LH.Flags {
     const { cookies, headers, localStorageContent, reactProfiling } = this
     const { url, deviceId, throttle, userAgent } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
