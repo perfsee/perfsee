@@ -447,26 +447,23 @@ export class SnapshotService implements OnApplicationBootstrap {
       }
 
       this.logger.verbose('Start to handle distributed report', { reportId: snapshotReport.id })
-      let completedCount: number
       if (snapshotReport.status === SnapshotStatus.Completed) {
-        completedCount = await this.redis.incr(`report-distribute-complete-${snapshotReport.id}`)
+        await this.redis.incr(`report-distribute-complete-${snapshotReport.id}`)
         await this.redis.set(
           `report-result-${snapshotReport.id}-${left}`,
           JSON.stringify(Object.assign({ jobId }, snapshotReport)),
           'EX',
           3600,
         )
-      } else {
-        completedCount = Number(await this.redis.get(`report-distribute-complete-${snapshotReport.id}`))
       }
 
       if (left === 0) {
         await this.redis.del(`report-distribute-total-${snapshotReport.id}`)
         await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
         await this.redis.del(`report-running-${snapshotReport.id}`)
-        this.logger.log(`All distribution of report ${snapshotReport.id} is done. Complete count: ${completedCount}`)
+        this.logger.log(`All distribution of report ${snapshotReport.id} is done`)
 
-        if (completedCount) {
+        if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
           const reportList: (LabJobResult['snapshotReport'] & { jobId?: number })[] = []
           for (const count of times(this.config.job.lab.distributedCount)) {
             const storageString = await this.redis.get(`report-result-${snapshotReport.id}-${count}`)
@@ -516,7 +513,7 @@ export class SnapshotService implements OnApplicationBootstrap {
         if (snapshotReport.status === SnapshotStatus.Completed) {
           snapshotReport.status = SnapshotStatus.PartialCompleted
         } else {
-          if (completedCount) {
+          if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
             snapshotReport.status = SnapshotStatus.PartialCompleted
           } else {
             snapshotReport.status = SnapshotStatus.Running
