@@ -7660,7 +7660,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/chrome-finder@workspace:packages/chrome-finder"
   dependencies:
-    puppeteer-core: 22.1.0
+    puppeteer-core: ^22.6.2
   peerDependencies:
     puppeteer-core: ">= 13"
   languageName: unknown
@@ -7786,7 +7786,7 @@ __metadata:
     lighthouse-logger: ^2.0.1
     lodash: ^4.17.21
     node-fetch: ^2.6.2
-    puppeteer-core: 22.1.0
+    puppeteer-core: ^22.6.2
     ts-node: ^10.9.1
     uuid: ^9.0.0
     vm2: ^3.9.11
@@ -8044,7 +8044,7 @@ __metadata:
     node-fetch: ^2.6.2
     open: ^8.4.2
     package-json-type: ^1.0.3
-    puppeteer-core: 22.1.0
+    puppeteer-core: ^22.6.2
     simple-git: ^3.15.0
     tar: ^6.1.13
     ts-node: ^10.9.1
@@ -8401,23 +8401,6 @@ __metadata:
   version: 1.1.0
   resolution: "@protobufjs/utf8@npm:1.1.0"
   checksum: f9bf3163d13aaa3b6f5e6fbf37a116e094ea021c0e1f2a7ccd0e12a29e2ce08dafba4e8b36e13f8ed7397e1591610ce880ed1289af4d66cf4ace8a36a9557278
-  languageName: node
-  linkType: hard
-
-"@puppeteer/browsers@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@puppeteer/browsers@npm:2.0.1"
-  dependencies:
-    debug: 4.3.4
-    extract-zip: 2.0.1
-    progress: 2.0.3
-    proxy-agent: 6.4.0
-    tar-fs: 3.0.5
-    unbzip2-stream: 1.4.3
-    yargs: 17.7.2
-  bin:
-    browsers: lib/cjs/main-cli.js
-  checksum: 9f40b920d0b67dd62a7af59bf88a8e930c0fa58d62aad09a3743b564c6c6893d591f911311a5690f7b5927f99333c79ee5274a95984a7d9cdf8e7f7e3b57cff0
   languageName: node
   linkType: hard
 
@@ -14096,15 +14079,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromium-bidi@npm:0.5.9":
-  version: 0.5.9
-  resolution: "chromium-bidi@npm:0.5.9"
+"chromium-bidi@npm:0.5.16":
+  version: 0.5.16
+  resolution: "chromium-bidi@npm:0.5.16"
   dependencies:
     mitt: 3.0.1
     urlpattern-polyfill: 10.0.0
+    zod: 3.22.4
   peerDependencies:
     devtools-protocol: "*"
-  checksum: 5885a5ab93ddccc2b64ec6fe5455258c440e235daf7c9fb55e1de32ad95b514b721fae8bb7ddaee48d5c7745b57bdcf8a7114f012a41af3ea34b5fe6f1c22646
+  checksum: 5206876e240549daadfa390ae6475e8c891a0557006e0dea13590e2f5ed26b560fa9cbf5c654dde0a95a2c13d606e527de745b52c25273b6c200d9cbca4e6522
   languageName: node
   linkType: hard
 
@@ -15380,15 +15364,6 @@ __metadata:
     cross-env: src/bin/cross-env.js
     cross-env-shell: src/bin/cross-env-shell.js
   checksum: 26f2f3ea2ab32617f57effb70d329c2070d2f5630adc800985d8b30b56e8bf7f5f439dd3a0358b79cee6f930afc23cf8e23515f17ccfb30092c6b62c6b630a79
-  languageName: node
-  linkType: hard
-
-"cross-fetch@npm:4.0.0":
-  version: 4.0.0
-  resolution: "cross-fetch@npm:4.0.0"
-  dependencies:
-    node-fetch: ^2.6.12
-  checksum: ecca4f37ffa0e8283e7a8a590926b66713a7ef7892757aa36c2d20ffa27b0ac5c60dcf453119c809abe5923fc0bae3702a4d896bfb406ef1077b0d0018213e24
   languageName: node
   linkType: hard
 
@@ -25908,20 +25883,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.6.12":
-  version: 2.7.0
-  resolution: "node-fetch@npm:2.7.0"
-  dependencies:
-    whatwg-url: ^5.0.0
-  peerDependencies:
-    encoding: ^0.1.0
-  peerDependenciesMeta:
-    encoding:
-      optional: true
-  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
-  languageName: node
-  linkType: hard
-
 "node-forge@npm:^1":
   version: 1.3.1
   resolution: "node-forge@npm:1.3.1"
@@ -29755,20 +29716,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"puppeteer-core@npm:22.1.0":
-  version: 22.1.0
-  resolution: "puppeteer-core@npm:22.1.0"
-  dependencies:
-    "@puppeteer/browsers": 2.0.1
-    chromium-bidi: 0.5.9
-    cross-fetch: 4.0.0
-    debug: 4.3.4
-    devtools-protocol: 0.0.1232444
-    ws: 8.16.0
-  checksum: b5efbcb58b735cab4579498730184fe11d9d86a43b19765e069e887553062fa81eac258ebe04834e806bc2b5841b7bfdd13403f7fa0cfa048fcc154854e3a1ca
-  languageName: node
-  linkType: hard
-
 "puppeteer-core@npm:^22.1.0":
   version: 22.6.1
   resolution: "puppeteer-core@npm:22.6.1"
@@ -29779,6 +29726,19 @@ __metadata:
     devtools-protocol: 0.0.1262051
     ws: 8.16.0
   checksum: 739bc068f0acb9386f244f133c08760be64bc78b86d8649b04700435eeca37668da526e7c62c5f467bb8c86ab5d518cb6237c7e96434c3eded04c5544f46837c
+  languageName: node
+  linkType: hard
+
+"puppeteer-core@npm:^22.6.2":
+  version: 22.6.2
+  resolution: "puppeteer-core@npm:22.6.2"
+  dependencies:
+    "@puppeteer/browsers": 2.2.0
+    chromium-bidi: 0.5.16
+    debug: 4.3.4
+    devtools-protocol: 0.0.1262051
+    ws: 8.16.0
+  checksum: e59914ddfc1d95234b4df0a6ebfceacfe72bed3f219adc70ba93a5933f599f38c8c9bf8839db292527c4f92d54a0ff1dc44d1f812e141d313968d3970aeb0bea
   languageName: node
   linkType: hard
 
