@@ -38,6 +38,7 @@ import {
   getTTI,
   MetricsRecord,
   getMeanValue,
+  getPerformance,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
@@ -501,6 +502,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
               tbt: getTBTScore(lhResult.lhr),
               benchmarkIndex: lhResult.lhr.environment.benchmarkIndex,
               cpuSlowdownMultiplier: lighthouseFlags.throttling?.cpuSlowdownMultiplier,
+              performance: getPerformance(lhResult.lhr),
             }
             this.logger.info('Avaliable result: ', metrics)
             metricsList.push(metrics)
@@ -559,7 +561,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     if (metricsList.length) {
       this.logger.info('All available result: ', metricsList)
-      const index = metricsList.length < 3 ? metricsList[metricsList.length - 1].index : computeMedianRun(metricsList)
+      const index =
+        metricsList.length < 3
+          ? metricsList[metricsList.length - 1].index
+          : computeMedianRun(metricsList, 'performance', 'lcp')
       const inputFile = join(tmpDir, `${index}-artifacts.json`)
       try {
         result = JSON.parse(await readFile(inputFile, { encoding: 'utf-8' })) as LH.PerfseeRunnerResult
