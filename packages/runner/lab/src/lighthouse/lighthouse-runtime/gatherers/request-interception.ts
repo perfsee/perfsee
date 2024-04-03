@@ -19,6 +19,7 @@ import { onRequestFactory } from '../../helpers'
 import { GathererInstance } from './gatherer'
 
 export class RequestInterception extends GathererInstance {
+  meta = { supportedModes: ['navigation' as const, 'timespan' as const] }
   private requestHandler?: (...params: any) => any
 
   constructor(private readonly headersWithHost?: Record<string, Record<string, string>>) {

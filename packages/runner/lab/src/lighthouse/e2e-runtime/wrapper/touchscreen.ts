@@ -22,19 +22,19 @@ import { createWrapper } from './wrapper'
 export const touchscreenWrapper = createWrapper<Touchscreen>('Touchscreen', (touchscreen, { flow }) => {
   return {
     tap: async (x, y) => {
-      await flow?.startAction('tap')
+      await flow?.startAction(`tap screen \`${x},${y}\``)
       return touchscreen.tap(x, y)
     },
     touchStart: async (x, y) => {
-      await flow?.startAction('touchStart')
+      await flow?.startAction(`touch screen start \`${x},${y}\``)
       return touchscreen.touchStart(x, y)
     },
     touchEnd: async () => {
-      await flow?.startAction('touchEnd')
+      await flow?.startAction('touch screen end')
       return touchscreen.touchEnd()
     },
     touchMove: async (x, y) => {
-      await flow?.startAction('touchMove')
+      await flow?.startAction(`touch screen move \`${x},${y}\``)
       return touchscreen.touchMove(x, y)
     },
   }

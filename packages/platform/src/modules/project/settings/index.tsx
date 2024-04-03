@@ -26,7 +26,6 @@ import { SecondaryNav } from '../../layout'
 import { PropertyModule } from '../../shared'
 
 import { SettingsBasic } from './settings-basic'
-import { SettingsE2e } from './settings-e2e'
 import { SettingsEnvironments } from './settings-environments'
 import { SettingsPages } from './settings-pages'
 import { SettingsPermission } from './settings-permission'
@@ -43,7 +42,6 @@ enum TabEnum {
   Profiles = 'profiles',
   Environments = 'environments',
   Usage = 'usage',
-  E2E = 'e2e',
   Webhook = 'webhook',
 }
 
@@ -56,14 +54,11 @@ export const Settings = () => {
   const navGroups = useMemo<INavLinkGroup[]>(
     () => [
       {
-        links: Object.entries(TabEnum)
-          .map(([key, val]) => ({
-            name: key,
-            url: '',
-            key: val,
-          }))
-          // hide e2e tab temporarily
-          .filter(({ key }) => key !== TabEnum.E2E),
+        links: Object.entries(TabEnum).map(([key, val]) => ({
+          name: key,
+          url: '',
+          key: val,
+        })),
       },
     ],
     [],
@@ -102,8 +97,6 @@ export const Settings = () => {
         return <SettingsEnvironments />
       case TabEnum.Usage:
         return <ProjectUsage />
-      case TabEnum.E2E:
-        return <SettingsE2e />
       case TabEnum.Webhook:
         return <SettingsWebhook />
       default:

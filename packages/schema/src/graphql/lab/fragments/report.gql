@@ -31,4 +31,22 @@ fragment report on SnapshotReport {
     title
     id
   }
+  userFlow {
+    id
+    host
+    status
+    reportLink
+    screencastLink
+    flameChartLink
+    sourceCoverageLink
+    reactProfileLink
+    sourceAnalyzeStatisticsLink
+    traceDataLink
+    requestsLink
+    sourceStatus
+    failedReason
+    createdAt
+    stepId
+    stepName
+  }
 }

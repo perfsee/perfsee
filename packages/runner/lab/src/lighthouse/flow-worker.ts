@@ -14,21 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { writeFileSync } from 'fs'
+import { TimelineSchema } from '@perfsee/shared'
+
 import { createSandbox } from './e2e-runtime/sandbox'
-import { LighthouseFlow } from './e2e-runtime/wrapper/flow'
+import { FlowResult, LighthouseFlow } from './e2e-runtime/wrapper/flow'
 import { puppeteerNodeWrapper } from './e2e-runtime/wrapper/puppeteer'
+import { getLighthouseMetricScores } from './helpers'
 import { getLighthouseConfigs, getLighthouseFlags } from './lighthouse-runtime'
 import { LighthouseJobWorker } from './lighthouse-worker'
 
 export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
   protected async audit() {
-    const auditResult = await super.audit()
-    await this.runUserflow()
-    return auditResult
+    await this.wrapLighthouseLogger()
+    const lhResult = await this.runLighthouse()
+
+    return this.collectResults(lhResult)
   }
 
-  private async runUserflow() {
+  protected async runLh() {
     const browser = await this.createBrowser()
     const page = await browser.newPage()
     const lhFlags = this.getLighthouseFlags()
@@ -43,6 +46,7 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       browser,
       flow,
       ignoreEmulate: true,
+      logger: this.logger,
     })
     const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
 
@@ -53,6 +57,7 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
           return m === 'puppeteer' ? wrappedPuppeteer : undefined
         },
         page: wrappedPage,
+        puppeteer: wrappedPuppeteer,
         flow: {
           startStep: (name: string) => {
             if (typeof name !== 'string' || name.trim() === '') {
@@ -68,10 +73,11 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       (method, message) => this.logger.info(`[From User Flow Script] ${message} - [${method}]`),
     )
 
+    await wrappedPage.goto(this.payload.url)
+
     // run
     let failedReason
-    let userFlowResult
-    // const startTime = Date.now()
+    let userFlowResult: FlowResult[] | undefined
     try {
       this.logger.info('Start run user flow script')
       await sandbox.run(this.payload.e2eScript!)
@@ -79,7 +85,12 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       failedReason = 'JavaScript Error: ' + (err instanceof Error ? err.message : err)
       this.logger.error('User flow script ' + failedReason)
     }
-    // const finishTime = Date.now()
+
+    try {
+      await page.waitForNetworkIdle({ timeout: 5 * 1000 })
+    } catch {
+      //
+    }
 
     this.logger.info('User flow Script finished')
 
@@ -89,6 +100,66 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       this.logger.error('Failed to end flow', { error: err })
     }
 
-    writeFileSync(process.cwd() + '/flow.json', JSON.stringify(userFlowResult))
+    if (!userFlowResult?.length) {
+      return {
+        result: undefined,
+        errorMessage: failedReason,
+      }
+    }
+
+    return {
+      result: {
+        report: [],
+        artifacts: userFlowResult[0].artifacts,
+        lhr: userFlowResult[0].lhr,
+        userFlowResult,
+      },
+      errorMessage: failedReason,
+    }
+  }
+
+  protected getLighthouseMetricScores(
+    audits: Record<string, LH.Audit.Result>,
+    timings?: LH.Artifacts.NavigationTraceTimes | null,
+    timelines?: TimelineSchema[],
+  ) {
+    return getLighthouseMetricScores('timespan', audits, timings, timelines)
+  }
+
+  protected async collectResults(lhResult: LH.PerfseeRunnerResult & { userFlowResult?: FlowResult[] }) {
+    const userFlowResult = lhResult.userFlowResult
+
+    const flowResults = userFlowResult?.map(({ lhr, stepName }, i) => {
+      // format overview render timeline data
+      // @ts-expect-error
+      const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
+      const metricScores = getLighthouseMetricScores(lhr.gatherMode, lhr.audits, undefined, timelines)
+
+      return {
+        stepName,
+        timelines,
+        metricScores,
+        stepId: i,
+      }
+    })
+
+    const [first, ...rest] = (
+      await Promise.all(userFlowResult?.map((r, i) => super.collectResults(r, i === 0 ? flowResults : undefined)) ?? [])
+    ).map((r, i) => {
+      return {
+        ...r,
+        stepName: userFlowResult?.[i].stepName,
+        stepId: i,
+      }
+    })
+
+    if (!first) {
+      throw new Error('no valid user flow step result')
+    }
+
+    return {
+      ...first,
+      steps: rest,
+    }
   }
 }

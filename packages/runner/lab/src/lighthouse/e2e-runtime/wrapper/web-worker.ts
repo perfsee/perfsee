@@ -17,7 +17,6 @@ limitations under the License.
 import { WebWorker } from 'puppeteer-core'
 
 import { jsHandleWrapper } from './js-handle'
-import { NotSupportFunction } from './utils'
 import { createWrapper } from './wrapper'
 
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-webworker
@@ -27,15 +26,14 @@ export const webWorkerWrapper = createWrapper<WebWorker>('WebWorker', (webWorker
     evaluateHandle: async (pageFunction, ...args) =>
       jsHandleWrapper.wrap(await webWorker.evaluateHandle(pageFunction, ...args), options) as any,
     url: () => webWorker.url(),
-    on: NotSupportFunction,
-    off: NotSupportFunction,
-    removeListener: NotSupportFunction,
-    addListener: NotSupportFunction,
-    emit: NotSupportFunction,
-    once: NotSupportFunction,
-    listenerCount: NotSupportFunction,
-    removeAllListeners: NotSupportFunction,
+    on: (type, handler) => webWorker.on(type, handler),
+    off: (type, handler) => webWorker.off(type, handler),
+    removeListener: (type, handler) => webWorker.removeListener(type, handler),
+    addListener: (type, handler) => webWorker.addListener(type, handler),
+    emit: (type, handler) => webWorker.emit(type, handler),
+    once: (type, handler) => webWorker.once(type, handler),
+    listenerCount: (type) => webWorker.listenerCount(type),
+    removeAllListeners: (type) => webWorker.removeAllListeners(type),
     client: webWorker.client,
-    close: NotSupportFunction,
   }
 })

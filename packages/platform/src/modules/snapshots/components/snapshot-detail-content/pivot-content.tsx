@@ -23,7 +23,6 @@ import { Trace } from '@perfsee/platform/modules/job-trace'
 import { MultiContentOverview, MultiContentBreakdown } from './multi-report'
 import { OverviewPivotContent } from './pivot-content-overview'
 import { SourceStatisticsContent } from './pivot-content-source'
-import { UserFlowPivotContent } from './pivot-content-userflow'
 
 export const FlameChartPivotContent = lazy(
   // @ts-expect-error
@@ -52,8 +51,6 @@ export const PivotContent = (props: PivotContentProps) => {
   switch (type) {
     case PerformanceTabType.Overview:
       return <OverviewPivotContent snapshot={snapshot} />
-    case PerformanceTabType.UserFlow:
-      return <UserFlowPivotContent snapshot={snapshot} />
     case PerformanceTabType.Asset:
       return <AssetContent snapshot={snapshot} />
     case PerformanceTabType.Flamechart:

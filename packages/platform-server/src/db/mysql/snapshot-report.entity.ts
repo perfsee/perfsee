@@ -179,6 +179,29 @@ export class SnapshotReport extends BaseEntity {
   @OneToMany('SourceIssue', 'snapshotReport')
   sourceIssues!: SourceIssue[]
 
+  @Field(() => Int, { nullable: true, description: 'step id of user flow report' })
+  @Column({ type: 'int', nullable: true, comment: 'step id of user flow report', default: null })
+  stepId!: number
+
+  @Field(() => String, { nullable: true, description: 'step name of user flow report' })
+  @Column({ type: 'varchar', nullable: true, comment: 'step name of user flow report', default: null })
+  stepName!: string
+
+  @ManyToOne('SnapshotReport', 'steps', { onDelete: 'CASCADE' })
+  stepOf!: SnapshotReport
+
+  @Column({
+    type: 'int',
+    nullable: true,
+    default: null,
+    comment: "Used in userflow reports. This report is a step of a main report. `step_of_id` is the main report' s id.",
+  })
+  @RelationId('project')
+  stepOfId!: number
+
+  @OneToMany('SnapshotReport', 'stepOf')
+  steps!: SnapshotReport[]
+
   @BeforeInsert()
   init() {
     this.metrics = {} as any

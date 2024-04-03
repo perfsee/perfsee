@@ -46,9 +46,11 @@ export const SnapshotVideo: FC<VideoProps> = memo(({ video, cover }) => {
     <>
       <VideoContainer>
         <img src={cover} />
-        <VideoButton onClick={show}>
-          <PlayCircleFilled style={{ fontSize: '2.5rem' }} />
-        </VideoButton>
+        {video ? (
+          <VideoButton onClick={show}>
+            <PlayCircleFilled style={{ fontSize: '2.5rem' }} />
+          </VideoButton>
+        ) : null}
       </VideoContainer>
       <Modal
         isOpen={visible}

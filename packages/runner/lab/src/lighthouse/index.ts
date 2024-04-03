@@ -17,7 +17,7 @@ limitations under the License.
 import { JobType, SnapshotStatus } from '@perfsee/server-common'
 import { LighthouseScoreMetric } from '@perfsee/shared'
 
-import { E2eJobWorker } from './e2e-worker'
+import { LabWithFlowJobWorker } from './flow-worker'
 import { LighthouseJobWorker } from './lighthouse-worker'
 import { LabPingJobWorker } from './ping-worker'
 
@@ -103,73 +103,6 @@ export class LabJobWorker extends LighthouseJobWorker {
   }
 }
 
-export class E2EJobWorker extends E2eJobWorker {
-  protected async before() {
-    if (!this.payload.e2eScript) {
-      throw new Error('E2E script cannot be empty')
-    }
-
-    this.updateJob({
-      type: JobType.E2EAnalyze,
-      payload: {
-        snapshotReport: {
-          id: this.payload.reportId,
-          status: SnapshotStatus.Running,
-        },
-      },
-    })
-    await super.before()
-  }
-
-  protected async work() {
-    const payload = this.payload
-    const { lighthouseStorageKey, screencastStorageKey, failedReason, metrics } = await this.audit()
-
-    if (failedReason) {
-      this.updateJob({
-        type: JobType.E2EAnalyze,
-        payload: {
-          snapshotReport: {
-            id: payload.reportId,
-            screencastStorageKey,
-            status: SnapshotStatus.Failed,
-            failedReason: failedReason,
-          },
-        },
-      })
-    } else {
-      this.updateJob({
-        type: JobType.E2EAnalyze,
-        payload: {
-          snapshotReport: {
-            id: payload.reportId,
-            lighthouseStorageKey,
-            screencastStorageKey,
-            status: SnapshotStatus.Completed,
-            performanceScore: metrics![LighthouseScoreMetric.Performance],
-            metrics,
-          },
-        },
-      })
-    }
-  }
-
-  protected onError(e: Error) {
-    const payload = this.payload
-
-    this.updateJob({
-      type: JobType.E2EAnalyze,
-      payload: {
-        snapshotReport: {
-          id: payload.reportId,
-          status: SnapshotStatus.Failed,
-          failedReason: e.message,
-        },
-      },
-    })
-  }
-}
-
 export class PingJobWorker extends LabPingJobWorker {
   protected async before() {
     this.updateJob({
@@ -200,6 +133,112 @@ export class PingJobWorker extends LabPingJobWorker {
       payload: {
         key: this.payload.key,
         status: 'failed',
+      },
+    })
+  }
+}
+
+export class UserFlowJobWorker extends LabWithFlowJobWorker {
+  protected async before() {
+    this.updateJob({
+      type: JobType.LabAnalyze,
+      payload: {
+        snapshotReport: {
+          id: this.payload.reportId,
+          status: SnapshotStatus.Running,
+        },
+        jobId: this.job.jobId,
+      },
+    })
+    await super.before()
+  }
+
+  protected async work() {
+    const payload = this.payload
+    const {
+      steps: userflowResults,
+      lighthouseStorageKey,
+      screencastStorageKey,
+      jsCoverageStorageKey,
+      traceEventsStorageKey,
+      reactProfileStorageKey,
+      traceDataStorageKey,
+      requestsStorageKey,
+      metrics,
+      failedReason,
+      stepName,
+      stepId,
+    } = await this.audit()
+
+    this.updateJob({
+      type: JobType.E2EAnalyze,
+      payload: {
+        snapshotReport: {
+          lighthouseStorageKey,
+          screencastStorageKey,
+          jsCoverageStorageKey,
+          traceEventsStorageKey,
+          reactProfileStorageKey,
+          traceDataStorageKey,
+          requestsStorageKey,
+          metrics,
+          failedReason,
+          stepId,
+          stepName,
+          status: SnapshotStatus.Completed,
+          performanceScore: metrics?.[LighthouseScoreMetric.Performance],
+          id: payload.reportId,
+        },
+        flowReport: userflowResults.map((r) => {
+          const {
+            lighthouseStorageKey,
+            screencastStorageKey,
+            jsCoverageStorageKey,
+            traceEventsStorageKey,
+            reactProfileStorageKey,
+            traceDataStorageKey,
+            requestsStorageKey,
+            metrics,
+            failedReason,
+            stepName,
+            stepId,
+          } = r
+
+          return {
+            id: payload.reportId,
+            lighthouseStorageKey,
+            screencastStorageKey,
+            jsCoverageStorageKey,
+            traceEventsStorageKey,
+            reactProfileStorageKey,
+            traceDataStorageKey,
+            requestsStorageKey,
+            status: SnapshotStatus.Completed,
+            stepName,
+            stepId,
+            performanceScore: metrics?.[LighthouseScoreMetric.Performance],
+            metrics,
+            failedReason,
+          }
+        }),
+        jobId: this.job.jobId,
+      },
+    })
+  }
+
+  protected onError(e: Error) {
+    const payload = this.payload
+
+    this.updateJob({
+      type: JobType.E2EAnalyze,
+      payload: {
+        snapshotReport: {
+          id: payload.reportId,
+          status: SnapshotStatus.Failed,
+          failedReason: e.message,
+        },
+        flowReport: [],
+        jobId: this.job.jobId,
       },
     })
   }

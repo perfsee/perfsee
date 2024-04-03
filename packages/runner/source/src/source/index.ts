@@ -457,7 +457,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
         return frames
       })
       // @ts-expect-error
-      const causeForLcp = lhResult.lhrAudit['cause-for-lcp'].details?.items?.[0] as CauseForLcp | undefined
+      const causeForLcp = lhResult.lhrAudit['cause-for-lcp']?.details?.items?.[0] as CauseForLcp | undefined
       const lcpLongtaskCallFrames = causeForLcp?.longtasks.flatMap((t) => t.hotFunctionsStackTraces ?? []).flat() ?? []
       this.callFrames = initiatorCallFrames?.concat(...lcpLongtaskCallFrames) || []
 

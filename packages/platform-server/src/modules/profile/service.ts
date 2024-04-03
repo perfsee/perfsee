@@ -62,7 +62,7 @@ export class ProfileService {
     const { id, projectId, name } = profile
     this.logger.log('start delete profile', { id, projectId, name })
 
-    await this.reportService.deleteSnapshotsReports({ profileId: id })
+    await this.reportService.deleteSnapshotsReports(projectId, { profileId: id })
     await Profile.delete(id)
   }
 }

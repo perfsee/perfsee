@@ -34,7 +34,7 @@ export const SettingsPages = () => {
     PropertyModule,
     {
       selector: (state) => ({
-        pages: state.pages.filter((page) => !page.isE2e),
+        pages: state.pages,
         pageRelationMap: state.pageRelationMap,
         deleteProgress: state.deleteProgress.page,
         envMap: state.envMap,

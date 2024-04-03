@@ -75,6 +75,7 @@ export enum LighthouseScoreType { // overview performance metrics
   LOAD = 'load', // from timings
   ResponseTime = 'response-time', // from timings
   WhiteScreen = 'white-screen',
+  INP = 'interaction-to-next-paint',
 }
 
 export type MetricScoreSchema = {

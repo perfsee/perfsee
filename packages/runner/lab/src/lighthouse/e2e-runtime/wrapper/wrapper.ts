@@ -121,6 +121,7 @@ function applyWrapper<TOriginType extends object>(origin: TOriginType, wrapper: 
             ret.catch((reason) => Promise.reject(clearError(reason)))
             return ret
           }
+          return ret
         } catch (err) {
           throw clearError(err)
         }

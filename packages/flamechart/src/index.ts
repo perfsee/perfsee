@@ -19,7 +19,7 @@ export function buildProfileFromFlameChartData(data: PerfseeFlameChartData, time
 
   profile.setValueFormatter(new TimeFormatter('microseconds'))
 
-  profile.appendSample([], timeOffset)
+  timeOffset >= 0 && profile.appendSample([], timeOffset)
 
   const frames = data.frames.map((info) => new PerfseeFrame(info))
 

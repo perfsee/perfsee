@@ -82,12 +82,15 @@ export type SnapshotDetailType = {
   entities?: LH.Result.Entities
   fullPageScreenshot?: LH.Result.FullPageScreenshot
   stackPacks?: LH.Result.StackPack[]
+  stepName?: string
 }
 
-export type SnapshotUserFlowDetailType = Omit<SnapshotDetailType, 'userFlow' | 'report'> & {
+export type SnapshotUserFlowDetailType = {
+  reportId: number
+  stepId: number
   stepName: string
-  stepUrl: string
-  stepMode: LH.Result.GatherMode
+  timelines?: TimelineSchema[]
+  metricScores?: MetricScoreSchema[]
 }
 
 export enum LighthouseGroupType {

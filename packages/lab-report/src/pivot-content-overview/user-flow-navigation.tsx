@@ -17,14 +17,15 @@ limitations under the License.
 import styled from '@emotion/styled'
 import { MouseEventHandler, useCallback, useEffect, useState } from 'react'
 
-import { SharedColors } from '@perfsee/dls'
-import { SnapshotUserFlowDetailType } from '@perfsee/lab-report/snapshot-type'
+import { NeutralColors, SharedColors } from '@perfsee/dls'
 import { TimelineSchema } from '@perfsee/shared'
+
+import { SnapshotUserFlowDetailType } from '../snapshot-type'
 
 interface Props {
   steps: SnapshotUserFlowDetailType[]
   currentStepIndex: number
-  onStepClick: (stepIndex: number) => void
+  onStepClick: (stepIndex: number, reportId: number) => void
 }
 
 const SecondaryTitle = styled.div({
@@ -40,20 +41,36 @@ const PrimaryTitle = styled.div({
 const Line = styled.div({
   width: '100%',
   height: '2px',
-  backgroundColor: SharedColors.blue10,
+  backgroundColor: NeutralColors.gray50,
 })
 
 const Container = styled.div({
   display: 'grid',
   gridTemplateAreas: `
-    ". . . current-tn . . ."
-    "prev-seg prev-tn prev-tn current-tn next-tn next-tn next-seg"
-    ". prev-title . current-tn . next-title ."
-    ". prev-title current-title current-title current-title next-title ."`,
+    ". . . . . current-tn . . . . ."
+    "prev-seg prepre-tn prepre-tn prev-tn prev-tn current-tn next-tn next-tn nextnext-tn nextnext-tn next-seg"
+    ". prepre-title . prev-title . current-tn . next-title . nextnext-title ."
+    ". . . prev-title current-title current-title current-title next-title . . ."`,
   gridTemplateRows: '1fr auto 1fr auto',
-  gridTemplateColumns: '100px minmax(20ch, 1fr) auto auto auto minmax(20ch, 1fr) 100px',
+  gridTemplateColumns:
+    '100px minmax(20ch, 1fr) auto minmax(20ch, 1fr) auto auto auto minmax(20ch, 1fr) auto minmax(20ch, 1fr) 100px',
   alignItems: 'center',
-  margin: '16px 0px',
+  margin: '8px 0px',
+})
+
+const PrevPrevThumbnailContainer = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+  gridArea: 'prepre-tn',
+})
+
+const PrevPrevTitle = styled(SecondaryTitle)({
+  gridArea: 'prepre-title',
+  textAlign: 'left',
+  justifySelf: 'start',
+  alignSelf: 'start',
+  marginTop: '16px',
+  cursor: 'pointer',
 })
 
 const PrevThumbnailContainer = styled.div({
@@ -81,6 +98,7 @@ const CenterTitle = styled(PrimaryTitle)({
   gridArea: 'current-title',
   textAlign: 'center',
   margin: '16px 4px 0',
+  marginTop: -20,
 })
 
 const NextThumbnailContainer = styled.div({
@@ -91,6 +109,21 @@ const NextThumbnailContainer = styled.div({
 
 const NextTitle = styled(SecondaryTitle)({
   gridArea: 'next-title',
+  textAlign: 'right',
+  justifySelf: 'end',
+  alignSelf: 'start',
+  marginTop: '16px',
+  cursor: 'pointer',
+})
+
+const NextNextThumbnailContainer = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+  gridArea: 'nextnext-tn',
+})
+
+const NextNextTitle = styled(SecondaryTitle)({
+  gridArea: 'nextnext-title',
   textAlign: 'right',
   justifySelf: 'end',
   alignSelf: 'start',
@@ -114,25 +147,51 @@ const Label = styled.div({
 export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Props) => {
   const currentStep = steps[currentStepIndex]
   const prevPrevStep = steps[currentStepIndex - 2]
+  const prevPrevPrevStep = steps[currentStepIndex - 3]
   const prevStep = steps[currentStepIndex - 1]
   const nextStep = steps[currentStepIndex + 1]
   const nextNextStep = steps[currentStepIndex + 2]
+  const nextNextNextStep = steps[currentStepIndex + 3]
   const stepCount = steps.length
 
   const clickPrevStep = useCallback(() => {
-    onStepClick(currentStepIndex - 1)
-  }, [currentStepIndex, onStepClick])
+    onStepClick(currentStepIndex - 1, prevStep?.reportId)
+  }, [currentStepIndex, onStepClick, prevStep?.reportId])
 
   const clickNextStep = useCallback(() => {
-    onStepClick(currentStepIndex + 1)
-  }, [currentStepIndex, onStepClick])
+    onStepClick(currentStepIndex + 1, nextStep?.reportId)
+  }, [currentStepIndex, onStepClick, nextStep?.reportId])
+
+  const clickPrevPrevStep = useCallback(() => {
+    onStepClick(currentStepIndex - 2, prevPrevStep?.reportId)
+  }, [currentStepIndex, onStepClick, prevPrevStep?.reportId])
+
+  const clickNextNextStep = useCallback(() => {
+    onStepClick(currentStepIndex + 2, nextNextStep?.reportId)
+  }, [currentStepIndex, onStepClick, nextNextStep?.reportId])
 
   return (
     <Container>
-      {prevPrevStep && (
+      {prevPrevPrevStep && (
         <PrevSegment>
           <Line />
         </PrevSegment>
+      )}
+      {prevPrevStep && (
+        <PrevPrevThumbnailContainer>
+          <Thumbnails onClick={clickPrevPrevStep} timeline={prevPrevStep?.timelines ?? []} maxSize={100} />
+          <Line />
+        </PrevPrevThumbnailContainer>
+      )}
+      {prevPrevStep && (
+        <PrevPrevTitle onClick={clickPrevPrevStep}>
+          <SecondaryTitle>
+            {prevPrevStep.stepName}
+            <Label>
+              ({currentStepIndex - 1}/{stepCount})
+            </Label>
+          </SecondaryTitle>
+        </PrevPrevTitle>
       )}
       {prevStep && (
         <PrevThumbnailContainer>
@@ -142,18 +201,22 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       )}
       {prevStep && (
         <PrevTitle>
-          <SecondaryTitle>{prevStep.stepName}</SecondaryTitle>
+          <SecondaryTitle>
+            {prevStep.stepName}
+            <Label>
+              ({currentStepIndex}/{stepCount})
+            </Label>
+          </SecondaryTitle>
         </PrevTitle>
       )}
       {currentStep && (
         <CenterThumbnailContainer>
-          <Thumbnails timeline={currentStep?.timelines ?? []} maxSize={150} />
+          <Thumbnails timeline={currentStep?.timelines ?? []} maxSize={150} current />
         </CenterThumbnailContainer>
       )}
       {currentStep && (
         <CenterTitle>
           <>{currentStep.stepName}</>
-          <Label>{currentStep.stepUrl}</Label>
           <Label>
             ({currentStepIndex + 1}/{stepCount})
           </Label>
@@ -167,10 +230,31 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       )}
       {nextStep && (
         <NextTitle onClick={clickNextStep}>
-          <SecondaryTitle>{nextStep.stepName}</SecondaryTitle>
+          <SecondaryTitle>
+            {nextStep.stepName}
+            <Label>
+              ({currentStepIndex + 2}/{stepCount})
+            </Label>
+          </SecondaryTitle>
         </NextTitle>
       )}
       {nextNextStep && (
+        <NextNextThumbnailContainer>
+          <Line />
+          <Thumbnails onClick={clickNextNextStep} timeline={nextNextStep?.timelines ?? []} maxSize={100} />
+        </NextNextThumbnailContainer>
+      )}
+      {nextNextStep && (
+        <NextNextTitle onClick={clickNextNextStep}>
+          <SecondaryTitle>
+            {nextNextStep.stepName}
+            <Label>
+              ({currentStepIndex + 3}/{stepCount})
+            </Label>
+          </SecondaryTitle>
+        </NextNextTitle>
+      )}
+      {nextNextNextStep && (
         <NextSegment>
           <Line />
         </NextSegment>
@@ -179,21 +263,24 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
   )
 }
 
-const ThumbnailsImage = styled.img({
+const ThumbnailsImage = styled.img(({ current }: { current?: boolean }) => ({
   padding: '4px',
-  border: '2px solid ' + SharedColors.blue10,
+  border: '2px solid ' + (current ? SharedColors.blue10 : NeutralColors.gray50),
   borderRadius: '4px',
   boxSizing: 'content-box',
   userSelect: 'none',
-})
+  cursor: 'pointer',
+}))
 
 const Thumbnails = ({
   timeline,
   maxSize,
   onClick,
+  current,
 }: {
   timeline: TimelineSchema[]
   maxSize: number
+  current?: boolean
   onClick?: MouseEventHandler
 }) => {
   const [size, setSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
@@ -221,5 +308,7 @@ const Thumbnails = ({
     return () => clearInterval(interval)
   }, [])
 
-  return <ThumbnailsImage src={currentImage} width={size.width} height={size.height} onClick={onClick} />
+  return (
+    <ThumbnailsImage src={currentImage} width={size.width} height={size.height} onClick={onClick} current={current} />
+  )
 }

@@ -2,11 +2,7 @@
 sidebar_position: 5
 ---
 
-# 如何进行 E2E 测试
-
-:::caution
-该功能属于实验功能，使用方式及稳定性并不能保证与正式版一致！
-:::
+# User flow 模式（e2e）
 
 ## 背景
 
@@ -28,33 +24,28 @@ sidebar_position: 5
 
 按照[从 0 开始的 Lab 分析流程](./get-started)中的步骤创建 Profile 和 Environment。
 
-### Step 1：添加 E2E 页面
+### Step 1：在页面配置中开启 Userflow 模式
 
-在设置页面切换到 E2E Tab 之后，可以管理项目的 E2E 界面。点击 `Create a new E2E test` 按钮可以创建 E2E 页面。
+在设置页面切换到 Page Tab 之后，可以管理项目的 Pages 界面。
+在目前页面配置下放勾选 `User Flow Mode`。
 
-目前 E2E 功能还处于实验阶段，入口未开放，可以在地址栏手动输入进入: **settings/e2e**
+![enable-userflow](/settings/enable-userflow.png)
 
-![img](/settings/e2e.png)
+### Step 2：编写 User flow 脚本 （或使用 Chrome Devtools 录制）
 
-E2E 页面配置与普通 Pages 保持一致，参考 [Pages 配置](../settings/page-setting)查看更多细节。
+本平台使用 [puppeteer](https://github.com/puppeteer/puppeteer) 来运行 user flow，user flow 脚本兼容大部分常用 puppeteer API。
 
-![img](/settings/create-e2e.png)
+#### 脚本环境
 
-### Step 2：编写 E2E 脚本
-
-本平台使用 [puppeteer](https://github.com/puppeteer/puppeteer) 来运行 E2E 测试，E2E 脚本兼容大部分常用 puppeteer API。
-
-#### E2E 脚本环境
-
-在运行 E2E 脚本前会预先创建 Puppeteer 实例，打开浏览器并创建标签页，并将平台上配置的 Profiles 和 Environments 自动注入到浏览器标签页中。标签页会被注入到脚本环境全局变量 `page` 中。 E2E 脚本只需要调用 `page` 上的方法即可对页面进行操作。更多方法请看 [puppeteer Page 类 API](https://github.com/puppeteer/puppeteer/blob/v13.0.1/docs/api.md#class-page)。
+在运行 user flow 脚本前会预先创建 Puppeteer 实例，打开浏览器并创建标签页，并将平台上配置的 Profiles 和 Environments 自动注入到浏览器标签页中。标签页会被注入到脚本环境全局变量 `page` 中。 User flow 脚本只需要调用 `page` 上的方法即可对页面进行操作。更多方法请看 [puppeteer Page 类 API](https://pptr.dev/api/puppeteer.page)。
 
 #### 示例
 
 ```javascript
 await page.goto('https://a.b.c/')
 
-// 点击 class 为 ms-List-cell 并且包含appmonitor/main 的 div
-const [project] = await page.$x("//div[contains(@class, 'ms-List-cell') and contains(., 'appmonitor/main')]")
+// 点击 class 为 ms-List-cell 并且包含 main 的 div
+const [project] = await page.$x("//div[contains(@class, 'ms-List-cell') and contains(., 'main')]")
 
 await project.click()
 
@@ -62,6 +53,18 @@ await project.click()
 
 await page.waitForNetworkIdle()
 ```
+
+#### 使用 Chrome Devtools 录制脚本
+
+一个更方便的方法是使用 Chrome devtools 来录制脚本
+
+1. 打开目标页面，并打开 devltools.
+2. 切换到 `Recorder` 标签，创建一个新的录制.
+   ![Recorder](/lab/chrome-recorder.png)
+3. 点击开始录制按钮之后，在目标页面上手动进行交互.
+4. 录制完成后, 点击 show code 按钮，并将代码格式切换为 `Puppeteer`.
+   ![recorded-script](/lab/recorded-script.png)
+5. 将录制的代码直接拷贝到 Perfsee 页面 `user flow scrtip` 编辑器中.
 
 #### User Flow
 
@@ -103,26 +106,18 @@ await flow.endStep()
 
 **page.goto 是特殊的 Step 不应该在 `flow.startStep` 和 `flow.endStep` 之间调用。**
 
-### Step 3：触发一次 E2E 测试（手动）
+### Step 3：触发一次 User flow 测试（手动）
 
-在 Lab 模块中点击列表右上方的 `Take a snapshot` 按钮选择`Select existed pages`，选择刚刚创建的 E2E 页面，点击 `Save` 就可以手动触发一次扫描。
-
-![img](/lab/e2e-take-snapshot.png)
+在 Lab 模块中点击列表右上方的 `Take a snapshot` 按钮选择`Select existed pages`，选择刚刚创建的 User flow 页面，点击 `Save` 就可以手动触发一次扫描。
 
 ### Step 4：查看测试结果
 
-在 Lab 模块点击刚刚触发的 Snapshot 卡片将会弹出该 Snapshot 中包含的所有运行结果，等待 E2E 页面的 Status 变为 Completed 之后，点击进入 e2e 结果页面。
+在 Lab 模块点击刚刚触发的 Snapshot 卡片将会弹出该 Snapshot 中包含的所有运行结果，等待 Userflow 页面的 Status 变为 Completed 之后，点击进入结果页面。
 
 ![img](/lab/e2e-take-snapshot-detail.png)
 
-#### 概览
+#### User Flow 报告
 
-进入报告页面后，会显示此次 E2E 脚本执行的耗时和 Step 的数量，以及一个运行录屏。
-
-![img](/lab/e2e-report-overview.png)
-
-#### User Flow
-
-点击报告页面中的 User Flow 标签页，可以看到每个 Step 的性能分析数据和优化建议。点击时间轴上的缩略图可以跳转到后一个 Step。
+在 Userflow 报告中可以看到每个 Step 的性能分析数据和优化建议。点击时间轴上的缩略图可以跳转到后一个 Step。
 
 ![img](/lab/e2e-report-userflow.png)

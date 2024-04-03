@@ -16,7 +16,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Empty, ScoreBlock, Tag } from '@perfsee/components'
-import { SnapshotDetailType, SnapshotUserFlowDetailType } from '@perfsee/lab-report/snapshot-type'
+import { SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
 import { Commit } from '@perfsee/platform/modules/components/commit'
 import { useProjectRouteGenerator } from '@perfsee/platform/modules/shared'
 import { JobType, SourceStatus } from '@perfsee/schema'
@@ -82,11 +82,7 @@ const JavascriptSizeHelp = HelpCard(
   <>The Javascript Size counts the total size of the javascript files for this artifact in the page.</>,
 )
 
-export const SourceStatisticsContent = ({
-  snapshot,
-}: {
-  snapshot: SnapshotDetailType | SnapshotUserFlowDetailType
-}) => {
+export const SourceStatisticsContent = ({ snapshot }: { snapshot: SnapshotDetailType }) => {
   const theme = useTheme()
   const report = 'report' in snapshot ? snapshot.report : null
   const [{ data: sourceStatistics, loading }, dispatcher] = useModule(SourceAnalyzeStatisticsModule)

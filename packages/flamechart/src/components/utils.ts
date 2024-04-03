@@ -31,7 +31,7 @@ export function useElementSize(element: RefObject<HTMLElement> | HTMLElement | W
           width: window.innerWidth,
         }
       } else {
-        const htmlElement = ('current' in element ? element.current : element) as HTMLElement
+        const htmlElement = (('current' in element ? element.current : element) as HTMLElement) || document.body
         const c = htmlElement.getClientRects()[0]
         newClientRect = {
           bottom: c.bottom,

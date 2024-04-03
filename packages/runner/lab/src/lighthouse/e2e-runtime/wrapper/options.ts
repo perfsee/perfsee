@@ -16,11 +16,14 @@ limitations under the License.
 
 import { Browser, Page } from 'puppeteer-core'
 
+import { AbstractJobLogger } from '@perfsee/job-runner-shared'
+
 import { LighthouseFlow } from './flow'
 
 export interface WrapperOptions {
   browser: Browser
   page: Page
+  lastNavigated?: URL
 
   flow?: LighthouseFlow
 
@@ -28,4 +31,6 @@ export interface WrapperOptions {
    * ignore emulate function call, include `setUserAgent`, `setViewport`, `emulate*`.
    */
   ignoreEmulate: boolean
+
+  logger: AbstractJobLogger
 }

@@ -21,11 +21,6 @@ export const OverviewTab = {
   title: 'Overview',
 }
 
-export const UserFlowTab = {
-  id: PerformanceTabType.UserFlow,
-  title: 'User Flow',
-}
-
 export const BreakdownTab = {
   id: PerformanceTabType.Breakdown,
   title: 'Breakdown',

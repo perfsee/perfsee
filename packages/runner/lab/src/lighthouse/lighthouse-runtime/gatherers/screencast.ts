@@ -54,6 +54,7 @@ async function getWhiteScreen(width: number, height: number): Promise<Buffer> {
 }
 
 export class Screencast extends GathererInstance {
+  meta = { supportedModes: ['navigation' as const, 'timespan' as const] }
   private readonly frames: ScreencastFrame[] = []
 
   async startInstrumentation(ctx: LH.Gatherer.Context) {
@@ -79,7 +80,7 @@ export class Screencast extends GathererInstance {
 
     await driver.sendCommand('Page.startScreencast', {
       format: 'jpeg',
-      everyNthFrame: 2,
+      everyNthFrame: ctx.gatherMode === 'navigation' ? 2 : 1,
       quality: 10,
     })
   }
@@ -97,17 +98,23 @@ export class Screencast extends GathererInstance {
     let frames = this.frames
 
     try {
-      const driver = ctx.driver
-      const startTime /* in seconds */ = await driver.executionContext.evaluate(getStartTime, { args: [] })
-      frames = frames.filter(({ timestamp }) => timestamp > startTime)
-      const { width, height } = ctx.settings.screenEmulation
-      const whiteScreen = await getWhiteScreen(width, height)
-      frames.push({ data: whiteScreen, timestamp: startTime })
+      if (ctx.gatherMode === 'navigation') {
+        const driver = ctx.driver
+        const startTime /* in seconds */ = await driver.executionContext.evaluate(getStartTime, { args: [] })
+        frames = frames.filter(({ timestamp }) => timestamp > startTime)
+        const { width, height } = ctx.settings.screenEmulation
+        const whiteScreen = await getWhiteScreen(width, height)
+        frames.push({ data: whiteScreen, timestamp: startTime })
+
+        if (this.frames.length < 2) {
+          return null
+        }
+      }
     } catch (e) {
       logger.error('Failed to cut extra screencast frames', { error: e })
     }
 
-    if (this.frames.length < 2) {
+    if (this.frames.length < 1) {
       return null
     }
 

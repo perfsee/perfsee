@@ -18,11 +18,11 @@ import { useCallback } from 'react'
 import { useHistory, useParams } from 'react-router'
 
 import { OverviewPivotContent as Overview } from '@perfsee/lab-report/pivot-content-overview'
-import { SnapshotDetailType, SnapshotUserFlowDetailType } from '@perfsee/lab-report/snapshot-type'
+import { SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
 import { RouteTypes, pathFactory } from '@perfsee/shared/routes'
 
 type Props = {
-  snapshot: SnapshotDetailType | SnapshotUserFlowDetailType
+  snapshot: SnapshotDetailType
 }
 
 export const OverviewPivotContent = (props: Props) => {

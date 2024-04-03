@@ -14,8 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export function NotSupportFunction(..._: any[]): any {
-  throw new Error('not support')
+import type { HandleFor } from 'puppeteer-core'
+
+export function NotSupportFunction(functionName: string) {
+  return (..._: any[]): any => {
+    throw new Error(`\`${functionName}\` not support`)
+  }
 }
 
 export function IgnoreFunction(..._: any[]): any {}
+
+export const DEFAULT_APPEND_TIMEOUT = 5000
+
+export async function getContentFromHandle(handle: HandleFor<any>) {
+  try {
+    const innerText = await handle.evaluate((e) => e.textContent)
+    if (innerText) {
+      return `\`${innerText}\``
+    }
+    const tagName: string = await handle.evaluate((e) => e.tagName)
+    if (tagName) {
+      return `<${tagName.toLowerCase()}>`
+    }
+    return ''
+  } catch {
+    return ''
+  }
+}

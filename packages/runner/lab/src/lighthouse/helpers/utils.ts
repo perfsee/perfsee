@@ -54,14 +54,13 @@ export function slimTraceData(tasks: Task[], endTime: number, level = 1): Task[]
 export function getLighthouseMetricScores(
   mode: LH.Result.GatherMode,
   audits: Record<string, LH.Audit.Result>,
-  timings?: LH.Artifacts.NavigationTraceTimes,
+  timings?: LH.Artifacts.NavigationTraceTimes | null,
   timelines?: TimelineSchema[],
 ) {
   return Object.values(LighthouseScoreType)
     .map((type) => {
       switch (type) {
         case LighthouseScoreType.JSParse:
-          if (mode !== 'navigation') return {}
           const items = audits['mainthread-work-breakdown']?.details?.['items'] as any[]
           const item = items?.find((v) => v.group === type)
 
@@ -76,6 +75,13 @@ export function getLighthouseMetricScores(
             ...getParams(audits[type]),
             formatter: 'duration',
             title: 'Time to First Byte',
+          }
+        case LighthouseScoreType.INP:
+          if (mode !== 'timespan') return {}
+          return {
+            ...getParams(audits[type]),
+            formatter: 'duration',
+            title: 'Interaction To Next Paint',
           }
         case LighthouseScoreType.LOAD:
           return {

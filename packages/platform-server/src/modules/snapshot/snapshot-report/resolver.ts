@@ -136,6 +136,11 @@ export class ReportResolver {
   requestsLink(@Parent() report: SnapshotReport) {
     return artifactLink(report.requestsStorageKey)
   }
+
+  @ResolveField(() => [SnapshotReport], { nullable: true, description: 'user flow steps of this report' })
+  userFlow(@Parent() report: SnapshotReport) {
+    return this.service.getStepsOfSnapshotReport(report)
+  }
 }
 
 @Resolver(() => Project)

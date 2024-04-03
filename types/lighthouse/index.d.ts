@@ -86,5 +86,6 @@ declare module LH {
 
   export interface PerfseeRunnerResult extends RunnerResult {
     artifacts: PerfseeArtifacts
+    report?: string | string[]
   }
 }

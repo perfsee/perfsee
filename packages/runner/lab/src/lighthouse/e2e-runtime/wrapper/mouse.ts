@@ -22,47 +22,47 @@ import { createWrapper } from './wrapper'
 export const mouseWrapper = createWrapper<Mouse>('Mouse', (mouse, { flow }) => {
   return {
     click: async (x, y, options) => {
-      await flow?.startAction('click')
+      await flow?.startAction(`mouse click \`${x},${y}\``)
       return mouse.click(x, y, options)
     },
     down: async (options) => {
-      await flow?.startAction('down')
+      await flow?.startAction('mouse down')
       return mouse.down(options)
     },
     drag: async (start, target) => {
-      await flow?.startAction('drag')
+      await flow?.startAction('mouse drag')
       return mouse.drag(start, target)
     },
     dragAndDrop: async (start, target, options) => {
-      await flow?.startAction('dragAndDrop')
+      await flow?.startAction('mouse dragAndDrop')
       return mouse.dragAndDrop(start, target, options)
     },
     dragEnter: async (target, data) => {
-      await flow?.startAction('dragEnter')
+      await flow?.startAction('mouse dragEnter')
       return mouse.dragEnter(target, data)
     },
     dragOver: async (target, data) => {
-      await flow?.startAction('dragOver')
+      await flow?.startAction('mouse dragOver')
       return mouse.dragOver(target, data)
     },
     drop: async (target, data) => {
-      await flow?.startAction('drop')
+      await flow?.startAction('mouse drop')
       return mouse.drop(target, data)
     },
     move: async (x, y, options) => {
-      await flow?.startAction('move')
+      await flow?.startAction(`mouse move \`${x},${y}\``)
       return mouse.move(x, y, options)
     },
     up: async (options) => {
-      await flow?.startAction('up')
+      await flow?.startAction('mouse up')
       return mouse.up(options)
     },
     wheel: async (options) => {
-      await flow?.startAction('wheel')
+      await flow?.startAction('mouse wheel')
       return mouse.wheel(options)
     },
     reset: async () => {
-      await flow?.startAction('reset')
+      await flow?.startAction('mouse reset')
       return mouse.reset()
     },
   }

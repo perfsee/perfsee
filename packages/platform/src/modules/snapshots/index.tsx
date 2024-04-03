@@ -16,50 +16,72 @@ limitations under the License.
 
 import { Spinner } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useEffect } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { ContentCard } from '@perfsee/components'
+import { UserFlowNavigation } from '@perfsee/lab-report'
 
 import { ReportContentWithRoute } from './components/snapshot-detail-content'
 import { SnapshotHeader } from './components/snapshot-header'
 import { SnapshotModule } from './snapshot.module'
 
-export const SnapshotDetail = () => {
+export const SnapshotDetail = memo(() => {
   const routerParams = useParams<{ reportId: string }>()
   const reportId = parseInt(routerParams.reportId)
 
   const [state, dispatcher] = useModule(SnapshotModule)
 
-  const snapshotReport = state.snapshotReports[reportId]
+  const [stepReportId, setStepReportId] = useState(reportId)
+  const [currentStep, setCurrentStep] = useState(0)
+  const handleClickStep = useCallback((stepIndex: number, reportId: number) => {
+    setCurrentStep(stepIndex)
+    setStepReportId(reportId)
+  }, [])
 
-  const snapshotId = snapshotReport?.snapshot.id
-  const title = snapshotReport?.snapshot.title ?? `Snapshot #${snapshotId}`
+  const snapshotReport = state.snapshotReports[reportId]
+  const detail = state.snapshotReportsDetail[snapshotReport?.reportLink ?? '']
+  const userflowNavigation = detail?.userFlow?.length ? (
+    <UserFlowNavigation currentStepIndex={currentStep} onStepClick={handleClickStep} steps={detail.userFlow} />
+  ) : null
+
+  const stepSnapshotReport = state.snapshotReports[stepReportId]
+
+  const snapshotId = stepSnapshotReport?.snapshot.id
+  const title = stepSnapshotReport?.snapshot.title ?? `Snapshot #${snapshotId}`
 
   useEffect(() => {
-    dispatcher.fetchSnapshotReport(reportId)
+    dispatcher.fetchSnapshotReport(stepReportId)
+  }, [dispatcher, stepReportId])
+
+  useEffect(() => {
     return dispatcher.reset
-  }, [dispatcher, reportId])
+  }, [dispatcher])
 
   const onRenderHeader = useCallback(() => {
-    if (!snapshotReport) {
+    if (!stepSnapshotReport) {
       return null
     }
 
-    return <SnapshotHeader snapshotTitle={title} report={snapshotReport} />
-  }, [title, snapshotReport])
+    return <SnapshotHeader snapshotTitle={title} report={stepSnapshotReport} />
+  }, [title, stepSnapshotReport])
 
   if (state.reportLoading) {
     return <Spinner />
   }
 
-  if (!snapshotReport) {
+  if (!stepSnapshotReport) {
     return <div>Invalid report id</div>
   }
 
   return (
     <ContentCard onRenderHeader={onRenderHeader}>
-      <ReportContentWithRoute snapshotReport={snapshotReport} />
+      {userflowNavigation}
+      <ReportContentWithRoute
+        snapshotReport={stepSnapshotReport}
+        key={stepReportId}
+        isUserFlow={!!detail?.userFlow?.length}
+      />
     </ContentCard>
   )
-}
+})

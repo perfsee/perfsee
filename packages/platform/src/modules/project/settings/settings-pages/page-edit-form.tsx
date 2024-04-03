@@ -16,12 +16,14 @@ limitations under the License.
 
 import { DialogFooter, PrimaryButton, DefaultButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useState, useMemo } from 'react'
+import { useCallback, useState, useMemo, useRef } from 'react'
 
 import { MultiSelector, RequiredTextField, URLTextField } from '@perfsee/components'
 
 import { CompetitorMaxCount, PageRelation, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { disableSavePage, emptyRelation } from '../helper'
+
+import { UserflowScriptForm } from './userflow-script-form'
 
 type FromProps = {
   defaultPage: Partial<PageSchema>
@@ -31,8 +33,8 @@ type FromProps = {
 
 export const PageEditForm = (props: FromProps) => {
   const { defaultPage, closeModal, onSubmit } = props
-  const isE2e = !!defaultPage.isE2e
 
+  const userflowScriptRef = useRef<{ getScript: () => string | null }>()
   const [{ environments, profiles, pages, pageRelationMap }] = useModule(PropertyModule)
 
   const [page, setPage] = useState<Partial<PageSchema>>(defaultPage) // for record edit or delete page
@@ -69,7 +71,11 @@ export const PageEditForm = (props: FromProps) => {
 
   const onSaveButtonClick = useCallback(() => {
     if (page) {
-      onSubmit({ page, relation })
+      const userflowScript = userflowScriptRef.current!.getScript()
+      if (userflowScript === '') {
+        return
+      }
+      onSubmit({ page: { ...page, isE2e: !!userflowScript, e2eScript: userflowScript }, relation })
     }
   }, [onSubmit, page, relation])
 
@@ -107,7 +113,7 @@ export const PageEditForm = (props: FromProps) => {
         label="Environments"
         errorMessage="Required"
       />
-      {!isE2e && !!competitorPageItems.length && (
+      {!!competitorPageItems.length && (
         <MultiSelector
           options={competitorPageItems}
           ids={relation.competitorIds}
@@ -119,16 +125,7 @@ export const PageEditForm = (props: FromProps) => {
           The maximum number of competitors is ${CompetitorMaxCount}.`}
         />
       )}
-      {isE2e && (
-        <RequiredTextField
-          label="Script"
-          multiline
-          data-type="e2eScript"
-          onChange={onChange}
-          maxLength={65535}
-          defaultValue={page.e2eScript ?? ''}
-        />
-      )}
+      <UserflowScriptForm defaultScript={page.e2eScript} ref={userflowScriptRef} />
 
       <DialogFooter>
         <PrimaryButton onClick={onSaveButtonClick} text="Save" disabled={disableSavePage(page, relation)} />

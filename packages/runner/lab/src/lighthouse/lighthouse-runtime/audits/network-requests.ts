@@ -32,6 +32,7 @@ export async function NetworkRequests() {
         description: 'Lists the network requests that were made during page load.',
         // @ts-expect-error
         requiredArtifacts: ['DevtoolsLog', 'RequestInterception', 'ConsoleLogger'],
+        supportedModes: ['navigation', 'timespan'],
       }
     }
 

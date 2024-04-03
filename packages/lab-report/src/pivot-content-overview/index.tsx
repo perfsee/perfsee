@@ -24,10 +24,14 @@ import { ChartHeader } from '@perfsee/components/chart'
 import { ExecutionTimeline } from '../chart'
 import { AssetTransferred } from '../pivot-content-asset/asset-transferred'
 import { AnalysisReportContent } from '../pivot-content-performance'
-import { AnalysisReportTabType, SnapshotDetailType, SnapshotUserFlowDetailType } from '../snapshot-type'
+import { AnalysisReportTabType, SnapshotDetailType } from '../snapshot-type'
 
 import { LHScore, ScoreCircle } from './lh-score'
-import { LighthouseScoreBlock } from './lighthouse-score-block'
+import {
+  LHScoreBlockContainer,
+  LHScoreBlockContainerWithRelevantAudits,
+  LighthouseScoreBlock,
+} from './lighthouse-score-block'
 import { RenderTimeline } from './render-timeline'
 import { SnapshotVideo } from './render-video'
 import {
@@ -43,10 +47,10 @@ import {
   OperationButton,
   PivotOverviewContainer,
 } from './style'
-import { isLHCalculator } from './util'
+import { getCategoryAcorms, isLHCalculator } from './util'
 
 interface Props {
-  snapshot: SnapshotDetailType | SnapshotUserFlowDetailType
+  snapshot: SnapshotDetailType
   goToAssets?: () => void
   goToFlamechart?: () => void
 }
@@ -55,7 +59,14 @@ export const OverviewContent = (props: Props) => {
   const { traceData, timings, metricScores, timelines, categories, requests } = props.snapshot
   const { goToAssets, goToFlamechart } = props
   const report = 'report' in props.snapshot ? props.snapshot.report : null
-  const [{ category = AnalysisReportTabType.Performance }] = useQueryString<{ category?: string }>()
+  const [queryString, updateQueryString] = useQueryString<{
+    category?: string
+    relevant?: string
+  }>()
+  const { category = AnalysisReportTabType.Performance } = queryString
+  const auditIdToAcorms = useMemo(() => {
+    return getCategoryAcorms(categories)
+  }, [categories])
 
   const [scores, otherScores] = useMemo(() => {
     if (!metricScores) {
@@ -65,20 +76,29 @@ export const OverviewContent = (props: Props) => {
     const others = []
     for (const detail of metricScores) {
       if (isLHCalculator(detail.id, categories?.performance)) {
+        const ScoreComponent = auditIdToAcorms[detail.id]
+          ? LHScoreBlockContainerWithRelevantAudits
+          : LHScoreBlockContainer
         scores.push(
-          <Stack styles={{ root: { position: 'relative' } }} key={detail.id}>
+          <ScoreComponent
+            key={detail.id}
+            // eslint-disable-next-line
+            onClick={() => {
+              auditIdToAcorms[detail.id] && updateQueryString({ ...queryString, relevant: auditIdToAcorms[detail.id] })
+            }}
+          >
             <LighthouseScoreBlock detail={detail} colorful={true} />
             <Stack styles={{ root: { position: 'absolute', right: 12, bottom: 20 } }}>
               <ScoreCircle score={detail.score} size={28} fontSize={14} />
             </Stack>
-          </Stack>,
+          </ScoreComponent>,
         )
       } else {
         others.push(<LighthouseScoreBlock key={detail.id} detail={detail} />)
       }
     }
     return [scores, others]
-  }, [metricScores, categories])
+  }, [metricScores, categories, updateQueryString, queryString, auditIdToAcorms])
 
   return (
     <Stack tokens={{ childrenGap: '24px' }}>
@@ -88,7 +108,7 @@ export const OverviewContent = (props: Props) => {
         </OverviewMainBlock>
         <OverviewMainBlockSeparator />
         <OverviewMainBlock verticalAlign="center" style={{ padding: '12px 24px' }}>
-          <SnapshotVideo video={report?.screencastLink ?? undefined} cover={timelines?.slice(-1)?.[0].data} />
+          <SnapshotVideo video={report?.screencastLink ?? undefined} cover={timelines?.slice(-1)?.[0]?.data} />
         </OverviewMainBlock>
       </OverviewMainBlockContainer>
       {!!scores.length && (

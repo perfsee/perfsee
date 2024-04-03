@@ -200,7 +200,7 @@ const Operator = ({ report }: { report: SnapshotReportSchema }) => {
 
   return (
     <Stack horizontal tokens={{ childrenGap: 8 }}>
-      {!page.isE2e && !compareReports[project!.id]?.[report.id] ? (
+      {!compareReports[project!.id]?.[report.id] ? (
         <OperationButton onClick={addReport}>
           <TooltipHost content="Add this report to compare.">
             <PlusOutlined /> Add to compare

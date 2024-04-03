@@ -18,6 +18,8 @@ import { inspect } from 'util'
 
 import { VM } from 'vm2'
 
+import { hasTopLevelAwait } from './util'
+
 export function createSandbox(global: any, onConsole: (method: string, message: string) => void) {
   const makeConsoleMethod =
     (method: string) =>
@@ -27,6 +29,8 @@ export function createSandbox(global: any, onConsole: (method: string, message: 
 
   return {
     async run(code: string) {
+      const functionBody = hasTopLevelAwait(code) ? code : 'return eval(global.__code)'
+
       return new Promise((resolve, reject) => {
         const vm = new VM({
           sandbox: {
@@ -61,13 +65,17 @@ export function createSandbox(global: any, onConsole: (method: string, message: 
             setTimeout,
             exit: resolve,
             error: reject,
+            __code: code,
           },
         })
         vm.run(`
         const exit = global.exit;
         const error = global.error;
-        
-        void ((async () => { ${code} })()).then(resolve => exit(resolve), e => error(e));
+        const process = {
+          exit: (val) => val === 0 ? exit(val) : error('Script exit with errors'),
+        };
+
+        void ((async () => { ${functionBody} })()).then(resolve => exit(resolve), e => error(e));
         `)
       })
     },

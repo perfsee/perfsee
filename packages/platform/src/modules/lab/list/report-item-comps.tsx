@@ -120,7 +120,7 @@ export const OperationButton = ({ snapshotId, report, project, onDelete }: Props
         <IconButton iconProps={rerunIconProps} onClick={onRerun} />
       </TooltipHost>
     )
-  } else if (report.status === SnapshotStatus.Completed && !report.page.isE2e) {
+  } else if (report.status === SnapshotStatus.Completed) {
     if (inCompareList) {
       return (
         <Stack horizontal verticalAlign="center" tokens={{ childrenGap: '8px' }}>
@@ -159,7 +159,7 @@ export const PageName: FC<{ report: SnapshotReportSchema }> = (props) => {
   const { report } = props
 
   const competitor = report.page.isCompetitor ? <NoticeLabel>[Competitor]</NoticeLabel> : null
-  const e2e = report.page.isE2e ? <NoticeLabel>[E2E]</NoticeLabel> : null
+  const e2e = report.page.isE2e ? <NoticeLabel>[User Flow]</NoticeLabel> : null
   if (report.status !== SnapshotStatus.Completed) {
     return (
       <TooltipWithEllipsis content={report.page.name}>

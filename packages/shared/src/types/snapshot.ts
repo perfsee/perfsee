@@ -129,13 +129,9 @@ export type TraceTimesWithoutFCP = Omit<LH.Artifacts.TraceTimes, 'firstContentfu
   firstContentfulPaint?: number
 }
 
-type LHTosUserFlowSchema = {
+export type LHTosUserFlowSchema = {
   stepName: string
-  stepUrl: string
-  stepMode: LH.Result.GatherMode
-  lhrAudit: AuditsSchema
-  lhrCategories: Record<string, LH.Result.Category>
-  timings: TraceTimesWithoutFCP
+  stepId: number
   timelines: TimelineSchema[]
   metricScores: MetricScoreSchema[]
 }

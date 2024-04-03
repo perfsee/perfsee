@@ -20,18 +20,18 @@ import type { UserFlow } from 'lighthouse'
 
 import { dynamicImport } from '@perfsee/job-runner-shared'
 
-type FlowResult = LH.Gatherer.GatherResult & { lhr: LH.Result; stepName: string }
+export type FlowResult = Omit<LH.Gatherer.GatherResult, 'runnerOptions'> & { lhr: LH.Result; stepName: string }
 
 export class LighthouseFlow {
   readonly name: string
 
-  private flow: any = null
+  private flow: UserFlow | null = null
   private isBusy = false
   private isStepStarted = false
   private isTimespanStarted = false
   private currentTimespanName = ''
 
-  private readonly steps: Omit<FlowResult, 'lhr'>[] = []
+  private readonly steps: Pick<FlowResult, 'stepName'>[] = []
 
   constructor(private readonly page: LH.Puppeteer.Page, private readonly flowOptions: UserFlow.Options) {
     this.name = 'lighthouse flow'
@@ -103,8 +103,8 @@ export class LighthouseFlow {
     try {
       await this.ensureFlowStarted()
 
-      const result = (await this.flow.navigate(url)) as LH.Gatherer.GatherResult
-      this.steps.push({ ...result, stepName: `navigate (${url})` })
+      await this.flow!.navigate(url)
+      this.steps.push({ stepName: `navigate (${url})` })
     } finally {
       unlock()
     }
@@ -118,9 +118,14 @@ export class LighthouseFlow {
 
       const steps: FlowResult[] = []
       const flowResult = await this.flow.createFlowResult()
+      const artifacts = this.flow.createArtifactsJson()
 
       for (let i = 0; i < this.steps.length; i++) {
-        steps.push({ ...this.steps[i], lhr: flowResult.steps[i].lhr })
+        steps.push({
+          ...this.steps[i],
+          lhr: flowResult.steps[i].lhr,
+          artifacts: artifacts.gatherSteps[i].artifacts,
+        })
       }
 
       return steps
@@ -129,15 +134,15 @@ export class LighthouseFlow {
 
   private async startTimespan(name: string) {
     assert(!this.isTimespanStarted, 'timespan is already started')
-    await this.flow.startTimespan({ stepName: name })
+    await this.flow?.startTimespan({ name })
     this.isTimespanStarted = true
     this.currentTimespanName = name
   }
 
   private async endTimespan() {
     assert(this.isTimespanStarted, 'timespan is not started')
-    const result = (await this.flow.endTimespan()) as LH.Gatherer.GatherResult
-    this.steps.push({ ...result, stepName: this.currentTimespanName })
+    await this.flow!.endTimespan()
+    this.steps.push({ stepName: this.currentTimespanName })
     this.isTimespanStarted = false
   }
 

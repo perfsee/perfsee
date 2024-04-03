@@ -22,7 +22,7 @@ import {
   NotFoundException,
   OnApplicationBootstrap,
 } from '@nestjs/common'
-import { times } from 'lodash'
+import { times, omit } from 'lodash'
 import { In } from 'typeorm'
 
 import { Config } from '@perfsee/platform-server/config'
@@ -318,7 +318,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     await SnapshotReport.update(report.id, { status: SnapshotStatus.Pending })
 
     const zone = env.zone
-    const distribute = this.config.job.lab.distributedZones.includes(zone) && !page.isE2e
+    const distribute = this.config.job.lab.distributedZones.includes(zone)
     if (distribute) {
       await this.redis.set(`report-distribute-total-${report.id}`, this.config.job.lab.distributedCount)
     }
@@ -340,7 +340,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     const { id } = snapshot
 
     await this.db.transaction(async (manager) => {
-      await this.reportService.deleteSnapshotsReports({ snapshotId: id })
+      await this.reportService.deleteSnapshotsReports(projectId, { snapshotId: id })
       await manager.remove(snapshot)
     })
   }
@@ -391,7 +391,7 @@ export class SnapshotService implements OnApplicationBootstrap {
 
       for (const { id, pageId, envId } of reports) {
         const zone = envMap.get(envId)!.zone
-        const distribute = this.config.job.lab.distributedZones.includes(zone) && !pageMap.get(pageId)!.isE2e
+        const distribute = this.config.job.lab.distributedZones.includes(zone)
         if (distribute) {
           await this.redis.set(`report-distribute-total-${id}`, this.config.job.lab.distributedCount)
         }
@@ -437,18 +437,19 @@ export class SnapshotService implements OnApplicationBootstrap {
   }
 
   async handleDistributeReport({ snapshotReport, jobId }: LabJobResult) {
+    const redisKey = snapshotReport.id
     if (snapshotReport.status === SnapshotStatus.Completed || snapshotReport.status === SnapshotStatus.Failed) {
-      const left = await this.redis.decr(`report-distribute-total-${snapshotReport.id}`)
+      const left = await this.redis.decr(`report-distribute-total-${redisKey}`)
 
       if (left < 0) {
-        await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
-        await this.redis.del(`report-distribute-total-${snapshotReport.id}`)
+        await this.redis.del(`report-distribute-complete-${redisKey}`)
+        await this.redis.del(`report-distribute-total-${redisKey}`)
         return snapshotReport
       }
 
       this.logger.verbose('Start to handle distributed report', { reportId: snapshotReport.id })
       if (snapshotReport.status === SnapshotStatus.Completed) {
-        await this.redis.incr(`report-distribute-complete-${snapshotReport.id}`)
+        await this.redis.incr(`report-distribute-complete-${redisKey}`)
         await this.redis.set(
           `report-result-${snapshotReport.id}-${left}`,
           JSON.stringify(Object.assign({ jobId }, snapshotReport)),
@@ -460,7 +461,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       if (left === 0) {
         this.logger.log(`All distribution of report ${snapshotReport.id} is done`)
 
-        if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
+        if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
           const reportList: (LabJobResult['snapshotReport'] & { jobId?: number })[] = []
           for (const count of times(this.config.job.lab.distributedCount)) {
             const storageString = await this.redis.get(`report-result-${snapshotReport.id}-${count}`)
@@ -514,22 +515,22 @@ export class SnapshotService implements OnApplicationBootstrap {
         if (snapshotReport.status === SnapshotStatus.Completed) {
           snapshotReport.status = SnapshotStatus.PartialCompleted
         } else {
-          if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
+          if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
             snapshotReport.status = SnapshotStatus.PartialCompleted
           } else {
             snapshotReport.status = SnapshotStatus.Running
           }
         }
       }
-    } else if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
+    } else if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
       snapshotReport.status = SnapshotStatus.PartialCompleted
-      await this.redis.del(`report-running-${snapshotReport.id}`)
+      await this.redis.del(`report-running-${redisKey}`)
     } else if ([SnapshotStatus.Pending, SnapshotStatus.Scheduled].includes(snapshotReport.status!)) {
-      if (await this.redis.get(`report-running-${snapshotReport.id}`)) {
+      if (await this.redis.get(`report-running-${redisKey}`)) {
         snapshotReport.status = SnapshotStatus.Running
       }
     } else if (snapshotReport.status === SnapshotStatus.Running) {
-      await this.redis.set(`report-running-${snapshotReport.id}`, 1, 'EX', 300)
+      await this.redis.set(`report-running-${redisKey}`, 1, 'EX', 300)
     }
 
     return snapshotReport
@@ -546,6 +547,39 @@ export class SnapshotService implements OnApplicationBootstrap {
         await this.onSnapshotCompleted(report.snapshotId)
       }
     }
+  }
+
+  async updateFlowReport(data: E2EJobResult) {
+    const { flowReport: rest, jobId, snapshotReport: first } = data
+
+    const stepOfReport = await SnapshotReport.findOneByOrFail({ id: first.id })
+    const reports = []
+    for (const step of rest) {
+      const stepReport = await SnapshotReport.findOneBy({ stepOfId: stepOfReport.id, stepId: step.stepId })
+
+      if (stepReport) {
+        reports.push(Object.assign(stepReport, omit(step, 'id')))
+        continue
+      }
+
+      const iid = await this.internalIdService.generate(stepOfReport.projectId, InternalIdUsage.SnapshotReport)
+      reports.push(
+        SnapshotReport.create({
+          projectId: stepOfReport.projectId,
+          iid,
+          snapshotId: stepOfReport.snapshotId,
+          pageId: stepOfReport.pageId,
+          profileId: stepOfReport.profileId,
+          envId: stepOfReport.envId,
+          stepOfId: stepOfReport.id,
+          ...omit(step, 'id'),
+        }),
+      )
+    }
+
+    await SnapshotReport.save(reports)
+
+    await this.updateLabReport({ snapshotReport: first, jobId })
   }
 
   async onSnapshotCompleted(snapshotId: number) {
@@ -579,7 +613,12 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     if (report.status === SnapshotStatus.Completed) {
       this.metrics.snapshotReportComplete(1)
-      this.source.startSourceIssueAnalyze([report]).catch((e) => {
+      const stepsReports = await SnapshotReport.find({
+        where: {
+          stepOfId: report.id,
+        },
+      })
+      this.source.startSourceIssueAnalyze([report].concat(stepsReports)).catch((e) => {
         this.logger.error(e, { phase: 'source analyze' })
       })
     } else if (report.status === SnapshotStatus.Failed) {
@@ -751,7 +790,7 @@ export class SnapshotService implements OnApplicationBootstrap {
 
   @OnEvent(`${JobType.E2EAnalyze}.update`)
   async handleE2EReportUpdate(data: E2EJobResult) {
-    await this.updateLabReport(data)
+    await this.updateFlowReport(data)
   }
 
   @OnEvent(`${JobType.LabPing}.update`)

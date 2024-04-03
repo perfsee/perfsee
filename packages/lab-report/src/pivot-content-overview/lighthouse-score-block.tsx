@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
 import { NeutralColors, Stack, TooltipHost } from '@fluentui/react'
 
 import { getScoreColor, ScoreBlock } from '@perfsee/components'
@@ -59,3 +60,24 @@ export const LighthouseScoreBlock = (props: Props) => {
 
   return <ScoreBlock title={title} color={color} value={value} unit={unit} />
 }
+
+export const LHScoreBlockContainer = styled(Stack)({
+  position: 'relative',
+})
+
+export const LHScoreBlockContainerWithRelevantAudits = styled(LHScoreBlockContainer)({
+  cursor: 'pointer',
+
+  '&:hover': {
+    boxShadow: `0px 4px 4px 0px ${NeutralColors.gray30}`,
+
+    '&::after': {
+      content: '"Click to see relevant audits"',
+      position: 'absolute',
+      color: NeutralColors.gray80,
+      fontSize: 12,
+      bottom: -24,
+      left: 16,
+    },
+  },
+})
