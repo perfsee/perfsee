@@ -458,9 +458,6 @@ export class SnapshotService implements OnApplicationBootstrap {
       }
 
       if (left === 0) {
-        await this.redis.del(`report-distribute-total-${snapshotReport.id}`)
-        await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
-        await this.redis.del(`report-running-${snapshotReport.id}`)
         this.logger.log(`All distribution of report ${snapshotReport.id} is done`)
 
         if (await this.redis.get(`report-distribute-complete-${snapshotReport.id}`)) {
@@ -505,6 +502,10 @@ export class SnapshotService implements OnApplicationBootstrap {
             })
           }
         }
+
+        await this.redis.del(`report-distribute-total-${snapshotReport.id}`)
+        await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
+        await this.redis.del(`report-running-${snapshotReport.id}`)
 
         for (const count of times(this.config.job.lab.distributedCount)) {
           await this.redis.del(`report-result-${snapshotReport.id}-${count}`)
