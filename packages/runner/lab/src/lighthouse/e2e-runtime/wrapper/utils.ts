@@ -28,9 +28,9 @@ export const DEFAULT_APPEND_TIMEOUT = 5000
 
 export async function getContentFromHandle(handle: HandleFor<any>) {
   try {
-    const innerText = await handle.evaluate((e) => e.textContent)
+    const innerText: string = await handle.evaluate((e) => e.textContent)
     if (innerText) {
-      return `\`${innerText}\``
+      return `\`${innerText.length > 30 ? innerText.slice(0, 29) + '...' : innerText}\``
     }
     const tagName: string = await handle.evaluate((e) => e.tagName)
     if (tagName) {
