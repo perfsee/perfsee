@@ -100,8 +100,17 @@ export async function computeMainThreadTasks(trace: LH.Trace) {
 export async function computeMainThreadTasksWithTimings(trace: LH.Trace) {
   const processedTrace = await processTrace(trace)
 
+  const timings = await (async () => {
+    try {
+      return (await processNavigation(processedTrace)).timings
+    } catch (e) {
+      console.error(String(e))
+      return null
+    }
+  })()
+
   return {
     tasks: await getMainThreadTasks(processedTrace),
-    timings: (await processNavigation(processedTrace)).timings,
+    timings,
   }
 }

@@ -44,7 +44,6 @@ import {
   BreakdownTab,
   FlamechartTab,
   SourceCoverageTab,
-  UserFlowTab,
   ReactTab,
   SourceStatisticsTab,
   LogTab,
@@ -55,6 +54,7 @@ import { PivotContent, MultiReportPivotContent } from './pivot-content'
 
 type Props = {
   snapshotReport: SnapshotReportSchema
+  isUserFlow?: boolean
 }
 
 export const ReportContentWithRoute: FC<Props> = memo((props) => {
@@ -98,6 +98,7 @@ export const ReportContentWithRoute: FC<Props> = memo((props) => {
         snapshotReports={[report]}
         tabName={routerParams.tabName as PerformanceTabType}
         onLinkClick={onLinkClick}
+        isUserFlow={props.isUserFlow}
       />
     </>
   )
@@ -107,6 +108,7 @@ type ReportContentProps = {
   snapshotReports: SnapshotReportSchema[]
   tabName: PerformanceTabType
   onLinkClick: (item?: PivotItem) => void
+  isUserFlow?: boolean
 }
 
 const sourceLoadingProps: IButtonProps = {
@@ -118,7 +120,6 @@ const sourceLoadingProps: IButtonProps = {
 }
 
 const overviewPivot = <PivotItem itemKey={OverviewTab.id} key={OverviewTab.id} headerText={OverviewTab.title} />
-const userFlowPivot = <PivotItem itemKey={UserFlowTab.id} key={UserFlowTab.id} headerText={UserFlowTab.title} />
 const breakdownPivot = <PivotItem itemKey={BreakdownTab.id} key={BreakdownTab.id} headerText={BreakdownTab.title} />
 const assetPivot = <PivotItem itemKey={AssetTab.id} key={AssetTab.id} headerText={AssetTab.title} />
 const flamechartPivot = <PivotItem itemKey={FlamechartTab.id} key={FlamechartTab.id} headerText={FlamechartTab.title} />
@@ -164,9 +165,7 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
   const [state, dispatcher] = useModule(SnapshotModule)
 
   useEffect(() => {
-    dispatcher.fetchReportsDetail(
-      snapshotReports.map((snapshotReport) => snapshotReport.reportLink).filter(Boolean) as string[],
-    )
+    dispatcher.fetchReportsDetail(snapshotReports)
   }, [dispatcher, snapshotReports])
 
   const completedReports = useMemo(() => {
@@ -189,8 +188,6 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
 
     const detail = { ...state.snapshotReportsDetail[report.reportLink!], report }
 
-    const page = report.page as SnapshotReportSchema['page'] | undefined
-
     const sourceOnGoing = report.sourceStatus === SourceStatus.Running || report.sourceStatus === SourceStatus.Pending
 
     return (
@@ -198,13 +195,12 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
         <Stack horizontal verticalAlign="baseline" horizontalAlign="space-between">
           <Pivot styles={{ root: { marginBottom: '16px' } }} selectedKey={tabName} onLinkClick={onLinkClick}>
             {overviewPivot}
-            {page?.isE2e ? userFlowPivot : undefined}
             {assetPivot}
             {sourceStatisticsPivot}
             {report.flameChartLink ? flamechartPivot : sourceOnGoing ? flamechartLoadingPivot : undefined}
             {report.sourceCoverageLink ? sourceCoveragePivot : sourceOnGoing ? sourceCoverageLoadingPivot : undefined}
             {report.reactProfileLink ? reactPivot : undefined}
-            {logPivot}
+            {props.isUserFlow ? null : logPivot}
           </Pivot>
           {tabName === FlamechartTab.id ? fullScreenButton : null}
         </Stack>

@@ -23,6 +23,7 @@ import { logger } from '@perfsee/job-runner-shared'
 import { GathererInstance } from './gatherer'
 
 export class ConsoleLogger extends GathererInstance {
+  meta = { supportedModes: ['navigation' as const, 'timespan' as const] }
   private messageHandler?: (...params: any) => any
 
   async startInstrumentation(ctx: Gatherer.Context) {

@@ -18,7 +18,7 @@ import Gatherer from 'lighthouse/types/gatherer'
 
 export class GathererInstance implements LH.PerfseeGathererInstance {
   meta = {
-    supportedModes: ['navigation' as const],
+    supportedModes: ['navigation'] as Array<LH.Result.GatherMode>,
   }
   startInstrumentation(_context: Gatherer.Context): void | Promise<void> {}
   startSensitiveInstrumentation(_context: Gatherer.Context): void | Promise<void> {}

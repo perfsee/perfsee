@@ -256,7 +256,7 @@ export class PageService {
     const { id, projectId, name } = page
 
     this.logger.log('start delete page', { id, projectId, name })
-    await this.reportService.deleteSnapshotsReports({ pageId: id })
+    await this.reportService.deleteSnapshotsReports(projectId, { pageId: id })
 
     await Page.delete(id)
   }
@@ -264,12 +264,6 @@ export class PageService {
   async createPage(projectId: number, input: CreatePageInput) {
     if (!input.url || !input.name) {
       throw new UserError(`Required parameters: 'url' and 'name'`)
-    }
-
-    const existed = await Page.countBy({ url: input.url, projectId })
-
-    if (existed) {
-      throw new UserError(`The url ${input.url} exists in this project`)
     }
 
     const payload = omit(input, 'profileIids', 'envIids', 'competitorIids', 'connectPageIid')
@@ -299,12 +293,6 @@ export class PageService {
   async updatePage(projectId: number, patch: UpdatePageInput) {
     const page = await Page.findOneByOrFail({ projectId, iid: patch.iid })
 
-    if (patch.url) {
-      const existed = await Page.findOneBy({ url: patch.url, projectId })
-      if (existed && existed.id !== page.id) {
-        throw new UserError(`The url ${patch.url} exists in this project`)
-      }
-    }
     const payload = omit(omitBy(patch, isNil), 'profileIids', 'envIids', 'competitorIids')
 
     await this.db.transaction(async (manager) => {

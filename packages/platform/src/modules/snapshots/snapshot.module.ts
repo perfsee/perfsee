@@ -38,8 +38,8 @@ interface State {
 @Module('Snapshot')
 export class SnapshotModule extends EffectModule<State> {
   readonly defaultState = {
-    snapshotReports: {},
-    snapshotReportsDetail: {},
+    snapshotReports: {} as { [reportId: number]: SnapshotReportSchema },
+    snapshotReportsDetail: {} as { [key: string]: Omit<SnapshotDetailType, 'report'> },
     reportLoading: true,
     detailLoading: true,
   }
@@ -128,15 +128,22 @@ export class SnapshotModule extends EffectModule<State> {
   }
 
   @Effect()
-  fetchReportsDetail(payload$: Observable<string[]>) {
+  fetchReportsDetail(payload$: Observable<SnapshotReportSchema[]>) {
     return payload$.pipe(
       withLatestFrom(this.state$),
-      mergeMap(([keys, { snapshotReportsDetail }]) => {
+      mergeMap(([reportSchemas, { snapshotReportsDetail }]) => {
         return forkJoin(
-          keys.filter((key) => !snapshotReportsDetail[key]).map((key) => this.fetch.get<LHStoredSchema>(key)),
+          reportSchemas
+            .filter((schema) => schema.reportLink)
+            .filter((schema) => !snapshotReportsDetail[schema.reportLink!])
+            .map((schema) => this.fetch.get<LHStoredSchema>(schema.reportLink!)),
         ).pipe(
           mergeMap((reports) => {
-            return from(reports.map((report, i) => this.getActions().setReportDetail({ key: keys[i], detail: report })))
+            return from(
+              reports.map((report, i) =>
+                this.getActions().setReportDetail({ report: reportSchemas[i], detail: report }),
+              ),
+            )
           }),
           startWith(this.getActions().setDetailLoading(true)),
           endWith(this.getActions().setDetailLoading(false)),
@@ -211,8 +218,10 @@ export class SnapshotModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setReportDetail(state: Draft<State>, payload: { key: string; detail: LHStoredSchema }) {
-    state.snapshotReportsDetail[payload.key] = freeze({ ...formatStorageResultToSnapshotDetail(payload.detail) })
+  setReportDetail(state: Draft<State>, payload: { report: SnapshotReportSchema; detail: LHStoredSchema }) {
+    state.snapshotReportsDetail[payload.report.reportLink!] = freeze({
+      ...formatStorageResultToSnapshotDetail(payload.detail, payload.report),
+    })
   }
 
   @ImmerReducer()

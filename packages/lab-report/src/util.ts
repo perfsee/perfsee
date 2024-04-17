@@ -14,10 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
+import { SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 import { LHStoredSchema } from '@perfsee/shared'
 
-export const formatStorageResultToSnapshotDetail = (payload: LHStoredSchema): Omit<SnapshotDetailType, 'report'> => {
+export const formatStorageResultToSnapshotDetail = (
+  payload: LHStoredSchema,
+  report: SnapshotReportSchema,
+): Omit<SnapshotDetailType, 'report'> => {
   return {
     lighthouseVersion: payload.lighthouseVersion,
     audits: payload.lhrAudit,
@@ -32,16 +35,14 @@ export const formatStorageResultToSnapshotDetail = (payload: LHStoredSchema): Om
     entities: payload.entities,
     fullPageScreenshot: payload.fullPageScreenshot,
     stackPacks: payload.stackPacks,
-    userFlow: payload.userFlow?.map((uf) => ({
-      stepName: uf.stepName,
-      stepUrl: uf.stepUrl,
-      stepMode: uf.stepMode,
-      requests: [],
-      audits: uf.lhrAudit,
-      categories: uf.lhrCategories,
-      timings: uf.timings,
-      timelines: uf.timelines,
-      metricScores: uf.metricScores,
-    })),
+    userFlow: payload.userFlow
+      ?.map((uf) => ({
+        stepName: uf.stepName,
+        stepId: uf.stepId,
+        timelines: uf.timelines,
+        metricScores: uf.metricScores,
+        reportId: report.userFlow?.find((u) => u.stepId === uf.stepId)?.id as number,
+      }))
+      .filter((uf) => uf.reportId),
   }
 }

@@ -2,11 +2,7 @@
 sidebar_position: 5
 ---
 
-# How to use the E2E test
-
-:::caution
-This feature is still in the experimental stage!
-:::
+# User flow mode (e2e)
 
 ## Background
 
@@ -27,26 +23,20 @@ When doing performance analysis, some user interaction performance metrics can o
 
 Follow the steps in [Getting Started](./get-started) to edit Profiles and Environments.
 
-### Step 1: Add e2e page
+### Step 1: Enable userflow mode on a page
 
-Navigating to **Project→Settings→E2E**.
-Click the `Create a new E2E test` button to create an E2E page.
+Navigating to **Project→Settings→Pages**.
+Click the `User Flow Mode` checkbox on the page settings.
 
-As E2E is still in the experimental stage, the entrance is not open, you can enter it manually in the address bar: **settings/e2e**
+![enable-userflow](/settings/enable-userflow.png)
 
-![e2e](/settings/e2e.png)
+### Step 2: Write User Flow Scripts (Or record using Chrome Devtools)
 
-E2E page configuration is the same as the normal page, refer to [Pages Configuration](../settings/page-setting) for more details.
+This platform uses [puppeteer](https://github.com/puppeteer/puppeteer) to run user flows. The scripts are compatible with most common puppeteer APIs.
 
-![create e2e](/settings/create-e2e.png)
+#### Scripts running environments
 
-### Step 2: Write E2E Test Scripts
-
-This platform uses [puppeteer](https://github.com/puppeteer/puppeteer) to run E2E tests. E2E scripts are compatible with most common puppeteer APIs.
-
-#### E2E testing environments
-
-A Puppeteer instance is created in advance of running the E2E script, open the browser, create a tab, and the Profiles and Environments configured on the platform are automatically injected into the browser tab. The tab is injected into the script environment global variable `page`. **The E2E script only needs to call the methods on `page` to operate it**. See [puppeteer class-page API](https://github.com/puppeteer/puppeteer/blob/v13.0.1/docs/api.md#class-page) for more methods.
+A Puppeteer instance is created in advance of running the user flow script, open the browser, create a tab, and the Profiles and Environments configured on the platform are automatically injected into the browser tab. The tab is injected into the script environment global variable `page`. **The user flow script only needs to call the methods on `page` to operate it**. See [puppeteer class-page API](https://pptr.dev/api/puppeteer.page) for more methods.
 
 #### Example
 
@@ -63,6 +53,18 @@ await project.click()
 
 await page.waitForNetworkIdle()
 ```
+
+#### Record using Chrome Devtools
+
+A more convenient way is to use Chrome Devtools to record the script.
+
+1. Open the target page on your chrome and open the devltoos.
+2. Click the `Recorder` tab and create a new recording.
+   ![Recorder](/lab/chrome-recorder.png)
+3. Click the `Start recording` button and do your interactions on the target page.
+4. After recording is finished, click the show code button on the right and switch the script to `Puppeteer`.
+   ![recorded-script](/lab/recorded-script.png)
+5. Copy the code to the `user flow scrtip` editor directly.
 
 #### User Flow
 
@@ -104,11 +106,9 @@ await flow.endStep()
 
 **page.goto is a special Step that should not be called between `flow.startStep` and `flow.endStep`.**
 
-### Step 3: Take an E2E Snapshot manually
+### Step 3: Take an Userflow Snapshot manually
 
-Navigate to **Project→Lab** and click the `Take a snapshot` button at the top right of the page to select the e2e page you want to test to trigger a scan.
-
-![take snapshot](/lab/e2e-take-snapshot.png)
+Navigate to **Project→Lab** and click the `Take a snapshot` button at the top right of the page to select the user flow page you want to test to trigger a scan.
 
 ### Step 4: View the result
 
@@ -116,14 +116,8 @@ Clicking on the Snapshot card in the Lab module will display all the results of 
 
 ![snapshot detail](/lab/e2e-take-snapshot-detail.png)
 
-#### Overview
+#### User Flow Report
 
-When you go to the report page, the time that is taken to run the analysis and the number of steps for this E2E script execution are displayed, as well as a runtime video.
-
-![overview](/lab/e2e-report-overview.png)
-
-#### User Flow
-
-Click on the User Flow tab on the report page to see the performance analysis data and optimization recommendations for each step. Click on the thumbnail on the timeline to jump to the next step.
+In the report you can see the performance analysis data and optimization recommendations for each step. Click on the thumbnail on the timeline to jump to the next step.
 
 ![userflow](/lab/e2e-report-userflow.png)

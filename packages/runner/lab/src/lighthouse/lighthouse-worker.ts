@@ -33,12 +33,13 @@ import {
   RequestSchema,
   computeMedianRun,
   getLCPScore,
-  getScore,
   getTBTScore,
   getTTI,
   MetricsRecord,
   getMeanValue,
   getPerformance,
+  LHTosUserFlowSchema,
+  TimelineSchema,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
@@ -77,6 +78,18 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     await this.wrapLighthouseLogger()
     const lhResult = await this.runLighthouse()
 
+    return this.collectResults(lhResult)
+  }
+
+  protected getLighthouseMetricScores(
+    audits: Record<string, LH.Audit.Result>,
+    timings?: LH.Artifacts.NavigationTraceTimes | null,
+    timelines?: TimelineSchema[],
+  ) {
+    return getLighthouseMetricScores('navigation', audits, timings, timelines)
+  }
+
+  protected async collectResults(lhResult: LH.PerfseeRunnerResult, flowResults?: LHTosUserFlowSchema[]) {
     const { artifacts, lhr } = lhResult
 
     this.logger.info(`Actual benchmark index: ${lhr.environment.benchmarkIndex}`)
@@ -92,10 +105,6 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       // `devtoolsLogs.defaultPass` doesn't exist when the page is not found(404).
     }
 
-    if (!Number.isFinite(getScore(lhr, 'first-contentful-paint'))) {
-      failedReason = 'No valid FCP result emitted.'
-    }
-
     if (failedReason) {
       return {
         failedReason,
@@ -103,7 +112,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    const { requests, requestsBaseTimestamp } = this.getRequests(lhr)
+    const { requests, requestsBaseTimestamp } = this.getRequests(artifacts, lhr)
     const scripts = this.getScripts(requests)
     const userTimings = this.getUserTimings(artifacts, requestsBaseTimestamp)
     const metrics = this.getMetrics(lhr)
@@ -111,7 +120,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     // format overview render timeline data
     // @ts-expect-error
     const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
-    const metricScores = getLighthouseMetricScores('navigation', lhr.audits, timings, timelines)
+    const metricScores = this.getLighthouseMetricScores(lhr.audits, timings, timelines)
 
     const jsCoverage = artifacts.JsUsage ?? {}
     const reactProfile = artifacts.ReactProfiler as
@@ -164,6 +173,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             metricScores,
             userTimings,
             scripts,
+            userFlow: flowResults,
           }),
         ),
       )
@@ -265,7 +275,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async wrapLighthouseLogger() {
+  protected async wrapLighthouseLogger() {
     // we may have different version of `debug` lib
     // hack in this is safer
     const { default: lighthouseLogger } = (await dynamicImport(
@@ -285,7 +295,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async warmupPageLoad() {
+  protected async warmupPageLoad() {
     this.logger.info('Start warming up page load environment.')
 
     const { headers, cookies, localStorage, reactProfiling, url, deviceId } = this.payload
@@ -323,7 +333,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     this.logger.verbose('Warming up ended.')
   }
 
-  private async getBenchmarkIndex() {
+  protected async getBenchmarkIndex() {
     try {
       this.logger.info(`Warming up page ${this.payload.url}.`)
 
@@ -342,7 +352,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async login() {
+  protected async login() {
     const { loginScript, url } = this.payload
     const { headers, cookies, localStorageContent } = this
     const { host: domain } = new URL(url)
@@ -364,6 +374,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         browser,
         page,
         ignoreEmulate: true,
+        logger: this.logger,
       })
       const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
       const sandbox = createSandbox(
@@ -391,7 +402,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async createBrowser() {
+  protected async createBrowser() {
     const { cookies, localStorageContent } = this
     const { url, deviceId, enableProxy } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
@@ -423,7 +434,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return browser
   }
 
-  private getLighthouseFlags(): LH.Flags {
+  protected getLighthouseFlags(): LH.Flags {
     const { cookies, headers, localStorageContent, reactProfiling } = this
     const { url, deviceId, throttle, userAgent } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
@@ -465,7 +476,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private async runLighthouse() {
+  protected async runLighthouse() {
     const { url, enableProxy } = this.payload
     let runs = this.payload.runs
 
@@ -582,7 +593,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return result
   }
 
-  private async runLh(url: string, lighthouseFlags: LH.Flags) {
+  protected async runLh(url: string, lighthouseFlags: LH.Flags) {
     let errorMessage: string | undefined
     let result: LH.PerfseeRunnerResult | undefined
     const browser = await this.createBrowser()
@@ -644,14 +655,14 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  private getRequests(lhResult: LH.Result) {
+  private getRequests(artifacts: LH.Artifacts, lhResult: LH.Result) {
     const networkRequestsAuditsResult =
       // @ts-expect-error
       (lhResult.audits['network-requests-custom']?.details?.items ?? []).filter(
         // requests with status code < 0 are blocked by browser
         (req: RequestSchema) => req.statusCode > 0,
       )
-    const requestsBaseTimestamp = networkRequestsAuditsResult[0].baseTimestamp
+    const requestsBaseTimestamp = networkRequestsAuditsResult?.[0]?.baseTimestamp || artifacts.Trace.traceEvents[0].ts
     const requests = networkRequestsAuditsResult.map((item: any) => {
       delete item.baseTimestamp
       return item

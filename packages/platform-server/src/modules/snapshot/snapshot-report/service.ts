@@ -92,6 +92,7 @@ export class SnapshotReportService {
       .where('project_id = :projectId', { projectId })
       .andWhere('created_at <= :to', { to: filter.to })
       .andWhere('status = :status', { status: SnapshotStatus.Completed })
+      .andWhere('step_of_id is null')
 
     if (!filter.length) {
       qb.andWhere('created_at >= :from', {
@@ -148,12 +149,14 @@ export class SnapshotReportService {
   async getReportsBySnapshotId(snapshotId: number) {
     return SnapshotReport.createQueryBuilder('report')
       .where('report.snapshotId = :snapshotId', { snapshotId })
+      .andWhere('step_of_id is null')
       .getMany()
   }
 
   async getReportsBySnapshotIds(snapshotIds: number[]) {
     return SnapshotReport.createQueryBuilder('report')
       .where('report.snapshot_id in (:...snapshotIds)', { snapshotIds })
+      .andWhere('step_of_id is null')
       .getMany()
   }
 
@@ -172,15 +175,18 @@ export class SnapshotReportService {
       .getMany()
   }
 
-  async deleteSnapshotsReports(conditions: FindOptionsWhere<SnapshotReport>) {
-    const reports = await SnapshotReport.findBy(conditions)
+  async deleteSnapshotsReports(projectId: number, conditions: FindOptionsWhere<SnapshotReport>) {
+    const reports = await SnapshotReport.findBy({ ...conditions, projectId })
 
     this.logger.log('start delete snapshot report by', { conditions, count: reports.length })
 
     // delete reports slowly in case too many reports
     for (let i = 0; i < Math.ceil(reports.length / 30); i++) {
       const storageKeys: (string | null)[] = []
-      const ids = reports.slice(i * 30, (i + 1) * 30).map((report) => {
+      const ids = reports.slice(i * 30, (i + 1) * 30).map((report) => report.id)
+      const stepsReports = await SnapshotReport.find({ where: { stepOfId: In(ids), projectId } })
+      const allReports = reports.concat(stepsReports)
+      allReports.forEach((report) => {
         storageKeys.push(
           report.lighthouseStorageKey,
           report.screencastStorageKey,
@@ -192,11 +198,10 @@ export class SnapshotReportService {
           report.traceDataStorageKey,
           report.requestsStorageKey,
         )
-
-        return report.id
       })
+      await this.projectUsage.recordStorageUsage(projectId, -allReports.reduce((sum, cur) => sum + cur.uploadSize, 0))
       await this.storage.bulkDelete(storageKeys.filter(Boolean) as string[])
-      await SnapshotReport.delete(ids)
+      await SnapshotReport.delete(allReports.map((r) => r.id))
     }
   }
 
@@ -206,23 +211,37 @@ export class SnapshotReportService {
 
   async deleteSnapshotsReportById(projectId: number, iid: number) {
     const report = await SnapshotReport.findOneByOrFail({ iid, projectId })
-    await SnapshotReport.remove(report)
-    await this.projectUsage.recordStorageUsage(projectId, -report.uploadSize)
+
+    const stepsReports = await SnapshotReport.find({ where: { projectId, stepOfId: report.id } })
+    const allReports = stepsReports.concat(report)
+    await SnapshotReport.remove(allReports)
+    await this.projectUsage.recordStorageUsage(projectId, -allReports.reduce((sum, cur) => sum + cur.uploadSize, 0))
     await this.storage.bulkDelete(
-      [
-        report.lighthouseStorageKey,
-        report.screencastStorageKey,
-        report.jsCoverageStorageKey,
-        report.traceEventsStorageKey,
-        report.flameChartStorageKey,
-        report.sourceCoverageStorageKey,
-        report.reactProfileStorageKey,
-        report.traceDataStorageKey,
-        report.requestsStorageKey,
-      ].filter(Boolean) as string[],
+      allReports.flatMap((report) => {
+        return [
+          report.lighthouseStorageKey,
+          report.screencastStorageKey,
+          report.jsCoverageStorageKey,
+          report.traceEventsStorageKey,
+          report.flameChartStorageKey,
+          report.sourceCoverageStorageKey,
+          report.reactProfileStorageKey,
+          report.traceDataStorageKey,
+          report.requestsStorageKey,
+        ].filter(Boolean) as string[]
+      }),
     )
 
     return true
+  }
+
+  async getStepsOfSnapshotReport(report: SnapshotReport) {
+    const followingSteps = await SnapshotReport.find({
+      where: { stepOfId: report.id, projectId: report.projectId },
+      order: { stepId: 'ASC' },
+    })
+
+    return [report, ...followingSteps]
   }
 
   @OnEvent(`${JobType.LabAnalyze}.upload`)

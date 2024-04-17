@@ -36,6 +36,8 @@ type PartialSnapshotReport = {
   reactProfileStorageKey?: string
   performanceScore?: number | null
   metrics?: Record<MetricKeyType, number | null>
+  stepName?: string
+  stepId?: number
 }
 
 export interface LabJobPayload {
@@ -51,6 +53,7 @@ export interface LabJobPayload {
   enableProxy: boolean
   loginScript: string | null
   userAgent: string | null
+  e2eScript: string | null
 }
 
 export type E2EJobPayload = LabJobPayload & {
@@ -164,6 +167,7 @@ export type LabJobResult = {
 
 export type E2EJobResult = {
   snapshotReport: PartialSnapshotReport & { id: number }
+  flowReport: (PartialSnapshotReport & { id: number })[]
   jobId?: number
 }
 

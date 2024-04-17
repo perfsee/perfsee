@@ -20,11 +20,10 @@ import { elementHandleWrapper } from './element-handle'
 import { createWrapper, Wrapper } from './wrapper'
 
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-jshandle
-export const jsHandleWrapper: Wrapper<JSHandle> = createWrapper<JSHandle>('JSHandle', (jsHandle, options) => {
+export const jsHandleWrapper: Wrapper<JSHandle<any>> = createWrapper<JSHandle<any>>('JSHandle', (jsHandle, options) => {
   return {
     asElement: () => {
       const element = jsHandle.asElement()
-      // @ts-expect-error
       return element && elementHandleWrapper.wrap(element, options)
     },
     dispose: () => jsHandle.dispose(),

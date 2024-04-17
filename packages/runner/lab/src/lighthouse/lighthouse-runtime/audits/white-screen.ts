@@ -41,6 +41,7 @@ export async function WhiteScreen() {
         scoreDisplayMode: Audit.SCORING_MODES.INFORMATIVE,
         // @ts-expect-error
         requiredArtifacts: ['Screencast'],
+        supportedModes: ['navigation', 'timespan'],
       }
     }
 

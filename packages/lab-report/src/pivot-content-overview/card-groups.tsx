@@ -77,6 +77,17 @@ export const cardGroups: Record<string, { detail: JSX.Element }> = {
       </p>
     ),
   },
+  'interaction-to-next-paint': {
+    detail: (
+      <p>
+        Interaction to Next Paint measures page responsiveness, how long it takes the page to visibly respond to user
+        input.{' '}
+        <Link href="web.dev/articles/inp" target="_blank">
+          Learn more about the Interaction to Next Paint metric.
+        </Link>
+      </p>
+    ),
+  },
   interactive: {
     detail: (
       <p>

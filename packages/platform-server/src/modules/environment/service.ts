@@ -89,7 +89,7 @@ export class EnvironmentService {
     const { id, projectId, name } = env
 
     this.logger.log('start delete environment', { id, projectId, name })
-    await this.reportService.deleteSnapshotsReports({ envId: id })
+    await this.reportService.deleteSnapshotsReports(projectId, { envId: id })
     await Environment.delete(id)
   }
 

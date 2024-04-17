@@ -54,9 +54,28 @@ const LHCalculator = [
 ]
 
 export const isLHCalculator = (id: LighthouseScoreType, categories?: LH.Result.Category) => {
+  // INP is core web vitals, but does not contribute to performance score
+  if (id === LighthouseScoreType.INP) {
+    return true
+  }
+
   if (categories) {
     return !!categories.auditRefs.find((ref) => ref.id === id)?.weight
   }
 
   return LHCalculator.includes(id)
+}
+
+export const getCategoryAcorms = (lhCategories: Record<string, LH.Result.Category> = {}) => {
+  const idToAcorms: Record<string, string> = {}
+
+  Object.values(lhCategories).forEach((category) => {
+    category.auditRefs.forEach((ref) => {
+      if (ref.acronym && ref.relevantAudits?.length) {
+        idToAcorms[ref.id] = ref.acronym
+      }
+    })
+  })
+
+  return idToAcorms
 }

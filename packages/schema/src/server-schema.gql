@@ -497,6 +497,12 @@ type SnapshotReport {
   """total size of files uploaded to storage in this report, in bytes"""
   uploadSize: Int!
 
+  """step id of user flow report"""
+  stepId: Int
+
+  """step name of user flow report"""
+  stepName: String
+
   """the environment this report used"""
   environment: Environment!
 
@@ -538,6 +544,9 @@ type SnapshotReport {
 
   """the link to all requests detail file"""
   requestsLink: String
+
+  """user flow steps of this report"""
+  userFlow: [SnapshotReport!]
 }
 
 enum SourceStatus {

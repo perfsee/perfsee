@@ -27,7 +27,6 @@ export const LHMetricScoreContainer = styled.div(({ theme }) => {
     gap: 24,
 
     '& > div': {
-      flex: '0 0 206px',
       border: `1px solid ${theme.border.color}`,
     },
   }

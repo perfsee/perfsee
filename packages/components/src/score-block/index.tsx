@@ -18,6 +18,7 @@ export const ColorScore = styled.b<{ color?: string; size?: number }>(
     return {
       fontSize: size,
       color,
+      marginRight: 36,
       '> span': {
         fontSize: '18px',
         color: darken(theme.text.colorSecondary, 0.3),

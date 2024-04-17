@@ -26,8 +26,8 @@ import { createWrapper, Wrapper } from './wrapper'
 export const targetWrapper: Wrapper<Target> = createWrapper<Target>('Target', (target, options) => {
   return {
     browser: () => browserWrapper.wrap(target.browser(), options),
-    browserContext: NotSupportFunction,
-    createCDPSession: NotSupportFunction,
+    browserContext: NotSupportFunction('target.browserContext'),
+    createCDPSession: NotSupportFunction('target.createCDPSession'),
     opener: () => targetWrapper.wrapOrNull(target.opener() || null, options) || undefined,
     page: async () => pageWrapper.wrapOrNull(await target.page(), options),
     type: () => target.type(),

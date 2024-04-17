@@ -27,13 +27,7 @@ import {
   LHGaugeScoreScaleAverage,
   LHGaugeScoreScaleFail,
 } from '../pivot-content-overview/style'
-import {
-  LighthouseAudit,
-  LighthouseGroupType,
-  SnapshotDetailType,
-  SnapshotUserFlowDetailType,
-  AnalysisReportTabType,
-} from '../snapshot-type'
+import { LighthouseAudit, LighthouseGroupType, SnapshotDetailType, AnalysisReportTabType } from '../snapshot-type'
 import { ScoreBadge } from '../style'
 
 import { AuditJump, auditJumps } from './jumps'
@@ -42,7 +36,7 @@ import { getGroupedAuditLists } from './utils'
 
 type Props = {
   type: AnalysisReportTabType
-  snapshot: SnapshotDetailType | SnapshotUserFlowDetailType
+  snapshot: SnapshotDetailType
   hideBorder?: boolean
 }
 

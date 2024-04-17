@@ -18,7 +18,6 @@ import { HTTPRequest } from 'puppeteer-core'
 
 import { frameWrapper } from './frame'
 import { httpResponseWrapper } from './http-response'
-import { NotSupportFunction } from './utils'
 import { createWrapper, Wrapper } from './wrapper'
 
 // https://github.com/puppeteer/puppeteer/blob/v11.0.0/docs/api.md#class-httprequest
@@ -30,7 +29,7 @@ export const httpRequestWrapper: Wrapper<HTTPRequest> = createWrapper<HTTPReques
       abortErrorReason: () => httpRequest.abortErrorReason(),
       continue: (overrides, priority) => httpRequest.continue(overrides, priority),
       continueRequestOverrides: () => httpRequest.continueRequestOverrides(),
-      enqueueInterceptAction: NotSupportFunction,
+      enqueueInterceptAction: (handler) => httpRequest.enqueueInterceptAction(handler),
       failure: () => httpRequest.failure(),
       finalizeInterceptions: () => httpRequest.finalizeInterceptions(),
       frame: () => frameWrapper.wrapOrNull(httpRequest.frame(), options),
@@ -42,9 +41,9 @@ export const httpRequestWrapper: Wrapper<HTTPRequest> = createWrapper<HTTPReques
       resourceType: () => httpRequest.resourceType(),
       respond: (response, priority) => httpRequest.respond(response, priority),
       response: () => httpResponseWrapper.wrapOrNull(httpRequest.response(), options),
-      responseForRequest: NotSupportFunction, // typescript type is inconsistent with the documentation?
+      responseForRequest: () => httpRequest.responseForRequest(),
       url: () => httpRequest.url(),
-      interceptResolutionState: NotSupportFunction,
+      interceptResolutionState: () => httpRequest.interceptResolutionState(),
       isInterceptResolutionHandled: () => httpRequest.isInterceptResolutionHandled(),
       initiator: () => httpRequest.initiator(),
       client: httpRequest.client,
