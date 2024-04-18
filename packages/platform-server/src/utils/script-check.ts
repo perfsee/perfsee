@@ -14,16 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './date'
-export * from './get-lh-run-data'
-export * from './data-loader'
-export * from './artifact-link'
-export * from './script-check'
+import { parse } from 'acorn'
 
-export function wait(n = 1000) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, n)
-  })
+import { UserError } from '../error'
+
+export const checkUserScript = (scriptCode: string) => {
+  try {
+    parse(scriptCode, {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    })
+  } catch (e: any) {
+    if (e instanceof SyntaxError) {
+      throw new UserError(`Script syntax error: ${e.message}`)
+    }
+  }
 }

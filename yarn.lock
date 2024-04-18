@@ -8084,6 +8084,7 @@ __metadata:
     "@types/nodemailer": ^6.4.4
     "@types/redlock": ^4.0.3
     "@types/uuid": ^9.0.0
+    acorn: ^8.7.1
     ava: ^5.0.0
     body-parser: ^1.20.2
     chalk: ^4.1.2
