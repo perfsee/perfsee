@@ -22,7 +22,7 @@ import { Environment, InternalIdUsage } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
-import { createDataLoader } from '@perfsee/platform-server/utils'
+import { checkUserScript, createDataLoader } from '@perfsee/platform-server/utils'
 
 import { NotificationService } from '../notification/service'
 import { SnapshotReportService } from '../snapshot/snapshot-report/service'
@@ -49,6 +49,9 @@ export class EnvironmentService {
   }
 
   async updateEnvironment(projectId: number, patch: UpdateEnvironmentInput) {
+    if (patch.loginScript) {
+      checkUserScript(patch.loginScript)
+    }
     if (patch.name) {
       const existed = await Environment.findOneBy({ projectId, name: patch.name })
       if (existed && existed.iid !== patch.iid) {

@@ -32,7 +32,7 @@ import { UserError } from '@perfsee/platform-server/error'
 import { InternalIdService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
 import { Redis } from '@perfsee/platform-server/redis'
-import { createDataLoader } from '@perfsee/platform-server/utils'
+import { checkUserScript, createDataLoader } from '@perfsee/platform-server/utils'
 
 import { SnapshotReportService } from '../snapshot/snapshot-report/service'
 
@@ -266,6 +266,10 @@ export class PageService {
       throw new UserError(`Required parameters: 'url' and 'name'`)
     }
 
+    if (input.e2eScript) {
+      checkUserScript(input.e2eScript)
+    }
+
     const payload = omit(input, 'profileIids', 'envIids', 'competitorIids', 'connectPageIid')
     const page = Page.create({
       ...payload,
@@ -291,6 +295,9 @@ export class PageService {
   }
 
   async updatePage(projectId: number, patch: UpdatePageInput) {
+    if (patch.e2eScript) {
+      checkUserScript(patch.e2eScript)
+    }
     const page = await Page.findOneByOrFail({ projectId, iid: patch.iid })
 
     const payload = omit(omitBy(patch, isNil), 'profileIids', 'envIids', 'competitorIids')
