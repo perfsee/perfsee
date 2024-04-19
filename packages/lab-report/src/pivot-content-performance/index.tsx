@@ -17,7 +17,7 @@ limitations under the License.
 import { MinusCircleFilled, InfoCircleFilled } from '@ant-design/icons'
 import { css, useTheme } from '@emotion/react'
 import { CommandButton, IPivotItemProps, PivotItem } from '@fluentui/react'
-import { FC, memo, useCallback, useEffect, useState } from 'react'
+import { FC, memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { AuditItem, formatMDLink, useQueryString } from '@perfsee/components'
 
@@ -64,6 +64,7 @@ export const PerformanceContent = memo((props: Props) => {
   const { type, snapshot, hideBorder } = props
   const { audits, categories } = snapshot
   const theme = useTheme()
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const [{ relevant }, updateQueryString] = useQueryString<{ relevant?: string }>()
   const onRelevantChange = useCallback(
@@ -77,6 +78,10 @@ export const PerformanceContent = memo((props: Props) => {
     updateQueryString({ relevant: undefined })
     // eslint-disable-next-line
   }, [type])
+
+  useEffect(() => {
+    relevant && containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [relevant])
 
   const performance = categories?.[type]
   if (!performance) {
@@ -107,6 +112,7 @@ export const PerformanceContent = memo((props: Props) => {
             })
       }
       className="lh-vars"
+      ref={containerRef}
     >
       {relevantFilter}
       {Object.keys(result).map((type) => {
