@@ -162,7 +162,7 @@ perfsee.project.externalProviders = ['github']
 perfsee.job.lab.distributedConfig =
   env.DISTRIBUTED_CONFIG?.split(',').reduce((config, zoneConfig) => {
     const [zone, count = 5, runs = 1] = zoneConfig.split(':')
-    return { ...config, [zone]: { count, runs } }
+    return { ...config, [zone]: { count: Number(count), runs: Number(runs) } }
   }, {}) || {}
 
 // ###############################################################
