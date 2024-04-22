@@ -45,7 +45,7 @@ export function getLighthouseRunData(
     const throttle = CONNECTIONS.find((item) => item.id === profile.bandWidth)
     const deviceId = profile.device
 
-    const distributed = config.job.lab.distributedZones.includes(env.zone)
+    const distributed = config.job.lab.distributedConfig?.[env.zone]
 
     return {
       reportId: report.id,
@@ -55,7 +55,7 @@ export function getLighthouseRunData(
       headers: env.headers,
       cookies: env.cookies,
       e2eScript: page.e2eScript,
-      runs: page.isE2e || process.env.NODE_ENV === 'development' ? 1 : distributed ? config.job.lab.distributedRuns : 5,
+      runs: process.env.NODE_ENV === 'development' ? 1 : distributed ? distributed.runs : 5,
       localStorage: env.localStorage ?? [],
       reactProfiling: profile.reactProfiling ?? false,
       enableProxy: profile.enableProxy ?? false,

@@ -318,13 +318,13 @@ export class SnapshotService implements OnApplicationBootstrap {
     await SnapshotReport.update(report.id, { status: SnapshotStatus.Pending })
 
     const zone = env.zone
-    const distribute = this.config.job.lab.distributedZones.includes(zone)
+    const distribute = this.config.job.lab.distributedConfig?.[zone]
     if (distribute) {
-      await this.redis.set(`report-distribute-total-${report.id}`, this.config.job.lab.distributedCount)
+      await this.redis.set(`report-distribute-total-${report.id}`, distribute.count)
     }
     await this.event.emitAsync(
       'job.create',
-      times(distribute ? this.config.job.lab.distributedCount : 1, () => ({
+      times(distribute?.count || 1, () => ({
         type: page.isE2e ? JobType.E2EAnalyze : JobType.LabAnalyze,
         payload: {
           entityId: report.id,
@@ -391,12 +391,12 @@ export class SnapshotService implements OnApplicationBootstrap {
 
       for (const { id, pageId, envId } of reports) {
         const zone = envMap.get(envId)!.zone
-        const distribute = this.config.job.lab.distributedZones.includes(zone)
+        const distribute = this.config.job.lab.distributedConfig?.[zone]
         if (distribute) {
-          await this.redis.set(`report-distribute-total-${id}`, this.config.job.lab.distributedCount)
+          await this.redis.set(`report-distribute-total-${id}`, distribute.count)
         }
         jobEvents.push(
-          ...times(distribute ? this.config.job.lab.distributedCount : 1, () => ({
+          ...times(distribute?.count || 1, () => ({
             type: pageMap.get(pageId)!.isE2e ? JobType.E2EAnalyze : JobType.LabAnalyze,
             payload: {
               entityId: id,
@@ -461,9 +461,13 @@ export class SnapshotService implements OnApplicationBootstrap {
       if (left === 0) {
         this.logger.log(`All distribution of report ${snapshotReport.id} is done`)
 
+        const job = jobId ? await Job.findOneBy({ id: jobId }) : null
+        const zone = job?.zone
+        const distributedCount = this.config.job.lab.distributedConfig?.[zone!]?.count || 1
+
         if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
           const reportList: (LabJobResult['snapshotReport'] & { jobId?: number })[] = []
-          for (const count of times(this.config.job.lab.distributedCount)) {
+          for (const count of times(distributedCount)) {
             const storageString = await this.redis.get(`report-result-${snapshotReport.id}-${count}`)
             if (!storageString) {
               continue
@@ -490,7 +494,6 @@ export class SnapshotService implements OnApplicationBootstrap {
           snapshotReport.status = SnapshotStatus.Completed
 
           try {
-            const job = jobId ? await Job.findOneBy({ id: jobId }) : null
             if (job) {
               job.extra ||= {}
               job.extra.picked = 'true'
@@ -508,7 +511,7 @@ export class SnapshotService implements OnApplicationBootstrap {
         await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
         await this.redis.del(`report-running-${snapshotReport.id}`)
 
-        for (const count of times(this.config.job.lab.distributedCount)) {
+        for (const count of times(distributedCount)) {
           await this.redis.del(`report-result-${snapshotReport.id}-${count}`)
         }
       } else {

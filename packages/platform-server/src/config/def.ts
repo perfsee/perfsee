@@ -282,19 +282,14 @@ export interface PerfseeConfig {
 
     lab: {
       /**
-       * which zones enable distributed labs.
+       * distribute configs
        */
-      distributedZones: string[]
-
-      /**
-       * distributed count
-       */
-      distributedCount: number
-
-      /**
-       * distributed lab run times
-       */
-      distributedRuns: number
+      distributedConfig?: {
+        [zone: string]: {
+          count: number
+          runs: number
+        }
+      }
     }
   }
 

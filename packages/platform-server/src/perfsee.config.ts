@@ -158,9 +158,12 @@ perfsee.project.externalProviders = ['github']
 // # timeout for job execution
 // perfsee.job.executionTimeoutSec = 30 * 60
 
-perfsee.job.lab.distributedZones = env.DISTRIBUTED_ZONES?.split(',') || []
-perfsee.job.lab.distributedCount = Number(env.DISTRIBUTED_COUNT || 5)
-perfsee.job.lab.distributedRuns = Number(env.DISTRIBUTED_RUNS || 3)
+// eg: China:5:3,US:3:1
+perfsee.job.lab.distributedConfig =
+  env.DISTRUBUTED_CONFIG?.split(',').reduce((config, zoneConfig) => {
+    const [zone, count = 5, runs = 1] = zoneConfig.split(':')
+    return { ...config, [zone]: { count, runs } }
+  }, {}) || {}
 
 // ###############################################################
 // ##                  9. Runner settings                       ##
