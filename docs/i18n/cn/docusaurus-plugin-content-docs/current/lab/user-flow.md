@@ -2,13 +2,13 @@
 sidebar_position: 5
 ---
 
-# User flow 模式（e2e）
+# User flow 模式（原 e2e）
 
 ## 背景
 
-目前的 Lab 模块测试只面向首屏性能，无法测试用户交互操作性能。
+传统的 Lab 模块测试只面向首屏性能，无法测试用户交互操作性能。
 
-在做性能分析时，对于一些用户交互的性能指标，只能使用 chrome devtool 手动测量手动统计，所以需要一种能够自动测量页面交互性能并量化成性能指标的方法。
+在做性能分析时，对于一些用户交互的性能指标，通常只能使用 Chrome Devtool 手动测量手动统计，所以需要一种能够自动测量页面交互性能并量化成性能指标的方法。
 
 ## 功能
 
@@ -22,7 +22,7 @@ sidebar_position: 5
 
 ### Step 0：添加运行环境
 
-按照[从 0 开始的 Lab 分析流程](./get-started)中的步骤创建 Profile 和 Environment。
+按照[从 0 开始的 Lab 分析流程](./get-started)中的步骤创建 Profile, Environment 和 Page。
 
 ### Step 1：在页面配置中开启 Userflow 模式
 

@@ -6,7 +6,7 @@ sidebar_position: 5
 
 ## Background
 
-The current Lab module is only geared towards first screen performance and cannot test user interoperability.
+The origin Lab module is only geared towards first screen performance and cannot test user interoperability.
 
 When doing performance analysis, some user interaction performance metrics can only be measured manually using chrome devtool, so a way to automatically measure page interaction performance and quantify it into performance metrics is needed.
 
@@ -21,7 +21,7 @@ When doing performance analysis, some user interaction performance metrics can o
 
 ### Step 0: Add configuration
 
-Follow the steps in [Getting Started](./get-started) to edit Profiles and Environments.
+Follow the steps in [Getting Started](./get-started) to edit Profiles, Environments and Pages.
 
 ### Step 1: Enable userflow mode on a page
 
