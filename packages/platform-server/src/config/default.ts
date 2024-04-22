@@ -92,9 +92,7 @@ export const getDefaultPerfseeConfig: () => PerfseeConfig = () => ({
     defaultZone: 'China',
     zones: ['China'],
     lab: {
-      distributedZones: [],
-      distributedCount: 5,
-      distributedRuns: 3,
+      distributedConfig: {},
     },
   },
   runner: {

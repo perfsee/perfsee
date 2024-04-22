@@ -122,7 +122,7 @@ export const UserflowScriptForm: FC<UserflowScriptProps> = forwardRef(({ default
             {label}
             <ForeignLink
               style={{ fontSize: 12, marginLeft: 16 }}
-              href={staticPath.docs.home + 'lab/e2e#record-using-chrome-devtools'}
+              href={staticPath.docs.home + '/lab/user-flow#record-using-chrome-devtools'}
             >
               Record using Chrome devtools <SelectOutlined />
             </ForeignLink>

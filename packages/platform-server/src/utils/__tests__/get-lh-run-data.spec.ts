@@ -7,10 +7,7 @@ import { getLighthouseRunData } from '../get-lh-run-data'
 
 const config = {
   job: {
-    lab: {
-      distributedZones: [],
-      distributedRuns: 3,
-    },
+    lab: {},
   },
 }
 

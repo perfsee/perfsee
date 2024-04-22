@@ -32,9 +32,7 @@ test.beforeEach(async (t) => {
       ConfigModule.forRoot({
         job: {
           lab: {
-            distributedZones: [],
-            distributedCount: 5,
-            distributedRuns: 3,
+            distributedConfig: {},
           },
         },
       }),
