@@ -181,14 +181,14 @@ export class SnapshotReport extends BaseEntity {
 
   @Field(() => Int, { nullable: true, description: 'step id of user flow report' })
   @Column({ type: 'int', nullable: true, comment: 'step id of user flow report', default: null })
-  stepId!: number
+  stepId!: number | null
 
   @Field(() => String, { nullable: true, description: 'step name of user flow report' })
   @Column({ type: 'varchar', nullable: true, comment: 'step name of user flow report', default: null })
-  stepName!: string
+  stepName!: string | null
 
   @ManyToOne('SnapshotReport', 'steps', { onDelete: 'CASCADE' })
-  stepOf!: SnapshotReport
+  stepOf!: SnapshotReport | null
 
   @Column({
     type: 'int',
@@ -197,7 +197,7 @@ export class SnapshotReport extends BaseEntity {
     comment: "Used in userflow reports. This report is a step of a main report. `step_of_id` is the main report' s id.",
   })
   @RelationId('project')
-  stepOfId!: number
+  stepOfId!: number | null
 
   @OneToMany('SnapshotReport', 'stepOf')
   steps!: SnapshotReport[]
