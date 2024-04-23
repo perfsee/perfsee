@@ -619,6 +619,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       const stepsReports = await SnapshotReport.find({
         where: {
           stepOfId: report.id,
+          projectId: report.projectId,
         },
       })
       this.source.startSourceIssueAnalyze([report].concat(stepsReports)).catch((e) => {

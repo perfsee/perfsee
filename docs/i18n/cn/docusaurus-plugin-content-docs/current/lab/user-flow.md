@@ -26,8 +26,7 @@ sidebar_position: 5
 
 ### Step 1：在页面配置中开启 Userflow 模式
 
-在设置页面切换到 Page Tab 之后，可以管理项目的 Pages 界面。
-在目前页面配置下放勾选 `User Flow Mode`。
+在目标页面配置下方勾选 `User Flow Mode`。
 
 ![enable-userflow](/settings/enable-userflow.png)
 
