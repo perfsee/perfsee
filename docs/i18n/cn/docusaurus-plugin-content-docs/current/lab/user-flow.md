@@ -61,9 +61,10 @@ await page.waitForNetworkIdle()
 2. 切换到 `Recorder` 标签，创建一个新的录制.
    ![Recorder](/lab/chrome-recorder.png)
 3. 点击开始录制按钮之后，在目标页面上手动进行交互.
-4. 录制完成后, 点击 show code 按钮，并将代码格式切换为 `Puppeteer`.
+4. 录制完成后, 请点击 `Replay` 按钮检查生成的脚本是否按照预期运行。
+5. 点击 show code 按钮，并将代码格式切换为 `Puppeteer`.
    ![recorded-script](/lab/recorded-script.png)
-5. 将录制的代码直接拷贝到 Perfsee 页面 `user flow scrtip` 编辑器中.
+6. 将录制的代码直接拷贝到 Perfsee 页面 `user flow scrtip` 编辑器中.
 
 #### User Flow
 
