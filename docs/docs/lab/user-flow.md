@@ -62,9 +62,10 @@ A more convenient way is to use Chrome Devtools to record the script.
 2. Click the `Recorder` tab and create a new recording.
    ![Recorder](/lab/chrome-recorder.png)
 3. Click the `Start recording` button and do your interactions on the target page.
-4. After recording is finished, click the show code button on the right and switch the script to `Puppeteer`.
+4. After recording is finished, please press `Replay` to check if the script works expectedly.
+5. Click the show code button on the right and switch the script to `Puppeteer`.
    ![recorded-script](/lab/recorded-script.png)
-5. Copy the code to the `user flow scrtip` editor directly.
+6. Copy the code to the `user flow scrtip` editor directly.
 
 #### User Flow
 
