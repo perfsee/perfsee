@@ -80,8 +80,9 @@ const tableColumns = [
     maxWidth: 300,
     sorter: (a, b) => a.pageName.localeCompare(b.pageName),
     onRender: (item) => {
-      const count = (item[LighthouseScoreMetric.Performance].sample ?? item[LighthouseScoreMetric.Accessibility].sample)
-        .length
+      const count =
+        (item[LighthouseScoreMetric.Performance]?.sample ?? item[LighthouseScoreMetric.Accessibility]?.sample)
+          ?.length || 0
 
       const content = (
         <span>
