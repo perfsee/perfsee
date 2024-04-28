@@ -62,7 +62,7 @@ import {
 } from '@perfsee/server-common'
 import { computeMedianRun } from '@perfsee/shared'
 
-import { getLighthouseRunData, createDataLoader, getLabPingData } from '../../utils'
+import { getLighthouseRunData, createDataLoader, getLabPingData, checkUserScript } from '../../utils'
 import { AppVersionService } from '../app-version/service'
 import { PageService } from '../page/service'
 import { ProjectUsageService } from '../project-usage/service'
@@ -164,10 +164,14 @@ export class SnapshotService implements OnApplicationBootstrap {
     profileIids: number[],
     envIid: number,
     title?: string,
+    userflowScript?: string,
   ) {
+    if (userflowScript) {
+      checkUserScript(userflowScript)
+    }
     await this.projectUsage.verifyUsageLimit(projectId)
 
-    const existed = await Page.findOneBy({ url, projectId })
+    const existed = await Page.findOneBy({ url, projectId, isE2e: !!userflowScript, e2eScript: userflowScript })
 
     const page = await Page.create({
       id: existed?.id,
@@ -176,6 +180,8 @@ export class SnapshotService implements OnApplicationBootstrap {
       name: url,
       projectId,
       isTemp: true,
+      isE2e: !!userflowScript,
+      e2eScript: userflowScript,
     }).save()
 
     const env = await Environment.findOneBy({ projectId, iid: envIid })
