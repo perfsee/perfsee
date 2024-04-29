@@ -169,11 +169,12 @@ export class SnapshotResolver {
     @Args({ name: 'profileIds', type: () => [Int] }) profileIids: number[],
     @Args({ name: 'envId', type: () => Int }) envIid: number,
     @Args({ name: 'title', type: () => String, nullable: true }) title: string,
+    @Args({ name: 'userflowScript', type: () => String, nullable: true }) script: string,
     @CurrentUser() user: User,
   ) {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
 
-    return this.service.takeTempSnapshot(projectRawId, user.email, url, profileIids, envIid, title)
+    return this.service.takeTempSnapshot(projectRawId, user.email, url, profileIids, envIid, title, script)
   }
 
   @PermissionGuard(Permission.Read, 'projectId')
