@@ -17,6 +17,7 @@
     "@mdx-js/react": "^2.1.2",
     "@perfsee/components": "workspace:*",
     "@perfsee/dls": "workspace:*",
+    "@perfsee/flamechart": "workspace:*",
     "@perfsee/schema": "workspace:*",
     "@perfsee/shared": "workspace:*",
     "@perfsee/treemap": "workspace:*",
