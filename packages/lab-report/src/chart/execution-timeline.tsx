@@ -16,9 +16,14 @@ limitations under the License.
 
 import { useMemo } from 'react'
 
-import { buildProfileFromTracehouse, FlamechartContainer, lightTheme, Timing } from '@perfsee/flamechart'
-import { Color } from '@perfsee/flamechart/lib/color'
-import { triangle } from '@perfsee/flamechart/lib/utils'
+import {
+  buildProfileFromTracehouse,
+  FlamechartContainer,
+  lightTheme,
+  Timing,
+  Color,
+  triangle,
+} from '@perfsee/flamechart'
 import { TraceTimesWithoutFCP, formatMsDuration } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
