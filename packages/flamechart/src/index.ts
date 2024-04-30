@@ -105,10 +105,11 @@ export * from './components/flamechart-container'
 export * from './components/flamechart-group-container'
 export * from './components/react-devtool/flamechart-react-devtool-profile-container'
 export * from './components/flamechart-factory'
+export * from './components/hovertip'
 export { Profile, Frame, CallTreeNode } from './lib/profile'
 export { NetworkProfile } from './lib/network-profile'
 export { TimingProfile, TimeFormatter }
-export { Flamechart, FlamechartFrame, buildFlamechart } from './lib/flamechart'
+export { Flamechart, FlamechartFrame, buildFlamechart, RootFilter } from './lib/flamechart'
 export {
   importFromChromeTimeline,
   importMainThreadProfileFromChromeTimeline,
@@ -124,3 +125,5 @@ export * from './views'
 export * from './lib/react-devtool'
 export { Color } from './lib/color'
 export { triangle } from './lib/utils'
+export { Vec2 } from './lib/math'
+export { TimingFrame } from './lib/timing-profile'
