@@ -92,11 +92,15 @@ export const auditJumps: Record<string, JumpProps> = {
 
 export const AuditJump: FC<JumpProps> = ({ linkFactory, text }) => {
   const { projectId, reportId } = useParams<RouteTypes['project']['lab']['report']>()
-  const link = linkFactory(projectId, reportId)
   const history = useHistory()
+  const link = projectId && reportId ? linkFactory(projectId, reportId) : ''
   const onClick = useCallback(() => {
     history.push(link)
   }, [history, link])
+
+  if (!projectId || !reportId) {
+    return null
+  }
 
   return <AuditJumpButton onClick={onClick}>{text}</AuditJumpButton>
 }
