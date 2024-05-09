@@ -18,7 +18,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { isUndefined, omitBy } from 'lodash'
 
 import { Config } from '@perfsee/platform-server/config'
-import { ApplicationSetting } from '@perfsee/platform-server/db'
+import { AccessToken, ApplicationSetting, Runner, User } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { CryptoService } from '@perfsee/platform-server/helpers'
 import { Logger } from '@perfsee/platform-server/logger'
@@ -99,10 +99,11 @@ export class ApplicationSettingService implements OnApplicationBootstrap {
     )
   }
 
-  async getZones() {
+  async getZones(user?: User) {
     const settings = await this.current()
+    const usersRunners = user ? await this.getUserRunnerZones(user) : []
     return {
-      all: settings.jobZones,
+      all: settings.jobZones.concat(usersRunners),
       default: settings.defaultJobZone,
     }
   }
@@ -188,5 +189,15 @@ export class ApplicationSettingService implements OnApplicationBootstrap {
         this.logger.error('Failed to cache application settings', e)
       })
     return settings
+  }
+
+  private async getUserRunnerZones(user: User): Promise<string[]> {
+    const runners = await Runner.createQueryBuilder('runner')
+      .select('DISTINCT runner.zone as zone')
+      .innerJoin(AccessToken, 'token', 'token.token = runner.registration_token')
+      .where('token.user_id = :userId', { userId: user.id })
+      .getRawMany<{ zone: string }>()
+
+    return runners.map((r) => r.zone)
   }
 }

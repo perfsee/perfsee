@@ -35,8 +35,8 @@ export class ZoneResolver {
   constructor(private readonly service: ApplicationSettingService) {}
 
   @Query(() => Zone)
-  zone() {
-    return this.service.getZones()
+  zone(@CurrentUser() user?: User) {
+    return this.service.getZones(user)
   }
 }
 

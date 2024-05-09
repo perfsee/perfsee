@@ -19,12 +19,13 @@ import { isNil, omitBy } from 'lodash'
 import { In } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
-import { Runner } from '@perfsee/platform-server/db'
+import { Runner, User } from '@perfsee/platform-server/db'
 import { CryptoService } from '@perfsee/platform-server/helpers'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { JobType, RegisterRunnerParams, RegisterRunnerResponse, RunnerInfo } from '@perfsee/server-common'
 
 import { ApplicationSettingService } from '../application-setting'
+import { AuthService } from '../auth'
 import { getJobTypeConcurrency } from '../job/service'
 
 import { RunnerQueryFilter } from './types'
@@ -37,17 +38,35 @@ export function longestOnlineContactedTime() {
 export class RunnerService {
   loader = createDataLoader((uuids: string[]) => Runner.findBy({ uuid: In(uuids) }), 'uuid')
 
-  constructor(private readonly crypto: CryptoService, private readonly setting: ApplicationSettingService) {}
+  constructor(
+    private readonly crypto: CryptoService,
+    private readonly setting: ApplicationSettingService,
+    private readonly auth: AuthService,
+  ) {}
 
   async register(params: RegisterRunnerParams): Promise<RegisterRunnerResponse> {
     const { token: registrationToken, info } = params
     const uniqueId = uuid()
+    let runnerFromUser: User | false = false
 
     if (!(await this.setting.validateRegistrationToken(registrationToken))) {
-      throw new ForbiddenException('Invalid registration token')
+      const accessToken = await this.auth.findByToken(registrationToken)
+      if (accessToken) {
+        const user = await User.findOneBy({ id: accessToken.userId })
+        if (user) {
+          runnerFromUser = user
+        }
+      }
+
+      if (!runnerFromUser) {
+        throw new ForbiddenException('Invalid registration token')
+      }
     }
 
     const token = this.crypto.digest(`${uniqueId}:${registrationToken}`)
+    if (runnerFromUser) {
+      info.zone = `[USER:${runnerFromUser.username}]-${info.zone}`
+    }
 
     const runner = await Runner.create({
       uuid: uniqueId,
@@ -60,10 +79,12 @@ export class RunnerService {
     }).save()
 
     try {
-      const settings = await this.setting.current()
-      if (!settings.jobZones.includes(info.zone)) {
-        settings.jobZones.push(info.zone)
-        await this.setting.save(settings)
+      if (!runnerFromUser) {
+        const settings = await this.setting.current()
+        if (!settings.jobZones.includes(info.zone)) {
+          settings.jobZones.push(info.zone)
+          await this.setting.save(settings)
+        }
       }
     } catch {
       // ignore
