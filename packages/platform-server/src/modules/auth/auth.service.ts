@@ -136,7 +136,7 @@ export class AuthService {
     return user
   }
 
-  private async findByToken(token: string) {
+  async findByToken(token: string) {
     const record = (await this.findInCache(token)) ?? (await this.findInDB(token))
     if (record) {
       await AccessToken.update({ id: record.id }, { lastUsedAt: new Date() })

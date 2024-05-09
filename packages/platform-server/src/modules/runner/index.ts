@@ -16,11 +16,14 @@ limitations under the License.
 
 import { Module } from '@nestjs/common'
 
+import { AuthModule } from '../auth'
+
 import { RunnerController } from './controller'
 import { RunnerResolver } from './resolver'
 import { RunnerService } from './service'
 
 @Module({
+  imports: [AuthModule],
   controllers: [RunnerController],
   providers: [RunnerService, RunnerResolver],
   exports: [RunnerService],

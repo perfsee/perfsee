@@ -1453,6 +1453,7 @@ type Query {
   pendingJobsAggregation: [JobAggregation!]!
   runner(id: ID!): Runner!
   runners(filter: RunnerQueryFilter!): PaginatedRunners!
+  availableOAuthProviders: [ExternalAccount!]!
 
   """paginated packages"""
   packages(
@@ -1491,7 +1492,6 @@ type Query {
   ): [PackageBundle!]!
   connections: [ConnectionType!]!
   devices: [DeviceType!]!
-  availableOAuthProviders: [ExternalAccount!]!
   application(id: Int, name: String): Application!
   applications(pagination: PaginationInput = {first: 10}): PaginatedApplications!
   applicationSettings: ApplicationSettings!
@@ -1565,6 +1565,8 @@ type Mutation {
   deleteArtifact(projectId: ID!, artifactId: Int!): Boolean!
   updateRunner(id: ID!, input: UpdateRunnerInput!): Runner!
   deleteRunner(id: ID!): Boolean!
+  generateToken(name: String!): String!
+  deleteToken(name: String!): Boolean!
 
   """update project settings"""
   updateProjectSettings(projectId: ID!, input: UpdateSettingInput!): Setting!
@@ -1591,7 +1593,7 @@ type Mutation {
   deleteSnapshot(projectId: ID!, snapshotId: Int!): Boolean!
   takeSnapshot(projectId: ID!, pageIds: [Int!], profileIds: [Int!], envIds: [Int!], title: String, commitHash: String): Snapshot!
   pingConnection(projectId: ID!, pageId: Int!, profileId: Int, envId: Int): Boolean!
-  takeTempSnapshot(projectId: ID!, url: String!, profileIds: [Int!]!, envId: Int!, title: String): Snapshot!
+  takeTempSnapshot(projectId: ID!, url: String!, profileIds: [Int!]!, envId: Int!, title: String, userflowScript: String): Snapshot!
   dispatchSnapshotReport(projectId: ID!, snapshotReportId: Int!): Boolean!
 
   """
@@ -1627,8 +1629,6 @@ type Mutation {
   Delete profile with given id. NOTE: all snapshot report having the same profile id will be deleted as well.
   """
   deleteProfile(projectId: ID!, profileId: Int!): Boolean!
-  generateToken(name: String!): String!
-  deleteToken(name: String!): Boolean!
 
   """update project schedule task setting"""
   updateTimer(projectId: ID!, input: UpdateTimerInput!): Timer!

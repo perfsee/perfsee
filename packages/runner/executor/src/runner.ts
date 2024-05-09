@@ -76,9 +76,11 @@ export class Runner {
 
     let runnerScriptEntry = undefined
     try {
-      const runnerScriptPackage = await this.client.installActivatedRunnerScript(job.jobType)
-      if (runnerScriptPackage) {
-        runnerScriptEntry = require.resolve(runnerScriptPackage)
+      if (!process.env.USE_LOCAL_ENTRY) {
+        const runnerScriptPackage = await this.client.installActivatedRunnerScript(job.jobType)
+        if (runnerScriptPackage) {
+          runnerScriptEntry = require.resolve(runnerScriptPackage)
+        }
       }
     } catch (e) {
       this.failedJob(job, `Failed to install runner script [event=${job.jobType}, id=${job.jobId}]`, e)
@@ -86,7 +88,7 @@ export class Runner {
     }
 
     if (!runnerScriptEntry) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development' || process.env.USE_LOCAL_ENTRY) {
         runnerScriptEntry = localRunnerScriptEntry(job.jobType)
       } else {
         this.failedJob(job, `Runner script not found for ${job.jobType}`)
