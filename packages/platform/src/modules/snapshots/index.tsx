@@ -41,9 +41,10 @@ export const SnapshotDetail = memo(() => {
 
   const snapshotReport = state.snapshotReports[reportId]
   const detail = state.snapshotReportsDetail[snapshotReport?.reportLink ?? '']
-  const userflowNavigation = detail?.userFlow?.length ? (
-    <UserFlowNavigation currentStepIndex={currentStep} onStepClick={handleClickStep} steps={detail.userFlow} />
-  ) : null
+  const userflowNavigation =
+    detail?.userFlow?.length && detail.userFlow.length > 1 ? (
+      <UserFlowNavigation currentStepIndex={currentStep} onStepClick={handleClickStep} steps={detail.userFlow} />
+    ) : null
 
   const stepSnapshotReport = state.snapshotReports[stepReportId]
 
