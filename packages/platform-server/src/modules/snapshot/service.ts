@@ -735,7 +735,10 @@ export class SnapshotService implements OnApplicationBootstrap {
   @Cron(CronExpression.EVERY_30_MINUTES, { exclusive: true, name: 'timeout-reports' })
   async timeoutReports() {
     const reports = await SnapshotReport.createQueryBuilder('report')
-      .leftJoin(Job, 'job', 'job.entity_id = report.id and job.job_type = :jobType', { jobType: JobType.LabAnalyze })
+      .innerJoin(Job, 'job', 'job.entity_id = report.id and job.job_type in (:...jobTypes)', {
+        jobTypes: [JobType.LabAnalyze, JobType.E2EAnalyze],
+      })
+      .select(['report.id as id', 'report.status as status'])
       .where('report.status in (:...status)', {
         status: [
           SnapshotStatus.Pending,
@@ -746,8 +749,9 @@ export class SnapshotService implements OnApplicationBootstrap {
       })
       .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Done, JobStatus.Failed, JobStatus.Canceled] })
       .andWhere('job.started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
+      .andWhere('job.created_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
       .take(30)
-      .getMany()
+      .getRawMany<{ id: number; status: SnapshotStatus }>()
 
     this.logger.log(`Started to timeout reports. Length: ${reports.length}`, { ids: reports.map((r) => r.id) })
 
