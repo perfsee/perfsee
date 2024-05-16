@@ -564,7 +564,11 @@ export class SnapshotService implements OnApplicationBootstrap {
     const stepOfReport = await SnapshotReport.findOneByOrFail({ id: first.id })
     const reports = []
     for (const step of rest) {
-      const stepReport = await SnapshotReport.findOneBy({ stepOfId: stepOfReport.id, stepId: step.stepId })
+      const stepReport = await SnapshotReport.findOneBy({
+        stepOfId: stepOfReport.id,
+        stepId: step.stepId,
+        projectId: stepOfReport.projectId,
+      })
 
       if (stepReport) {
         reports.push(Object.assign(stepReport, omit(step, 'id')))
