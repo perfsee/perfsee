@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { MinusCircleFilled, InfoCircleFilled } from '@ant-design/icons'
-import { css, useTheme } from '@emotion/react'
+import { useTheme } from '@emotion/react'
 import { CommandButton, IPivotItemProps, PivotItem } from '@fluentui/react'
 import { FC, memo, useCallback, useEffect, useRef, useState } from 'react'
 
@@ -66,6 +66,14 @@ export const PerformanceContent = memo((props: Props) => {
   const theme = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const containerStyle: React.CSSProperties = hideBorder
+    ? {}
+    : {
+        borderLeft: `1px solid ${theme.border.color}`,
+        borderRight: `1px solid ${theme.border.color}`,
+        position: 'relative',
+      }
+
   const [{ relevant }, updateQueryString] = useQueryString<{ relevant?: string }>()
   const onRelevantChange = useCallback(
     (selected?: string) => {
@@ -101,19 +109,7 @@ export const PerformanceContent = memo((props: Props) => {
   ) : null
 
   return (
-    <div
-      css={
-        hideBorder
-          ? undefined
-          : css({
-              borderLeft: `1px solid ${theme.border.color}`,
-              borderRight: `1px solid ${theme.border.color}`,
-              position: 'relative',
-            })
-      }
-      className="lh-vars"
-      ref={containerRef}
-    >
+    <div style={containerStyle} className="lh-vars" ref={containerRef}>
       {relevantFilter}
       {Object.keys(result).map((type) => {
         const list: LighthouseAudit[] = result[type]
