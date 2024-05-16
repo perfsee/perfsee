@@ -68,7 +68,7 @@ export class ArtifactService implements OnApplicationBootstrap {
     return (await ArtifactName.findBy({ projectId: id })).map((name) => name.name)
   }
 
-  async getLastAvailableBaseline(projectId: number, artifactName: string) {
+  async getLastAvailableBaseline(projectId: number, artifactName: string): Promise<Pick<Artifact, 'id'> | null> {
     return Artifact.findOne({
       where: {
         projectId,
@@ -76,6 +76,7 @@ export class ArtifactService implements OnApplicationBootstrap {
         status: BundleJobStatus.Passed,
         name: artifactName,
       },
+      select: ['id'],
       order: { id: 'DESC' },
     })
   }
