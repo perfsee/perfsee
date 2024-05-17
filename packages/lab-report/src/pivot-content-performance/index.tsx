@@ -19,8 +19,9 @@ import { useTheme } from '@emotion/react'
 import { CommandButton, IPivotItemProps, PivotItem } from '@fluentui/react'
 import { FC, memo, useCallback, useEffect, useRef, useState } from 'react'
 
-import { AuditItem, formatMDLink, useQueryString } from '@perfsee/components'
+import { AuditItem, formatMDLink } from '@perfsee/components'
 
+import { useQueryString } from '../context'
 import { LabAuditDetailWithPanel } from '../lab-audit-detail'
 import {
   LHGaugeScoreScalePassed,

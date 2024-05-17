@@ -18,10 +18,11 @@ import { Spinner, SpinnerSize, Stack } from '@fluentui/react'
 import { ArrowUpRightIcon } from '@fluentui/react-icons-mdl2'
 import { PropsWithChildren, ReactNode, useMemo } from 'react'
 
-import { useQueryString, useWideScreen } from '@perfsee/components'
+import { useWideScreen } from '@perfsee/components'
 import { ChartHeader } from '@perfsee/components/chart'
 
 import { ExecutionTimeline } from '../chart'
+import { useQueryString } from '../context'
 import { AssetTransferred } from '../pivot-content-asset/asset-transferred'
 import { AnalysisReportContent } from '../pivot-content-performance'
 import { AnalysisReportTabType, SnapshotDetailType } from '../snapshot-type'
