@@ -33,17 +33,16 @@ export const useQueryString = <T extends Record<string, string>>() => {
   const [queryString, updateQueryString] = useRawQueryString<T>()
   const [query, updateQuery] = useContext(LabQueryStringContext)
 
+  const wrappedUpdate = (patch: T, replace?: boolean, _forceUpdate?: boolean) => {
+    if (replace) {
+      updateQuery?.(patch)
+    } else {
+      updateQuery?.({ ...queryString, ...patch })
+    }
+  }
+
   if (query && updateQuery) {
-    return [
-      query as T,
-      (patch: T, replace?: boolean, _forceUpdate?: boolean) => {
-        if (replace) {
-          updateQuery(patch)
-        } else {
-          updateQuery({ ...queryString, ...patch })
-        }
-      },
-    ] as const
+    return [query as T, wrappedUpdate] as const
   }
 
   return [queryString as T, updateQueryString] as const
