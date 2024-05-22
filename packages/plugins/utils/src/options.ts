@@ -140,6 +140,13 @@ export interface CommonPluginOptions {
    * @default false
    */
   includeAuxiliary?: boolean
+
+  /**
+   * If true, only treat html that contains exclusive chunk's assets as entry html.
+   *
+   * @default false
+   */
+  htmlExclusive?: boolean
 }
 
 export function getDefaultOptions(): Required<

@@ -36,12 +36,19 @@ enum Tab {
 
 interface Props {
   diff: EntryDiff
+  hasMultipleEntries: boolean
   visualizationLink?: string
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
   getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
 }
 
-export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetContent, getModuleReasons }) => {
+export const ResourceTabs: FC<Props> = ({
+  diff,
+  visualizationLink,
+  getAssetContent,
+  getModuleReasons,
+  hasMultipleEntries,
+}) => {
   const history = useHistory()
   const location = useLocation()
   const queries: { tab?: string; trace?: string } = parse(location.search)
@@ -95,7 +102,7 @@ export const ResourceTabs: FC<Props> = ({ diff, visualizationLink, getAssetConte
     <>
       <Pivot onLinkClick={onChange} selectedKey={typeof ref === 'number' ? Tab.Packages : queries.tab ?? Tab.Assets}>
         <PivotItem headerText="Assets" itemKey={Tab.Assets}>
-          <AssetsTable diff={diff} getAssetContent={getAssetContent} />
+          <AssetsTable diff={diff} getAssetContent={getAssetContent} hasMultipleEntries={hasMultipleEntries} />
         </PivotItem>
         <PivotItem headerText="Packages" itemKey={Tab.Packages}>
           <PackagesTable diff={diff} getModuleReasons={getModuleReasons} onShowTraceModal={onShowTraceModal} />

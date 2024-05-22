@@ -58,6 +58,7 @@ export type Chunk = Omit<AcquiredChunk, 'assetRefs'> & {
   assets: Asset[]
   names: string[]
   reason: string
+  exclusive?: boolean
 }
 
 type AcquiredPackage = BasePackage & PackageAppendix

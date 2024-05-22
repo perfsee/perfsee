@@ -44,6 +44,7 @@ export async function generateReports(stats: PerfseeReportStats, outputPath: str
 
   stats.rules = options.rules?.filter((rule) => typeof rule === 'string') as string[]
   stats.includeAuxiliary = options.includeAuxiliary
+  stats.htmlExclusive = options.htmlExclusive
 
   try {
     console.info('Start bundle analyzing')

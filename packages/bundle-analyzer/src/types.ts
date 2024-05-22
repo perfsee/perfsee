@@ -46,6 +46,7 @@ export interface Chunk {
   entry: boolean
   async: boolean
   assetRefs: number[]
+  exclusive?: boolean
 }
 
 export type NoteType = {

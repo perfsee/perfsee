@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { AppstoreOutlined, FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, CheckOutlined, FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Stack, SelectionMode, IGroup, TooltipHost } from '@fluentui/react'
 import { groupBy } from 'lodash'
 import { FC, MouseEvent, useCallback, useMemo, useState } from 'react'
@@ -35,14 +35,17 @@ import { useAuditScore } from './use-audit-score'
 type AssetRow = AssetInfo & {
   isNew: boolean
   audits: ItemAudit[]
+  exclusive: boolean
 }
 
 interface Props {
   diff: EntryDiff
+  hasMultipleEntries: boolean
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
 }
-export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
+export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetContent }) => {
   const { current: currentAllAssets, baseline: baselineAssets } = diff.assetsDiff
+  const { current: currentChunks } = diff.chunksDiff
   const audits = diff.audits
 
   const [contentRef, setContentRef] = useState<AssetInfo | undefined>()
@@ -69,6 +72,15 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
 
     const items: AssetRow[] = []
     const groups: IGroup[] = []
+
+    const exclusiveAssets = new Set<number>()
+    currentChunks.forEach((chunk) => {
+      if (chunk.exclusive) {
+        chunk.assetRefs.forEach((ref) => {
+          exclusiveAssets.add(ref)
+        })
+      }
+    })
 
     const assetsAuditMap: Record<string, ItemAudit[]> = {}
     audits.current.forEach((audit) => {
@@ -104,6 +116,7 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
             ...asset,
             isNew: !baselineAssets?.find((a) => a.name === asset.name),
             audits: assetsAuditMap[asset.name] || [],
+            exclusive: exclusiveAssets.has(asset.ref),
           }
         }),
       )
@@ -113,7 +126,7 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
       groups,
       items,
     }
-  }, [baselineAssets, currentAssets, audits])
+  }, [baselineAssets, currentAssets, audits, currentChunks])
 
   const columns: TableColumnProps<AssetRow>[] = useMemo(
     () => [
@@ -174,6 +187,29 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
           return null
         },
         sorter: (a) => (a.isNew ? 1 : -1),
+      },
+      {
+        key: 'exclusive',
+        name: 'Exclusive',
+        minWidth: 60,
+        maxWidth: 100,
+        onRender: (asset) => {
+          if (asset.exclusive) {
+            return <CheckOutlined style={{ color: SharedColors.blue10 }} />
+          }
+
+          return null
+        },
+        onRenderHeader: () => {
+          return (
+            <TooltipHost content="Whether a file is only included in current entrypoint.">
+              <span>
+                Exclusive <QuestionCircleOutlined />
+              </span>
+            </TooltipHost>
+          )
+        },
+        sorter: (a) => (a.exclusive ? 1 : -1),
       },
       {
         key: 'type',
@@ -256,13 +292,26 @@ export const AssetsTable: FC<Props> = ({ diff, getAssetContent }) => {
     [searchText, scoreItemsMap, onShowContentModal],
   )
 
+  const filteredColumns = useMemo(() => {
+    let resultColumns = columns
+    if (!baselineAssets) {
+      resultColumns = resultColumns.filter((c) => c.key !== 'new')
+    }
+
+    if (!hasMultipleEntries || items.every((item) => !item.exclusive)) {
+      resultColumns = resultColumns.filter((c) => c.key !== 'exclusive')
+    }
+
+    return resultColumns
+  }, [baselineAssets, columns, hasMultipleEntries, items])
+
   return (
     <Stack>
       <Table
         items={items}
         groups={groups.length > 0 ? groups : undefined}
         selectionMode={SelectionMode.none}
-        columns={baselineAssets ? columns : columns.filter((c) => c.key !== 'new')}
+        columns={filteredColumns}
         disableVirtualization={items.length < 100}
         onRenderRow={onAssetTableRenderRow}
       />
