@@ -208,10 +208,42 @@ export class StatsParser {
   private async parseEntryPoints() {
     this.logger.info('Start parsing entry points')
     const refMappedAssets = new Map(Array.from(this.assetsMap).map(([, asset]) => [asset.ref, asset]))
+    const entryChunksMap = new Map<string, Chunk[]>()
+    const chunkCountMap = new Map<ID, number>()
+    const htmls = Array.from(this.assetsMap.values()).filter((asset) => asset.type === AssetTypeEnum.Html)
 
     for (const [name, entrypoint] of Object.entries(this.stats.entrypoints!)) {
-      this.logger.verbose(`entry: '${name}'`)
       const chunks = uniqBy(this.flatChunks(entrypoint.chunks), 'ref')
+      chunks.forEach((chunk) => chunkCountMap.set(chunk.id, (chunkCountMap.get(chunk.id) || 0) + 1))
+      entryChunksMap.set(name, chunks)
+    }
+
+    for (const chunk of this.chunksMap.values()) {
+      const exclusive = chunkCountMap.get(chunk.id) === 1
+      chunk.exclusive = exclusive && Object.keys(this.stats.entrypoints!).length > 1 ? true : undefined
+      const chunkAssetsSet = new Set(chunk.assets.map((a) => a.name))
+
+      // edge case: html webpack plugin's output won't be tracked in chunks reference
+      // if initial chunk's assets exists in html's script tags, treat it as entry html.
+      if (!chunk.async) {
+        htmls.forEach((html) => {
+          if (html.content) {
+            const scripts = getHtmlScripts(html.content)
+            if (
+              !chunkAssetsSet.has(html.name) &&
+              scripts.some((script) => chunkAssetsSet.has(script.replace(this.stats.publicPath!, ''))) &&
+              (!this.stats.htmlExclusive || exclusive) // only treat it as entry html when chunk is exclusive in `htmlExclusive` mode
+            ) {
+              chunk.assets.push(html)
+            }
+          }
+        })
+      }
+    }
+
+    for (const [name] of Object.entries(this.stats.entrypoints!)) {
+      this.logger.verbose(`entry: '${name}'`)
+      const chunks = entryChunksMap.get(name)!
       const assets = uniq(chunks.map((chunk) => mapRefs(chunk.assets)).flat()).map((ref) => refMappedAssets.get(ref)!)
       const packages = this.reduceModules(chunks)
       const initialChunks = chunks.filter((chunk) => !chunk.async)
@@ -418,16 +450,6 @@ export class StatsParser {
 
   private parseChunks() {
     this.logger.info('Start parsing chunks')
-    const htmls = Array.from(this.assetsMap.values()).filter((asset) => asset.type === AssetTypeEnum.Html)
-
-    const chunkCountMap = new Map<ID, number>()
-    if (this.stats.entrypoints) {
-      Object.values(this.stats.entrypoints).forEach((entry) => {
-        entry.chunks.forEach((chunk) => {
-          chunkCountMap.set(chunk, (chunkCountMap.get(chunk) || 0) + 1)
-        })
-      })
-    }
 
     let moduleRef = 1
     const chunks = this.stats.chunks!.map(
@@ -515,23 +537,6 @@ export class StatsParser {
         }
 
         const modules = parseModules(chunkModules?.filter(isNotNil)).filter(isNotNil)
-        const exclusive = chunkCountMap.get(id) === 1
-
-        // edge case: html webpack plugin's output won't be tracked in chunks reference
-        // if initial chunk's assets exists in html's script tags, treat it as entry html.
-        if (initial) {
-          htmls.forEach((html) => {
-            if (html.content) {
-              const scripts = getHtmlScripts(html.content)
-              if (
-                scripts.some((script) => chunkAssetsMap.has(script.replace(this.stats.publicPath!, ''))) &&
-                (!this.stats.htmlExclusive || exclusive) // only treat it as entry html when chunk is exclusive in `htmlExclusive` mode
-              ) {
-                chunkAssetsMap.set(html.name, html)
-              }
-            }
-          })
-        }
 
         this.logger.verbose(`Chunk parsed: '${id}'`)
 
@@ -545,7 +550,6 @@ export class StatsParser {
           assets: Array.from(chunkAssetsMap.values()),
           children,
           modules,
-          exclusive: exclusive && Object.keys(this.stats.entrypoints || {}).length > 1 ? true : undefined,
         } as Chunk
       },
     )
