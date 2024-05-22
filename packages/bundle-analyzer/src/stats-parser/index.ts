@@ -420,6 +420,15 @@ export class StatsParser {
     this.logger.info('Start parsing chunks')
     const htmls = Array.from(this.assetsMap.values()).filter((asset) => asset.type === AssetTypeEnum.Html)
 
+    const chunkCountMap = new Map<ID, number>()
+    if (this.stats.entrypoints) {
+      Object.values(this.stats.entrypoints).forEach((entry) => {
+        entry.chunks.forEach((chunk) => {
+          chunkCountMap.set(chunk, (chunkCountMap.get(chunk) || 0) + 1)
+        })
+      })
+    }
+
     let moduleRef = 1
     const chunks = this.stats.chunks!.map(
       ({ id, initial, names, entry, reason, files, children, modules: chunkModules, auxiliaryFiles }, i) => {
@@ -506,6 +515,7 @@ export class StatsParser {
         }
 
         const modules = parseModules(chunkModules?.filter(isNotNil)).filter(isNotNil)
+        const exclusive = chunkCountMap.get(id) === 1
 
         // edge case: html webpack plugin's output won't be tracked in chunks reference
         // if initial chunk's assets exists in html's script tags, treat it as entry html.
@@ -513,7 +523,10 @@ export class StatsParser {
           htmls.forEach((html) => {
             if (html.content) {
               const scripts = getHtmlScripts(html.content)
-              if (scripts.some((script) => chunkAssetsMap.has(script.replace(this.stats.publicPath!, '')))) {
+              if (
+                scripts.some((script) => chunkAssetsMap.has(script.replace(this.stats.publicPath!, ''))) &&
+                (!this.stats.htmlExclusive || exclusive) // only treat it as entry html when chunk is exclusive in `htmlExclusive` mode
+              ) {
                 chunkAssetsMap.set(html.name, html)
               }
             }
@@ -532,6 +545,7 @@ export class StatsParser {
           assets: Array.from(chunkAssetsMap.values()),
           children,
           modules,
+          exclusive: exclusive && Object.keys(this.stats.entrypoints || {}).length > 1 ? true : undefined,
         } as Chunk
       },
     )

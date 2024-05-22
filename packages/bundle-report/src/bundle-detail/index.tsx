@@ -127,6 +127,7 @@ export const BundleReport: FC<BundleReportProps> = ({
           visualizationLink={contentLink}
           getAssetContent={getAssetContent}
           getModuleReasons={getModuleReasons}
+          hasMultipleEntries={Object.keys(diff).length > 1}
         />
       </Stack>
     </ContentCard>

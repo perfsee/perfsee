@@ -229,5 +229,6 @@ export interface PerfseeReportStats extends WebpackStats {
   >
   rules?: string[]
   includeAuxiliary?: boolean
+  htmlExclusive?: boolean
   moduleReasons?: ModuleReasons
 }
