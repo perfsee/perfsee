@@ -144,19 +144,20 @@ export interface CommonPluginOptions {
   /**
    * If true, only treat html that contains exclusive chunk's assets as entry html.
    *
-   * @default false
+   * @default true
    */
   htmlExclusive?: boolean
 }
 
 export function getDefaultOptions(): Required<
-  Pick<CommonPluginOptions, 'artifactName' | 'enableAudit' | 'token' | 'toolkit'>
+  Pick<CommonPluginOptions, 'artifactName' | 'enableAudit' | 'token' | 'toolkit' | 'htmlExclusive'>
 > {
   return {
     artifactName: 'main',
     enableAudit: !!process.env.PERFSEE_AUDIT || getBuildEnv().isCi,
     token: process.env.PERFSEE_TOKEN!,
     toolkit: 'webpack',
+    htmlExclusive: true,
   }
 }
 
