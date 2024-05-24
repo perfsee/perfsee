@@ -115,6 +115,10 @@ export class TimerService {
 
     if (patch.pageIds?.length) {
       const pages = await Page.findBy({ projectId, iid: In(patch.pageIds) })
+      pages.forEach((page) => {
+        page.isTemp = false
+      })
+      await Page.save(pages)
       idUpdates.pageIds = pages.map((p) => p.id)
     }
 
