@@ -266,6 +266,17 @@ export class PageService {
       throw new UserError(`Required parameters: 'url' and 'name'`)
     }
 
+    const existed = await Page.findOneBy({
+      url: input.url,
+      projectId,
+      name: input.name,
+      e2eScript: input.e2eScript || undefined,
+    })
+
+    if (existed) {
+      return existed
+    }
+
     if (input.e2eScript) {
       checkUserScript(input.e2eScript)
     }
