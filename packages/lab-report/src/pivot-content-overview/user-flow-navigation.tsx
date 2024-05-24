@@ -31,11 +31,33 @@ interface Props {
 const SecondaryTitle = styled.div({
   fontSize: '13px',
   fontWeight: 300,
+  overflow: 'hidden',
+  'text-overflow': 'ellipsis',
+  'max-width': 300,
+  lineBreak: 'anywhere',
+
+  '> span': {
+    display: '-webkit-box',
+    '-webkit-box-orient': 'vertical',
+    '-webkit-line-clamp': '2',
+    overflow: 'hidden',
+  },
 })
 
 const PrimaryTitle = styled.div({
   fontSize: '16px',
   fontWeight: 500,
+  overflow: 'hidden',
+  'text-overflow': 'ellipsis',
+  'max-width': 500,
+  lineBreak: 'anywhere',
+
+  '> span': {
+    display: '-webkit-box',
+    '-webkit-box-orient': 'vertical',
+    '-webkit-line-clamp': '2',
+    overflow: 'hidden',
+  },
 })
 
 const Line = styled.div({
@@ -186,7 +208,7 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       {prevPrevStep && (
         <PrevPrevTitle onClick={clickPrevPrevStep}>
           <SecondaryTitle>
-            {prevPrevStep.stepName}
+            <span>{prevPrevStep.stepName}</span>
             <Label>
               ({currentStepIndex - 1}/{stepCount})
             </Label>
@@ -202,7 +224,7 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       {prevStep && (
         <PrevTitle>
           <SecondaryTitle>
-            {prevStep.stepName}
+            <span>{prevStep.stepName}</span>
             <Label>
               ({currentStepIndex}/{stepCount})
             </Label>
@@ -216,7 +238,7 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       )}
       {currentStep && (
         <CenterTitle>
-          <>{currentStep.stepName}</>
+          <span>{currentStep.stepName}</span>
           <Label>
             ({currentStepIndex + 1}/{stepCount})
           </Label>
@@ -231,7 +253,7 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       {nextStep && (
         <NextTitle onClick={clickNextStep}>
           <SecondaryTitle>
-            {nextStep.stepName}
+            <span>{nextStep.stepName}</span>
             <Label>
               ({currentStepIndex + 2}/{stepCount})
             </Label>
@@ -247,7 +269,7 @@ export const UserFlowNavigation = ({ steps, currentStepIndex, onStepClick }: Pro
       {nextNextStep && (
         <NextNextTitle onClick={clickNextNextStep}>
           <SecondaryTitle>
-            {nextNextStep.stepName}
+            <span>{nextNextStep.stepName}</span>
             <Label>
               ({currentStepIndex + 3}/{stepCount})
             </Label>
