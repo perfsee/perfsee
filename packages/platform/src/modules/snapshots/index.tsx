@@ -52,6 +52,10 @@ export const SnapshotDetail = memo(() => {
   const title = stepSnapshotReport?.snapshot.title ?? `Snapshot #${snapshotId}`
 
   useEffect(() => {
+    setStepReportId(reportId)
+  }, [reportId])
+
+  useEffect(() => {
     dispatcher.fetchSnapshotReport(stepReportId)
   }, [dispatcher, stepReportId])
 

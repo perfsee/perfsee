@@ -122,6 +122,8 @@ export class SnapshotModule extends EffectModule<State> {
           .pipe(
             createErrorCatcher('Failed to fetch snapshot report by report id'),
             map((payload) => this.getActions().setReport(payload.project.snapshotReport)),
+            startWith(this.getActions().setLoading(true)),
+            endWith(this.getActions().setLoading(false)),
           ),
       ),
     )
