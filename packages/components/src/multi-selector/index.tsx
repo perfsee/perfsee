@@ -19,19 +19,22 @@ import { FormEvent, useCallback, useMemo } from 'react'
 
 import { LabelWithTips } from '../label-with-tips'
 
-interface Props<T> {
-  options: { id: T; name: string }[]
-  defaultIds?: T[]
-  ids: T[]
-  onSelectChange?: (ids: T[]) => void
+export interface CommonProps<T> {
   onChange?: (e: FormEvent<HTMLDivElement>, option?: IDropdownOption<T>, index?: number) => void
   errorMessage?: string
-  multiSelect?: boolean
+  forceErrorMessage?: boolean
   label?: string
   required?: boolean
   tips?: string
   // IDropdownProps
   placeholder?: string
+  multiSelect?: boolean
+  options: { id: T; name: string }[]
+}
+interface Props<T> extends CommonProps<T> {
+  defaultIds?: T[]
+  ids: T[]
+  onSelectChange?: (ids: T[]) => void
 }
 
 export const MultiSelector = <T,>(props: Props<T>) => {
@@ -41,6 +44,7 @@ export const MultiSelector = <T,>(props: Props<T>) => {
     ids,
     onSelectChange,
     errorMessage,
+    forceErrorMessage,
     multiSelect = true,
     required = true,
     label,
@@ -100,7 +104,7 @@ export const MultiSelector = <T,>(props: Props<T>) => {
       onChange={onDropdownChange}
       onRenderLabel={onRenderLabel}
       {...otherProps}
-      errorMessage={!defaultIds?.length && !ids.length ? errorMessage : undefined}
+      errorMessage={(!defaultIds?.length && !ids.length) || forceErrorMessage ? errorMessage : undefined}
     />
   )
 }
