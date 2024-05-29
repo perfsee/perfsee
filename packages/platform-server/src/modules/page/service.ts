@@ -245,6 +245,11 @@ export class PageService {
       input.connectPageIid = page.id
     }
 
+    if (input.connectPageIids?.length) {
+      const pages = await Page.findBy({ projectId, iid: In(input.connectPageIids) })
+      input.connectPageIids = pages.map((p) => p.id)
+    }
+
     if ('iid' in input) {
       return this.updatePage(projectId, input)
     } else {
@@ -281,7 +286,7 @@ export class PageService {
       checkUserScript(input.e2eScript)
     }
 
-    const payload = omit(input, 'profileIids', 'envIids', 'competitorIids', 'connectPageIid')
+    const payload = omit(input, 'profileIids', 'envIids', 'competitorIids', 'connectPageIid', 'connectPageIids')
     const page = Page.create({
       ...payload,
       projectId,
@@ -301,6 +306,10 @@ export class PageService {
       if (input.connectPageIid && input.isCompetitor) {
         await manager.getRepository(PageWithCompetitor).save({ pageId: input.connectPageIid, competitorId: page.id })
       }
+
+      if (input.connectPageIids && input.isCompetitor) {
+        await this.savePageWithConnects(manager, page.id, input.connectPageIids ?? [])
+      }
     })
     return page
   }
@@ -311,7 +320,14 @@ export class PageService {
     }
     const page = await Page.findOneByOrFail({ projectId, iid: patch.iid })
 
-    const payload = omit(omitBy(patch, isNil), 'profileIids', 'envIids', 'competitorIids')
+    const payload = omit(
+      omitBy(patch, isNil),
+      'profileIids',
+      'envIids',
+      'competitorIids',
+      'connectPageIid',
+      'connectPageIids',
+    )
 
     await this.db.transaction(async (manager) => {
       await manager.getRepository(Page).update(page.id, payload)
@@ -319,6 +335,14 @@ export class PageService {
       await this.savePageWithEnvironments(manager, page.id, patch.envIids ?? [])
       if (!page.isCompetitor && !page.isTemp) {
         await this.savePageWithCompetitors(manager, page.id, patch.competitorIids ?? [])
+      }
+      if (patch.connectPageIid && page.isCompetitor) {
+        await PageWithCompetitor.delete({ competitorId: page.id })
+        await PageWithCompetitor.save({ pageId: patch.connectPageIid, competitorId: page.id })
+      }
+
+      if (patch.connectPageIids && page.isCompetitor) {
+        await this.savePageWithConnects(manager, page.id, patch.connectPageIids ?? [])
       }
     })
 
@@ -405,6 +429,35 @@ export class PageService {
     if (needAddComIds.length) {
       const addItems = needAddComIds.map((id) => {
         return PageWithCompetitor.create({ pageId, competitorId: id })
+      })
+      await manager.getRepository(PageWithCompetitor).insert(addItems)
+    }
+  }
+
+  private async savePageWithConnects(
+    manager: EntityManager,
+    pageId: number,
+    connectPageIds: number[],
+    isNewPage?: boolean,
+  ) {
+    const oldConnectIds = isNewPage
+      ? []
+      : (await PageWithCompetitor.findBy({ competitorId: pageId })).map((item) => item.pageId)
+    const needRemoveComIds = difference(oldConnectIds, connectPageIds)
+    const needAddComIds = difference(connectPageIds, oldConnectIds)
+    if (needRemoveComIds.length) {
+      await manager
+        .getRepository(PageWithCompetitor)
+        .createQueryBuilder()
+        .delete()
+        .where('competitor_id = :pageId', { pageId })
+        .andWhere('page_id in (:...ids)', { ids: needRemoveComIds })
+        .execute()
+    }
+
+    if (needAddComIds.length) {
+      const addItems = needAddComIds.map((id) => {
+        return PageWithCompetitor.create({ pageId: id, competitorId: pageId })
       })
       await manager.getRepository(PageWithCompetitor).insert(addItems)
     }

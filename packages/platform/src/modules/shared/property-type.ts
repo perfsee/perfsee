@@ -28,7 +28,7 @@ export type LocalStorageSchema = NonNullable<PropertyQuery['project']['environme
 
 export type UpdatePagePayload = {
   page: Partial<PageSchema>
-  connectPageId?: number // for competitor page
+  connectPageIds?: number[] // for competitor page
   relation: Omit<PageRelation, 'pageId'>
 }
 

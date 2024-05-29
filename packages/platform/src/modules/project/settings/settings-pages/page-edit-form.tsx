@@ -19,7 +19,6 @@ import { useModuleState } from '@sigi/react'
 import { useCallback, useState, useMemo, useRef } from 'react'
 
 import { IconWithTips, MultiSelector, RequiredTextField, URLTextField } from '@perfsee/components'
-import { SingleSelector } from '@perfsee/components/multi-selector/single-selector'
 
 import { CompetitorMaxCount, PageRelation, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { disableSavePage, emptyRelation } from '../helper'
@@ -39,7 +38,15 @@ export const PageEditForm = (props: FromProps) => {
   const { environments, profiles, pages, pageRelationMap } = useModuleState(PropertyModule)
 
   const [page, setPage] = useState<Partial<PageSchema>>(defaultPage) // for record edit or delete page
-  const [connectPageId, setConnectPageId] = useState<number>()
+  const [connectPageIds, setConnectPageIds] = useState<number[]>(() => {
+    return (
+      [...pageRelationMap.values()]
+        .filter((relation) => {
+          return relation.competitorIds.includes(defaultPage.id as number)
+        })
+        ?.map((relation) => relation.pageId) || []
+    )
+  })
 
   const isCompetitor = page.isCompetitor
 
@@ -90,7 +97,7 @@ export const PageEditForm = (props: FromProps) => {
           isE2e: !!userflowScript,
           e2eScript: userflowScript,
         },
-        connectPageId: page.isCompetitor && connectPageId ? connectPageId : undefined,
+        connectPageIds: page.isCompetitor && connectPageIds ? connectPageIds : undefined,
         relation: {
           ...relation,
           envIds: page.isCompetitor ? [relation.envIds[0]] : relation.envIds,
@@ -98,13 +105,13 @@ export const PageEditForm = (props: FromProps) => {
         },
       })
     }
-  }, [connectPageId, onSubmit, page, relation])
+  }, [connectPageIds, onSubmit, page, relation])
 
   const competitorPageItems = useMemo(() => {
     return pages
-      .filter((p) => p.isCompetitor)
+      .filter((p) => p.isCompetitor && p.id !== defaultPage.id)
       .map((e) => ({ id: e.id, name: !e.disable ? e.name : e.name + ' (disabled)' }))
-  }, [pages])
+  }, [pages, defaultPage])
 
   const environmentItems = useMemo(
     () => environments.map((e) => ({ id: e.id, name: !e.disable ? e.name : e.name + ' (disabled)' })),
@@ -114,6 +121,18 @@ export const PageEditForm = (props: FromProps) => {
   const profileItems = useMemo(
     () => profiles.map((e) => ({ id: e.id, name: !e.disable ? e.name : e.name + ' (disabled)' })),
     [profiles],
+  )
+
+  const connectionPages = useMemo(
+    () =>
+      pages.filter(
+        (p) =>
+          !p.isCompetitor &&
+          !p.isTemp &&
+          p.id !== defaultPage.id &&
+          (pageRelationMap.get(p.id)?.competitorIds.length ?? 0) < CompetitorMaxCount,
+      ),
+    [pageRelationMap, pages, defaultPage],
   )
 
   return (
@@ -126,6 +145,7 @@ export const PageEditForm = (props: FromProps) => {
         onSelectChange={onProfileChange}
         label="Profiles"
         errorMessage="Required"
+        multiSelect={page.isCompetitor ? false : true}
       />
       <MultiSelector
         options={environmentItems}
@@ -135,6 +155,7 @@ export const PageEditForm = (props: FromProps) => {
         errorMessage="Required"
         multiSelect={page.isCompetitor ? false : true}
       />
+      <UserflowScriptForm defaultScript={page.e2eScript} ref={userflowScriptRef} />
       {!isCompetitor && !!competitorPageItems.length && (
         <MultiSelector
           options={competitorPageItems}
@@ -147,24 +168,23 @@ export const PageEditForm = (props: FromProps) => {
           The maximum number of competitors is ${CompetitorMaxCount}.`}
         />
       )}
-      {!defaultPage.id && isCompetitor && (
-        <SingleSelector
-          options={pages.filter(
-            (p) =>
-              !p.isCompetitor &&
-              !p.isTemp &&
-              (pageRelationMap.get(p.id)?.competitorIds.length ?? 0) < CompetitorMaxCount,
-          )}
-          id={connectPageId}
-          onSelectChange={setConnectPageId}
+      {isCompetitor && (
+        <MultiSelector
+          options={connectionPages}
+          ids={connectPageIds}
+          onSelectChange={setConnectPageIds}
           label="Connect Page"
           required={false}
           tips="Take a snapshot every time, the competitor page will be measured with the connect page at the same time for comparison."
         />
       )}
-      <UserflowScriptForm defaultScript={page.e2eScript} ref={userflowScriptRef} />
       <div style={{ display: 'flex' }}>
-        <Checkbox defaultChecked={page.isCompetitor} label="As competitor" onChange={onCheckboxChange} />
+        <Checkbox
+          styles={{ label: { fontWeight: 600 } }}
+          defaultChecked={page.isCompetitor}
+          label="As competitor"
+          onChange={onCheckboxChange}
+        />
         <IconWithTips marginLeft="4px" content={'It will be compare with other pages.'} />
       </div>
       <DialogFooter>
