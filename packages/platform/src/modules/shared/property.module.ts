@@ -208,13 +208,24 @@ export class PropertyModule extends EffectModule<State> {
   }
 
   @Reducer()
-  addRelation(state: Draft<State>, payload: { relation: PageRelation; connectPageId?: number }) {
-    const { relation, connectPageId } = payload
+  addRelation(state: Draft<State>, payload: { relation: PageRelation; connectPageIds?: number[]; isUpdate?: boolean }) {
+    const { relation, connectPageIds = [], isUpdate } = payload
     const map = new Map(state.pageRelationMap)
     map.set(relation.pageId, relation)
 
+    if (isUpdate) {
+      for (const [key, value] of map.entries()) {
+        if (value.competitorIds.includes(relation.pageId)) {
+          map.set(key, {
+            ...value,
+            competitorIds: value.competitorIds.filter((id) => id !== relation.pageId),
+          })
+        }
+      }
+    }
+
     // if create a competitor page
-    if (connectPageId) {
+    for (const connectPageId of connectPageIds) {
       const connectRelation = map.get(connectPageId)!
       map.set(connectPageId, {
         ...connectRelation,
@@ -474,14 +485,14 @@ export class PropertyModule extends EffectModule<State> {
   updateOrCreatePage(payload$: Observable<UpdatePagePayload>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
-      switchMap(([{ page, relation, connectPageId }, { project }]) =>
+      switchMap(([{ page, relation, connectPageIds }, { project }]) =>
         this.client
           .mutate({
             mutation: page.id ? updatePageMutation : createPageMutation,
             variables: {
               pageInput: {
                 ...page,
-                connectPageId,
+                connectPageIds,
                 ...pick(relation, ['profileIds', 'envIds', 'competitorIds']),
               },
               projectId: project!.id,
@@ -494,7 +505,8 @@ export class PropertyModule extends EffectModule<State> {
               return of(
                 this.getActions().addRelation({
                   relation: { ...relation, pageId: page.id },
-                  connectPageId,
+                  connectPageIds,
+                  isUpdate: 'updatePage' in result,
                 }),
                 this.getActions().setPages(page),
               )

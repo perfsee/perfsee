@@ -36,6 +36,14 @@ export class CreatePageInput extends PartialType(OmitType(Page, ['projectId', 'i
       'used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`',
   })
   connectPageIid?: number
+
+  @Field(() => [Int], {
+    name: 'connectPageIds',
+    nullable: true,
+    description:
+      'used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`',
+  })
+  connectPageIids?: number[]
 }
 
 @InputType()

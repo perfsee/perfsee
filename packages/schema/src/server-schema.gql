@@ -1744,6 +1744,11 @@ input CreatePageInput {
   used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`
   """
   connectPageId: Int
+
+  """
+  used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`
+  """
+  connectPageIds: [Int!]
 }
 
 input UpdatePageInput {
@@ -1781,6 +1786,11 @@ input UpdatePageInput {
   used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`
   """
   connectPageId: Int
+
+  """
+  used to automatically connect competitor page to existing page. only available when `isCompetitor` set `true`
+  """
+  connectPageIds: [Int!]
   id: Int!
 }
 
