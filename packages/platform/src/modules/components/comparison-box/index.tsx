@@ -15,31 +15,40 @@ limitations under the License.
 */
 
 import { DoubleRightOutlined, MinusCircleOutlined } from '@ant-design/icons'
-import { Callout, Stack, TooltipHost, PrimaryButton, DirectionalHint } from '@fluentui/react'
+import { Callout, Stack, PrimaryButton, DirectionalHint, SelectionMode } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { stringifyUrl } from 'query-string'
 import { useCallback, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { Badge, TeachingBubbleHost, TooltipWithEllipsis } from '@perfsee/components'
+import { Badge, TeachingBubbleHost, Table, TableColumnProps, TooltipWithEllipsis } from '@perfsee/components'
 import { PerformanceTabType } from '@perfsee/lab-report/snapshot-type'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { CompareModule, CompetitorMaxCount, useProject } from '../../shared'
+import { CompareModule, CompareReport, CompetitorMaxCount, useProject } from '../../shared'
 
-import {
-  CalloutHeader,
-  Container,
-  IconBox,
-  SnapshotName,
-  SelectMoreTip,
-  PageName,
-  StartCompareButtonInner,
-  StyledInboxOutlined,
-} from './style'
+import { CalloutHeader, Container, IconBox, SelectMoreTip, StartCompareButtonInner, StyledInboxOutlined } from './style'
 
 const tokens = { childrenGap: 10, padding: '16px' }
-const stackStyles = { root: { maxWidth: '400px', minWidth: '200px' } }
+const stackStyles = { root: { maxWidth: '600px', minWidth: '200px' } }
+const columns: TableColumnProps<[string, CompareReport]>[] = [
+  {
+    key: 'name',
+    minWidth: 100,
+    name: 'Name',
+    onRender(item) {
+      return <TooltipWithEllipsis content={item[1].name} tooltipContent={item[1].name} />
+    },
+  },
+  {
+    key: 'snapshot',
+    minWidth: 70,
+    name: 'Snapshot',
+    onRender(item) {
+      return `#${item[1].snapshotId}`
+    },
+  },
+]
 
 export const ComparisonBox = () => {
   const history = useHistory()
@@ -49,7 +58,10 @@ export const ComparisonBox = () => {
 
   const [{ compareReports, calloutVisible }, dispatcher] = useModule(CompareModule)
 
-  const projectReports = useMemo(() => (project ? compareReports[project.id] ?? {} : {}), [compareReports, project])
+  const projectReports: Record<string, CompareReport> = useMemo(
+    () => (project ? compareReports[project.id] ?? {} : {}),
+    [compareReports, project],
+  )
 
   const reportIds = useMemo(() => {
     return Object.keys(projectReports).map((reportId) => reportId)
@@ -93,60 +105,57 @@ export const ComparisonBox = () => {
     [dispatcher, project],
   )
 
+  const formatColumns = useMemo(() => {
+    return columns.concat([
+      {
+        key: 'op',
+        minWidth: 70,
+        name: 'operator',
+        onRender(item) {
+          return <MinusCircleOutlined style={{ marginLeft: '4px' }} onClick={removeReport(Number(item[0]))} />
+        },
+      },
+    ])
+  }, [removeReport])
+
   const callout = useMemo(() => {
     if (!reportIds.length) {
       return (
         <Stack styles={stackStyles} tokens={tokens}>
-          Select two or more reports to compare. [Hover the page name under the snapshot and then click the plus
-          button].
+          Select two or more reports to compare.
         </Stack>
       )
     }
 
     const disabled = reportIds.length < 2 || reportIds.length > CompetitorMaxCount
+
     return (
       <Stack styles={stackStyles} tokens={tokens}>
         <CalloutHeader>Compare reports</CalloutHeader>
-        {reportIds.length < 2 && <SelectMoreTip>* Select one more report to compare</SelectMoreTip>}
-        {Object.keys(projectReports).map((reportId) => {
-          const data = projectReports[reportId]
-
-          return (
-            <Stack
-              key={reportId}
-              tokens={{ childrenGap: '6px' }}
-              horizontal
-              verticalAlign="center"
-              horizontalAlign="space-between"
-            >
-              <TooltipWithEllipsis content={data.name}>
-                <PageName>{data.name} </PageName>
-              </TooltipWithEllipsis>
-              <Stack
-                styles={{ root: { minWidth: '100px' } }}
-                tokens={{ childrenGap: '6px' }}
-                horizontal
-                verticalAlign="center"
-              >
-                <SnapshotName>Snapshot #{data.snapshotId}</SnapshotName>
-                <MinusCircleOutlined style={{ marginLeft: '4px' }} onClick={removeReport(Number(reportId))} />
-              </Stack>
-            </Stack>
-          )
-        })}
+        {reportIds.length > 1 && <SelectMoreTip isError={false}>* The first report is baseline.</SelectMoreTip>}
+        {reportIds.length < 2 && <SelectMoreTip>* Select one more report to compare.</SelectMoreTip>}
+        <Table
+          detailsListStyles={{
+            root: {
+              '.ms-DetailsHeader': { paddingTop: 0 },
+            },
+          }}
+          items={Object.entries(projectReports)}
+          selectionMode={SelectionMode.none}
+          compact={true}
+          columns={formatColumns}
+        />
         <Stack horizontal horizontalAlign="end">
-          <TooltipHost hidden={!disabled} content="Select 2 ~ 5 reports to be compared.">
-            <PrimaryButton styles={{ root: { height: '28px', padding: 0 } }} disabled={disabled} onClick={onClick}>
-              <StartCompareButtonInner>
-                <span>Compare</span>
-                <DoubleRightOutlined />
-              </StartCompareButtonInner>
-            </PrimaryButton>
-          </TooltipHost>
+          <PrimaryButton styles={{ root: { height: '28px', padding: 0 } }} disabled={disabled} onClick={onClick}>
+            <StartCompareButtonInner>
+              <span>Compare</span>
+              <DoubleRightOutlined />
+            </StartCompareButtonInner>
+          </PrimaryButton>
         </Stack>
       </Stack>
     )
-  }, [reportIds.length, projectReports, onClick, removeReport])
+  }, [reportIds.length, projectReports, onClick, formatColumns])
 
   return (
     <>
@@ -155,12 +164,7 @@ export const ComparisonBox = () => {
           teachingId="lab-list-compare"
           headline="Compare Between Reports"
           delay={500}
-          body={
-            <>
-              Select two or more reports to compare. <br />
-              [Hover the page name under the snapshot and then click the plus button].
-            </>
-          }
+          body={'Select two or more reports to compare. '}
           directional={DirectionalHint.topRightEdge}
         >
           <IconBox ref={iconRef} onMouseOver={showCallout}>

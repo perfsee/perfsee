@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DialogFooter, PrimaryButton, DefaultButton, Stack } from '@fluentui/react'
-import { useModule } from '@sigi/react'
+import { DialogFooter, PrimaryButton, DefaultButton, Stack, Checkbox } from '@fluentui/react'
+import { useModuleState } from '@sigi/react'
 import { useCallback, useState, useMemo, useRef } from 'react'
 
-import { MultiSelector, RequiredTextField, URLTextField } from '@perfsee/components'
+import { IconWithTips, MultiSelector, RequiredTextField, URLTextField } from '@perfsee/components'
+import { SingleSelector } from '@perfsee/components/multi-selector/single-selector'
 
 import { CompetitorMaxCount, PageRelation, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
 import { disableSavePage, emptyRelation } from '../helper'
@@ -35,9 +36,12 @@ export const PageEditForm = (props: FromProps) => {
   const { defaultPage, closeModal, onSubmit } = props
 
   const userflowScriptRef = useRef<{ getScript: () => string | null }>()
-  const [{ environments, profiles, pages, pageRelationMap }] = useModule(PropertyModule)
+  const { environments, profiles, pages, pageRelationMap } = useModuleState(PropertyModule)
 
   const [page, setPage] = useState<Partial<PageSchema>>(defaultPage) // for record edit or delete page
+  const [connectPageId, setConnectPageId] = useState<number>()
+
+  const isCompetitor = page.isCompetitor
 
   const defaultRelation = defaultPage.id ? pageRelationMap.get(defaultPage.id)! : emptyRelation
   const [relation, setRelation] = useState<Omit<PageRelation, 'pageId'>>(defaultRelation)
@@ -69,15 +73,32 @@ export const PageEditForm = (props: FromProps) => {
     setRelation((rel) => ({ ...rel, envIds: ids }))
   }, [])
 
+  const onCheckboxChange = useCallback((_e?: any, checked?: boolean) => {
+    setPage((page) => ({ ...page, isCompetitor: checked }))
+  }, [])
+
   const onSaveButtonClick = useCallback(() => {
     if (page) {
       const userflowScript = userflowScriptRef.current!.getScript()
       if (userflowScript === '') {
         return
       }
-      onSubmit({ page: { ...page, isE2e: !!userflowScript, e2eScript: userflowScript }, relation })
+
+      onSubmit({
+        page: {
+          ...page,
+          isE2e: !!userflowScript,
+          e2eScript: userflowScript,
+        },
+        connectPageId: page.isCompetitor && connectPageId ? connectPageId : undefined,
+        relation: {
+          ...relation,
+          envIds: page.isCompetitor ? [relation.envIds[0]] : relation.envIds,
+          competitorIds: page.isCompetitor ? [] : relation.competitorIds,
+        },
+      })
     }
-  }, [onSubmit, page, relation])
+  }, [connectPageId, onSubmit, page, relation])
 
   const competitorPageItems = useMemo(() => {
     return pages
@@ -112,8 +133,9 @@ export const PageEditForm = (props: FromProps) => {
         onSelectChange={onEnvChange}
         label="Environments"
         errorMessage="Required"
+        multiSelect={page.isCompetitor ? false : true}
       />
-      {!!competitorPageItems.length && (
+      {!isCompetitor && !!competitorPageItems.length && (
         <MultiSelector
           options={competitorPageItems}
           ids={relation.competitorIds}
@@ -125,8 +147,26 @@ export const PageEditForm = (props: FromProps) => {
           The maximum number of competitors is ${CompetitorMaxCount}.`}
         />
       )}
+      {!defaultPage.id && isCompetitor && (
+        <SingleSelector
+          options={pages.filter(
+            (p) =>
+              !p.isCompetitor &&
+              !p.isTemp &&
+              (pageRelationMap.get(p.id)?.competitorIds.length ?? 0) < CompetitorMaxCount,
+          )}
+          id={connectPageId}
+          onSelectChange={setConnectPageId}
+          label="Connect Page"
+          required={false}
+          tips="Take a snapshot every time, the competitor page will be measured with the connect page at the same time for comparison."
+        />
+      )}
       <UserflowScriptForm defaultScript={page.e2eScript} ref={userflowScriptRef} />
-
+      <div style={{ display: 'flex' }}>
+        <Checkbox defaultChecked={page.isCompetitor} label="As competitor" onChange={onCheckboxChange} />
+        <IconWithTips marginLeft="4px" content={'It will be compare with other pages.'} />
+      </div>
       <DialogFooter>
         <PrimaryButton onClick={onSaveButtonClick} text="Save" disabled={disableSavePage(page, relation)} />
         <DefaultButton onClick={closeModal} text="Cancel" />

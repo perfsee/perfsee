@@ -23,7 +23,6 @@ import { SettingCards } from '../cards'
 import { emptyRelation } from '../helper'
 import { DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
 
-import { CompetitorPageEditForm } from './competitor-page-edit-form'
 import { PageEditForm } from './page-edit-form'
 import { PageListCell } from './page-list-cell'
 import { PingContent } from './ping-content'
@@ -57,26 +56,16 @@ export const SettingsPages = () => {
     const competitorList: PageSchema[] = []
     const pageList: PageSchema[] = []
     pages.forEach((p) => {
-      if (p.isTemp) {
-        tempList.push(p)
-      } else if (p.isCompetitor) {
+      if (p.isCompetitor) {
         competitorList.push(p)
+      } else if (p.isTemp) {
+        tempList.push(p)
       } else {
         pageList.push(p)
       }
     })
     return { tempList, competitorList, pageList }
   }, [pages])
-
-  const onCreatePage = useCallback(() => {
-    setPage({ isCompetitor: false })
-    setDialogVisible(DialogVisible.Edit)
-  }, [])
-
-  const onCreateCompetitor = useCallback(() => {
-    setPage({ isCompetitor: true })
-    setDialogVisible(DialogVisible.Edit)
-  }, [])
 
   const closeModal = useCallback(() => {
     setDialogVisible(DialogVisible.Off)
@@ -104,6 +93,11 @@ export const SettingsPages = () => {
       setPage(p)
       setDialogVisible(DialogVisible.Edit)
     }
+  }, [])
+
+  const openCreatePageModal = useCallback(() => {
+    setPage({ isCompetitor: false })
+    setDialogVisible(DialogVisible.Edit)
   }, [])
 
   const openPingModal = useCallback(
@@ -171,19 +165,13 @@ export const SettingsPages = () => {
       items: [
         {
           key: 'page',
-          text: 'page',
+          text: 'Page',
           iconProps: { iconName: 'desktop' },
-          onClick: onCreatePage,
-        },
-        {
-          key: 'competitor',
-          text: 'competitor page',
-          iconProps: { iconName: 'competitor' },
-          onClick: onCreateCompetitor,
+          onClick: openCreatePageModal,
         },
       ],
     }),
-    [onCreateCompetitor, onCreatePage],
+    [openCreatePageModal],
   )
 
   const pingContent = useMemo(() => {
@@ -197,26 +185,6 @@ export const SettingsPages = () => {
       />
     )
   }, [envMap, page, pingCheck, pingResultMap, profileMap])
-
-  const editContent = useMemo(() => {
-    if (page.isCompetitor) {
-      return <CompetitorPageEditForm defaultPage={page} onSubmit={onUpdatePage} closeModal={closeModal} />
-    }
-
-    return <PageEditForm defaultPage={page} onSubmit={onUpdatePage} closeModal={closeModal} />
-  }, [page, onUpdatePage, closeModal])
-
-  const deleteContent = useMemo(() => {
-    return (
-      <DeleteContent
-        type="page"
-        name={page?.name ?? ''}
-        progress={deleteProgress}
-        onDelete={onDeletePage}
-        closeModal={closeDeleteModal}
-      />
-    )
-  }, [closeDeleteModal, deleteProgress, onDeletePage, page])
 
   return (
     <div>
@@ -236,8 +204,16 @@ export const SettingsPages = () => {
         type={page.isCompetitor ? 'Competitor Page' : 'Page'}
         visible={visible}
         onCloseDialog={closeModal}
-        editContent={editContent}
-        deleteContent={deleteContent}
+        editContent={<PageEditForm defaultPage={page} onSubmit={onUpdatePage} closeModal={closeModal} />}
+        deleteContent={
+          <DeleteContent
+            type="page"
+            name={page?.name ?? ''}
+            progress={deleteProgress}
+            onDelete={onDeletePage}
+            closeModal={closeDeleteModal}
+          />
+        }
         isCreate={!page.id}
         pingContent={pingContent}
       />

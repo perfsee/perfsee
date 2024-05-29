@@ -43,9 +43,9 @@ export const StyledInboxOutlined = styled(InboxOutlined)({
   marginTop: '2px',
 })
 
-export const SelectMoreTip = styled.p(({ theme }) => ({
+export const SelectMoreTip = styled.p<{ isError?: boolean }>(({ theme, isError = true }) => ({
   fontSize: '12px',
-  color: theme.text.colorSecondary,
+  color: isError ? theme.colors.error : theme.text.color,
 }))
 
 export const StartCompareButtonInner = styled.span({
@@ -58,14 +58,6 @@ export const StartCompareButtonInner = styled.span({
   },
 })
 
-export const PageName = styled.b(({ theme }) => ({
-  color: theme.text.color,
-}))
-
 export const CalloutHeader = styled.h3(({ theme }) => ({
   color: theme.link.color,
 }))
-
-export const SnapshotName = styled.span({
-  fontSize: '12px',
-})
