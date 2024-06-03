@@ -26,12 +26,6 @@ The environment can be used to connect with project's Page, and can be selected 
 
 ![create environment](/settings/create-environment.png)
 
-### Create Competitor Environment
-
-Same as above, and check the `Competitor environment` checkbox before saving.
-
-Competitor environment can only be linked to competitor page and temporary page. And competitor page cannot be selected when trigger a scan by manual.
-
 ## Configurations
 
 ### Cookies
