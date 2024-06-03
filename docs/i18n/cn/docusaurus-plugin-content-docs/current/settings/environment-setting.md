@@ -26,10 +26,6 @@ sidebar_position: 4
 
 ![create environment](/settings/create-environment.png)
 
-### 新建竞品环境
-
-与新建环境的步骤一样，保存前勾选上 Competitor environment 的 checkbox。竞品环境只能关联竞品页面跟临时页面。竞品页面不能在手动触发扫描的时候被选择。
-
 ## 参数说明
 
 ### Cookies

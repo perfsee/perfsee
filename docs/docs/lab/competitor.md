@@ -16,10 +16,11 @@ The Competitor function is based on the basic capabilities of the Lab Module, if
 
 Navigate to **Settings->Pages**,
 
-![create competitor page](/settings/create-competitor-page.png)
+1. Click `Create` to create a page;
+2. Check `As competitor` to as a rival page;
+3. Associate the competitor page with the regular page to be compared.
 
-1. Click `Create a Competitor Page`
-2. Associate the competitor page with the site page to be compared.
+![create competitor page](/settings/create-competitor-page.png)
 
 ### 2. Take a snapshot manually
 
