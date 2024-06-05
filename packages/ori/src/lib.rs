@@ -18,6 +18,7 @@ limitations under the License.
 // napi v1 macro didn't cover all generated unsafe code in unsafe blocks
 // should remove after upgrading to v2
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
+#![allow(clippy::assigning_clones)]
 
 #[macro_use]
 extern crate napi_derive;

@@ -1,4 +1,5 @@
 #![deny(clippy::all)]
+#![allow(clippy::assigning_clones)]
 
 use std::collections::HashMap;
 use std::mem;

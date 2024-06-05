@@ -290,6 +290,11 @@ export interface PerfseeConfig {
           runs: number
         }
       }
+
+      /**
+       * lab performance score variability threshold
+       */
+      variabilityThreshold?: number
     }
   }
 
