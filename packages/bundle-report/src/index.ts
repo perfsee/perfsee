@@ -16,3 +16,4 @@ limitations under the License.
 
 export { BundleContent, BundleContentProps } from './bundle-content'
 export { BundleReport, BundleReportProps, PackageTraceContext } from './bundle-detail'
+export * from './router-context'

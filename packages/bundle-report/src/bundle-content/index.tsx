@@ -17,13 +17,14 @@ limitations under the License.
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { IDropdownOption, IDropdownProps, IRenderFunction } from '@fluentui/react'
 import { union } from 'lodash'
-import { useMemo, useCallback, FC, useState, useEffect } from 'react'
-import { useHistory } from 'react-router'
+import { useMemo, useCallback, FC, useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Select, useWideScreen } from '@perfsee/components'
 import { ModuleTreeNode } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
+
+import { RouterContext } from '../router-context'
 
 import { ChartWrapper, Header, Container, ShortcutTips } from './styled'
 import { Treemap } from './treemap'
@@ -63,7 +64,7 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
       : content
   }, [content, entryPoints, filteredEntryPoints])
 
-  const history = useHistory()
+  const { history } = useContext(RouterContext)
 
   return (
     <Container>
@@ -74,7 +75,7 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
             <span>Back</span>
           </Link>
         ) : (
-          <a onClick={history.goBack}>
+          <a onClick={history?.goBack}>
             <ArrowLeftOutlined />
             <span>Back</span>
           </a>

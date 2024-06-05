@@ -2,11 +2,11 @@ import { IDetailsRowProps, IDetailsRowStyles, DetailsRow, PivotItem, Link } from
 import { NeutralColors } from '@fluentui/theme'
 import { parse, stringify } from 'query-string'
 import { useState, useMemo, useCallback, useContext } from 'react'
-import { useHistory, useLocation } from 'react-router'
 
 import { TooltipWithEllipsis } from '@perfsee/components'
 import { AssetInfo, SOURCE_CODE_PATH } from '@perfsee/shared'
 
+import { RouterContext } from '../../router-context'
 import { ColoredSize } from '../components'
 import { PackageTraceContext } from '../context'
 import { TableExtraWrap, StyledPivot, StyledInfoItem } from '../style'
@@ -15,9 +15,8 @@ type Props = { item: AssetInfo }
 
 const TableExtraInfo = (props: Props) => {
   const { item } = props
-  const history = useHistory()
-  const location = useLocation()
-  const queries: { tab?: string; trace?: string } = parse(location.search)
+  const { history, location } = useContext(RouterContext)
+  const queries: { tab?: string; trace?: string } = parse(location?.search || '')
   const { setRef } = useContext(PackageTraceContext)
 
   const onClickTrace = useCallback(
@@ -25,7 +24,7 @@ const TableExtraInfo = (props: Props) => {
       if (setRef) {
         setRef(ref)
       } else if (queries.trace !== String(ref)) {
-        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref })}`)
+        history?.push(`${location?.pathname}?${stringify({ ...queries, trace: ref })}`)
       }
     },
     [history, queries, location, setRef],
