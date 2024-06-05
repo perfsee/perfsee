@@ -20,7 +20,7 @@ import { parse, stringify } from 'query-string'
 import { memo, useEffect, useMemo, useCallback, useRef } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { BundleReport } from '@perfsee/bundle-report'
+import { BundleReport, RouterContext } from '@perfsee/bundle-report'
 import { useToggleState } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
 import { AssetInfo, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
@@ -163,7 +163,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       <SuspiciousBundle bundle={state.current} />
     ) : (
       state.diff && artifactDiff && (
-        <>
+        <RouterContext.Provider value={{ location, history }}>
           <BundleReport
             artifact={artifactDiff}
             diff={state.diff}
@@ -184,7 +184,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
               onDismiss={hideArtifactSelect}
             />
           )}
-        </>
+        </RouterContext.Provider>
       )
     )
   },

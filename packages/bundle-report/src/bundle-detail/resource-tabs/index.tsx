@@ -17,10 +17,10 @@ limitations under the License.
 import { Pivot, PivotItem } from '@fluentui/react'
 import { parse, stringify } from 'query-string'
 import { FC, MouseEvent, useCallback, useContext, useState } from 'react'
-import { useHistory, useLocation } from 'react-router'
 
 import { AssetInfo, EntryDiff, ModuleReasons, ModuleTreeNode } from '@perfsee/shared'
 
+import { RouterContext } from '../../router-context'
 import { PackageTraceContext } from '../context'
 
 import { AssetsTable } from './assets-table'
@@ -49,9 +49,8 @@ export const ResourceTabs: FC<Props> = ({
   getModuleReasons,
   hasMultipleEntries,
 }) => {
-  const history = useHistory()
-  const location = useLocation()
-  const queries: { tab?: string; trace?: string } = parse(location.search)
+  const { history, location } = useContext(RouterContext)
+  const queries: { tab?: string; trace?: string } = parse(location?.search || '')
   const { ref } = useContext(PackageTraceContext)
   const [traceSourceRef, setTraceSourceRef] = useState<number | null>(null)
 
@@ -60,7 +59,7 @@ export const ResourceTabs: FC<Props> = ({
     if (packageTraceContext.setRef) {
       packageTraceContext.setRef(null)
     } else if (queries.trace) {
-      history.push(`${location.pathname}?${stringify({ ...queries, trace: undefined })}`)
+      history?.push(`${location?.pathname}?${stringify({ ...queries, trace: undefined })}`)
     }
   }, [history, queries, packageTraceContext, location])
   const onHideTraceModal = useCallback(() => {
@@ -87,15 +86,15 @@ export const ResourceTabs: FC<Props> = ({
       }
 
       if (item.props.itemKey === Tab.Visualization && visualizationLink) {
-        history.push(visualizationLink)
+        history?.push(visualizationLink)
         return
       }
 
       if (queries.tab !== item.props.itemKey) {
-        history.push(`${location.pathname}?${stringify({ ...queries, tab: item.props.itemKey })}`)
+        history?.push(`${location?.pathname}?${stringify({ ...queries, tab: item.props.itemKey })}`)
       }
     },
-    [history, location.pathname, queries, visualizationLink],
+    [history, location?.pathname, queries, visualizationLink],
   )
 
   return (

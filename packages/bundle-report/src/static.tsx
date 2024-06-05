@@ -34,13 +34,14 @@ import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Switch, Route, MemoryRouter } from 'react-router'
+import { Switch, Route, MemoryRouter, useLocation, useHistory } from 'react-router'
 
 import { MDXComponents } from '@perfsee/components'
 import { ThemeProvider } from '@perfsee/dls'
 import { AssetInfo, ModuleReasons, ModuleTreeNode, diffBundleResult } from '@perfsee/shared'
 
 import { PackageTraceContext } from './bundle-detail/context'
+import { RouterContext } from './router-context'
 
 import { BundleReport, BundleContent } from './index'
 
@@ -85,18 +86,22 @@ function BundleReportContainer() {
       setRef: (ref: number | null) => setPackageTrace(ref),
     }
   }, [packageTrace])
+  const location = useLocation()
+  const history = useHistory()
 
   return (
     <ReportContainer>
-      <PackageTraceContext.Provider value={contextValue}>
-        <BundleReport
-          artifact={window.artifact}
-          diff={bundleDiff}
-          contentLink="/content"
-          getAssetContent={getAssetContent}
-          getModuleReasons={window.bundleModuleReasons && getModuleReasons}
-        />
-      </PackageTraceContext.Provider>
+      <RouterContext.Provider value={{ location, history }}>
+        <PackageTraceContext.Provider value={contextValue}>
+          <BundleReport
+            artifact={window.artifact}
+            diff={bundleDiff}
+            contentLink="/content"
+            getAssetContent={getAssetContent}
+            getModuleReasons={window.bundleModuleReasons && getModuleReasons}
+          />
+        </PackageTraceContext.Provider>
+      </RouterContext.Provider>
     </ReportContainer>
   )
 }

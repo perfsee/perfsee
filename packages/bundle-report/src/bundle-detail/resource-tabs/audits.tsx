@@ -21,7 +21,6 @@ import { CommandButton, Link, SelectionMode } from '@fluentui/react'
 import { partition } from 'lodash'
 import { parse, stringify } from 'query-string'
 import { FC, useCallback, useContext, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
 
 import {
   CollapsiblePanel,
@@ -32,6 +31,7 @@ import {
 } from '@perfsee/components'
 import { BundleAuditResult, BundleAuditDetail, BundleAuditScore } from '@perfsee/shared'
 
+import { RouterContext } from '../../router-context'
 import { ByteSizeWithDiff } from '../components'
 import { PackageTraceContext } from '../context'
 
@@ -136,7 +136,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
   const icon = scoreItemsMap[audit.score].icon
   const theme = useTheme()
   const queries: { trace?: string; tab?: string } = parse(location.search)
-  const history = useHistory()
+  const { history } = useContext(RouterContext)
   const packageTraceContext = useContext(PackageTraceContext)
 
   const onClickTrace = useCallback(
@@ -144,7 +144,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
       if (packageTraceContext.setRef) {
         packageTraceContext.setRef(ref)
       } else if (queries.trace !== String(ref)) {
-        history.push(`${location.pathname}?${stringify({ ...queries, trace: ref })}`)
+        history?.push(`${location.pathname}?${stringify({ ...queries, trace: ref })}`)
       }
     },
     [history, queries, packageTraceContext],
