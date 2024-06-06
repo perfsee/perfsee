@@ -18,7 +18,7 @@ import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule, useModuleState } from '@sigi/react'
 import { parse, stringify } from 'query-string'
 import { memo, useEffect, useMemo, useCallback, useRef } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import { BundleReport, RouterContext } from '@perfsee/bundle-report'
 import { useToggleState } from '@perfsee/components'
@@ -163,7 +163,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       <SuspiciousBundle bundle={state.current} />
     ) : (
       state.diff && artifactDiff && (
-        <RouterContext.Provider value={{ location, history }}>
+        <RouterContext.Provider value={{ location, history, Link }}>
           <BundleReport
             artifact={artifactDiff}
             diff={state.diff}

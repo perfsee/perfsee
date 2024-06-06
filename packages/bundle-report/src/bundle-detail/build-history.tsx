@@ -18,12 +18,13 @@ import { NodeIndexOutlined, BranchesOutlined, PlusCircleOutlined, ClockCircleOut
 import styled from '@emotion/styled'
 import { Stack } from '@fluentui/react'
 import dayjs from 'dayjs'
-import { FC, memo } from 'react'
-import { Link } from 'react-router-dom'
+import { FC, memo, useContext } from 'react'
 
 import { ForeignLink, Tag } from '@perfsee/components'
 import { getCommitLink } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
+
+import { RouterContext } from '../router-context'
 
 import { BundleCard, BuildRound, EmptyBaselineWrap, EmptyBaselineIcon } from './style'
 import { ArtifactDiff } from './types'
@@ -68,6 +69,7 @@ interface Props {
 }
 export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) => {
   const { baseline, project } = artifact
+  const { Link } = useContext(RouterContext)
   return (
     <BundleCard>
       <BuildHistoryContainer horizontal verticalAlign="center">
@@ -77,7 +79,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
           <CommitInfo artifact={artifact} />
         </BuildHistoryItem>
 
-        {baseline && project ? (
+        {baseline && project && Link ? (
           <BuildHistoryItem>
             <Link
               to={pathFactory.project.bundle.detail({

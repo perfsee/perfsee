@@ -18,7 +18,6 @@ import { ArrowLeftOutlined } from '@ant-design/icons'
 import { IDropdownOption, IDropdownProps, IRenderFunction } from '@fluentui/react'
 import { union } from 'lodash'
 import { useMemo, useCallback, FC, useState, useEffect, useContext } from 'react'
-import { Link } from 'react-router-dom'
 
 import { Select, useWideScreen } from '@perfsee/components'
 import { ModuleTreeNode } from '@perfsee/shared'
@@ -64,12 +63,12 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
       : content
   }, [content, entryPoints, filteredEntryPoints])
 
-  const { history } = useContext(RouterContext)
+  const { history, Link } = useContext(RouterContext)
 
   return (
     <Container>
       <Header>
-        {project && bundleId ? (
+        {project && bundleId && Link ? (
           <Link to={pathFactory.project.bundle.detail({ projectId: project.id, bundleId })}>
             <ArrowLeftOutlined />
             <span>Back</span>

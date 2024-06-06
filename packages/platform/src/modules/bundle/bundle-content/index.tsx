@@ -17,9 +17,10 @@ limitations under the License.
 import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { useEffect } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useHistory, useLocation } from 'react-router'
+import { Link } from 'react-router-dom'
 
-import { BundleContent } from '@perfsee/bundle-report'
+import { BundleContent, RouterContext } from '@perfsee/bundle-report'
 
 import { useProject } from '../../shared'
 
@@ -31,6 +32,8 @@ export const BundleContentContainer = () => {
   const { bundleId: routeBundleId } = useParams<{
     bundleId: string
   }>()
+  const history = useHistory()
+  const location = useLocation()
 
   useEffect(() => {
     const bundleId = parseInt(routeBundleId)
@@ -50,5 +53,9 @@ export const BundleContentContainer = () => {
     return null
   }
 
-  return <BundleContent content={content} project={project!} bundleId={parseInt(routeBundleId)} />
+  return (
+    <RouterContext.Provider value={{ location, history, Link }}>
+      <BundleContent content={content} project={project!} bundleId={parseInt(routeBundleId)} />
+    </RouterContext.Provider>
+  )
 }
