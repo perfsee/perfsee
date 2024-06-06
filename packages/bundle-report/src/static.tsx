@@ -35,6 +35,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Switch, Route, MemoryRouter, useLocation, useHistory } from 'react-router'
+import { Link } from 'react-router-dom'
 
 import { MDXComponents } from '@perfsee/components'
 import { ThemeProvider } from '@perfsee/dls'
@@ -91,7 +92,7 @@ function BundleReportContainer() {
 
   return (
     <ReportContainer>
-      <RouterContext.Provider value={{ location, history }}>
+      <RouterContext.Provider value={{ location, history, Link }}>
         <PackageTraceContext.Provider value={contextValue}>
           <BundleReport
             artifact={window.artifact}
