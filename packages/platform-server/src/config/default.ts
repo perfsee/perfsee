@@ -93,6 +93,7 @@ export const getDefaultPerfseeConfig: () => PerfseeConfig = () => ({
     zones: ['China'],
     lab: {
       distributedConfig: {},
+      variabilityThreshold: Infinity,
     },
   },
   runner: {

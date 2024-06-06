@@ -318,10 +318,10 @@ export class SnapshotService implements OnApplicationBootstrap {
     return true
   }
 
-  async dispatchReport(report: SnapshotReport) {
+  async dispatchReport(report: SnapshotReport, updateStatus?: SnapshotStatus) {
     const page = await Page.findOneByOrFail({ id: report.pageId })
     const env = await Environment.findOneByOrFail({ id: report.envId })
-    await SnapshotReport.update(report.id, { status: SnapshotStatus.Pending })
+    await SnapshotReport.update(report.id, { status: updateStatus ?? SnapshotStatus.Pending })
 
     const zone = env.zone
     const distribute = this.config.job.lab.distributedConfig?.[zone]
@@ -454,10 +454,11 @@ export class SnapshotService implements OnApplicationBootstrap {
       }
 
       this.logger.verbose('Start to handle distributed report', { reportId: snapshotReport.id })
+      const flaggedCount = Number(await this.redis.get(`report-flagged-count-${redisKey}`)) || 0
       if (snapshotReport.status === SnapshotStatus.Completed) {
         await this.redis.incr(`report-distribute-complete-${redisKey}`)
         await this.redis.set(
-          `report-result-${snapshotReport.id}-${left}`,
+          `report-result-${snapshotReport.id}-${flaggedCount}-${left}`,
           JSON.stringify(Object.assign({ jobId }, snapshotReport)),
           'EX',
           3600,
@@ -474,7 +475,7 @@ export class SnapshotService implements OnApplicationBootstrap {
         if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
           const reportList: (LabJobResult['snapshotReport'] & { jobId?: number })[] = []
           for (const count of times(distributedCount)) {
-            const storageString = await this.redis.get(`report-result-${snapshotReport.id}-${count}`)
+            const storageString = await this.redis.get(`report-result-${snapshotReport.id}-${flaggedCount}-${count}`)
             if (!storageString) {
               continue
             }
@@ -516,10 +517,6 @@ export class SnapshotService implements OnApplicationBootstrap {
         await this.redis.del(`report-distribute-total-${snapshotReport.id}`)
         await this.redis.del(`report-distribute-complete-${snapshotReport.id}`)
         await this.redis.del(`report-running-${snapshotReport.id}`)
-
-        for (const count of times(distributedCount)) {
-          await this.redis.del(`report-result-${snapshotReport.id}-${count}`)
-        }
       } else {
         if (snapshotReport.status === SnapshotStatus.Completed) {
           snapshotReport.status = SnapshotStatus.PartialCompleted
@@ -531,7 +528,10 @@ export class SnapshotService implements OnApplicationBootstrap {
           }
         }
       }
-    } else if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
+    } else if (
+      (await this.redis.get(`report-distribute-complete-${redisKey}`)) ||
+      (await this.redis.get(`report-flagged-count-$${redisKey}`))
+    ) {
       snapshotReport.status = SnapshotStatus.PartialCompleted
       await this.redis.del(`report-running-${redisKey}`)
     } else if ([SnapshotStatus.Pending, SnapshotStatus.Scheduled].includes(snapshotReport.status!)) {
@@ -547,7 +547,9 @@ export class SnapshotService implements OnApplicationBootstrap {
 
   // Update report -> try completed snapshot
   async updateLabReport(data: LabJobResult) {
-    const report = await this.updateSnapshotReport(await this.handleDistributeReport(data))
+    const report = await this.updateSnapshotReport(
+      await this.handlePreventVariability(await this.handleDistributeReport(data), data.jobId),
+    )
 
     if (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.Failed) {
       const completed = await this.tryCompleteSnapshot(report)
@@ -555,6 +557,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       if (completed) {
         await this.onSnapshotCompleted(report.snapshotId)
       }
+      await this.clearReportResultCache(data.snapshotReport.id, data.jobId)
     }
   }
 
@@ -864,5 +867,117 @@ export class SnapshotService implements OnApplicationBootstrap {
     }
 
     return SnapshotReport.save(reports)
+  }
+
+  private async handlePreventVariability(report: LabJobResult['snapshotReport'], jobId?: number) {
+    const { id, performanceScore, status } = report
+    if (status !== SnapshotStatus.Completed) {
+      if (await this.redis.get(`report-flagged-count-${id}`)) {
+        report.status = SnapshotStatus.PartialCompleted
+      }
+      return report
+    }
+    const reportEntity = await SnapshotReport.findOneBy({ id })
+    if (!reportEntity) {
+      return report
+    }
+    const recentReports = await this.findRecentReports(reportEntity)
+    if (!recentReports.length) {
+      this.logger.log(`Report ${id} has no recent reports.`)
+      return report
+    }
+    const average = recentReports.reduce((sum, b) => sum + (b.performanceScore || 0), 0) / recentReports.length
+    if (Math.abs((performanceScore || 0) - average) <= (this.config.job.lab.variabilityThreshold || Infinity)) {
+      this.logger.log(
+        `Report ${id} performance ${performanceScore} (average: ${average}) is under variability threshold.`,
+      )
+      return report
+    }
+    const flaggedCount = await this.redis.incr(`report-flagged-count-${id}`)
+    if (flaggedCount >= 3) {
+      this.logger.log(`Report flagged more than 3 times. Collecting the most reliable result.`)
+      const job = jobId ? await Job.findOneBy({ id: jobId }) : null
+      const zone = job?.zone
+      const distributedCount = this.config.job.lab.distributedConfig?.[zone!]?.count || 1
+
+      const reportList: (LabJobResult['snapshotReport'] & { jobId?: number })[] = []
+      for (const flagged of times(flaggedCount)) {
+        for (const count of times(distributedCount)) {
+          const storageString = await this.redis.get(`report-result-${id}-${flagged}-${count}`)
+          if (!storageString) {
+            continue
+          }
+          const tempReport = JSON.parse(storageString)
+          reportList.push(tempReport)
+        }
+      }
+      if (!reportList.length || reportList.length <= 1) {
+        return report
+      }
+      const medianIndex = computeMedianRun(
+        reportList.map((r, i) => ({
+          index: i,
+          lcp: r.metrics?.['largest-contentful-paint'] || 0,
+          performance: r.metrics?.performance || 0,
+        })),
+        'performance',
+        'lcp',
+      )
+
+      this.logger.verbose(`Get median result of report ${id}`, reportList[medianIndex])
+      const { jobId: reportJobId, ...medianReport } = reportList[medianIndex]
+      Object.assign(report, medianReport)
+      report.status = SnapshotStatus.Completed
+
+      try {
+        if (job) {
+          job.extra ||= {}
+          job.extra.picked = 'true'
+          await job.save()
+        }
+      } catch (e) {
+        this.logger.error(`Failed to set picked to jobId ${reportJobId}`, {
+          error: e,
+          phase: 'handle distributed report',
+        })
+      }
+      return report
+    }
+
+    this.logger.log(
+      `Re-dispatching report ${id} time ${flaggedCount}. Current score ${performanceScore} (average ${average})`,
+    )
+
+    await this.dispatchReport(reportEntity, SnapshotStatus.PartialCompleted)
+    report.status = SnapshotStatus.PartialCompleted
+    return report
+  }
+
+  private async clearReportResultCache(reportId: number, jobId?: number) {
+    const job = jobId ? await Job.findOneBy({ id: jobId }) : null
+    const zone = job?.zone
+    const distributedCount = this.config.job.lab.distributedConfig?.[zone!]?.count || 1
+    const flaggedCount = Number(await this.redis.get(`report-flagged-count-${reportId}`)) || 0
+    for (const flagged of times(flaggedCount)) {
+      for (const count of times(distributedCount)) {
+        await this.redis.del(`report-result-${reportId}-${flagged}-${count}`)
+      }
+    }
+    await this.redis.del(`report-flagged-count-${reportId}`)
+  }
+
+  private async findRecentReports(report: SnapshotReport) {
+    return SnapshotReport.createQueryBuilder('report')
+      .where('project_id = :projectId', { projectId: report.projectId })
+      .andWhere('page_id = :pageId', { pageId: report.pageId })
+      .andWhere('profile_id = :profileId', { profileId: report.profileId })
+      .andWhere('env_id = :envId', { envId: report.envId })
+      .andWhere('status = :status', { status: SnapshotStatus.Completed })
+      .andWhere('id != :id', { id: report.id })
+      .andWhere('step_of_id is null')
+      .andWhere('performance_score is not null')
+      .andWhere('created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)')
+      .take(5)
+      .getMany()
   }
 }

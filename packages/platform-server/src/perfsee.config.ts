@@ -165,6 +165,8 @@ perfsee.job.lab.distributedConfig =
     return { ...config, [zone]: { count: Number(count), runs: Number(runs) } }
   }, {}) || {}
 
+perfsee.job.lab.variabilityThreshold = Number(env.VARIABILITY_THRESHOLD) || Infinity
+
 // ###############################################################
 // ##                  9. Runner settings                       ##
 // ###############################################################
