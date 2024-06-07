@@ -59,6 +59,7 @@ export const Trace = (props: TraceProps) => {
 
   const defaultJob = useMemo(() => {
     return (
+      state.jobs.find((j) => j.extra?.['finalPicked']) ||
       state.jobs.find((j) => j.extra?.['picked']) ||
       state.jobs.find((j) => j.status === JobStatus.Running) ||
       state.jobs.find((j) => j.status === JobStatus.Done) ||
@@ -155,7 +156,13 @@ export const Trace = (props: TraceProps) => {
             headerText={nth(state.jobs.length - i) + ' Run'}
             key={job.id}
             onRenderItemLink={customPivotRenderer}
-            ariaLabel={job.extra?.['picked'] ? 'Picked' : job.status !== JobStatus.Done ? job.status : undefined}
+            ariaLabel={
+              (job.extra?.['picked'] || job.extra?.['finalPicked']) && job.id === defaultJob
+                ? 'Picked'
+                : job.status !== JobStatus.Done
+                ? job.status
+                : undefined
+            }
           />
         ))}
       </Pivot>
