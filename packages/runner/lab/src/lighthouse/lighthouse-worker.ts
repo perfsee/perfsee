@@ -383,6 +383,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
             return m === 'puppeteer' ? wrappedPuppeteer : undefined
           },
           page: wrappedPage,
+          puppeteer: wrappedPuppeteer,
         },
         (method, message) => this.logger.info(`[From Login Script] ${message} - [${method}]`),
       )

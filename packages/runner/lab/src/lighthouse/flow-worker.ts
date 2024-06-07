@@ -46,6 +46,8 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       browser,
       flow,
       ignoreEmulate: true,
+      ignoreErrorOnWaitNavigation: true,
+      ignoreErrorOnWaitNetworkIdle: true,
       logger: this.logger,
     })
     const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()

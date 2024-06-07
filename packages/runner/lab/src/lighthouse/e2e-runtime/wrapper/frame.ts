@@ -80,10 +80,12 @@ export const frameWrapper: Wrapper<Frame> = createWrapper<Frame>('Frame', (frame
       }
     },
     waitForNavigation: async (navigationOptions) => {
-      // waitForNavigation should never throw
       try {
         return httpResponseWrapper.wrapOrNull(await frame.waitForNavigation(navigationOptions), options)
       } catch (e) {
+        if (!options.ignoreErrorOnWaitNavigation) {
+          throw e
+        }
         options.logger.error(String(e))
         return null
       }
