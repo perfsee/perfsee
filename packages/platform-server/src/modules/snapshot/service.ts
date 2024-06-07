@@ -932,7 +932,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       try {
         if (job) {
           job.extra ||= {}
-          job.extra.picked = 'true'
+          job.extra.finalPicked = 'true'
           await job.save()
         }
       } catch (e) {
