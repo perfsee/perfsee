@@ -32,5 +32,8 @@ export interface WrapperOptions {
    */
   ignoreEmulate: boolean
 
+  ignoreErrorOnWaitNavigation?: boolean
+  ignoreErrorOnWaitNetworkIdle?: boolean
+
   logger: AbstractJobLogger
 }

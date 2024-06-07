@@ -126,10 +126,12 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
       return httpResponseWrapper.wrapOrNull(await page.reload(reloadOptions), options)
     },
     waitForNavigation: async (navigationOptions) => {
-      // waitForNavigation should never throw
       try {
         return httpResponseWrapper.wrapOrNull(await page.waitForNavigation(navigationOptions), options)
       } catch (e) {
+        if (!options.ignoreErrorOnWaitNavigation) {
+          throw e
+        }
         options.logger.error(String(e))
         return null
       }
@@ -139,10 +141,12 @@ export const pageWrapper: Wrapper<Page> = createWrapper<Page>('Page', (page, opt
     waitForResponse: async (urlOrPredicate, fnOptions) =>
       httpResponseWrapper.wrap(await page.waitForResponse(urlOrPredicate, fnOptions), options),
     waitForNetworkIdle: async (fnOptions) => {
-      // waitForNetworkIdle should never throw
       try {
         return await page.waitForNetworkIdle(fnOptions)
       } catch (e) {
+        if (!options.ignoreErrorOnWaitNetworkIdle) {
+          throw e
+        }
         options.logger.error(String(e))
       }
     },
