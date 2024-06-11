@@ -16,10 +16,11 @@ limitations under the License.
 
 import { PlayCircleFilled } from '@ant-design/icons'
 import { Modal } from '@fluentui/react'
-import { FC, memo, createRef, useState, useCallback } from 'react'
+import { useInstance } from '@sigi/react'
+import { FC, memo, createRef, useState, useCallback, useEffect } from 'react'
 
 import { useToggleState } from '@perfsee/components'
-import { formatTime } from '@perfsee/shared'
+import { SocketClient, formatTime } from '@perfsee/shared'
 
 import { VideoButton, VideoTime, VideoContainer } from './style'
 
@@ -32,6 +33,22 @@ export const SnapshotVideo: FC<VideoProps> = memo(({ video, cover }) => {
   const videoRef = createRef<HTMLVideoElement>()
   const [videoTime, setVideoTime] = useState<number>(0)
   const [visible, show, hide] = useToggleState(false)
+  const socketClient = useInstance(SocketClient)
+  const [videoURL, setVideoURL] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    if (!video) {
+      return
+    }
+    socketClient
+      .requestFile(video)
+      .then((blob) => {
+        setVideoURL(URL.createObjectURL(blob))
+      })
+      .catch((e) => {
+        console.error('Failed to load screencast', String(e))
+      })
+  }, [socketClient, video, visible])
 
   const onTimeUpdate = useCallback(() => {
     const time = videoRef.current?.currentTime
@@ -61,7 +78,7 @@ export const SnapshotVideo: FC<VideoProps> = memo(({ video, cover }) => {
           ref={videoRef}
           onTimeUpdate={onTimeUpdate}
           controls
-          src={video}
+          src={videoURL}
           style={{ cursor: 'pointer', height: '62vh' }}
           autoPlay={visible}
         />

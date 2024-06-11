@@ -16,3 +16,4 @@ limitations under the License.
 
 export * from './graphql-client'
 export * from './rx-fetch'
+export * from './socket'

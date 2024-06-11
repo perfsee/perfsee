@@ -21,6 +21,7 @@ import { Config } from '../config'
 import { S3Config, S3Storage } from './providers/aws'
 import { ObjectStorage, LogObjectStorage } from './providers/local'
 import { BaseObjectStorage } from './providers/provider'
+import { FileSocketGateWay } from './socket'
 
 /**
  * override in the way like:
@@ -56,7 +57,7 @@ const logProvider: FactoryProvider = {
 }
 
 @Module({
-  providers: [artifactProvider, logProvider],
+  providers: [artifactProvider, logProvider, FileSocketGateWay],
   exports: [artifactProvider, logProvider],
 })
 export class StorageModule {}

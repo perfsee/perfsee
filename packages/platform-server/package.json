@@ -16,6 +16,7 @@
     "@nestjs/event-emitter": "^1.4.1",
     "@nestjs/graphql": "^11.0.5",
     "@nestjs/platform-express": "^9.4.0",
+    "@nestjs/platform-socket.io": "^9.4.3",
     "@nestjs/schedule": "^2.2.1",
     "@nestjs/serve-static": "^3.0.1",
     "@nestjs/swagger": "^7.3.0",
@@ -23,6 +24,7 @@
     "@nestjs/testing": "^9.4.0",
     "@nestjs/throttler": "^4.0.0",
     "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/websockets": "^9.4.3",
     "acorn": "^8.7.1",
     "body-parser": "^1.20.2",
     "chalk": "^4.1.2",
@@ -50,6 +52,7 @@
     "redlock": "^4.2.0",
     "reflect-metadata": "0.2.1",
     "rxjs": "^7.5.6",
+    "socket.io": "^4.7.5",
     "ts-morph": "^15.1.0",
     "typeorm": "^0.3.15",
     "uuid": "^9.0.0"

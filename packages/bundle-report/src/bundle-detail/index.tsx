@@ -37,7 +37,7 @@ export interface BundleReportProps {
   defaultEntryPoint?: string
   onEntryPointChange?: (entryPoint: string) => void
   contentLink?: string
-  downloadLink?: string
+  downloadLink?: string | (() => Promise<void>)
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
   getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
 }
@@ -74,8 +74,18 @@ export const BundleReport: FC<BundleReportProps> = ({
     [entryPoint, onEntryPointChange],
   )
 
+  const [downloading, setDownloading] = useState(false)
   const onDownloadBundle = useCallback(() => {
-    window.open(downloadLink)
+    if (typeof downloadLink === 'string') {
+      window.open(downloadLink)
+    } else if (downloadLink) {
+      setDownloading(true)
+      downloadLink()
+        .catch((e) => {
+          console.error('Failed to download bundle', String(e))
+        })
+        .finally(() => setDownloading(false))
+    }
   }, [downloadLink])
 
   const onRenderHeader = useCallback(() => {
@@ -85,12 +95,16 @@ export const BundleReport: FC<BundleReportProps> = ({
     return (
       <Stack horizontal verticalAlign="center" horizontalAlign="space-between" styles={{ root: { width: '100%' } }}>
         <span>Bundle #{artifact.id}</span>
-        <ActionButton iconProps={{ iconName: 'Download' }} onClick={onDownloadBundle}>
-          Download
+        <ActionButton
+          iconProps={{ iconName: downloading ? 'loading' : 'Download' }}
+          onClick={onDownloadBundle}
+          disabled={downloading}
+        >
+          {downloading ? 'Downloading' : 'Download'}
         </ActionButton>
       </Stack>
     )
-  }, [artifact, onDownloadBundle, downloadLink])
+  }, [artifact, onDownloadBundle, downloadLink, downloading])
 
   const currentEntryPointDiff = diff[entryPoint]
 

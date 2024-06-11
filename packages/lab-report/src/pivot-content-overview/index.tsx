@@ -109,7 +109,7 @@ export const OverviewContent = (props: Props) => {
         </OverviewMainBlock>
         <OverviewMainBlockSeparator />
         <OverviewMainBlock verticalAlign="center" style={{ padding: '12px 24px' }}>
-          <SnapshotVideo video={report?.screencastLink ?? undefined} cover={timelines?.slice(-1)?.[0]?.data} />
+          <SnapshotVideo video={report?.screencastStorageKey ?? undefined} cover={timelines?.slice(-1)?.[0]?.data} />
         </OverviewMainBlock>
       </OverviewMainBlockContainer>
       {!!scores.length && (

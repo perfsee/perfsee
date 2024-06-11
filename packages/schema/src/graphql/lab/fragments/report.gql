@@ -4,6 +4,7 @@ fragment report on SnapshotReport {
   status
   reportLink
   screencastLink
+  screencastStorageKey
   flameChartLink
   sourceCoverageLink
   reactProfileLink
@@ -37,6 +38,7 @@ fragment report on SnapshotReport {
     status
     reportLink
     screencastLink
+    screencastStorageKey
     flameChartLink
     sourceCoverageLink
     reactProfileLink

@@ -6996,6 +6996,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/platform-socket.io@npm:^9.4.3":
+  version: 9.4.3
+  resolution: "@nestjs/platform-socket.io@npm:9.4.3"
+  dependencies:
+    socket.io: 4.6.2
+    tslib: 2.5.3
+  peerDependencies:
+    "@nestjs/common": ^9.0.0
+    "@nestjs/websockets": ^9.0.0
+    rxjs: ^7.1.0
+  checksum: a63add5596149a692cf9ad06be0221cd62b8f79b6276c25741faa772beea2b9ade27b364796994d166f7e6629463ccb83b85ee8fac44383a03069d87b519c987
+  languageName: node
+  linkType: hard
+
 "@nestjs/schedule@npm:^2.2.1":
   version: 2.2.1
   resolution: "@nestjs/schedule@npm:2.2.1"
@@ -7156,6 +7170,26 @@ __metadata:
     rxjs: ^7.2.0
     typeorm: ^0.3.0
   checksum: fbf8d28405331bffa7bf224664d99078c0b7bf55a77007f79ca141a94fcf812dbc5ac40baacff370626b15f6e037bb8d60e6fee977c798fbb3f6b080c5d5b3d9
+  languageName: node
+  linkType: hard
+
+"@nestjs/websockets@npm:^9.4.3":
+  version: 9.4.3
+  resolution: "@nestjs/websockets@npm:9.4.3"
+  dependencies:
+    iterare: 1.2.1
+    object-hash: 3.0.0
+    tslib: 2.5.3
+  peerDependencies:
+    "@nestjs/common": ^9.0.0
+    "@nestjs/core": ^9.0.0
+    "@nestjs/platform-socket.io": ^9.0.0
+    reflect-metadata: ^0.1.12
+    rxjs: ^7.1.0
+  peerDependenciesMeta:
+    "@nestjs/platform-socket.io":
+      optional: true
+  checksum: 9455d2d43613b13d231115ca9b352846c6e42db4f9c0f28bcd41cf12535777a8af57f5e489973d51d5aa2fc400a2a4199016fc33e0876e1e9f8731093aa75dab
   languageName: node
   linkType: hard
 
@@ -8069,6 +8103,7 @@ __metadata:
     "@nestjs/event-emitter": ^1.4.1
     "@nestjs/graphql": ^11.0.5
     "@nestjs/platform-express": ^9.4.0
+    "@nestjs/platform-socket.io": ^9.4.3
     "@nestjs/schedule": ^2.2.1
     "@nestjs/serve-static": ^3.0.1
     "@nestjs/swagger": ^7.3.0
@@ -8076,6 +8111,7 @@ __metadata:
     "@nestjs/testing": ^9.4.0
     "@nestjs/throttler": ^4.0.0
     "@nestjs/typeorm": ^9.0.1
+    "@nestjs/websockets": ^9.4.3
     "@perfsee/schema": "workspace:*"
     "@perfsee/server-common": "workspace:*"
     "@perfsee/shared": "workspace:*"
@@ -8114,6 +8150,7 @@ __metadata:
     reflect-metadata: 0.2.1
     rxjs: ^7.5.6
     sinon: ^15.0.0
+    socket.io: ^4.7.5
     supertest: ^6.3.3
     ts-morph: ^15.1.0
     typeorm: ^0.3.15
@@ -8174,6 +8211,7 @@ __metadata:
     react-virtualized-auto-sizer: ^1.0.7
     react-window: ^1.8.8
     rxjs: ^7.5.6
+    socket.io-client: ^4.7.5
   languageName: unknown
   linkType: soft
 
@@ -8270,6 +8308,7 @@ __metadata:
     query-string: ^7.1.1
     react: ^18.2.0
     rxjs: ^7.5.6
+    socket.io-client: ^4.7.5
   languageName: unknown
   linkType: soft
 
@@ -17064,10 +17103,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"engine.io-client@npm:~6.5.2":
+  version: 6.5.3
+  resolution: "engine.io-client@npm:6.5.3"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.1
+    engine.io-parser: ~5.2.1
+    ws: ~8.11.0
+    xmlhttprequest-ssl: ~2.0.0
+  checksum: a72596fae99afbdb899926fccdb843f8fa790c69085b881dde121285a6935da2c2c665ebe88e0e6aa4285637782df84ac882084ff4892ad2430b059fc0045db0
+  languageName: node
+  linkType: hard
+
 "engine.io-parser@npm:~5.0.3":
   version: 5.0.4
   resolution: "engine.io-parser@npm:5.0.4"
   checksum: d4ad0cef6ff63c350e35696da9bb3dbd180f67b56e93e90375010cc40393e6c0639b780d5680807e1d93a7e2e3d7b4a1c3b27cf75db28eb8cbf605bc1497da03
+  languageName: node
+  linkType: hard
+
+"engine.io-parser@npm:~5.2.1":
+  version: 5.2.2
+  resolution: "engine.io-parser@npm:5.2.2"
+  checksum: 470231215f3136a9259efb1268bc9a71f789af4e8c74da8d3b49ceb149fe3cd5c315bf0cd13d2d8d9c8f0f051c6f93b68e8fa9c89a3b612b9217bf33765c943a
   languageName: node
   linkType: hard
 
@@ -17104,6 +17163,42 @@ __metadata:
     engine.io-parser: ~5.0.3
     ws: ~8.11.0
   checksum: b3921c35911d18b851153b97c1ad49f24ae068f01ddc17cd4d40b47a581d1317a8a1ed62665f63d07d076366b926b08a185d672573fedd186ee3304f9fa542d2
+  languageName: node
+  linkType: hard
+
+"engine.io@npm:~6.4.2":
+  version: 6.4.2
+  resolution: "engine.io@npm:6.4.2"
+  dependencies:
+    "@types/cookie": ^0.4.1
+    "@types/cors": ^2.8.12
+    "@types/node": ">=10.0.0"
+    accepts: ~1.3.4
+    base64id: 2.0.0
+    cookie: ~0.4.1
+    cors: ~2.8.5
+    debug: ~4.3.1
+    engine.io-parser: ~5.0.3
+    ws: ~8.11.0
+  checksum: c4ca538c98d251ff00756ed955d924c3fd78e61af0a5825c9fa1d77ebb661ead7971598fb61daf079c2655c7be2d4a26094e446759e3c6786d8ac75ccffe36d5
+  languageName: node
+  linkType: hard
+
+"engine.io@npm:~6.5.2":
+  version: 6.5.4
+  resolution: "engine.io@npm:6.5.4"
+  dependencies:
+    "@types/cookie": ^0.4.1
+    "@types/cors": ^2.8.12
+    "@types/node": ">=10.0.0"
+    accepts: ~1.3.4
+    base64id: 2.0.0
+    cookie: ~0.4.1
+    cors: ~2.8.5
+    debug: ~4.3.1
+    engine.io-parser: ~5.2.1
+    ws: ~8.11.0
+  checksum: d5b55cbac718c5b1c10800314379923f8c7ef9e3a8a60c6827ed86303d1154b81d354a89fdecf4cbb773515c82c84a98d3c791ff88279393b53625dd67299d30
   languageName: node
   linkType: hard
 
@@ -26553,7 +26648,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^3.0.0":
+"object-hash@npm:3.0.0, object-hash@npm:^3.0.0":
   version: 3.0.0
   resolution: "object-hash@npm:3.0.0"
   checksum: 80b4904bb3857c52cc1bfd0b52c0352532ca12ed3b8a6ff06a90cd209dfda1b95cee059a7625eb9da29537027f68ac4619363491eedb2f5d3dddbba97494fd6c
@@ -32699,6 +32794,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"socket.io-client@npm:^4.7.5":
+  version: 4.7.5
+  resolution: "socket.io-client@npm:4.7.5"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.2
+    engine.io-client: ~6.5.2
+    socket.io-parser: ~4.2.4
+  checksum: a6994b93a753d14292682ee97ba3c925c54b63e6fcb2ed5e0aa1d7c1d6164ed4a30d993f7eaaa3017ddf868ad0a1ab996badc8310129070136d84668789ee6c9
+  languageName: node
+  linkType: hard
+
 "socket.io-parser@npm:~4.0.4":
   version: 4.0.5
   resolution: "socket.io-parser@npm:4.0.5"
@@ -32730,6 +32837,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"socket.io-parser@npm:~4.2.4":
+  version: 4.2.4
+  resolution: "socket.io-parser@npm:4.2.4"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.1
+  checksum: 61540ef99af33e6a562b9effe0fad769bcb7ec6a301aba5a64b3a8bccb611a0abdbe25f469933ab80072582006a78ca136bf0ad8adff9c77c9953581285e2263
+  languageName: node
+  linkType: hard
+
+"socket.io@npm:4.6.2":
+  version: 4.6.2
+  resolution: "socket.io@npm:4.6.2"
+  dependencies:
+    accepts: ~1.3.4
+    base64id: ~2.0.0
+    debug: ~4.3.2
+    engine.io: ~6.4.2
+    socket.io-adapter: ~2.5.2
+    socket.io-parser: ~4.2.4
+  checksum: 17f48c65627f6663384529072e33bff631eb496f6189a1325dd6775b2a50779b2acb36b6f57c9fc26f28e3ae109fb238d39167aebfbf96838a5fb7dd1b74c209
+  languageName: node
+  linkType: hard
+
 "socket.io@npm:^4.4.1":
   version: 4.5.1
   resolution: "socket.io@npm:4.5.1"
@@ -32755,6 +32886,21 @@ __metadata:
     socket.io-adapter: ~2.5.2
     socket.io-parser: ~4.2.1
   checksum: 447941727142669b3709c3ae59ed790a2c3ad312d935400e2e25fdf59a95cdc92ebcf6b000ab2042a2a77ae51bb87598b40845a8d3b1f6ea6a0dd1df9c8f8459
+  languageName: node
+  linkType: hard
+
+"socket.io@npm:^4.7.5":
+  version: 4.7.5
+  resolution: "socket.io@npm:4.7.5"
+  dependencies:
+    accepts: ~1.3.4
+    base64id: ~2.0.0
+    cors: ~2.8.5
+    debug: ~4.3.2
+    engine.io: ~6.5.2
+    socket.io-adapter: ~2.5.2
+    socket.io-parser: ~4.2.4
+  checksum: b8b57216152cf230bdcb77b5450e124ebe1fee7482eeb50a6ef760b69f2f5a064e9b8640ce9c1efc5c9e081f5d797d3f6ff3f81606e19ddaf5d4114aad9ec7d3
   languageName: node
   linkType: hard
 

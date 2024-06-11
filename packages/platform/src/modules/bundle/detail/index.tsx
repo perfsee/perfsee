@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Spinner, SpinnerSize } from '@fluentui/react'
-import { useModule, useModuleState } from '@sigi/react'
+import { useInstance, useModule, useModuleState } from '@sigi/react'
 import { parse, stringify } from 'query-string'
 import { memo, useEffect, useMemo, useCallback, useRef } from 'react'
 import { RouteComponentProps, Link } from 'react-router-dom'
@@ -23,7 +23,7 @@ import { RouteComponentProps, Link } from 'react-router-dom'
 import { BundleReport, RouterContext } from '@perfsee/bundle-report'
 import { useToggleState } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
-import { AssetInfo, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, ModuleSource, ModuleTreeNode, SocketClient } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { ArtifactSelect, ArtifactSelectEventPayload } from '../../components'
@@ -51,6 +51,24 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
         resolveContent = resolve
       }),
     )
+    const socketClient = useInstance(SocketClient)
+
+    const onDownload = useCallback(() => {
+      if (!state.current) {
+        return Promise.reject(new Error('Artifact not found'))
+      }
+      const fileName = state.current.buildKey
+      return socketClient.requestFile(fileName).then((blob) => {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      })
+    }, [socketClient, state])
 
     useEffect(() => {
       if (content && resolveContent) {
@@ -171,7 +189,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
             onEntryPointChange={onSelectEntryPoint}
             onBaselineSelectorOpen={showArtifactSelect}
             contentLink={contentPath}
-            downloadLink={state.current.buildLink}
+            downloadLink={onDownload}
             getAssetContent={getAssetContent}
             getModuleReasons={state.current.moduleReasonsLink ? getModuleReasons : undefined}
           />
