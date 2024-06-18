@@ -130,7 +130,8 @@ export const PageEditForm = (props: FromProps) => {
           !p.isCompetitor &&
           !p.isTemp &&
           p.id !== defaultPage.id &&
-          (pageRelationMap.get(p.id)?.competitorIds.length ?? 0) < CompetitorMaxCount,
+          ((pageRelationMap.get(p.id)?.competitorIds.length ?? 0) < CompetitorMaxCount ||
+            connectPageIds.includes(p.id)),
       ),
     [pageRelationMap, pages, defaultPage],
   )
