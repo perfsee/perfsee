@@ -133,7 +133,7 @@ export const PageEditForm = (props: FromProps) => {
           ((pageRelationMap.get(p.id)?.competitorIds.length ?? 0) < CompetitorMaxCount ||
             connectPageIds.includes(p.id)),
       ),
-    [pageRelationMap, pages, defaultPage],
+    [pageRelationMap, pages, defaultPage, connectPageIds],
   )
 
   return (
