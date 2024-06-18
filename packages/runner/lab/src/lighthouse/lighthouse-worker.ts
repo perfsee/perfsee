@@ -392,8 +392,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         this.logger.info('Start running login script')
         await sandbox.run(loginScript)
 
-        // @ts-expect-error
-        this.cookies.push(...(await page.cookies()))
+        const pages = await browser.pages()
+        for (const p of pages) {
+          // @ts-expect-error
+          this.cookies.push(...(await p.cookies()))
+        }
       } catch (err) {
         const failedReason = 'Error from login script: ' + (err instanceof Error ? err.message : err)
         throw new Error(failedReason)
