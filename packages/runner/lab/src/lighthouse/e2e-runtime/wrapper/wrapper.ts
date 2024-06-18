@@ -105,24 +105,48 @@ function clearError(err: any) {
   return err ? new Error(err instanceof Error ? err.stack ?? err.message : err.toString()) : new Error()
 }
 
-function applyWrapper<TOriginType extends object>(origin: TOriginType, wrapper: UserWrapper<TOriginType>): TOriginType {
+function applyWrapper<TOriginType extends object>(
+  name: string,
+  origin: TOriginType,
+  wrapper: UserWrapper<TOriginType>,
+  options: WrapperOptions,
+): TOriginType {
   const newObj = {}
+  const logger = options.logger
 
   for (const key in wrapper) {
     let propValue = wrapper[key]
 
     if (typeof propValue === 'function') {
       const oldValue = propValue
-      propValue = (...args: any) => {
+      propValue = (...args: any[]) => {
         args = clearArgument(args)
+        const displayName = `${name.charAt(0).toLowerCase() + name.slice(1)}.${key}(${args
+          .map((a) => {
+            try {
+              return JSON.stringify(a)
+            } catch {
+              return 'unknow'
+            }
+          })
+          .join(',')})`
         try {
           const ret = oldValue.apply(null, args)
           if (ret instanceof Promise) {
-            ret.catch((reason) => Promise.reject(clearError(reason)))
+            ret
+              .then(() => {
+                logger.verbose(`From user scripts: ${displayName} promise resolved.`)
+              })
+              .catch((reason) => {
+                logger.error(`From user scripts: ${displayName} promise rejected.`)
+                return Promise.reject(clearError(reason))
+              })
             return ret
           }
+          logger.verbose(`From user scripts: ${displayName} call successful.`)
           return ret
         } catch (err) {
+          logger.error(`From user scripts: ${displayName} call failed.`)
           throw clearError(err)
         }
       }
@@ -151,7 +175,7 @@ export type UserWrapper<TOriginType> = {
 }
 
 export function createWrapper<TOriginType extends object>(
-  _: string,
+  name: string,
   wrapFn: (origin: TOriginType, options: WrapperOptions) => UserWrapper<TOriginType>,
 ): Wrapper<TOriginType> {
   const wrappedMap = new WeakMap<TOriginType, TOriginType>()
@@ -162,7 +186,7 @@ export function createWrapper<TOriginType extends object>(
       return originMap.get(origin)!
     }
     const wrapper = wrapFn(origin, options)
-    const wrapped = applyWrapper(origin, wrapper)
+    const wrapped = applyWrapper(name, origin, wrapper, options)
     wrappedMap.set(wrapped, origin)
     originMap.set(origin, wrapped)
     globalWrappedMap.set(wrapped, origin)
