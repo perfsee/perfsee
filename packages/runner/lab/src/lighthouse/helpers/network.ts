@@ -176,6 +176,13 @@ export async function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
         resourceSize: record.resourceSize,
         initiator: record.initiator,
         requestId: record.requestId,
+        fromCache: record.fromDiskCache
+          ? 'disk'
+          : record.fromMemoryCache
+          ? 'memory'
+          : record.fromPrefetchCache
+          ? 'prefetch'
+          : false,
       }
     })
     .filter(<T>(v: T | undefined): v is T => v !== undefined)

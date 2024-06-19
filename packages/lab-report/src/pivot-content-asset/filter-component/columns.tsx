@@ -163,8 +163,16 @@ export const DefaultColumns: TableColumnProps<RequestSchema>[] = [
     maxWidth: 150,
     sorter: (a, b) => getTransferred(a) - getTransferred(b),
     onRender: (item) => {
-      const color = needOptimizeTransferred(item) ? SharedColors.red10 : undefined
-      return <span style={{ color }}>{getTransferred(item, true)}</span>
+      const color = item.fromCache
+        ? NeutralColors.gray100
+        : needOptimizeTransferred(item)
+        ? SharedColors.red10
+        : undefined
+      return (
+        <span style={{ color }}>{`${getTransferred(item, true)}${
+          item.fromCache ? ` (${item.fromCache} cache)` : ''
+        }`}</span>
+      )
     },
   },
   {

@@ -67,6 +67,7 @@ export type NetworkRequest = {
   requestHeader: Record<string, string | number>
   initiator: Initiator
   requestId: string
+  fromCache: 'Disk' | 'Memory' | 'Prefetch' | false
 }
 
 export interface TracehouseTask {

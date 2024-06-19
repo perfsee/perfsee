@@ -47,6 +47,7 @@ declare module LH {
       headers?: Record<string, Record<string, string>>
       reactProfiling?: boolean
       dryRun?: boolean
+      withCache?: boolean
     }
   }
 

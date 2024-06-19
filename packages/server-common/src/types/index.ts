@@ -54,6 +54,7 @@ export interface LabJobPayload {
   loginScript: string | null
   userAgent: string | null
   e2eScript: string | null
+  warmup: boolean
 }
 
 export type E2EJobPayload = LabJobPayload & {

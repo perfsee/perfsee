@@ -187,6 +187,12 @@ export class Profile extends BaseEntity {
   @Field(() => String, { description: 'user agent', nullable: true })
   @Column({ type: 'text', nullable: true })
   userAgent!: string | null
+
+  @Field(() => Boolean, {
+    description: 'Warmup page before test',
+  })
+  @Column({ type: 'boolean', default: false, comment: 'warmup' })
+  warmup!: boolean
 }
 
 @ObjectType({ description: 'environment used to measure pages' })

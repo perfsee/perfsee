@@ -20,6 +20,7 @@ import { findChrome } from '@perfsee/chrome-finder'
 
 export type BrowserOptions = Parameters<typeof puppeteer.launch>[0] & {
   enableProxy?: boolean
+  withCache?: string | false
 }
 
 export async function createBrowser(options: BrowserOptions = {}) {
@@ -41,6 +42,10 @@ export async function createBrowser(options: BrowserOptions = {}) {
 
   if (options.enableProxy) {
     chromeArgs.push('--host-rules=MAP * 127.0.0.1')
+  }
+
+  if (options.withCache) {
+    chromeArgs.push(`--disk-cache-dir=${options.withCache}`)
   }
 
   const browser = await puppeteer.launch({
