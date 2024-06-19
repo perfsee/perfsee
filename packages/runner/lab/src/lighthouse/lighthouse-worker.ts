@@ -55,6 +55,7 @@ import {
   formatCookies,
   DEFAULT_BENCHMARK_INDEX,
   onRequestFactory,
+  BrowserOptions,
 } from './helpers'
 import { lighthouse } from './lighthouse-runtime'
 import { ReactProfiler } from './lighthouse-runtime/gatherers'
@@ -67,11 +68,20 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   // See https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#benchmarking-cpu-power
   protected benchmarkIndex: number = DEFAULT_BENCHMARK_INDEX
   protected cpuThrottling = false
+  protected cacheDir = `tmp/chrome-cache-${Date.now()}`
 
   protected async before() {
-    await this.warmupPageLoad()
-    await this.startProxyServer()
+    await this.prepare()
+    await this.warmupPageload()
     return Promise.resolve()
+  }
+
+  protected async after() {
+    try {
+      await rm('tmp', { recursive: true, force: true })
+    } catch (e: unknown) {
+      this.logger.warn('Failed to clean up tmp dir: ', { error: String(e) })
+    }
   }
 
   protected async audit() {
@@ -242,26 +252,46 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  protected async startProxyServer() {
+  protected async warmupPageload() {
     if (this.payload.enableProxy) {
+      this.logger.info('Found `enableProxy` flag. Starting proxy server now.')
       try {
-        this.logger.info('Found `enableProxy` flag. Starting proxy server now.')
         startProxyServer()
-
-        const lhFlags = this.getLighthouseFlags()
-        lhFlags.customFlags ||= {}
-        lhFlags.customFlags!.dryRun = true
-        // run page twice to cache api requests
-        const runData1 = await this.runLh(this.payload.url, lhFlags)
-        const runData2 = await this.runLh(this.payload.url, lhFlags)
-        this.benchmarkIndex =
-          ((runData1.result?.lhr.environment.benchmarkIndex ?? DEFAULT_BENCHMARK_INDEX) +
-            (runData2.result?.lhr.environment.benchmarkIndex ?? DEFAULT_BENCHMARK_INDEX)) /
-          2
-        this.logger.info(`Get benchmark index ${this.benchmarkIndex}`)
       } catch (e) {
         this.logger.error('Failed to start proxy server.', { error: e })
       }
+    }
+
+    const lhFlags = this.getLighthouseFlags()
+    lhFlags.customFlags ||= {}
+    lhFlags.customFlags!.dryRun = true
+
+    let runData1: ReturnType<typeof this.runLh> extends Promise<infer T> ? T : never = {
+      result: undefined,
+      errorMessage: undefined,
+    }
+    if (this.payload.enableProxy || this.payload.warmup) {
+      this.logger.info('Start warming up.')
+      runData1 = await this.runLh(this.payload.url, lhFlags)
+      this.logger.info('Warming up ended.')
+      const lhResult = runData1.result
+
+      if (lhResult && this.cpuThrottling) {
+        this.benchmarkIndex = lhResult.lhr.environment.benchmarkIndex
+        this.logger.info(`Get benchmark index ${this.benchmarkIndex}`)
+      }
+    }
+
+    if (this.payload.enableProxy) {
+      this.logger.info('Start seceond warming up.')
+      // run page twice to cache api requests
+      const runData2 = await this.runLh(this.payload.url, lhFlags)
+      this.logger.info('Seceond warming up ended.')
+      this.benchmarkIndex =
+        ((runData1.result?.lhr.environment.benchmarkIndex ?? DEFAULT_BENCHMARK_INDEX) +
+          (runData2.result?.lhr.environment.benchmarkIndex ?? DEFAULT_BENCHMARK_INDEX)) /
+        2
+      this.logger.info(`Get benchmark index ${this.benchmarkIndex}`)
     }
   }
 
@@ -295,9 +325,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  protected async warmupPageLoad() {
-    this.logger.info('Start warming up page load environment.')
+  protected async prepare() {
+    this.logger.info('Start preparing page load environment.')
 
+    try {
+      await rm('tmp', { recursive: true, force: true })
+      await mkdir(this.cacheDir, { recursive: true })
+    } catch {
+      //
+    }
     const { headers, cookies, localStorage, reactProfiling, url, deviceId } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
@@ -308,15 +344,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     await this.login()
 
-    // If `enableProxy` is enabled
-    // The `benchmarkIndex` should be set during the proxy server warming up phase
     this.cpuThrottling = !!deviceId && deviceId !== 'no' && !!DEVICE_DESCRIPTORS[deviceId]
-    if (!this.payload.enableProxy && this.cpuThrottling) {
-      await this.getBenchmarkIndex()
-    }
 
     if (reactProfiling) {
-      const browser = await this.createBrowser()
+      const browser = await this.createBrowser({ enableProxy: false })
       try {
         this.logger.info('React profiler enabled.')
         await ReactProfiler.findReactDOMScriptAndGenerateProfilingBundle(url, browser, this.logger)
@@ -330,26 +361,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       }
     }
 
-    this.logger.verbose('Warming up ended.')
-  }
-
-  protected async getBenchmarkIndex() {
-    try {
-      this.logger.info(`Warming up page ${this.payload.url}.`)
-
-      const lhFlags = this.getLighthouseFlags()
-      lhFlags.customFlags ||= {}
-      lhFlags.customFlags!.dryRun = true
-      const runData = await this.runLh(this.payload.url, lhFlags)
-      const lhResult = runData.result
-
-      if (lhResult) {
-        this.benchmarkIndex = lhResult.lhr.environment.benchmarkIndex
-        this.logger.info(`Get benchmark index ${this.benchmarkIndex}`)
-      }
-    } catch (e) {
-      this.logger.error('Failed to warmup page.', { error: e })
-    }
+    this.logger.verbose('Prepare ended.')
   }
 
   protected async login() {
@@ -406,13 +418,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
   }
 
-  protected async createBrowser() {
+  protected async createBrowser(options: BrowserOptions = {}) {
     const { cookies, localStorageContent } = this
-    const { url, deviceId, enableProxy } = this.payload
+    const { url, deviceId, enableProxy, warmup } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
 
-    const browser = await createBrowser({ enableProxy })
+    const browser = await createBrowser({ enableProxy, withCache: warmup && this.cacheDir, ...options })
 
     browser.on('targetcreated', (e: Target) => {
       const setup = async () => {
@@ -440,7 +452,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   protected getLighthouseFlags(): LH.Flags {
     const { cookies, headers, localStorageContent, reactProfiling } = this
-    const { url, deviceId, throttle, userAgent } = this.payload
+    const { url, deviceId, throttle, userAgent, warmup } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const cpuSlowdownMultiplier = Number(
       (this.cpuThrottling ? (device.cpuSlowdownMultiplier * this.benchmarkIndex) / DEFAULT_BENCHMARK_INDEX : 1).toFixed(
@@ -476,6 +488,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       customFlags: {
         headers,
         reactProfiling,
+        withCache: warmup,
       },
     }
   }
@@ -490,12 +503,6 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     let errorTimes = 0
 
     const tmpDir = `tmp/lighthouse-artifacts-${Date.now()}`
-
-    try {
-      await rm('tmp', { recursive: true, force: true })
-    } catch {
-      //
-    }
 
     if (runs > 1) {
       await mkdir(tmpDir, { recursive: true })

@@ -679,6 +679,9 @@ type Profile {
 
   """user agent"""
   userAgent: String
+
+  """Warmup page before test"""
+  warmup: Boolean!
 }
 
 """environment used to measure pages"""
@@ -1866,6 +1869,9 @@ input UpdateProfileInput {
 
   """user agent"""
   userAgent: String
+
+  """Warmup page before test"""
+  warmup: Boolean
 }
 
 input UpdateTimerInput {

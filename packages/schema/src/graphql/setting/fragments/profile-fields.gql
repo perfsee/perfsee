@@ -6,5 +6,6 @@ fragment profileFields on Profile {
     disable
     reactProfiling
     enableProxy
+    warmup
     userAgent
 }

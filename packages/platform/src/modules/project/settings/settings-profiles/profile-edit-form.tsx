@@ -34,6 +34,7 @@ import { getDevicesOptions, getConnectionsOptions, DefaultConnection, DefaultDev
 
 import { FormProxy } from './form-proxy'
 import { FormReact } from './form-react'
+import { FormWarmup } from './form-warmup'
 
 type FromProps = {
   profile: Partial<ProfileSchema>
@@ -45,6 +46,7 @@ export const ProfileForm = (props: FromProps) => {
   const { profile: defaultProfile, closeModal, onSubmit } = props
   const reactProfilingRef = useRef<{ getReactProfilingEnable: () => boolean }>()
   const proxyRef = useRef<{ getProxyEnable: () => boolean }>()
+  const warmupRef = useRef<{ getEnable: () => boolean }>()
   const { connections, devices } = useModuleState(PropertyModule, {
     selector: (state) => pick(state, 'connections', 'devices'),
     dependencies: [],
@@ -60,9 +62,10 @@ export const ProfileForm = (props: FromProps) => {
     (_e: any) => {
       const reactProfiling = reactProfilingRef.current!.getReactProfilingEnable()
       const enableProxy = proxyRef.current!.getProxyEnable()
+      const warmup = warmupRef.current!.getEnable()
 
       if (profile.name) {
-        onSubmit({ ...profile, reactProfiling, enableProxy })
+        onSubmit({ ...profile, reactProfiling, enableProxy, warmup })
       }
     },
     [onSubmit, profile],
@@ -110,6 +113,7 @@ export const ProfileForm = (props: FromProps) => {
       />
       <FormReact defaultEnable={defaultProfile?.reactProfiling ?? false} ref={reactProfilingRef} />
       <FormProxy defaultEnable={defaultProfile?.enableProxy ?? false} ref={proxyRef} />
+      <FormWarmup defaultEnable={defaultProfile?.warmup ?? false} ref={warmupRef} />
       <DialogFooter>
         <PrimaryButton onClick={onSave} text="Save" />
         <DefaultButton onClick={closeModal} text="Cancel" />

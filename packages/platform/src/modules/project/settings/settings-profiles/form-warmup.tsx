@@ -19,24 +19,19 @@ import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 
 import { LabelWithTips } from '@perfsee/components'
 
-interface FormProxyProps {
+interface FormWarmupProps {
   defaultEnable: boolean
 }
 
-const tips = (
-  <>
-    Warm up page load before real test. Start a proxy server to cache all static assets and most of xhr & fetch requests
-    to prevent inevitable variability of networking, <b>which can make the lab result more stable and reliable</b>
-  </>
-)
+const tips = <>Warm up page load before real test. Use the browser's disk cache to cache static assets.</>
 
-export const FormProxy = forwardRef((props: FormProxyProps, ref) => {
+export const FormWarmup = forwardRef((props: FormWarmupProps, ref) => {
   const [enable, setEnable] = useState(props.defaultEnable)
 
   useImperativeHandle(
     ref,
     () => ({
-      getProxyEnable() {
+      getEnable() {
         return enable
       },
     }),
@@ -49,7 +44,7 @@ export const FormProxy = forwardRef((props: FormProxyProps, ref) => {
 
   return (
     <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
-      <LabelWithTips label="Warm Up With Request Proxy" tips={tips} />
+      <LabelWithTips label="Warm Up With Disk Cache" tips={tips} />
       <Stack horizontal verticalAlign="center">
         <Toggle
           defaultChecked={enable}
