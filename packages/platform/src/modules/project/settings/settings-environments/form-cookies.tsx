@@ -341,7 +341,12 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
         return {
           ...defaultCookie,
           ...pick(c, 'name', 'value', 'domain', 'path', 'httpOnly', 'secure'),
-          sameSite: sameSite === 'Lax' || sameSite === 'Strict' ? sameSite : 'None',
+          sameSite:
+            sameSite === 'Lax' || sameSite === 'Strict' || sameSite === 'None'
+              ? sameSite
+              : sameSite === 'No_restriction'
+              ? 'None'
+              : 'Lax',
         }
       })
 
