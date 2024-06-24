@@ -406,8 +406,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
         const pages = await browser.pages()
         for (const p of pages) {
+          const client = await p.createCDPSession()
+          const pageCookies = await client.send('Storage.getCookies')
           // @ts-expect-error
-          this.cookies.push(...(await p.cookies()))
+          this.cookies.push(...pageCookies.cookies)
         }
       } catch (err) {
         const failedReason = 'Error from login script: ' + (err instanceof Error ? err.message : err)
