@@ -100,7 +100,6 @@ export const PageEditForm = (props: FromProps) => {
         connectPageIds: page.isCompetitor && connectPageIds ? connectPageIds : undefined,
         relation: {
           ...relation,
-          envIds: page.isCompetitor ? [relation.envIds[0]] : relation.envIds,
           competitorIds: page.isCompetitor ? [] : relation.competitorIds,
         },
       })
@@ -146,7 +145,7 @@ export const PageEditForm = (props: FromProps) => {
         onSelectChange={onProfileChange}
         label="Profiles"
         errorMessage="Required"
-        multiSelect={page.isCompetitor ? false : true}
+        multiSelect
       />
       <MultiSelector
         options={environmentItems}
@@ -154,7 +153,7 @@ export const PageEditForm = (props: FromProps) => {
         onSelectChange={onEnvChange}
         label="Environments"
         errorMessage="Required"
-        multiSelect={page.isCompetitor ? false : true}
+        multiSelect
       />
       <UserflowScriptForm defaultScript={page.e2eScript} ref={userflowScriptRef} />
       {!isCompetitor && !!competitorPageItems.length && (

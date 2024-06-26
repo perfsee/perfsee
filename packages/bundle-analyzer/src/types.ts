@@ -109,6 +109,8 @@ export interface BundleAuditResult {
     absoluteWarningThrottle: number
     relativeWarningThrottle?: number
   }
+  count?: number
+  size?: Size
 }
 
 export interface BundleAuditWarning {
