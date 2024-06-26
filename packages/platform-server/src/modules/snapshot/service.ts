@@ -807,11 +807,13 @@ export class SnapshotService implements OnApplicationBootstrap {
   @OnEvent(`${JobType.LabAnalyze}.update`)
   async handleReportUpdate(data: LabJobResult) {
     await this.updateLabReport(data)
+    await this.saveJobResult(data)
   }
 
   @OnEvent(`${JobType.E2EAnalyze}.update`)
   async handleE2EReportUpdate(data: E2EJobResult) {
     await this.updateFlowReport(data)
+    await this.saveJobResult(data)
   }
 
   @OnEvent(`${JobType.LabPing}.update`)
@@ -979,5 +981,19 @@ export class SnapshotService implements OnApplicationBootstrap {
       .andWhere('created_at >= DATE_SUB(NOW(), INTERVAL 1 WEEK)')
       .take(5)
       .getMany()
+  }
+
+  private async saveJobResult(data: LabJobResult | E2EJobResult) {
+    const { jobId, ...result } = data
+    try {
+      const job = jobId ? await Job.findOneBy({ id: jobId }) : null
+      if (job) {
+        job.extra ||= {}
+        job.extra.result = JSON.stringify(result)
+        await job.save()
+      }
+    } catch (e) {
+      this.logger.error('Failed to save job result.', { error: e })
+    }
   }
 }

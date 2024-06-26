@@ -29,7 +29,7 @@ import {
   ForeignLink,
   AuditItem as AuditItemBase,
 } from '@perfsee/components'
-import { BundleAuditResult, BundleAuditDetail, BundleAuditScore } from '@perfsee/shared'
+import { BundleAuditResult, BundleAuditDetail, BundleAuditScore, PrettyBytes } from '@perfsee/shared'
 
 import { RouterContext } from '../../router-context'
 import { ByteSizeWithDiff } from '../components'
@@ -158,6 +158,37 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
     return null
   }, [audit])
 
+  const labels = useMemo(() => {
+    const labels =
+      audit.weight && audit.numericScore
+        ? [
+            audit.baseline && diffScore && Math.abs(diffScore) >= 0.5 ? (
+              <span style={{ whiteSpace: 'pre' }}>
+                Score: {(100 * audit.numericScore.value).toFixed(0)}
+                {'  '}
+                <span style={{ color: diffScore > 0 ? theme.colors.success : theme.colors.error }}>
+                  {diffScore > 0 ? <RiseOutlined /> : <FallOutlined />} {diffScore > 0 ? '+' : '-'}
+                  {Math.abs(diffScore).toFixed(0)}
+                </span>
+              </span>
+            ) : (
+              `Score: ${(100 * audit.numericScore.value).toFixed(0)}`
+            ),
+            `Weight: ${audit.weight}`,
+          ]
+        : []
+
+    if (audit.count) {
+      labels.push(`Count: ${audit.count}`)
+    }
+
+    if (audit.size) {
+      labels.push(`Size: ${PrettyBytes.create(audit.size.raw).toString()}`)
+    }
+
+    return labels
+  }, [audit, theme, diffScore])
+
   return (
     <AuditItemBase
       title={audit.title}
@@ -167,25 +198,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
           {audit.desc} {audit.link && <ForeignLink href={audit.link}>Learn more</ForeignLink>}
         </>
       }
-      labels={
-        audit.weight && audit.numericScore
-          ? [
-              audit.baseline && diffScore && Math.abs(diffScore) >= 0.5 ? (
-                <span style={{ whiteSpace: 'pre' }}>
-                  Score: {(100 * audit.numericScore.value).toFixed(0)}
-                  {'  '}
-                  <span style={{ color: diffScore > 0 ? theme.colors.success : theme.colors.error }}>
-                    {diffScore > 0 ? <RiseOutlined /> : <FallOutlined />} {diffScore > 0 ? '+' : '-'}
-                    {Math.abs(diffScore).toFixed(0)}
-                  </span>
-                </span>
-              ) : (
-                `Score: ${(100 * audit.numericScore.value).toFixed(0)}`
-              ),
-              `Weight: ${audit.weight}`,
-            ]
-          : []
-      }
+      labels={labels}
     >
       {audit.detail && audit.detail.items.length > 0 && (
         <CollapsiblePanel header="Detail">
