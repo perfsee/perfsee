@@ -338,9 +338,12 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
     try {
       const newCookies = (JSON.parse(value) as CookieSchema[]).map((c) => {
         const sameSite = capitalize(c.sameSite)
+        // @ts-expect-error
+        const expire = c.expire || (c.expirationDate ? new Date(c.expirationDate * 1000).toISOString() : null)
         return {
           ...defaultCookie,
           ...pick(c, 'name', 'value', 'domain', 'path', 'httpOnly', 'secure'),
+          expire,
           sameSite:
             sameSite === 'Lax' || sameSite === 'Strict' || sameSite === 'None'
               ? sameSite
