@@ -24,6 +24,7 @@ import {
   MetricKeyType,
   LocalStorageType,
   EntryDiffBrief,
+  SessionStorageType,
 } from '@perfsee/shared'
 
 type PartialSnapshotReport = {
@@ -49,6 +50,7 @@ export interface LabJobPayload {
   headers: HeaderType[]
   cookies: CookieType[]
   localStorage: LocalStorageType[]
+  sessionStorage: SessionStorageType[]
   reactProfiling: boolean
   enableProxy: boolean
   loginScript: string | null

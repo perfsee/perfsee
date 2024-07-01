@@ -618,6 +618,11 @@ type LocalStorageType {
   value: String!
 }
 
+type SessionStorageType {
+  key: String!
+  value: String!
+}
+
 type CookieType {
   name: String!
   value: String!
@@ -713,6 +718,9 @@ type Environment {
 
   """extra localStorage value inserted into page"""
   localStorage: [LocalStorageType!]
+
+  """extra sessionStorage value inserted into page"""
+  sessionStorage: [SessionStorageType!]
 
   """login script"""
   loginScript: String
@@ -1820,11 +1828,17 @@ input UpdateEnvironmentInput {
   """login script"""
   loginScript: String
   localStorage: [LocalStorageInputType!]
+  sessionStorage: [SessionStorageInputType!]
   cookies: [CookieInputType!]
   headers: [HeaderInputType!]
 }
 
 input LocalStorageInputType {
+  key: String!
+  value: String!
+}
+
+input SessionStorageInputType {
   key: String!
   value: String!
 }

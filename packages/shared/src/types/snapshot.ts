@@ -114,6 +114,11 @@ export type LocalStorageType = {
   value: string
 }
 
+export type SessionStorageType = {
+  key: string
+  value: string
+}
+
 export type ThrottleType = {
   id: string
   download: number
