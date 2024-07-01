@@ -28,11 +28,19 @@ import { useCallback, useState, useRef } from 'react'
 
 import { RequiredTextField } from '@perfsee/components'
 
-import { CookieSchema, EnvSchema, PropertyModule, LocalStorageSchema, HeaderSchema } from '../../../shared'
+import {
+  CookieSchema,
+  EnvSchema,
+  PropertyModule,
+  LocalStorageSchema,
+  HeaderSchema,
+  SessionStorageSchema,
+} from '../../../shared'
 
 import { FormCookies } from './form-cookies'
 import { FormHeaders } from './form-headers'
 import { FormLocalStorage } from './form-localstorage'
+import { FormSessionStorage } from './form-sessionstorage'
 import { LoginScriptForm } from './login-script-form'
 
 type FromProps = {
@@ -55,6 +63,7 @@ export const EnvEditForm = (props: FromProps) => {
   const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
   const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
   const localStorageRef = useRef<{ getLocalStorage: () => LocalStorageSchema[] }>()
+  const sessionStorageRef = useRef<{ getSessionStorage: () => SessionStorageSchema[] }>()
   const loginScriptRef = useRef<{ getScript: () => string | null }>()
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
 
@@ -64,6 +73,7 @@ export const EnvEditForm = (props: FromProps) => {
       const cookies = cookiesRef.current!.getCookies()
       const headers = headersRef.current!.getHeaders()
       const localStorage = localStorageRef.current!.getLocalStorage()
+      const sessionStorage = sessionStorageRef.current!.getSessionStorage()
       const loginScript = loginScriptRef.current!.getScript()
 
       // Not allowed to save
@@ -78,6 +88,7 @@ export const EnvEditForm = (props: FromProps) => {
         headers,
         cookies,
         localStorage,
+        sessionStorage,
         needReminder,
         zone,
         loginScript,
@@ -100,6 +111,7 @@ export const EnvEditForm = (props: FromProps) => {
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
       <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
+      <FormSessionStorage defaultSessionStorage={defaultEnv?.sessionStorage ?? []} ref={sessionStorageRef} />
       <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
       <LoginScriptForm defaultScript={defaultEnv?.loginScript} ref={loginScriptRef} />
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">

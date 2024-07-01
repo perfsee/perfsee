@@ -40,6 +40,7 @@ import {
   getPerformance,
   LHTosUserFlowSchema,
   TimelineSchema,
+  SessionStorageType,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
@@ -64,6 +65,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected headers!: HostHeaders
   protected cookies!: CookieType[]
   protected localStorageContent!: LocalStorageType[]
+  protected sessionStorageContent!: SessionStorageType[]
   protected reactProfiling!: boolean
   // See https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#benchmarking-cpu-power
   protected benchmarkIndex: number = DEFAULT_BENCHMARK_INDEX
@@ -334,12 +336,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     } catch {
       //
     }
-    const { headers, cookies, localStorage, reactProfiling, url, deviceId } = this.payload
+    const { headers, cookies, localStorage, reactProfiling, url, deviceId, sessionStorage } = this.payload
     const hostHeaders = transformHeadersToHostHeaders(headers)
 
     this.headers = hostHeaders
     this.cookies = cookies
     this.localStorageContent = localStorage
+    this.sessionStorageContent = sessionStorage
     this.reactProfiling = reactProfiling
 
     await this.login()
@@ -366,8 +369,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   protected async login() {
     const { loginScript, url } = this.payload
-    const { headers, cookies, localStorageContent } = this
-    const { host: domain } = new URL(url)
+    const { headers, cookies, localStorageContent, sessionStorageContent } = this
+    const { host: domain, origin } = new URL(url)
 
     if (loginScript) {
       const onRequest = onRequestFactory(url, headers)
@@ -375,12 +378,20 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       const page = await browser.newPage()
       await page.setRequestInterception(true)
       await page.setCookie(...formatCookies(cookies, domain))
-      await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
-        localStorage.clear()
-        localStorageContent.forEach(({ key, value }) => {
-          localStorage.setItem(key, value)
-        })
-      }, localStorageContent)
+      await page.evaluateOnNewDocument(
+        (localStorageContent: LocalStorageType[], sessionStorageContent: SessionStorageType[]) => {
+          localStorage.clear()
+          sessionStorage.clear()
+          localStorageContent.forEach(({ key, value }) => {
+            localStorage.setItem(key, value)
+          })
+          sessionStorageContent.forEach(({ key, value }) => {
+            sessionStorage.setItem(key, value)
+          })
+        },
+        localStorageContent,
+        sessionStorageContent,
+      )
       page.on('request', onRequest)
       const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
         browser,
@@ -410,6 +421,34 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           const pageCookies = await client.send('Storage.getCookies')
           // @ts-expect-error
           this.cookies.push(...pageCookies.cookies)
+
+          for (const frame of p.frames()) {
+            if (new URL(frame.url()).origin === origin) {
+              const pageLocalStorage = await frame.evaluate(() => {
+                return Object.entries(window.localStorage)
+              })
+              this.logger.verbose('Collecting ' + pageLocalStorage.length + ' localStorage entries from page.')
+              this.localStorageContent.push(
+                ...pageLocalStorage
+                  .map((e) => {
+                    return { key: e[0], value: e[1] }
+                  })
+                  .filter((e): e is { key: string; value: string } => !!e),
+              )
+              const pageSessionStorage = await frame.evaluate(() => {
+                return Object.entries(window.sessionStorage)
+              })
+              this.logger.verbose('Collecting ' + pageSessionStorage.length + ' sessionStorage entries from page.')
+              this.sessionStorageContent.push(
+                ...pageSessionStorage
+                  .map((e) => {
+                    return { key: e[0], value: e[1] }
+                  })
+                  .filter((e): e is { key: string; value: string } => !!e),
+              )
+              break
+            }
+          }
         }
       } catch (err) {
         const failedReason = 'Error from login script: ' + (err instanceof Error ? err.message : err)
@@ -421,7 +460,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected async createBrowser(options: BrowserOptions = {}) {
-    const { cookies, localStorageContent } = this
+    const { cookies, localStorageContent, sessionStorageContent } = this
     const { url, deviceId, enableProxy, warmup } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
@@ -436,12 +475,21 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         }
         await page.setCookie(...formatCookies(cookies, domain))
         await page.setViewport(device.viewport)
-        await page.evaluateOnNewDocument((localStorageContent: LocalStorageType[]) => {
-          localStorage.clear()
-          localStorageContent.forEach(({ key, value }) => {
-            localStorage.setItem(key, value)
-          })
-        }, localStorageContent)
+
+        await page.evaluateOnNewDocument(
+          (localStorageContent: LocalStorageType[], sessionStorageContent: SessionStorageType[]) => {
+            localStorage.clear()
+            sessionStorage.clear()
+            localStorageContent.forEach(({ key, value }) => {
+              localStorage.setItem(key, value)
+            })
+            sessionStorageContent.forEach(({ key, value }) => {
+              sessionStorage.setItem(key, value)
+            })
+          },
+          localStorageContent,
+          sessionStorageContent,
+        )
       }
 
       setup().catch((e) => {
@@ -453,7 +501,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected getLighthouseFlags(): LH.Flags {
-    const { cookies, headers, localStorageContent, reactProfiling } = this
+    const { cookies, headers, localStorageContent, reactProfiling, sessionStorageContent } = this
     const { url, deviceId, throttle, userAgent, warmup } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const cpuSlowdownMultiplier = Number(
@@ -469,6 +517,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       throttle,
       localStorageContent,
       cpuSlowdownMultiplier,
+      sessionStorageContent,
     })
 
     const downloadKbps = throttle.download ? throttle.download / 125 : 40000

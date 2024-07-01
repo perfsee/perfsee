@@ -16,10 +16,13 @@ limitations under the License.
 
 import { Field, InputType, OmitType, PartialType } from '@nestjs/graphql'
 
-import { Environment, LocalStorageType, HeaderType, CookieType } from '@perfsee/platform-server/db'
+import { Environment, LocalStorageType, HeaderType, CookieType, SessionStorageType } from '@perfsee/platform-server/db'
 
 @InputType()
 export class LocalStorageInputType extends OmitType(LocalStorageType, [], InputType) {}
+
+@InputType()
+export class SessionStorageInputType extends OmitType(SessionStorageType, [], InputType) {}
 
 @InputType()
 export class HeaderInputType extends OmitType(HeaderType, [], InputType) {}
@@ -29,11 +32,14 @@ export class CookieInputType extends OmitType(CookieType, [], InputType) {}
 
 @InputType()
 export class UpdateEnvironmentInput extends PartialType(
-  OmitType(Environment, ['id', 'projectId', 'localStorage', 'cookies', 'headers']),
+  OmitType(Environment, ['id', 'projectId', 'localStorage', 'cookies', 'headers', 'sessionStorage']),
   InputType,
 ) {
   @Field(() => [LocalStorageInputType], { nullable: true })
   localStorage?: LocalStorageInputType[]
+
+  @Field(() => [SessionStorageInputType], { nullable: true })
+  sessionStorage?: SessionStorageInputType[]
 
   @Field(() => [CookieInputType], { nullable: true })
   cookies?: CookieInputType[]

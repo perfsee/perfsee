@@ -25,6 +25,7 @@ export type PageRelation = PageRelationsQuery['project']['pageRelations'][0]
 export type CookieSchema = PropertyQuery['project']['environments'][0]['cookies'][0]
 export type HeaderSchema = PropertyQuery['project']['environments'][0]['headers'][0]
 export type LocalStorageSchema = NonNullable<PropertyQuery['project']['environments'][0]['localStorage']>[0]
+export type SessionStorageSchema = NonNullable<PropertyQuery['project']['environments'][0]['sessionStorage']>[0]
 
 export type UpdatePagePayload = {
   page: Partial<PageSchema>

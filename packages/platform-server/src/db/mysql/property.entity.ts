@@ -27,7 +27,12 @@ import {
   Index,
 } from 'typeorm'
 
-import { CookieType as Cookie, HeaderType as Header, LocalStorageType as LocalStorage } from '@perfsee/shared'
+import {
+  CookieType as Cookie,
+  HeaderType as Header,
+  LocalStorageType as LocalStorage,
+  SessionStorageType as SessionStorage,
+} from '@perfsee/shared'
 
 import { ApplicationSetting } from './application-setting.entity'
 import type { Project } from './project.entity'
@@ -47,6 +52,15 @@ export class HeaderType implements Header {
 
 @ObjectType()
 export class LocalStorageType implements LocalStorage {
+  @Field(() => String)
+  key!: string
+
+  @Field(() => String)
+  value!: string
+}
+
+@ObjectType()
+export class SessionStorageType implements SessionStorage {
   @Field(() => String)
   key!: string
 
@@ -254,6 +268,13 @@ export class Environment extends BaseEntity {
   })
   @Column({ type: 'json', nullable: true })
   localStorage!: LocalStorageType[]
+
+  @Field(() => [SessionStorageType], {
+    nullable: true,
+    description: 'extra sessionStorage value inserted into page',
+  })
+  @Column({ type: 'json', nullable: true })
+  sessionStorage!: SessionStorageType[]
 
   @OneToMany('SnapshotReport', 'environment')
   reports!: SnapshotReport[]

@@ -17,15 +17,15 @@ limitations under the License.
 import { DefaultButton, Label, Stack, IconButton, SharedColors, TextField } from '@fluentui/react'
 import { FormEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useState, memo } from 'react'
 
-import { LocalStorageType } from '@perfsee/shared'
+import { SessionStorageType } from '@perfsee/shared'
 
 import { NormalToken } from '../style'
 
 type FormStorageProps = {
   index: number
-  item: LocalStorageType
+  item: SessionStorageType
   onStorageRemove: (index: number) => void
-  onStorageChange: (item: LocalStorageType, index: number) => void
+  onStorageChange: (item: SessionStorageType, index: number) => void
 }
 
 const FormStorage = memo((props: FormStorageProps) => {
@@ -59,7 +59,7 @@ const FormStorage = memo((props: FormStorageProps) => {
   return (
     <div>
       <Stack horizontal horizontalAlign="space-between" verticalAlign="center" tokens={{ padding: '8px 0 0 0' }}>
-        LocalStorage #{index + 1}
+        SessionStorage #{index + 1}
         <IconButton
           iconProps={{ iconName: 'delete' }}
           styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
@@ -88,21 +88,21 @@ const FormStorage = memo((props: FormStorageProps) => {
   )
 })
 
-type Props = { defaultLocalStorage: LocalStorageType[] }
+type Props = { defaultSessionStorage: SessionStorageType[] }
 
-export const FormLocalStorage = forwardRef((props: Props, ref) => {
-  const [storages, setStorages] = useState<LocalStorageType[]>(props.defaultLocalStorage)
+export const FormSessionStorage = forwardRef((props: Props, ref) => {
+  const [storages, setStorages] = useState<SessionStorageType[]>(props.defaultSessionStorage)
 
   useImperativeHandle(
     ref,
     () => ({
-      getLocalStorage: () => storages,
+      getSessionStorage: () => storages,
     }),
     [storages],
   )
 
   const onStorageChange = useCallback(
-    (storage: LocalStorageType, index: number) => {
+    (storage: SessionStorageType, index: number) => {
       const newStorages = [...storages]
       newStorages[index] = storage
       setStorages(newStorages)
@@ -137,8 +137,8 @@ export const FormLocalStorage = forwardRef((props: Props, ref) => {
   return (
     <>
       <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
-        <Label htmlFor="localStorage">Local Storage</Label>
-        <DefaultButton onClick={onAddStorage}>add local storage</DefaultButton>
+        <Label htmlFor="sessionStorage">Session Storage</Label>
+        <DefaultButton onClick={onAddStorage}>add session storage</DefaultButton>
       </Stack>
       {newHeaders}
     </>

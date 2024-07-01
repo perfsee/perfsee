@@ -391,7 +391,7 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
             offText="Stringify"
             onClick={onToggle}
           />
-          {isTable && <DefaultButton onClick={onAddCookie}>add Cookies</DefaultButton>}
+          {isTable && <DefaultButton onClick={onAddCookie}>add cookie</DefaultButton>}
         </Stack>
       </Stack>
       {isTable ? (
