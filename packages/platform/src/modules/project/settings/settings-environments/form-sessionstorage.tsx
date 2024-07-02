@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DefaultButton, Label, Stack, IconButton, SharedColors, TextField } from '@fluentui/react'
+import { DefaultButton, Label, Stack, IconButton, SharedColors, TextField, Toggle } from '@fluentui/react'
 import { FormEvent, forwardRef, useCallback, useImperativeHandle, useMemo, useState, memo } from 'react'
 
 import { SessionStorageType } from '@perfsee/shared'
@@ -92,6 +92,8 @@ type Props = { defaultSessionStorage: SessionStorageType[] }
 
 export const FormSessionStorage = forwardRef((props: Props, ref) => {
   const [storages, setStorages] = useState<SessionStorageType[]>(props.defaultSessionStorage)
+  const [isTable, toggle] = useState<boolean>(true)
+  const [errorInfo, setErrorInfo] = useState<string>()
 
   useImperativeHandle(
     ref,
@@ -120,7 +122,7 @@ export const FormSessionStorage = forwardRef((props: Props, ref) => {
     setStorages([...storages, { key: '', value: '' }])
   }, [storages])
 
-  const newHeaders = useMemo(() => {
+  const storageTable = useMemo(() => {
     return storages.map((item, i) => {
       return (
         <FormStorage
@@ -134,13 +136,74 @@ export const FormSessionStorage = forwardRef((props: Props, ref) => {
     })
   }, [onStorageChange, onStorageRemove, storages])
 
+  const onToggle = useCallback(() => {
+    toggle((checked) => !checked)
+  }, [toggle])
+
+  const storageString = useMemo(() => {
+    return storages.length
+      ? `{${storages
+          .filter((h) => h.key && h.value)
+          .map((h) => {
+            if (typeof h.value === 'object') {
+              return `"${h.key}":"${JSON.stringify(h.value)}"`
+            }
+            return `"${h.key}":"${h.value!.replaceAll('"', '\\"')}"`
+          })
+          .join(',')}}`
+      : ''
+  }, [storages])
+
+  const onStorageStringChange = useCallback((_: any, str?: string) => {
+    if (!str) {
+      setStorages([])
+      return
+    }
+
+    try {
+      const newStorages: SessionStorageType[] = []
+      Object.entries<string>(JSON.parse(str)).forEach(([key, value]) => {
+        if (key && value) {
+          if (typeof value === 'object') {
+            newStorages.push({ key, value: JSON.stringify(value) })
+          } else {
+            newStorages.push({ key, value })
+          }
+        }
+      })
+      setStorages(newStorages)
+      setErrorInfo(undefined)
+    } catch (e) {
+      setErrorInfo('Invalid JSON formatting')
+    }
+  }, [])
+
   return (
     <>
       <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
         <Label htmlFor="sessionStorage">Session Storage</Label>
-        <DefaultButton onClick={onAddStorage}>add session storage</DefaultButton>
+        <Stack horizontal verticalAlign="center">
+          <Toggle
+            defaultChecked={isTable}
+            styles={{ root: { marginBottom: 0 } }}
+            onText="Table"
+            offText="Stringify"
+            onClick={onToggle}
+          />
+          {isTable && <DefaultButton onClick={onAddStorage}>add local storage</DefaultButton>}
+        </Stack>
       </Stack>
-      {newHeaders}
+      {isTable ? (
+        storageTable
+      ) : (
+        <TextField
+          defaultValue={storageString}
+          onChange={onStorageStringChange}
+          multiline={true}
+          errorMessage={errorInfo}
+          placeholder={`{"key":"value"}`}
+        />
+      )}
     </>
   )
 })
