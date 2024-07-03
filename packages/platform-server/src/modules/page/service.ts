@@ -208,7 +208,7 @@ export class PageService {
         const pageProfiles = await PageWithProfile.findBy({ pageId: In(competitorIds) })
         pageEnvs.forEach(({ pageId, envId }) => {
           pageProfiles.forEach(({ pageId: pageId2, profileId }) => {
-            if (pageId === pageId2) {
+            if (pageId === pageId2 && validEnvIdSet.has(envId) && validProfileIdSet.has(profileId)) {
               propertyIds.push({
                 pageId,
                 profileId,
