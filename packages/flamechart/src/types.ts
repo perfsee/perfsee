@@ -13,7 +13,7 @@ export interface PerfseeFlameChartData {
   weights: number[]
 }
 
-export type RequestTiming = 'Blocked' | 'DNS' | 'Connect' | 'Send' | 'Wait' | 'SSL' | 'Receive'
+export type RequestTiming = 'Blocked' | 'DNS' | 'Connect' | 'Send' | 'Wait' | 'SSL' | 'Receive' | 'Redirect'
 
 export type TimingSchema = {
   name: string

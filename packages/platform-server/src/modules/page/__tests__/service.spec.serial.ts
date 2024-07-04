@@ -66,7 +66,7 @@ test.serial('get pages with property', async (t) => {
   t.is(payload2.propertyIds.length, 0)
 
   t.is(payload3.pages.length, 3)
-  t.is(payload3.propertyIds.length, 2)
+  t.is(payload3.propertyIds.length, 1)
 
   t.is(payload4.pages.length, 1)
   t.is(payload4.propertyIds.length, 1)

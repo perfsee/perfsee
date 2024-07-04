@@ -47,6 +47,12 @@ export type TimingSchema = {
   workerStart: number
 }
 
+export interface ServerTiming {
+  name: string
+  desc?: string
+  dur?: number
+}
+
 type ResponseType = {
   protocol: string
   status: number

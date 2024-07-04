@@ -27,6 +27,10 @@ export const WaterFall: FC<Props> = memo(({ width, request, totalTime, firstTime
     let setTarget = false
     let canMove = true
     let startX = Math.floor((request.startTime - firstTime) * percent)
+    const redirect = request.timings.find((v) => v.name === RequestPeriod.Redirect)
+    if (redirect) {
+      startX -= Math.floor(redirect.value * percent)
+    }
     return Object.values(RequestPeriod)
       .map((key) => {
         const period = request.timings.find((v) => v.name === key)

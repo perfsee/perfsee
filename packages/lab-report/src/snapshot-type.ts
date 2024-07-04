@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { SharedColors } from '@perfsee/dls'
+import { NeutralColors, SharedColors } from '@perfsee/dls'
 import { SnapshotReportQuery } from '@perfsee/schema'
 import {
   TimingType,
@@ -142,6 +142,7 @@ export type MetricSchema = {
 }
 
 export enum RequestPeriod {
+  Redirect = 'Redirect',
   Blocked = 'Blocked',
   DNS = 'DNS',
   Connect = 'Connect',
@@ -154,6 +155,7 @@ export enum RequestPeriod {
 export const RequestPeriodMaps: {
   [k in RequestPeriod]: { background: string; height: number }
 } = {
+  [RequestPeriod.Redirect]: { background: NeutralColors.gray50, height: 4 },
   [RequestPeriod.Blocked]: { background: SharedColors.gray10, height: 8 },
   [RequestPeriod.DNS]: { background: SharedColors.yellowGreen10, height: 8 },
   [RequestPeriod.Connect]: { background: SharedColors.yellow10, height: 8 },
