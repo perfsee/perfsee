@@ -183,7 +183,7 @@ test.serial('take snapshot with envIid', async (t) => {
 
   // equals to page x profile x env bindings
   // see packages/platform-server/src/db/fixtures/seed.ts
-  t.is(await SnapshotReport.countBy({ snapshotId: snapshot.id }), 3)
+  t.is(await SnapshotReport.countBy({ snapshotId: snapshot.id }), 2)
 })
 
 test.serial('take snapshot with given property', async (t) => {

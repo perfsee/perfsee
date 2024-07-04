@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { dynamicImport } from '@perfsee/job-runner-shared'
-import { ArtifactSchema, LifeCycle, TimingSchema } from '@perfsee/shared'
+import { ArtifactSchema, LifeCycle, TimingSchema, ServerTiming } from '@perfsee/shared'
 
 export type NetworkRecord = ReturnType<typeof getNetworkRecords> extends Promise<infer T>
   ? T extends Array<any>
@@ -27,17 +27,26 @@ export const getRequestType = (item: ArtifactSchema) => {
   return item[LifeCycle.responseReceived]?.type ?? item[LifeCycle.loadingFailed]?.type ?? ''
 }
 
-export const getRequestTimings = (
-  item: ArtifactSchema,
-  endTime: number, // timestamp
-  defaultTiming?: TimingSchema,
-  defaultResReceivedTime?: number, // timestamp
-) => {
+export const getRequestTimings = (item: ArtifactSchema, record: LH.Artifacts.NetworkRequest) => {
+  const defaultTiming = record.timing
+  const endTime = record.networkEndTime
+  const defaultResReceivedTime = record.responseHeadersEndTime
   const timing = defaultTiming ?? item[LifeCycle.responseReceived]?.response?.timing
   const responseReceivedTime = defaultResReceivedTime ?? item[LifeCycle.responseReceived]?.timestamp ?? 0
+
+  const redirectSource = record.redirectSource
+  const redirectTiming = redirectSource
+    ? [
+        {
+          name: 'Redirect',
+          value: redirectSource.networkEndTime - getFirstRedirectSource(redirectSource).networkRequestTime,
+        },
+      ]
+    : []
+
   if (!timing) {
     const start = item[LifeCycle.requestWillBeSent]?.timestamp ?? 0
-    return [
+    return redirectTiming.concat([
       {
         name: 'Blocked',
         value: responseReceivedTime - start,
@@ -46,10 +55,10 @@ export const getRequestTimings = (
         name: 'Receive',
         value: responseReceivedTime - start,
       },
-    ]
+    ])
   } else {
     const receiveTime = endTime - responseReceivedTime
-    return getFromNetworkRequestTiming(timing, responseReceivedTime, receiveTime)
+    return redirectTiming.concat(getFromNetworkRequestTiming(timing, responseReceivedTime, receiveTime))
   }
 }
 
@@ -159,13 +168,11 @@ export async function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
         status: record.statusCode.toString(),
         protocol: record.protocol,
         priority: record.priority,
-        type: record.resourceType ?? (data ? getRequestType(data) : getRequestType(redirectData!)),
+        type: record.resourceType ?? getRequestType(data || redirectData!),
         size: record.resourceSize,
         transferSize: record.transferSize,
         timing: (endTime ?? 0) - (startTime ?? 0),
-        timings: data
-          ? getRequestTimings(data, record.networkEndTime, record.timing, record.responseHeadersEndTime)
-          : getRequestTimings(redirectData!, record.networkEndTime, record.timing, record.responseHeadersEndTime),
+        timings: getRequestTimings(data || redirectData!, record),
         requestHeader,
         responseHeader,
         // for performance advice
@@ -183,6 +190,7 @@ export async function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
           : record.fromPrefetchCache
           ? 'prefetch'
           : false,
+        serverTimings: getServerTimingFromResponseHeaders(responseHeader),
       }
     })
     .filter(<T>(v: T | undefined): v is T => v !== undefined)
@@ -204,4 +212,36 @@ function getDevtoolsLogMap(devtoolsLog: LH.DevtoolsLog) {
     finalMap.set(v.params.requestId, data ? { ...data, ...res } : res)
   }
   return finalMap
+}
+
+function getServerTimingFromResponseHeaders(headers: Record<string, string>): ServerTiming[] {
+  if (!headers['server-timing']) {
+    return []
+  }
+
+  return headers['server-timing'].split(',').map((metric) => {
+    const parts = metric.trim().split(';')
+    const name = parts[0]
+    let dur
+    let desc
+
+    parts.slice(1).forEach((part) => {
+      const [key, value] = part.split('=')
+      if (key === 'dur') {
+        dur = parseFloat(value)
+      } else if (key === 'desc') {
+        desc = value.replace(/"/g, '')
+      }
+    })
+
+    return { name, dur, desc }
+  })
+}
+
+function getFirstRedirectSource(record: LH.Artifacts.NetworkRequest): LH.Artifacts.NetworkRequest {
+  if (!record.redirectSource) {
+    return record
+  }
+
+  return getFirstRedirectSource(record.redirectSource)
 }
