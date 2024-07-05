@@ -64,6 +64,7 @@ export function getLighthouseFlags({ customFlags, ...flags }: LH.Flags = {}) {
     output: 'json' as const,
     logLevel: 'info' as const,
     skipAudits: ['bf-cache'], // not working in headless mode
+    ignoreStatusCode: true,
     disableStorageReset: !!customFlags?.withCache,
     ...flags,
   }
