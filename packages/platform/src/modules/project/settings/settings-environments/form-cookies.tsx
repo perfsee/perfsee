@@ -293,6 +293,7 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
   useImperativeHandle(
     ref,
     () => ({
+      setCookies: (hs: CookieSchema[]) => setCookies(hs),
       getCookies: () => {
         return cookies.filter((c) => c.name && c.value) // before updating env
       },
@@ -388,7 +389,7 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
             defaultChecked={isTable}
             styles={{ root: { marginBottom: 0 } }}
             onText="Table"
-            offText="Stringify"
+            offText="Json"
             onClick={onToggle}
           />
           {isTable && <DefaultButton onClick={onAddCookie}>add cookie</DefaultButton>}

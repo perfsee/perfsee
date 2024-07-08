@@ -33,6 +33,7 @@ import {
   Spinner,
   SpinnerSize,
   Stack,
+  Toggle,
   TooltipHost,
 } from '@fluentui/react'
 import { useCallback, FC, memo } from 'react'
@@ -59,22 +60,38 @@ type Props = {
   deleteContent: JSX.Element
   pingContent?: JSX.Element
   isCreate?: boolean
+  isTable?: boolean
+  onToggleTable?: () => void
 }
 
 export const SettingDialogs = memo((props: Props) => {
-  const { type, editContent, deleteContent, pingContent, visible, onCloseDialog, isCreate } = props
+  const { type, editContent, deleteContent, pingContent, visible, onCloseDialog, isCreate, onToggleTable, isTable } =
+    props
 
   const contentProps = {
     type: DialogType.normal,
-    title: `${
-      visible === DialogVisible.Delete
-        ? 'Delete'
-        : visible === DialogVisible.Ping
-        ? 'Ping'
-        : isCreate
-        ? 'Create'
-        : 'Edit'
-    } ${type}`,
+    title: (
+      <Stack styles={{ root: { height: '30px' } }} horizontal horizontalAlign="space-between" verticalAlign="center">
+        {`${
+          visible === DialogVisible.Delete
+            ? 'Delete'
+            : visible === DialogVisible.Ping
+            ? 'Ping'
+            : isCreate
+            ? 'Create'
+            : 'Edit'
+        } ${type}`}
+        {onToggleTable ? (
+          <Toggle
+            defaultChecked={isTable}
+            onClick={onToggleTable}
+            styles={{ root: { marginBottom: 0 }, container: { alignItems: 'center' } }}
+            onText="Table"
+            offText="Json"
+          />
+        ) : null}
+      </Stack>
+    ),
   }
 
   return (

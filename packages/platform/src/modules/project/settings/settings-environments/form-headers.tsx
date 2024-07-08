@@ -93,7 +93,7 @@ const FormHeader = memo((props: FormHeaderProps) => {
       </Stack>
       <Stack horizontal tokens={NormalToken}>
         <RequiredTextField
-          defaultValue={header.key}
+          value={header.key}
           data-type="key"
           onChange={onChange}
           styles={{ root: { flexGrow: 2 } }}
@@ -102,7 +102,7 @@ const FormHeader = memo((props: FormHeaderProps) => {
         <RequiredTextField
           data-type="value"
           onChange={onChange}
-          defaultValue={header.value}
+          value={header.value}
           styles={{ root: { flexGrow: 2 } }}
           placeholder="Value"
         />
@@ -130,6 +130,7 @@ export const FormHeaders = forwardRef((props: Props, ref) => {
   useImperativeHandle(
     ref,
     () => ({
+      setHeaders: (hs: HeaderType[]) => setHeaders(hs),
       getHeaders: () =>
         headers
           .map((h) => (h.host ? h : { ...h, host: HeaderHostType.Self }))
@@ -215,7 +216,7 @@ export const FormHeaders = forwardRef((props: Props, ref) => {
             defaultChecked={isTable}
             styles={{ root: { marginBottom: 0 } }}
             onText="Table"
-            offText="Stringify"
+            offText="Json"
             onClick={onToggle}
           />
           {isTable && <DefaultButton onClick={onAddHeader}>add header</DefaultButton>}
