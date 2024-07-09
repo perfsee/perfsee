@@ -15,9 +15,10 @@ limitations under the License.
 */
 
 import { css, useTheme } from '@emotion/react'
-import { Stack } from '@fluentui/react'
-import { FC } from 'react'
+import { Stack, Modal } from '@fluentui/react'
+import { FC, MouseEvent, useCallback, useState } from 'react'
 
+import { useToggleState } from '@perfsee/components'
 import { TimelineSchema, formatTime } from '@perfsee/shared'
 
 import { TimelineCell } from './style'
@@ -28,10 +29,23 @@ type Props = {
 
 export const RenderTimeline: FC<Props> = ({ timelines }) => {
   const theme = useTheme()
+  const [visible, show, hide] = useToggleState(false)
+  const [shownIndex, setShown] = useState<number | null>(null)
+
+  const onShow = useCallback(
+    (e: MouseEvent<HTMLImageElement>) => {
+      const index = (e.target as HTMLImageElement)?.dataset?.['index']
+      if (index) {
+        setShown(Number(index))
+      }
+      show()
+    },
+    [show],
+  )
 
   return (
     <Stack horizontal tokens={{ childrenGap: '8px' }} wrap>
-      {timelines.map((timeline) => {
+      {timelines.map((timeline, i) => {
         const { value, unit } = formatTime(timeline.timing)
         return (
           <TimelineCell key={timeline.timing}>
@@ -40,14 +54,23 @@ export const RenderTimeline: FC<Props> = ({ timelines }) => {
               <span css={css({ fontSize: '12px', marginLeft: '5px' })}>{unit}</span>
             </div>
             <img
-              css={css({ marginTop: '10px', border: `solid 1px ${theme.border.color}` })}
+              css={css({ marginTop: '10px', border: `solid 1px ${theme.border.color}`, cursor: 'zoom-in' })}
               width={110}
               src={timeline.data}
               alt="Snapshot"
+              data-index={i}
+              onClick={onShow}
             />
           </TimelineCell>
         )
       })}
+      <Modal
+        isOpen={visible}
+        onDismiss={hide}
+        styles={{ main: { minWidth: 'auto' }, scrollableContent: { display: 'flex' } }}
+      >
+        <img src={timelines[shownIndex || 0]?.data} style={{ height: '62vh' }} />
+      </Modal>
     </Stack>
   )
 }
