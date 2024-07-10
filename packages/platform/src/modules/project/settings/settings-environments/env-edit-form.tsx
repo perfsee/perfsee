@@ -83,6 +83,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
   const [jsonEnv, setJsonEnv] = useState<string | undefined>(JSON.stringify(defaultEnv))
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
   const [errorMessage, setErrorMessage] = useState<string>()
+  const [zoneErrorMessage, setZoneErrorMessage] = useState<string>()
 
   const getJsonPayload = useCallback(() => {
     if (!jsonEnv) {
@@ -92,7 +93,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     try {
       return JSON.parse(jsonEnv) as Partial<EnvSchema>
     } catch (error) {
-      setErrorMessage('invalid json')
+      setErrorMessage('Invalid json')
     }
   }, [jsonEnv])
 
@@ -104,7 +105,6 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     const loginScript = loginScriptRef.current!.getScript()
 
     return {
-      id: defaultEnv?.id,
       name: tableEnvName,
       headers,
       cookies,
@@ -113,7 +113,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       zone,
       loginScript,
     }
-  }, [defaultEnv?.id, tableEnvName, zone])
+  }, [tableEnvName, zone])
 
   useEffect(() => {
     if (!isTable) {
@@ -147,6 +147,13 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
 
       // Not allowed to save
       if (!payload.name || payload.loginScript === '') {
+        setErrorMessage('loginScript cannot be an empty string.')
+        return
+      }
+
+      if (!zones.some((z) => z.key === payload.zone)) {
+        setErrorMessage('Zone is invalid')
+        setZoneErrorMessage('Required')
         return
       }
 
@@ -157,11 +164,12 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
         ...payload,
       })
     },
-    [getJsonPayload, getTablePayload, onSubmit, isTable],
+    [isTable, getTablePayload, getJsonPayload, zones, onSubmit],
   )
 
   const onCopy = useCallback(() => {
-    const payload = getJsonPayload()
+    const payload = isTable ? getTablePayload() : getJsonPayload()
+
     navigator.clipboard
       .writeText(JSON.stringify({ ...payload, id: undefined })) // do not copy id
       .then(() => {
@@ -170,7 +178,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       .catch(() => {
         notify.error({ content: 'Copy failed, please copy it manually.' })
       })
-  }, [getJsonPayload])
+  }, [getJsonPayload, getTablePayload, isTable])
 
   const onZoneChange = useCallback((_: any, option?: IDropdownOption) => {
     if (!option) {
@@ -178,6 +186,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     }
 
     setZone(option.key as string)
+    setZoneErrorMessage(undefined)
   }, [])
 
   const onJsonChange = useCallback((_: any, value?: string) => {
@@ -195,7 +204,15 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
       <FormLocalStorage defaultLocalStorage={defaultEnv?.localStorage ?? []} ref={localStorageRef} />
       <FormSessionStorage defaultSessionStorage={defaultEnv?.sessionStorage ?? []} ref={sessionStorageRef} />
-      <ComboBox label="Zone" selectedKey={zone} options={zones} onChange={onZoneChange} useComboBoxAsMenuWidth />
+      <ComboBox
+        required
+        label="Zone"
+        errorMessage={zoneErrorMessage}
+        selectedKey={zone}
+        options={zones}
+        onChange={onZoneChange}
+        useComboBoxAsMenuWidth
+      />
       <LoginScriptForm defaultScript={defaultEnv?.loginScript} ref={loginScriptRef} />
     </div>
   )

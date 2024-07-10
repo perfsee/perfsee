@@ -43,6 +43,7 @@ export const SettingsEnvironments = () => {
   })
 
   const [env, setEnv] = useState<EnvSchema | undefined>() // for record edit or delete env
+  const [envId, setEnvId] = useState<number | undefined>() // for record id when editing
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
   const [isTable, setIsTable] = useState<boolean>(true)
 
@@ -53,17 +54,20 @@ export const SettingsEnvironments = () => {
 
   const onClickCreate = useCallback(() => {
     setEnv(undefined)
+    setEnvId(undefined)
     setDialogVisible(DialogVisible.Edit)
     setIsTable(true)
   }, [])
 
   const openEditModal = useCallback((e?: EnvSchema) => {
     setEnv(e)
+    setEnvId(e?.id)
     setDialogVisible(DialogVisible.Edit)
   }, [])
 
   const openDeleteModal = useCallback((e: EnvSchema) => {
     setEnv(e)
+    setEnvId(e.id)
     setDialogVisible(DialogVisible.Delete)
   }, [])
 
@@ -82,7 +86,6 @@ export const SettingsEnvironments = () => {
     },
     [dispatcher],
   )
-
   const onRestoreEnv = useCallback(
     (e: EnvSchema) => {
       dispatcher.updateOrCreateEnv({ ...e, disable: false })
@@ -92,14 +95,14 @@ export const SettingsEnvironments = () => {
 
   const onUpdateEnv = useCallback(
     (payload: Partial<EnvSchema>) => {
-      dispatcher.updateOrCreateEnv(payload)
+      dispatcher.updateOrCreateEnv({ ...payload, id: envId })
       closeModal()
     },
-    [dispatcher, closeModal],
+    [dispatcher, closeModal, envId],
   )
 
   const onDelete = useCallback(() => {
-    env && dispatcher.deleteEnvironment(env.id)
+    env?.id && dispatcher.deleteEnvironment(env.id)
   }, [dispatcher, env])
 
   const onRenderCell = useCallback(
