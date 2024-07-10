@@ -62,6 +62,9 @@ export const LoginScriptForm: FC<LoginScriptProps> = forwardRef(({ defaultScript
   useImperativeHandle(
     ref,
     () => ({
+      setScript(s: string | null) {
+        setScript(s)
+      },
       getScript() {
         return script
       },
@@ -87,7 +90,7 @@ export const LoginScriptForm: FC<LoginScriptProps> = forwardRef(({ defaultScript
 
   return (
     <>
-      <Stack horizontal>
+      <Stack styles={{ root: { marginTop: 4 } }} horizontal>
         <Checkbox label="Enable login script" checked={toggle} onChange={onChange} />
         <IconWithTips
           marginLeft="8px"

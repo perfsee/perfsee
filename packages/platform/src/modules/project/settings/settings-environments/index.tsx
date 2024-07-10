@@ -17,7 +17,7 @@ limitations under the License.
 import { GlobalOutlined, StopOutlined } from '@ant-design/icons'
 import { PrimaryButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 
@@ -44,10 +44,17 @@ export const SettingsEnvironments = () => {
 
   const [env, setEnv] = useState<EnvSchema | undefined>() // for record edit or delete env
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
+  const [isTable, setIsTable] = useState<boolean>(true)
+
+  const formRef = useRef<{
+    getTablePayload: () => EnvSchema | undefined
+    getJsonPayload: () => EnvSchema | undefined
+  }>()
 
   const onClickCreate = useCallback(() => {
     setEnv(undefined)
     setDialogVisible(DialogVisible.Edit)
+    setIsTable(true)
   }, [])
 
   const openEditModal = useCallback((e?: EnvSchema) => {
@@ -132,8 +139,19 @@ export const SettingsEnvironments = () => {
     [onDisableEnv, onRestoreEnv, openDeleteModal, openEditModal],
   )
 
+  const onToggleTable = useCallback(() => {
+    setIsTable((isTable) => {
+      const payload = !isTable ? formRef.current?.getJsonPayload() : formRef.current?.getTablePayload()
+      setEnv(payload)
+
+      return !isTable
+    })
+  }, [])
+
   const settingDialog = useMemo(() => {
-    const editContent = <EnvEditForm defaultEnv={env} onSubmit={onUpdateEnv} closeModal={closeModal} />
+    const editContent = (
+      <EnvEditForm ref={formRef} isTable={isTable} defaultEnv={env} onSubmit={onUpdateEnv} closeModal={closeModal} />
+    )
     const deleteContent = (
       <DeleteContent
         type="env"
@@ -148,12 +166,14 @@ export const SettingsEnvironments = () => {
         type="Environment"
         onCloseDialog={closeModal}
         editContent={editContent}
+        isTable={isTable}
+        onToggleTable={onToggleTable}
         visible={visible}
         deleteContent={deleteContent}
         isCreate={!env}
       />
     )
-  }, [env, onUpdateEnv, closeModal, deleteProgress, onDelete, closeDeleteModal, visible])
+  }, [isTable, env, onUpdateEnv, closeModal, deleteProgress, onDelete, closeDeleteModal, onToggleTable, visible])
 
   return (
     <div>
