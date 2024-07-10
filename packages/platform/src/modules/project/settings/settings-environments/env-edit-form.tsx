@@ -104,6 +104,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     const loginScript = loginScriptRef.current!.getScript()
 
     return {
+      id: defaultEnv?.id,
       name: tableEnvName,
       headers,
       cookies,
@@ -112,7 +113,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       zone,
       loginScript,
     }
-  }, [zone, tableEnvName])
+  }, [defaultEnv?.id, tableEnvName, zone])
 
   useEffect(() => {
     if (!isTable) {
@@ -123,8 +124,8 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       localStorageRef.current?.setLocalStorage(defaultEnv?.localStorage ?? [])
       sessionStorageRef.current?.setSessionStorage(defaultEnv?.sessionStorage ?? [])
       setTableEnvName(defaultEnv?.name)
+      defaultEnv?.zone && setZone(defaultEnv?.zone)
     }
-    defaultEnv?.zone && setZone(defaultEnv?.zone)
   }, [defaultEnv, isTable])
 
   useImperativeHandle(
@@ -152,13 +153,11 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       const needReminder = payload?.cookies?.some((c) => !!c.expire)
 
       onSubmit({
-        id: defaultEnv?.id,
         needReminder,
-        zone,
         ...payload,
       })
     },
-    [defaultEnv?.id, zone, getJsonPayload, getTablePayload, onSubmit, isTable],
+    [getJsonPayload, getTablePayload, onSubmit, isTable],
   )
 
   const onCopy = useCallback(() => {
