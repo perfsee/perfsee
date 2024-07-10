@@ -81,7 +81,7 @@ export const SettingDialogs = memo((props: Props) => {
             ? 'Create'
             : 'Edit'
         } ${type}`}
-        {onToggleTable ? (
+        {visible === DialogVisible.Edit ? (
           <Toggle
             defaultChecked={isTable}
             onClick={onToggleTable}
