@@ -96,7 +96,6 @@ export const FormLocalStorage = forwardRef((props: Props, ref) => {
   useImperativeHandle(
     ref,
     () => ({
-      setLocalStorage: (s: LocalStorageType[]) => setStorages(s),
       getLocalStorage: () => storages,
     }),
     [storages],

@@ -96,7 +96,6 @@ export const FormSessionStorage = forwardRef((props: Props, ref) => {
   useImperativeHandle(
     ref,
     () => ({
-      setSessionStorage: (s: SessionStorageType[]) => setStorages(s),
       getSessionStorage: () => storages,
     }),
     [storages],
