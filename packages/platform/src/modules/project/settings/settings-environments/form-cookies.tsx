@@ -293,7 +293,6 @@ export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }
   useImperativeHandle(
     ref,
     () => ({
-      setCookies: (hs: CookieSchema[]) => setCookies(hs),
       getCookies: () => {
         return cookies.filter((c) => c.name && c.value) // before updating env
       },

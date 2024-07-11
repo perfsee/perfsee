@@ -26,7 +26,7 @@ import {
   TextField,
 } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
-import { useCallback, useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 
 import { RequiredTextField } from '@perfsee/components'
 import { notify } from '@perfsee/platform/common'
@@ -51,9 +51,10 @@ type FromProps = {
   closeModal: () => void
   isTable: boolean
   onSubmit: (payload: Partial<EnvSchema>) => void
+  onPrewview?: (payload: Partial<EnvSchema>) => void
 }
 
-export const EnvEditForm = forwardRef((props: FromProps, ref) => {
+export const EnvEditForm = (props: FromProps) => {
   const { defaultEnv, closeModal, onSubmit, isTable } = props
 
   const { zones, defaultZone } = useModuleState(PropertyModule, {
@@ -64,26 +65,28 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     dependencies: [],
   })
 
-  const headersRef = useRef<{ setHeaders: (v: HeaderSchema[]) => void; getHeaders: () => HeaderSchema[] }>()
-  const cookiesRef = useRef<{ setCookies: (v: CookieSchema[]) => void; getCookies: () => CookieSchema[] }>()
+  const headersRef = useRef<{ getHeaders: () => HeaderSchema[] }>()
+  const cookiesRef = useRef<{ getCookies: () => CookieSchema[] }>()
   const localStorageRef = useRef<{
-    setLocalStorage: (v: LocalStorageSchema[]) => void
     getLocalStorage: () => LocalStorageSchema[]
   }>()
   const sessionStorageRef = useRef<{
-    setSessionStorage: (v: SessionStorageSchema[]) => void
     getSessionStorage: () => SessionStorageSchema[]
   }>()
   const loginScriptRef = useRef<{
-    setScript: (v: string | null) => void
     getScript: () => string | null
   }>()
 
+  const [jsonEnv, setJsonEnv] = useState<string>()
   const [tableEnvName, setTableEnvName] = useState<string | undefined>(defaultEnv?.name)
-  const [jsonEnv, setJsonEnv] = useState<string | undefined>(JSON.stringify(defaultEnv))
   const [zone, setZone] = useState(defaultEnv?.zone ?? defaultZone)
   const [errorMessage, setErrorMessage] = useState<string>()
-  const [zoneErrorMessage, setZoneErrorMessage] = useState<string>()
+
+  // init
+  useEffect(() => {
+    defaultEnv?.name && setTableEnvName(defaultEnv.name)
+    defaultEnv?.zone && setZone(defaultEnv.zone)
+  }, [defaultEnv])
 
   const getJsonPayload = useCallback(() => {
     if (!jsonEnv) {
@@ -115,45 +118,45 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     }
   }, [tableEnvName, zone])
 
-  useEffect(() => {
-    if (!isTable) {
-      setJsonEnv(JSON.stringify(defaultEnv))
-    } else {
-      cookiesRef.current?.setCookies(defaultEnv?.cookies ?? [])
-      headersRef.current?.setHeaders(defaultEnv?.headers ?? [])
-      localStorageRef.current?.setLocalStorage(defaultEnv?.localStorage ?? [])
-      sessionStorageRef.current?.setSessionStorage(defaultEnv?.sessionStorage ?? [])
-      setTableEnvName(defaultEnv?.name)
-      defaultEnv?.zone && setZone(defaultEnv?.zone)
-    }
-  }, [defaultEnv, isTable])
+  const onPrewview = useCallback(() => {
+    const payload = getJsonPayload()
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      getTablePayload,
-      getJsonPayload,
-    }),
-    [getJsonPayload, getTablePayload],
-  )
+    if (!payload) {
+      return
+    }
+
+    if (!payload.name) {
+      setErrorMessage('Name is Required.')
+      return
+    }
+
+    // Not allowed to save
+    if (payload.loginScript === '') {
+      setErrorMessage('loginScript cannot be an empty string.')
+      return
+    }
+
+    if (!zones.some((z) => z.key === payload.zone)) {
+      setErrorMessage('Zone is invalid')
+      return
+    }
+
+    props.onPrewview?.(payload)
+  }, [getJsonPayload, props, zones])
 
   const onSave = useCallback(
     (_e: any) => {
-      const payload = isTable ? getTablePayload() : getJsonPayload()
-
+      const payload = getTablePayload()
       if (!payload) {
         return
       }
 
       // Not allowed to save
       if (!payload.name || payload.loginScript === '') {
-        setErrorMessage('loginScript cannot be an empty string.')
         return
       }
 
       if (!zones.some((z) => z.key === payload.zone)) {
-        setErrorMessage('Zone is invalid')
-        setZoneErrorMessage('Required')
         return
       }
 
@@ -164,11 +167,11 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
         ...payload,
       })
     },
-    [isTable, getTablePayload, getJsonPayload, zones, onSubmit],
+    [getTablePayload, zones, onSubmit],
   )
 
   const onCopy = useCallback(() => {
-    const payload = isTable ? getTablePayload() : getJsonPayload()
+    const payload = getTablePayload()
 
     navigator.clipboard
       .writeText(JSON.stringify({ ...payload, id: undefined })) // do not copy id
@@ -178,7 +181,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       .catch(() => {
         notify.error({ content: 'Copy failed, please copy it manually.' })
       })
-  }, [getJsonPayload, getTablePayload, isTable])
+  }, [getTablePayload])
 
   const onZoneChange = useCallback((_: any, option?: IDropdownOption) => {
     if (!option) {
@@ -186,10 +189,10 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
     }
 
     setZone(option.key as string)
-    setZoneErrorMessage(undefined)
   }, [])
 
   const onJsonChange = useCallback((_: any, value?: string) => {
+    setErrorMessage(undefined)
     setJsonEnv(value)
   }, [])
 
@@ -198,7 +201,7 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
   }, [])
 
   const innerTable = (
-    <div style={!isTable ? { display: 'none' } : undefined}>
+    <>
       <RequiredTextField id="name" label="Environment name" value={tableEnvName} onChange={onNameChange} />
       <FormHeaders defaultHeaders={defaultEnv?.headers ?? []} ref={headersRef} />
       <FormCookies defaultCookies={defaultEnv?.cookies ?? []} ref={cookiesRef} />
@@ -207,42 +210,41 @@ export const EnvEditForm = forwardRef((props: FromProps, ref) => {
       <ComboBox
         required
         label="Zone"
-        errorMessage={zoneErrorMessage}
         selectedKey={zone}
         options={zones}
         onChange={onZoneChange}
         useComboBoxAsMenuWidth
       />
       <LoginScriptForm defaultScript={defaultEnv?.loginScript} ref={loginScriptRef} />
-    </div>
+    </>
   )
 
   const innerJson = (
-    <div style={isTable ? { display: 'none' } : undefined}>
-      <TextField
-        errorMessage={errorMessage}
-        onChange={onJsonChange}
-        value={jsonEnv}
-        placeholder='{"name": "name", "headers": []}'
-        multiline={true}
-        styles={{ field: { height: '200px' } }}
-      />
-    </div>
+    <TextField
+      errorMessage={errorMessage}
+      onChange={onJsonChange}
+      value={jsonEnv}
+      placeholder='{"name": "name", "headers": []}'
+      multiline={true}
+      styles={{ field: { height: '200px' } }}
+    />
   )
 
   return (
     <Stack tokens={{ childrenGap: 8 }}>
-      {innerTable}
-      {innerJson}
+      {isTable ? innerTable : innerJson}
       <Stack tokens={{ childrenGap: 8 }} horizontal horizontalAlign="space-between" verticalAlign="end">
         <DialogFooter>
-          <TooltipHost content="Export the environment configuration as JSON format">
-            <IconButton iconProps={{ iconName: 'ExportOutlined' }} onClick={onCopy} />
-          </TooltipHost>
-          <PrimaryButton onClick={onSave} text="Save" />
+          {isTable && (
+            <TooltipHost content="Export the environment configuration as JSON format">
+              <IconButton iconProps={{ iconName: 'ExportOutlined' }} onClick={onCopy} />
+            </TooltipHost>
+          )}
+          {!isTable && <PrimaryButton disabled={!jsonEnv} onClick={onPrewview} text="Preview" />}
+          {isTable && <PrimaryButton onClick={onSave} text="Save" />}
           <DefaultButton onClick={closeModal} text="Cancel" />
         </DialogFooter>
       </Stack>
     </Stack>
   )
-})
+}

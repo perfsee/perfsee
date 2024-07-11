@@ -17,7 +17,7 @@ limitations under the License.
 import { GlobalOutlined, StopOutlined } from '@ant-design/icons'
 import { PrimaryButton, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
 
@@ -42,32 +42,35 @@ export const SettingsEnvironments = () => {
     dependencies: [],
   })
 
-  const [env, setEnv] = useState<EnvSchema | undefined>() // for record edit or delete env
-  const [envId, setEnvId] = useState<number | undefined>() // for record id when editing
+  const [env, setEnv] = useState<Partial<EnvSchema> | undefined>() // for record edit or delete env
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
   const [isTable, setIsTable] = useState<boolean>(true)
 
-  const formRef = useRef<{
-    getTablePayload: () => EnvSchema | undefined
-    getJsonPayload: () => EnvSchema | undefined
-  }>()
-
   const onClickCreate = useCallback(() => {
     setEnv(undefined)
-    setEnvId(undefined)
     setDialogVisible(DialogVisible.Edit)
     setIsTable(true)
   }, [])
 
+  const onClickImport = useCallback(() => {
+    setEnv(undefined)
+    setIsTable(false)
+    setDialogVisible(DialogVisible.Import)
+  }, [])
+
   const openEditModal = useCallback((e?: EnvSchema) => {
     setEnv(e)
-    setEnvId(e?.id)
+    setIsTable(true)
     setDialogVisible(DialogVisible.Edit)
+  }, [])
+
+  const onPrewview = useCallback((e: Partial<EnvSchema>) => {
+    setIsTable(true)
+    setEnv(e)
   }, [])
 
   const openDeleteModal = useCallback((e: EnvSchema) => {
     setEnv(e)
-    setEnvId(e.id)
     setDialogVisible(DialogVisible.Delete)
   }, [])
 
@@ -95,10 +98,10 @@ export const SettingsEnvironments = () => {
 
   const onUpdateEnv = useCallback(
     (payload: Partial<EnvSchema>) => {
-      dispatcher.updateOrCreateEnv({ ...payload, id: envId })
+      dispatcher.updateOrCreateEnv({ ...payload })
       closeModal()
     },
-    [dispatcher, closeModal, envId],
+    [dispatcher, closeModal],
   )
 
   const onDelete = useCallback(() => {
@@ -142,19 +145,17 @@ export const SettingsEnvironments = () => {
     [onDisableEnv, onRestoreEnv, openDeleteModal, openEditModal],
   )
 
-  const onToggleTable = useCallback(() => {
-    setIsTable((isTable) => {
-      const payload = !isTable ? formRef.current?.getJsonPayload() : formRef.current?.getTablePayload()
-      setEnv(payload)
-
-      return !isTable
-    })
-  }, [])
-
   const settingDialog = useMemo(() => {
     const editContent = (
-      <EnvEditForm ref={formRef} isTable={isTable} defaultEnv={env} onSubmit={onUpdateEnv} closeModal={closeModal} />
+      <EnvEditForm
+        isTable={isTable}
+        defaultEnv={env}
+        onPrewview={onPrewview}
+        onSubmit={onUpdateEnv}
+        closeModal={closeModal}
+      />
     )
+
     const deleteContent = (
       <DeleteContent
         type="env"
@@ -170,18 +171,18 @@ export const SettingsEnvironments = () => {
         onCloseDialog={closeModal}
         editContent={editContent}
         isTable={isTable}
-        onToggleTable={onToggleTable}
         visible={visible}
         deleteContent={deleteContent}
         isCreate={!env}
       />
     )
-  }, [isTable, env, onUpdateEnv, closeModal, deleteProgress, onDelete, closeDeleteModal, onToggleTable, visible])
+  }, [onPrewview, isTable, env, onUpdateEnv, closeModal, deleteProgress, onDelete, closeDeleteModal, visible])
 
   return (
     <div>
-      <Stack horizontalAlign="end">
-        <PrimaryButton onClick={onClickCreate}>Create Environment</PrimaryButton>
+      <Stack tokens={{ childrenGap: 4 }} horizontal horizontalAlign="end">
+        <PrimaryButton onClick={onClickCreate}>Create</PrimaryButton>
+        <PrimaryButton onClick={onClickImport}>Import</PrimaryButton>
       </Stack>
       <SettingCards items={environments} onRenderCell={onRenderCell} />
       {settingDialog}

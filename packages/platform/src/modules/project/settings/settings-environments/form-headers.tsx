@@ -130,7 +130,6 @@ export const FormHeaders = forwardRef((props: Props, ref) => {
   useImperativeHandle(
     ref,
     () => ({
-      setHeaders: (hs: HeaderType[]) => setHeaders(hs),
       getHeaders: () =>
         headers
           .map((h) => (h.host ? h : { ...h, host: HeaderHostType.Self }))

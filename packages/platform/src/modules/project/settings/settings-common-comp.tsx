@@ -33,7 +33,6 @@ import {
   Spinner,
   SpinnerSize,
   Stack,
-  Toggle,
   TooltipHost,
 } from '@fluentui/react'
 import { useCallback, FC, memo } from 'react'
@@ -50,6 +49,7 @@ export enum DialogVisible {
   Edit,
   Delete,
   Ping,
+  Import,
 }
 
 type Props = {
@@ -60,20 +60,19 @@ type Props = {
   deleteContent: JSX.Element
   pingContent?: JSX.Element
   isCreate?: boolean
-  isTable?: boolean
-  onToggleTable?: () => void
 }
 
 export const SettingDialogs = memo((props: Props) => {
-  const { type, editContent, deleteContent, pingContent, visible, onCloseDialog, isCreate, onToggleTable, isTable } =
-    props
+  const { type, editContent, deleteContent, pingContent, visible, onCloseDialog, isCreate } = props
 
   const contentProps = {
     type: DialogType.normal,
     title: (
       <Stack styles={{ root: { height: '30px' } }} horizontal horizontalAlign="space-between" verticalAlign="center">
         {`${
-          visible === DialogVisible.Delete
+          visible === DialogVisible.Import
+            ? 'Import'
+            : visible === DialogVisible.Delete
             ? 'Delete'
             : visible === DialogVisible.Ping
             ? 'Ping'
@@ -81,15 +80,6 @@ export const SettingDialogs = memo((props: Props) => {
             ? 'Create'
             : 'Edit'
         } ${type}`}
-        {visible === DialogVisible.Edit && onToggleTable ? (
-          <Toggle
-            defaultChecked={isTable}
-            onClick={onToggleTable}
-            styles={{ root: { marginBottom: 0 }, container: { alignItems: 'center' } }}
-            onText="Table"
-            offText="Json"
-          />
-        ) : null}
       </Stack>
     ),
   }
@@ -103,7 +93,7 @@ export const SettingDialogs = memo((props: Props) => {
         dialogContentProps={contentProps}
         modalProps={{ isBlocking: true }}
       >
-        {visible === DialogVisible.Edit ? (
+        {visible === DialogVisible.Import || visible === DialogVisible.Edit ? (
           editContent
         ) : visible === DialogVisible.Delete ? (
           deleteContent
