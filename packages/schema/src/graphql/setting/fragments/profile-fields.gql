@@ -8,4 +8,5 @@ fragment profileFields on Profile {
     enableProxy
     warmup
     userAgent
+    lighthouseFlags
 }

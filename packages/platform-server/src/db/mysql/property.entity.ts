@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { ObjectType, Field, Int } from '@nestjs/graphql'
+import GraphQLJSON from 'graphql-type-json'
 import {
   Column,
   Entity,
@@ -207,6 +208,13 @@ export class Profile extends BaseEntity {
   })
   @Column({ type: 'boolean', default: false, comment: 'warmup' })
   warmup!: boolean
+
+  @Field(() => GraphQLJSON, {
+    description: 'Lighthouse running flags',
+    nullable: true,
+  })
+  @Column({ type: 'json', default: null, nullable: true, comment: 'lighthouse flags' })
+  lighthouseFlags!: LH.Flags
 }
 
 @ObjectType({ description: 'environment used to measure pages' })

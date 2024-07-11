@@ -57,6 +57,7 @@ export interface LabJobPayload {
   userAgent: string | null
   e2eScript: string | null
   warmup: boolean
+  lighthouseFlags: LH.Flags | null
 }
 
 export type E2EJobPayload = LabJobPayload & {
