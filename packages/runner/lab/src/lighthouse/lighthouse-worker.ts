@@ -17,7 +17,7 @@ limitations under the License.
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
 
-import { groupBy, mapValues } from 'lodash'
+import { groupBy, mapValues, pick } from 'lodash'
 import { Target } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
@@ -502,7 +502,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   protected getLighthouseFlags(): LH.Flags {
     const { cookies, headers, localStorageContent, reactProfiling, sessionStorageContent } = this
-    const { url, deviceId, throttle, userAgent, warmup } = this.payload
+    const { url, deviceId, throttle, userAgent, warmup, lighthouseFlags: userFlags = {} } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const cpuSlowdownMultiplier = Number(
       (this.cpuThrottling ? (device.cpuSlowdownMultiplier * this.benchmarkIndex) / DEFAULT_BENCHMARK_INDEX : 1).toFixed(
@@ -536,6 +536,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         uploadThroughputKbps: uploadKbps,
         rttMs: throttle.rtt ?? 0,
       },
+      ...pick(userFlags!, 'pauseAfterFcpMs', 'pauseAfterLoadMs', 'networkQuietThresholdMs', 'cpuQuietThresholdMs'),
       customFlags: {
         headers,
         reactProfiling,

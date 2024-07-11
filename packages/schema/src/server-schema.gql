@@ -687,6 +687,9 @@ type Profile {
 
   """Warmup page before test"""
   warmup: Boolean!
+
+  """Lighthouse running flags"""
+  lighthouseFlags: JSON
 }
 
 """environment used to measure pages"""
@@ -1886,6 +1889,9 @@ input UpdateProfileInput {
 
   """Warmup page before test"""
   warmup: Boolean
+
+  """Lighthouse running flags"""
+  lighthouseFlags: JSON
 }
 
 input UpdateTimerInput {

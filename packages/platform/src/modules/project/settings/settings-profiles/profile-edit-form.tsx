@@ -42,6 +42,9 @@ type FromProps = {
   onSubmit: (payload: Partial<ProfileSchema>) => void
 }
 
+const LIGHTHOUSE_FLAGS_PLACEHOLDER = `Only support 'pauseAfterLoadMs', 'pauseAfterFcpMs', 'networkQuietThresholdMs' and 'cpuQuietThresholdMs'.
+e.g. { "pauseAfterLoadMs": 5000 }`
+
 export const ProfileForm = (props: FromProps) => {
   const { profile: defaultProfile, closeModal, onSubmit } = props
   const reactProfilingRef = useRef<{ getReactProfilingEnable: () => boolean }>()
@@ -58,8 +61,13 @@ export const ProfileForm = (props: FromProps) => {
     ...defaultProfile,
   })
 
+  const [flagsError, setFlagsError] = useState<string | undefined>(undefined)
+
   const onSave = useCallback(
     (_e: any) => {
+      if (flagsError) {
+        return
+      }
       const reactProfiling = reactProfilingRef.current!.getReactProfilingEnable()
       const enableProxy = proxyRef.current!.getProxyEnable()
       const warmup = warmupRef.current!.getEnable()
@@ -68,7 +76,7 @@ export const ProfileForm = (props: FromProps) => {
         onSubmit({ ...profile, reactProfiling, enableProxy, warmup })
       }
     },
-    [onSubmit, profile],
+    [onSubmit, profile, flagsError],
   )
 
   const onNameChange = useCallback((_: FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
@@ -78,6 +86,22 @@ export const ProfileForm = (props: FromProps) => {
   const onUserAgentChange = useCallback((_: FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
     setProfile((profile) => ({ ...profile, userAgent: value }))
   }, [])
+
+  const onLighthouseFlagsChange = useCallback(
+    (_: FormEvent<HTMLInputElement | HTMLTextAreaElement>, value?: string) => {
+      if ((value?.length || 0) >= 1000) {
+        return setFlagsError('Too large')
+      }
+      try {
+        const json = value && JSON.parse(value)
+        setProfile((profile) => ({ ...profile, lighthouseFlags: value ? json : undefined }))
+        setFlagsError(undefined)
+      } catch {
+        setFlagsError('Json invalid')
+      }
+    },
+    [],
+  )
 
   const onDropdownChange = useCallback((e: FormEvent<HTMLDivElement>, option?: IDropdownOption<any>) => {
     if (!e.target || option === undefined) {
@@ -110,6 +134,15 @@ export const ProfileForm = (props: FromProps) => {
         defaultValue={profile.userAgent ?? undefined}
         placeholder="The default user agent will be used"
         onChange={onUserAgentChange}
+      />
+      <TextField
+        multiline
+        label="Lighthouse running flags"
+        rows={3}
+        defaultValue={profile.lighthouseFlags ? JSON.stringify(profile.lighthouseFlags) : undefined}
+        placeholder={LIGHTHOUSE_FLAGS_PLACEHOLDER}
+        onChange={onLighthouseFlagsChange}
+        errorMessage={flagsError}
       />
       <FormReact defaultEnable={defaultProfile?.reactProfiling ?? false} ref={reactProfilingRef} />
       <FormProxy defaultEnable={defaultProfile?.enableProxy ?? false} ref={proxyRef} />

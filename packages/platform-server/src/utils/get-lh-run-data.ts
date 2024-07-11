@@ -63,6 +63,7 @@ export function getLighthouseRunData(
       warmup: profile.warmup ?? false,
       loginScript: env.loginScript,
       userAgent: profile.userAgent,
+      lighthouseFlags: profile.lighthouseFlags,
     }
   })
 }
