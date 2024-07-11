@@ -80,29 +80,15 @@ const getModuleReasons = () => {
 
 function BundleReportContainer() {
   const bundleDiff = diffBundleResult(window.bundleReport)
-  const [packageTrace, setPackageTrace] = useState<number | null>(null)
-  const contextValue = useMemo(() => {
-    return {
-      ref: packageTrace,
-      setRef: (ref: number | null) => setPackageTrace(ref),
-    }
-  }, [packageTrace])
-  const location = useLocation()
-  const history = useHistory()
-
   return (
     <ReportContainer>
-      <RouterContext.Provider value={{ location, history, Link }}>
-        <PackageTraceContext.Provider value={contextValue}>
-          <BundleReport
-            artifact={window.artifact}
-            diff={bundleDiff}
-            contentLink="/content"
-            getAssetContent={getAssetContent}
-            getModuleReasons={window.bundleModuleReasons && getModuleReasons}
-          />
-        </PackageTraceContext.Provider>
-      </RouterContext.Provider>
+      <BundleReport
+        artifact={window.artifact}
+        diff={bundleDiff}
+        contentLink="/content"
+        getAssetContent={getAssetContent}
+        getModuleReasons={window.bundleModuleReasons && getModuleReasons}
+      />
     </ReportContainer>
   )
 }
@@ -118,6 +104,16 @@ function BundleContentContainer() {
 function App() {
   const theme = useTheme()
 
+  const [packageTrace, setPackageTrace] = useState<number | null>(null)
+  const contextValue = useMemo(() => {
+    return {
+      ref: packageTrace,
+      setRef: (ref: number | null) => setPackageTrace(ref),
+    }
+  }, [packageTrace])
+  const location = useLocation()
+  const history = useHistory()
+
   useEffect(() => {
     loadTheme(
       createTheme({
@@ -130,18 +126,22 @@ function App() {
 
   return (
     <MDXProvider components={MDXComponents}>
-      <MemoryRouter>
-        <Switch>
-          <Route path="/" exact={true} component={BundleReportContainer} />
-          <Route path="/content" exact={true} component={BundleContentContainer} />
-        </Switch>
-      </MemoryRouter>
+      <RouterContext.Provider value={{ location, history, Link }}>
+        <PackageTraceContext.Provider value={contextValue}>
+          <Switch>
+            <Route path="/" exact={true} component={BundleReportContainer} />
+            <Route path="/content" exact={true} component={BundleContentContainer} />
+          </Switch>
+        </PackageTraceContext.Provider>
+      </RouterContext.Provider>
     </MDXProvider>
   )
 }
 
 createRoot(document.getElementById('app')!).render(
   <ThemeProvider>
-    <App />
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>
   </ThemeProvider>,
 )
