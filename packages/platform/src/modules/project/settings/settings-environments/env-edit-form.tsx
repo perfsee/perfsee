@@ -108,6 +108,7 @@ export const EnvEditForm = (props: FromProps) => {
     const loginScript = loginScriptRef.current!.getScript()
 
     return {
+      id: defaultEnv?.id,
       name: tableEnvName,
       headers,
       cookies,
@@ -116,7 +117,7 @@ export const EnvEditForm = (props: FromProps) => {
       zone,
       loginScript,
     }
-  }, [tableEnvName, zone])
+  }, [defaultEnv?.id, tableEnvName, zone])
 
   const onPrewview = useCallback(() => {
     const payload = getJsonPayload()
