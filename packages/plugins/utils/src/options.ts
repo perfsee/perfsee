@@ -147,6 +147,13 @@ export interface CommonPluginOptions {
    * @default true
    */
   htmlExclusive?: boolean
+
+  /**
+   * If true, Perfsee will parse the AST of output js files to determine whether a chunk is required by another.
+   *
+   * @default false
+   */
+  strictChunkRelations?: boolean
 }
 
 export function getDefaultOptions(): Required<

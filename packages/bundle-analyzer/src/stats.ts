@@ -231,4 +231,5 @@ export interface PerfseeReportStats extends WebpackStats {
   includeAuxiliary?: boolean
   htmlExclusive?: boolean
   moduleReasons?: ModuleReasons
+  strictChunkRelations?: boolean
 }
