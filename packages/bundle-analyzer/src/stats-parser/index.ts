@@ -37,7 +37,7 @@ import {
   hashCode,
 } from '../utils'
 
-import { assetModulesParser } from './asset-parser'
+import { assetModulesParser, parseModuleRequiredChunks } from './asset-parser'
 import { audit, calcBundleScore, calcEntryPointScore } from './audit'
 import { Folder } from './tree'
 import {
@@ -85,6 +85,7 @@ export class StatsParser {
   private readonly packagePathRefMap: Map<string, BasePackage> = new Map()
   private readonly moduleReasonsMap: Map<ID, Reason[]> = new Map()
   private readonly packageReasonsMap: Map<number, Reason[][]> = new Map()
+  private readonly strictChunkRelationsMap: Map<ID, ID[]> = new Map()
 
   private constructor(
     private readonly stats: PerfseeReportStats,
@@ -348,6 +349,24 @@ export class StatsParser {
           if (type === AssetTypeEnum.Js) {
             try {
               const assetModules = assetModulesParser[buildTool ?? BundleToolkit.Webpack](content, path, this.stats)
+
+              if (this.stats.strictChunkRelations) {
+                const requiredChunkIds = new Set<ID>()
+                for (const [_id, moduleContentOrLength] of assetModules) {
+                  if (typeof moduleContentOrLength === 'string') {
+                    parseModuleRequiredChunks(moduleContentOrLength).forEach((chunkId) => {
+                      requiredChunkIds.add(chunkId)
+                    })
+                  }
+                }
+                chunks.forEach((chunkId) => {
+                  if (!this.strictChunkRelationsMap.get(chunkId)) {
+                    this.strictChunkRelationsMap.set(chunkId, [])
+                  }
+
+                  this.strictChunkRelationsMap.get(chunkId)!.push(...requiredChunkIds.values())
+                })
+              }
 
               for (const [id, moduleContentOrLength] of assetModules) {
                 const stringifiedId = String(id)
@@ -632,7 +651,12 @@ export class StatsParser {
         existed.add(id)
         const chunk = this.chunksMap.get(id)!
         if (chunk) {
-          return [chunk, ...this.flatChunks(chunk.children || [], existed)].filter(isNotNil)
+          const children =
+            (this.stats.strictChunkRelations
+              ? chunk.children?.filter((chunkId) => this.strictChunkRelationsMap.get(id)?.includes(chunkId))
+              : chunk.children) || []
+
+          return [chunk, ...this.flatChunks(children, existed)].filter(isNotNil)
         }
         return []
       })

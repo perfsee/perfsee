@@ -1,6 +1,6 @@
 import test from 'ava'
 
-import { parseAssetModules } from '../stats-parser/asset-parser/asset-parser-webpack'
+import { parseAssetModules, parseModuleRequiredChunks } from '../stats-parser/asset-parser/asset-parser-webpack'
 
 const fixtureModules = [1, '2', 'abc']
 
@@ -58,4 +58,16 @@ test('should parse async modules (rspack)', (t) => {
   )
 
   t.deepEqual(Array.from(anonymousFunctionModules.keys()), fixtureModules)
+})
+
+test('should parse moudle required chunks', (t) => {
+  const requiredChunks = parseModuleRequiredChunks(
+    `(a,b,c) => {var r=c(3307);var O=react.lazy(() => c.e(549).then(c__.bind(c, 3607)));}`,
+  )
+  t.deepEqual(requiredChunks, [549])
+})
+
+test('should parse moudle required chunks 2', (t) => {
+  const requiredChunks = parseModuleRequiredChunks(`(a,b,c) => {var r=c(3307);c.O(0, [96], () => (c(4592)));}`)
+  t.deepEqual(requiredChunks, [96])
 })

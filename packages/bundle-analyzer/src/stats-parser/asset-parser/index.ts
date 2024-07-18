@@ -16,7 +16,7 @@ limitations under the License.
 
 import { BundleToolkit, PerfseeReportStats } from '../../stats'
 
-import { parseAssetModules as parseWebpackAssetModules } from './asset-parser-webpack'
+import { parseAssetModules as parseWebpackAssetModules, parseModuleRequiredChunks } from './asset-parser-webpack'
 
 export const assetModulesParser: {
   [T in BundleToolkit]: (
@@ -40,3 +40,5 @@ export const assetModulesParser: {
     )
   },
 }
+
+export { parseModuleRequiredChunks }

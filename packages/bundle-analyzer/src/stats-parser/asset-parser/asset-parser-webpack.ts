@@ -25,7 +25,11 @@ import {
   VariableDeclaration,
   CallExpression,
   FunctionExpression,
+  ArrowFunctionExpression,
+  SimpleLiteral,
 } from 'estree'
+
+type ID = string | number
 
 type LocationMap = Map<string | number, { start: number; end: number }>
 interface State {
@@ -281,7 +285,7 @@ function isModuleWrapper(node: Expression) {
   return result
 }
 
-function isModuleId(node: Node | null) {
+function isModuleId(node: Node | null): node is SimpleLiteral {
   return node?.type === 'Literal' && (isNumericId(node) || typeof node.value === 'string')
 }
 
@@ -289,9 +293,9 @@ function isNumericId(node: Node) {
   return node.type === 'Literal' && Number.isInteger(node.value) && (node.value as number) >= 0
 }
 
-function isChunkIds(node: Node) {
+function isChunkIds(node: Node | null): node is ArrayExpression {
   // Array of numeric or string ids. Chunk IDs are strings when NamedChunksPlugin is used
-  return node.type === 'ArrayExpression' && node.elements.every(isModuleId)
+  return node?.type === 'ArrayExpression' && node.elements.every(isModuleId)
 }
 
 function isAsyncChunkPushExpression(node: SimpleCallExpression) {
@@ -384,5 +388,73 @@ function getIIFECallExpression(expression: Expression): CallExpression {
     return expression.argument as CallExpression
   } else {
     return expression as CallExpression
+  }
+}
+
+interface ParseModuleRequiredChunksState {
+  requiredModuleIds: ID[]
+  webpackRequireIdentifierName?: string
+}
+
+function isWebpackRequireMemberExpression(node: SimpleCallExpression, walkState: ParseModuleRequiredChunksState) {
+  return (
+    walkState.webpackRequireIdentifierName &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object.type === 'Identifier' &&
+    node.callee.property.type === 'Identifier' &&
+    node.callee.object.name === walkState.webpackRequireIdentifierName
+  )
+}
+
+export function parseModuleRequiredChunks(moduleContent: string): ID[] {
+  try {
+    const ast = parse(moduleContent, {
+      sourceType: 'module',
+      ecmaVersion: 'latest' as any,
+    }) as Node
+
+    const walkState: ParseModuleRequiredChunksState = {
+      requiredModuleIds: [],
+    }
+
+    // ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => { ... }
+    const functionVisitor = (
+      node: ArrowFunctionExpression | FunctionExpression,
+      state: ParseModuleRequiredChunksState,
+      callback: (node: Node, state: ParseModuleRequiredChunksState) => void,
+    ) => {
+      const thirdParam = node.params[2]
+      if (!state.webpackRequireIdentifierName && thirdParam?.type === 'Identifier') {
+        state.webpackRequireIdentifierName = thirdParam.name
+      }
+      callback(node.body, state)
+    }
+
+    visit(ast, walkState, {
+      ArrowFunctionExpression: functionVisitor,
+      FunctionExpression: functionVisitor,
+      CallExpression(node, state, callback) {
+        if (isWebpackRequireMemberExpression(node, state)) {
+          if (isChunkIds(node.arguments[1])) {
+            // __webpack_require__.d(result, chunkIds)
+            state.requiredModuleIds.push(...node.arguments[1].elements.map((e) => (e as SimpleLiteral).value as ID))
+          } else if (isModuleId(node.arguments[0])) {
+            // __webpack_require__.d(chunkId)
+            state.requiredModuleIds.push(node.arguments[0].value as ID)
+          }
+        }
+
+        callback(node.callee, state)
+
+        node.arguments.forEach((arg) => {
+          callback(arg, state)
+        })
+      },
+    })
+
+    return walkState.requiredModuleIds
+  } catch (e) {
+    console.warn(`Failed to parse strict chunk relations: `, String(e))
+    return []
   }
 }
