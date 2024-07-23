@@ -1,6 +1,6 @@
-query snapshots($projectId: ID!, $pagination: PaginationInput, $trigger: SnapshotTrigger, $hash: String) {
+query snapshots($projectId: ID!, $pagination: PaginationInput, $trigger: SnapshotTrigger, $hash: String, $title: String) {
   project(id: $projectId) {
-    snapshots(pagination: $pagination, trigger: $trigger, hash: $hash) {
+    snapshots(pagination: $pagination, trigger: $trigger, hash: $hash, title: $title) {
       edges {
         cursor
         node {

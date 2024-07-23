@@ -16,7 +16,7 @@ limitations under the License.
 
 import { useModule } from '@sigi/react'
 import { debounce } from 'lodash'
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
 import { SearchSelect } from '@perfsee/components'
 
@@ -44,11 +44,11 @@ export const SearchProjectsSelect = <T1 extends boolean = true>({
     getProjects({ query })
   }, [getProjects, query])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onKeywordChange = useCallback(
-    debounce((searchValue?: string) => {
-      setQuery(searchValue ?? '')
-    }, 300),
+  const onKeywordChange = useMemo(
+    () =>
+      debounce((searchValue?: string) => {
+        setQuery(searchValue ?? '')
+      }, 300),
     [],
   )
 
