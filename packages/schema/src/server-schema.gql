@@ -287,6 +287,9 @@ type Project {
     """Git commit hash filter"""
     hash: String
 
+    """snapshot title"""
+    title: String
+
     """only returns snapshots that has commit hash related"""
     hashRequired: Boolean
   ): PaginatedSnapshots!

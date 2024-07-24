@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Stack } from '@fluentui/react'
+import { Stack, TextField } from '@fluentui/react'
 import { useCallback, FC } from 'react'
 
 import { Select } from '@perfsee/components'
@@ -34,12 +34,14 @@ triggerOptions.push({
 })
 
 type Props = {
+  title?: string
   trigger?: SnapshotTrigger
   onChangeTrigger: (platform: string) => void
+  onChangeTitle: (title?: string) => void
 }
 
 export const SnapshotFilters: FC<Props> = (props) => {
-  const { trigger, onChangeTrigger } = props
+  const { trigger, title, onChangeTitle, onChangeTrigger } = props
 
   const onTriggerChange = useCallback(
     (key?: string) => {
@@ -51,8 +53,21 @@ export const SnapshotFilters: FC<Props> = (props) => {
     [onChangeTrigger],
   )
 
+  const onTitleChange = useCallback(
+    (_e: any, name?: string) => {
+      onChangeTitle(name)
+    },
+    [onChangeTitle],
+  )
+
   return (
     <Stack tokens={{ childrenGap: '16px' }} horizontal verticalAlign="center">
+      <TextField
+        iconProps={{ iconName: 'search' }}
+        placeholder="Search by title"
+        defaultValue={title}
+        onChange={onTitleChange}
+      />
       <Select title="Trigger" selectedKey={trigger ?? 'all'} options={triggerOptions} onKeyChange={onTriggerChange} />
     </Stack>
   )

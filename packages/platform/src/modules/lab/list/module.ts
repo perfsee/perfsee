@@ -205,11 +205,11 @@ export class LabListModule extends EffectModule<State> {
   }
 
   @Effect()
-  getSnapshots(payload$: Observable<{ trigger?: SnapshotTrigger; pageNum: number; pageSize: number }>) {
+  getSnapshots(payload$: Observable<{ trigger?: SnapshotTrigger; pageNum: number; pageSize: number; title?: string }>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
       filter(([, { project }]) => !!project),
-      switchMap(([{ trigger, pageNum, pageSize }, { project }]) => {
+      switchMap(([{ trigger, pageNum, pageSize, title }, { project }]) => {
         return this.client
           .query({
             query: snapshotsQuery,
@@ -217,6 +217,7 @@ export class LabListModule extends EffectModule<State> {
               projectId: project!.id,
               pagination: { first: pageSize, skip: pageSize * (pageNum - 1) },
               trigger,
+              title,
             },
           })
           .pipe(

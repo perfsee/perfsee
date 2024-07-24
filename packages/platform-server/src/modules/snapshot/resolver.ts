@@ -65,6 +65,8 @@ export class ProjectSnapshotResolver {
     trigger?: SnapshotTrigger,
     @Args({ name: 'hash', type: () => String, nullable: true, description: 'Git commit hash filter' })
     hash?: string,
+    @Args({ name: 'title', type: () => String, nullable: true, description: 'snapshot title' })
+    title?: string,
     @Args({
       name: 'hashRequired',
       type: () => Boolean,
@@ -78,6 +80,7 @@ export class ProjectSnapshotResolver {
       paginationOption,
       trigger,
       hash,
+      title,
       hashRequired,
     )
 

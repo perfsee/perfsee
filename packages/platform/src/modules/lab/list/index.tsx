@@ -17,6 +17,7 @@ limitations under the License.
 import { SelectOutlined } from '@ant-design/icons'
 import { Stack, DocumentCard, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
+import { debounce } from 'lodash'
 import { useCallback, useEffect, FC, useState, useMemo } from 'react'
 
 import { Pagination, useQueryString, useToggleState, ContentCard, Empty, ForeignLink } from '@perfsee/components'
@@ -45,6 +46,8 @@ export const PaginationSnapshotList = () => {
     trigger: SnapshotTrigger
   }>()
 
+  const [title, setTitle] = useState<string>()
+
   const noFilter = !trigger
 
   const onPageChange = useCallback(
@@ -66,25 +69,39 @@ export const PaginationSnapshotList = () => {
     [updateQueryString],
   )
 
+  const onChangeTitle = useMemo(
+    () =>
+      debounce((searchValue?: string) => {
+        setTitle(searchValue ?? '')
+      }, 300),
+    [],
+  )
+
   const onRenderHeader = useCallback(() => {
     return (
       <Stack horizontal horizontalAlign="space-between" verticalAlign="center" styles={{ root: { flexGrow: 1 } }}>
         <span>Lab Reports</span>
         <Stack horizontal verticalAlign="center" tokens={{ childrenGap: '16px' }}>
-          <SnapshotFilters trigger={trigger} onChangeTrigger={onTriggerFilterChange} />
+          <SnapshotFilters
+            title={title}
+            onChangeTitle={onChangeTitle}
+            trigger={trigger}
+            onChangeTrigger={onTriggerFilterChange}
+          />
           <CreateSnapshot />
         </Stack>
       </Stack>
     )
-  }, [onTriggerFilterChange, trigger])
+  }, [onChangeTitle, onTriggerFilterChange, title, trigger])
 
   useEffect(() => {
     dispatcher.getSnapshots({
       trigger,
       pageNum: page,
       pageSize: SNAPSHOT_PAGE_SIZE,
+      title,
     })
-  }, [dispatcher, trigger, page])
+  }, [dispatcher, trigger, page, title])
 
   useEffect(() => {
     return dispatcher.reset

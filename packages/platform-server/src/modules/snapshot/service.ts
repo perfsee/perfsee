@@ -106,6 +106,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     { first, after, skip }: PaginationInput,
     trigger?: SnapshotTrigger,
     hash?: string,
+    title?: string,
     hashRequired?: boolean,
   ) {
     const qb = Snapshot.createQueryBuilder('snapshot')
@@ -116,6 +117,12 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     if (hashRequired) {
       qb.andWhere('snapshot.hash is not null')
+    }
+
+    if (title) {
+      qb.andWhere('snapshot.title like :title', {
+        title: `%${title.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')}%`,
+      })
     }
 
     if (after) {
