@@ -120,7 +120,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     }
 
     if (title) {
-      qb.andWhere('snapshot.title like :title', {
+      qb.andWhere(`IFNULL(snapshot.title, CONCAT('Snapshot #', snapshot.iid)) like :title`, {
         title: `%${title.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')}%`,
       })
     }

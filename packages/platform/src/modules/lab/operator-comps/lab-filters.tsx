@@ -64,7 +64,7 @@ export const SnapshotFilters: FC<Props> = (props) => {
     <Stack tokens={{ childrenGap: '16px' }} horizontal verticalAlign="center">
       <TextField
         iconProps={{ iconName: 'search' }}
-        placeholder="Search by title"
+        placeholder="Filter by title"
         defaultValue={title}
         onChange={onTitleChange}
       />
