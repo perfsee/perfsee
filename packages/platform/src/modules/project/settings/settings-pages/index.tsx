@@ -360,14 +360,15 @@ export const SettingsPages = () => {
       )}
 
       {!!pageRelationMap.size &&
+        !!competitorList.length &&
         (isCard ? (
           <SettingCards items={competitorList} onRenderCell={onRenderCell} />
         ) : (
           <SettingTable items={competitorList} columns={competitorTableColumns.concat(operatorColumns)} />
         ))}
 
-      {isCard ? <Separator /> : <Stack tokens={{ padding: 10 }} />}
-      <TempPageList list={tempList} clickDeleteButton={openDeleteModal} />
+      {tempList.length ? isCard ? <Separator /> : <Stack tokens={{ padding: 10 }} /> : null}
+      {tempList.length ? <TempPageList list={tempList} clickDeleteButton={openDeleteModal} /> : null}
       <SettingDialogs
         type={page.isCompetitor ? 'Competitor Page' : 'Page'}
         visible={visible}
