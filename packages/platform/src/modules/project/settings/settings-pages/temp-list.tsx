@@ -1,4 +1,4 @@
-import { Stack, Separator, List } from '@fluentui/react'
+import { Stack, List } from '@fluentui/react'
 import { SharedColors } from '@fluentui/theme'
 import { FC, useCallback } from 'react'
 
@@ -37,7 +37,6 @@ export const TempPageList: FC<TempPageProps> = ({ list, clickDeleteButton }) => 
   )
   return (
     <>
-      <Separator />
       <h3>Temporary Pages</h3>
       <List items={list} onRenderCell={onRenderTempCell} />
     </>

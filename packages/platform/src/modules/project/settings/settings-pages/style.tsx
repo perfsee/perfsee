@@ -72,3 +72,9 @@ export const Tag = styled(RawTag)({
   flexShrink: 0,
   fontSize: '12px',
 })
+
+export const TextWithStatus = styled.div<{ disable?: boolean; error?: boolean }>(({ theme, disable, error }) => ({
+  color: error ? theme.colors.error : disable ? theme.colors.disabled : theme.text.color,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+}))

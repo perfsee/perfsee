@@ -13,25 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-import { IContextualMenuProps, PrimaryButton, Separator, Stack } from '@fluentui/react'
+import { ApiOutlined, DeleteOutlined, EditOutlined, RollbackOutlined, StopOutlined } from '@ant-design/icons'
+import { IContextualMenuProps, PrimaryButton, Separator, Stack, Toggle, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
+import { compact } from 'lodash'
 import { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { DeleteProgress, PageSchema, PropertyModule, UpdatePagePayload } from '../../../shared'
-import { SettingCards } from '../cards'
+import { SettingCards, SettingTable } from '../cards'
 import { emptyRelation } from '../helper'
 import { DeleteContent, DialogVisible, SettingDialogs } from '../settings-common-comp'
 
 import { PageEditForm } from './page-edit-form'
 import { PageListCell } from './page-list-cell'
 import { PingContent } from './ping-content'
+import { TextWithStatus } from './style'
 import { TempPageList } from './temp-list'
 
 export const SettingsPages = () => {
-  const [{ pages, pageRelationMap, pingResultMap, deleteProgress, envMap, profileMap }, dispatcher] = useModule(
-    PropertyModule,
-    {
+  const [{ pages, pageRelationMap, pingResultMap, deleteProgress, envMap, profileMap, pageMap }, dispatcher] =
+    useModule(PropertyModule, {
       selector: (state) => ({
         pages: state.pages,
         pageRelationMap: state.pageRelationMap,
@@ -39,10 +40,10 @@ export const SettingsPages = () => {
         envMap: state.envMap,
         profileMap: state.profileMap,
         pingResultMap: state.pingResultMap,
+        pageMap: state.pageMap,
       }),
       dependencies: [],
-    },
-  )
+    })
 
   useEffect(() => {
     dispatcher.fetchPageRelation()
@@ -50,6 +51,7 @@ export const SettingsPages = () => {
 
   const [page, setPage] = useState<Partial<PageSchema>>({})
   const [visible, setDialogVisible] = useState<DialogVisible>(DialogVisible.Off)
+  const [isCard, setIsCard] = useState(true)
 
   const { tempList, competitorList, pageList } = useMemo(() => {
     const tempList: PageSchema[] = []
@@ -186,19 +188,185 @@ export const SettingsPages = () => {
     )
   }, [envMap, page, pingCheck, pingResultMap, profileMap])
 
+  const onToggle = useCallback(() => {
+    setIsCard((v) => !v)
+  }, [])
+
+  const onEditClick = useCallback((item: PageSchema) => () => openEditModal(item), [openEditModal])
+  const onDeleteClick = useCallback((item: PageSchema) => () => openDeleteModal(item), [openDeleteModal])
+  const onDisableClick = useCallback((item: PageSchema) => () => onClickDisable(item), [onClickDisable])
+  const onRestoreClick = useCallback((item: PageSchema) => () => onClickRestore(item), [onClickRestore])
+  const onPingClick = useCallback((item: PageSchema) => () => openPingModal(item), [openPingModal])
+
+  const defaultTableColumns = useMemo(() => {
+    return [
+      {
+        key: 'name',
+        name: 'Page',
+        minWidth: 120,
+        onRender: (item: PageSchema) => (
+          <TextWithStatus disable={item.disable}>
+            <TooltipHost content={item.name}>{item.name}</TooltipHost>
+          </TextWithStatus>
+        ),
+        sorter: (a: PageSchema, b: PageSchema) => a.name.localeCompare(b.name),
+      },
+      {
+        key: 'env',
+        name: 'Env',
+        minWidth: 130,
+        onRender: (item: PageSchema) => {
+          const relation = pageRelationMap.get(item.id)
+          if (!relation || !relation.envIds.length) {
+            return '-'
+          }
+          const envs = compact(relation.envIds.map((envId) => envMap.get(envId)?.name))
+          const content = envs.join(', ')
+          return (
+            <TextWithStatus disable={item.disable}>
+              <TooltipHost content={content}>{content}</TooltipHost>
+            </TextWithStatus>
+          )
+        },
+      },
+      {
+        key: 'profile',
+        name: 'Profile',
+        minWidth: 130,
+        onRender: (item: PageSchema) => {
+          const relation = pageRelationMap.get(item.id)
+          if (!relation || !relation.profileIds.length) {
+            return '-'
+          }
+          const profiles = compact(relation.profileIds.map((id) => profileMap.get(id)?.name))
+          const content = profiles.join(', ')
+          return (
+            <TextWithStatus disable={item.disable}>
+              <TooltipHost content={content}>{content}</TooltipHost>
+            </TextWithStatus>
+          )
+        },
+      },
+    ]
+  }, [envMap, pageRelationMap, profileMap])
+
+  const competitorTableColumns = useMemo(() => {
+    return defaultTableColumns.concat([
+      {
+        key: 'connect',
+        name: 'Connect Page',
+        minWidth: 130,
+        onRender: (item) => {
+          const connectIds =
+            [...pageRelationMap.values()]
+              .filter((relation) => {
+                return relation.competitorIds.includes(item.id as number)
+              })
+              ?.map((relation) => relation.pageId) || []
+
+          if (!connectIds.length) {
+            return '-'
+          }
+          const cs = compact(connectIds.map((id) => pageMap.get(id)?.name))
+          const content = cs.join(', ')
+          return (
+            <TextWithStatus disable={item.disable}>
+              <TooltipHost content={content}>{content}</TooltipHost>
+            </TextWithStatus>
+          )
+        },
+      },
+    ])
+  }, [defaultTableColumns, pageMap, pageRelationMap])
+
+  const tableColumns = useMemo(() => {
+    return competitorList.length
+      ? defaultTableColumns.concat([
+          {
+            key: 'competitor',
+            name: 'Competitor',
+            minWidth: 130,
+            onRender: (item) => {
+              const relation = pageRelationMap.get(item.id)
+              if (!relation || !relation.competitorIds.length) {
+                return '-'
+              }
+              const cs = compact(relation.competitorIds.map((id) => pageMap.get(id)?.name))
+              const content = cs.join(', ')
+              return (
+                <TextWithStatus disable={item.disable}>
+                  <TooltipHost content={content}>{content}</TooltipHost>
+                </TextWithStatus>
+              )
+            },
+          },
+        ])
+      : defaultTableColumns
+  }, [competitorList.length, defaultTableColumns, pageMap, pageRelationMap])
+
+  const operatorColumns = useMemo(() => {
+    return [
+      {
+        key: 'operator',
+        name: 'Operator',
+        minWidth: 100,
+        maxWidth: 120,
+        onRender: (item: PageSchema) => {
+          return (
+            <Stack horizontal tokens={{ childrenGap: 8 }}>
+              <TooltipHost content="Edit">
+                <EditOutlined onClick={onEditClick(item)} />
+              </TooltipHost>
+              <TooltipHost content="Ping">
+                <ApiOutlined onClick={onPingClick(item)} />
+              </TooltipHost>
+              <TooltipHost content={item.disable ? 'Enable' : 'Disable'}>
+                {!item.disable && <StopOutlined onClick={onDisableClick(item)} />}
+                {item.disable && <RollbackOutlined onClick={onRestoreClick(item)} />}
+              </TooltipHost>
+              <TooltipHost content="Delete">
+                <DeleteOutlined style={{ color: 'red' }} onClick={onDeleteClick(item)} />
+              </TooltipHost>
+            </Stack>
+          )
+        },
+      },
+    ]
+  }, [onDeleteClick, onDisableClick, onEditClick, onPingClick, onRestoreClick])
+
   return (
     <div>
-      <Stack horizontal horizontalAlign="end">
+      <Stack horizontal horizontalAlign="space-between" verticalAlign="center">
+        <Toggle
+          styles={{ root: { margin: '0 4px 0 0' } }}
+          onText="Card"
+          offText="List"
+          checked={isCard}
+          onClick={onToggle}
+        />
         <PrimaryButton text="Create" iconProps={{ iconName: 'plus' }} menuProps={menuProps} />
       </Stack>
-      {!!pageRelationMap.size && <SettingCards items={pageList} onRenderCell={onRenderCell} />}
+      {!!pageRelationMap.size &&
+        (isCard ? (
+          <SettingCards items={pageList} onRenderCell={onRenderCell} />
+        ) : (
+          <SettingTable items={pageList} columns={tableColumns.concat(operatorColumns)} />
+        ))}
       {!!competitorList.length && (
         <>
-          <Separator />
+          {isCard ? <Separator /> : <Stack tokens={{ padding: 10 }} />}
           <h3>Competitor Pages</h3>
         </>
       )}
-      {!!pageRelationMap.size && <SettingCards items={competitorList} onRenderCell={onRenderCell} />}
+
+      {!!pageRelationMap.size &&
+        (isCard ? (
+          <SettingCards items={competitorList} onRenderCell={onRenderCell} />
+        ) : (
+          <SettingTable items={competitorList} columns={competitorTableColumns.concat(operatorColumns)} />
+        ))}
+
+      {isCard ? <Separator /> : <Stack tokens={{ padding: 10 }} />}
       <TempPageList list={tempList} clickDeleteButton={openDeleteModal} />
       <SettingDialogs
         type={page.isCompetitor ? 'Competitor Page' : 'Page'}
