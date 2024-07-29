@@ -23,7 +23,7 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common'
 import { times, omit } from 'lodash'
-import { In } from 'typeorm'
+import { In, Not, IsNull } from 'typeorm'
 
 import { Config } from '@perfsee/platform-server/config'
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
@@ -903,8 +903,17 @@ export class SnapshotService implements OnApplicationBootstrap {
       return report
     }
     const flaggedCount = await this.redis.incr(`report-flagged-count-${id}`)
-    if (flaggedCount >= 3) {
-      this.logger.log(`Report flagged more than 3 times. Collecting the most reliable result.`)
+    const earliestJob = await Job.findOne({
+      where: { entityId: reportEntity.id, projectId: reportEntity.projectId, startedAt: Not(IsNull()) },
+      order: { startedAt: 'ASC', id: 'ASC' },
+    })
+    if (
+      flaggedCount >= 3 ||
+      (earliestJob?.startedAt && Date.now() - new Date(earliestJob.startedAt).valueOf() >= 1000 * 60 * 60) /* 1 HOUR */
+    ) {
+      this.logger.log(
+        `Report flagged more than 3 times or has reached time limit. Collecting the most reliable result.`,
+      )
       const job = jobId ? await Job.findOneBy({ id: jobId }) : null
       const zone = job?.zone
       const distributedCount = this.config.job.lab.distributedConfig?.[zone!]?.count || 1
