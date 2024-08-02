@@ -67,6 +67,8 @@ import {
   LineChartOutlined,
   DownloadOutlined,
   ExportOutlined,
+  DatabaseFilled,
+  WalletFilled,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'
 import {
@@ -148,6 +150,7 @@ registerIcons({
     packages: <CubeShapeIcon style={{ lineHeight: 0, textAlign: 'center', verticalAlign: '0.475rem' }} />,
     download: <DownloadOutlined />,
     ExportOutlined: <ExportOutlined />,
+    wallet: <WalletFilled />,
 
     // for password text field
     Hide: <HideIcon />,

@@ -1,23 +1,51 @@
-import { IDetailsRowProps, IDetailsRowStyles, DetailsRow, PivotItem, Link } from '@fluentui/react'
+import { IDetailsRowProps, IDetailsRowStyles, DetailsRow, PivotItem, Link, Spinner, SpinnerSize } from '@fluentui/react'
 import { NeutralColors } from '@fluentui/theme'
 import { parse, stringify } from 'query-string'
-import { useState, useMemo, useCallback, useContext } from 'react'
+import { useState, useMemo, useCallback, useContext, useEffect } from 'react'
 
 import { TooltipWithEllipsis } from '@perfsee/components'
-import { AssetInfo, SOURCE_CODE_PATH } from '@perfsee/shared'
+import { AssetInfo, ModuleTreeNode, SOURCE_CODE_PATH } from '@perfsee/shared'
 
 import { RouterContext } from '../../router-context'
 import { ColoredSize } from '../components'
 import { PackageTraceContext } from '../context'
 import { TableExtraWrap, StyledPivot, StyledInfoItem } from '../style'
+import { TreeView } from '@perfsee/bundle-report/bundle-content/treeview'
+import { ModuleExplorerContainer } from './style'
+import { AssetFilter } from './asset-filter'
 
-type Props = { item: AssetInfo }
+type Props = { item: AssetInfo; getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>; searchText?: string }
+
+const AssetModulesExplorer = (props: Props) => {
+  const [content, setContent] = useState<ModuleTreeNode[] | null>(null)
+
+  useEffect(() => {
+    props.getAssetContent(props.item).then(setContent)
+  }, [setContent, props.getAssetContent])
+
+  if (!content) {
+    return <Spinner size={SpinnerSize.medium} />
+  }
+
+  return (
+    <ModuleExplorerContainer>
+      <TreeView content={content} searchText={props.searchText} />
+    </ModuleExplorerContainer>
+  )
+}
 
 const TableExtraInfo = (props: Props) => {
   const { item } = props
   const { history, location } = useContext(RouterContext)
   const queries: { tab?: string; trace?: string } = parse(location?.search || '')
   const { setRef } = useContext(PackageTraceContext)
+  const [selectKey, setSelectKey] = useState('0')
+
+  const onLinkClick = useCallback((item?: PivotItem) => {
+    if (item?.props.itemKey) {
+      setSelectKey(item.props.itemKey)
+    }
+  }, [])
 
   const onClickTrace = useCallback(
     (ref: number) => () => {
@@ -30,10 +58,32 @@ const TableExtraInfo = (props: Props) => {
     [history, queries, location, setRef],
   )
 
+  const [moduleSearchText, setModuleSearchText] = useState('')
+  const onModulePivotRender = useCallback(
+    (props?: any, defaultRenderer?: (props: any) => JSX.Element | null) => {
+      return (
+        <>
+          {defaultRenderer?.(props)}
+          {selectKey === props.itemKey ? (
+            <AssetFilter searchText={moduleSearchText} onChangeSearchText={setModuleSearchText} />
+          ) : null}
+        </>
+      )
+    },
+    [moduleSearchText, selectKey],
+  )
+
   return (
     <TableExtraWrap>
-      <StyledPivot styles={{ itemContainer: { width: '100%', padding: '8px' } }}>
-        <PivotItem headerText="included packages">
+      <StyledPivot
+        styles={{ itemContainer: { width: '100%', padding: '8px' } }}
+        selectedKey={selectKey}
+        onLinkClick={onLinkClick}
+      >
+        <PivotItem headerText="Modules" onRenderItemLink={onModulePivotRender} itemKey="0">
+          <AssetModulesExplorer {...props} searchText={moduleSearchText} />
+        </PivotItem>
+        <PivotItem headerText="Included packages" itemKey="1">
           {item.packages.map((pkg) => {
             if (typeof pkg === 'string') {
               return <StyledInfoItem key={pkg}>{pkg}</StyledInfoItem>
@@ -53,7 +103,9 @@ const TableExtraInfo = (props: Props) => {
   )
 }
 
-const DetailRowItem = (props: IDetailsRowProps) => {
+const DetailRowItem = (
+  props: IDetailsRowProps & { getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]> },
+) => {
   const [opened, setOpened] = useState<boolean>()
 
   const customStyles: Partial<IDetailsRowStyles> = useMemo(
@@ -76,14 +128,15 @@ const DetailRowItem = (props: IDetailsRowProps) => {
   return (
     <>
       <DetailsRow {...props} styles={customStyles} onClick={onClick} />
-      {opened && <TableExtraInfo item={props.item} />}
+      {opened && <TableExtraInfo item={props.item} getAssetContent={props.getAssetContent} />}
     </>
   )
 }
 
-export const onAssetTableRenderRow = (props?: IDetailsRowProps) => {
-  if (props) {
-    return <DetailRowItem {...props} />
+export const onAssetTableRenderRow =
+  (getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>) => (props?: IDetailsRowProps) => {
+    if (props) {
+      return <DetailRowItem {...props} getAssetContent={getAssetContent} />
+    }
+    return null
   }
-  return null
-}

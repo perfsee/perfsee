@@ -305,6 +305,10 @@ export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetConte
     return resultColumns
   }, [baselineAssets, columns, hasMultipleEntries, items])
 
+  const onRenderRow = useMemo(() => {
+    return onAssetTableRenderRow(getAssetContent)
+  }, [getAssetContent])
+
   return (
     <Stack>
       <Table
@@ -313,7 +317,7 @@ export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetConte
         selectionMode={SelectionMode.none}
         columns={filteredColumns}
         disableVirtualization={items.length < 100}
-        onRenderRow={onAssetTableRenderRow}
+        onRenderRow={onRenderRow}
       />
       <ContentModal asset={contentRef} getAssetContent={getAssetContent} onClose={onHideContentModal} />
     </Stack>
