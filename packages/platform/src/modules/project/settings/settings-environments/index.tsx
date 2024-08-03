@@ -113,6 +113,8 @@ export const SettingsEnvironments = () => {
       if (!item) return null
       const headerCount = item.headers.length
       const cookieCount = item.cookies.length
+      const localStorageCount = item.localStorage?.length
+      const sessionStorageCount = item.sessionStorage?.length
 
       return (
         <PropertyCard>
@@ -126,6 +128,8 @@ export const SettingsEnvironments = () => {
               <div>
                 <CountBlock title="cookie" count={cookieCount} />
                 <CountBlock title="header" count={headerCount} />
+                <CountBlock title="local storage" count={localStorageCount} />
+                <CountBlock title="session storage" count={sessionStorageCount} />
                 <StyledDesc size="12px">{item.zone}</StyledDesc>
               </div>
             </PropertyInfos>
