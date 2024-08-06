@@ -108,7 +108,11 @@ export const formatResponseHeader = (headers?: { name: string; value: string }[]
     return {}
   }
   return headers.reduce((p, c) => {
-    p[c.name] = c.value
+    if (p[c.name]) {
+      p[c.name] += `, ${c.value}`
+    } else {
+      p[c.name] = c.value
+    }
     return p
   }, {}) as Record<string, string>
 }
