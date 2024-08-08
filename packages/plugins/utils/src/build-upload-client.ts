@@ -168,7 +168,7 @@ export class BuildUploadClient {
         },
         ['./'],
       )
-        .pipe(createGzip())
+        .pipe(createGzip(this.options.zlibOptions))
         .pipe(createWriteStream(packPath))
         .on('finish', () => {
           resolve(packPath)

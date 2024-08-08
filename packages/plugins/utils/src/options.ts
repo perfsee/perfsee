@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import type { ZlibOptions } from 'zlib'
+
 import { merge } from 'lodash'
 
 import { Audit, BundleResult, PerfseeReportStats, AuditID } from '@perfsee/bundle-analyzer'
@@ -154,6 +156,11 @@ export interface CommonPluginOptions {
    * @default false
    */
   strictChunkRelations?: boolean
+
+  /**
+   * Zlib options on compressing artifacts.
+   */
+  zlibOptions?: ZlibOptions
 }
 
 export function getDefaultOptions(): Required<
