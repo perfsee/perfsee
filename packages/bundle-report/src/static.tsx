@@ -23,6 +23,7 @@ import {
   DownOutlined,
   SwapOutlined,
   WalletFilled,
+  CloseOutlined,
 } from '@ant-design/icons'
 import { useTheme } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -60,6 +61,7 @@ registerIcons({
     chevrondown: <DownOutlined />,
     swap: <SwapOutlined />,
     wallet: <WalletFilled />,
+    canel: <CloseOutlined />,
   },
 })
 

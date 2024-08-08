@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { FC, MouseEvent, useCallback, useMemo } from 'react'
-import { FolderOpenFilled } from '@ant-design/icons'
+import { ApartmentOutlined, FolderOpenFilled } from '@ant-design/icons'
 import {
   GroupedList,
   IGroup,
@@ -28,11 +27,14 @@ import {
   TooltipHost,
   TooltipOverflowMode,
 } from '@fluentui/react'
+import { FC, MouseEvent, useCallback, useMemo } from 'react'
 
 import { ModuleTreeNode } from '@perfsee/bundle-analyzer'
 import { Empty, FileColorsMaps, TooltipWithEllipsis } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
+
 import { ColoredSize } from '../bundle-detail/components'
+
 import { TreeviewColumnCell } from './styled'
 
 enum AssetTypeEnum {
@@ -66,10 +68,10 @@ export function detectFileType(name: string): AssetTypeEnum {
 export interface TreeViewProps {
   content: ModuleTreeNode[]
   searchText?: string
-  onClickItem?(item: FlatItem): void
+  onClickItem?: (item: ModuleItem) => void
 }
 
-type FlatItem = Omit<ModuleTreeNode, 'children'> & {
+export type ModuleItem = Omit<ModuleTreeNode, 'children'> & {
   key: string
   level: number
   concatenated?: boolean
@@ -78,13 +80,13 @@ type FlatItem = Omit<ModuleTreeNode, 'children'> & {
 
 function flattenTree(
   tree: ModuleTreeNode[],
-  level: number = 0,
+  level = 0,
   search?: string,
   currentFolder = '',
   startIndex = 0,
-): { items: FlatItem[]; groups: IGroup[]; nextIndex: number } {
-  let items: FlatItem[] = []
-  let groups: IGroup[] = []
+): { items: ModuleItem[]; groups: IGroup[]; nextIndex: number } {
+  let items: ModuleItem[] = []
+  const groups: IGroup[] = []
   let currentIndex = startIndex
 
   const hasChildren = tree.some((node) => node.children?.length || node.modules?.length)
@@ -180,7 +182,7 @@ const columns: IColumn[] = [
     name: 'name',
     key: 'key',
     minWidth: 100,
-    onRender(item: FlatItem, _index, _column) {
+    onRender(item: ModuleItem, _index, _column) {
       const Icon = FileColorsMaps[detectFileType(item.name)]
       const size = {
         raw: item.value,
@@ -205,11 +207,25 @@ const columns: IColumn[] = [
               <span style={{ direction: 'ltr', unicodeBidi: 'bidi-override' }}>{item.name}</span>
             </TooltipHost>
           </span>
-          {item.concatenated ? null : (
+          {item.concatenated ? (
+            <span
+              style={{
+                fontSize: 10,
+                marginLeft: 8,
+                padding: '0 4px',
+                color: 'white',
+                backgroundColor: SharedColors.blue10,
+                borderRadius: 4,
+              }}
+            >
+              concatenated
+            </span>
+          ) : (
             <span style={{ fontSize: 12 }}>
               <ColoredSize size={size} />
             </span>
           )}
+          <ApartmentOutlined role="icon" />
         </TreeviewColumnCell>
       )
     },
@@ -232,7 +248,7 @@ export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText }
   )
 
   const onRenderCell = useCallback(
-    (nestingDepth: number | undefined, item: FlatItem, itemIndex?: number, group?: IGroup) => {
+    (nestingDepth: number | undefined, item: ModuleItem, itemIndex?: number, group?: IGroup) => {
       return item && typeof itemIndex === 'number' && itemIndex > -1 ? (
         <div data-index={itemIndex} onClick={onRowClick}>
           <DetailsRow
@@ -255,6 +271,8 @@ export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText }
                   backgroundColor: 'rgb(243, 242, 241)',
                 },
                 width: '100% !important',
+                padding: '0 8px 0 12px',
+                display: 'flex',
               },
               fields: { width: '100%', minWidth: 0 },
             }}
@@ -329,7 +347,7 @@ export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText }
         )
       },
     }
-  }, [])
+  }, [onRenderGroupHeaderCheckbox, onRenderGroupHeaderName])
 
   return content.length ? (
     <GroupedList

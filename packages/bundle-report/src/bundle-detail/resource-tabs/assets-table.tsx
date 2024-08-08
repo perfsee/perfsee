@@ -23,6 +23,7 @@ import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perf
 import { SharedColors, lighten } from '@perfsee/dls'
 import { AssetTypeEnum, AssetInfo, EntryDiff, BundleAuditScore, ModuleTreeNode } from '@perfsee/shared'
 
+import { ModuleItem } from '../../bundle-content/treeview'
 import { ColoredSize, TransferTime } from '../components'
 import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
 import { ItemAudit } from '../types'
@@ -42,8 +43,9 @@ interface Props {
   diff: EntryDiff
   hasMultipleEntries: boolean
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
+  onClickModule?: (item: ModuleItem) => void
 }
-export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetContent }) => {
+export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetContent, onClickModule }) => {
   const { current: currentAllAssets, baseline: baselineAssets } = diff.assetsDiff
   const { current: currentChunks } = diff.chunksDiff
   const audits = diff.audits
@@ -306,8 +308,8 @@ export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetConte
   }, [baselineAssets, columns, hasMultipleEntries, items])
 
   const onRenderRow = useMemo(() => {
-    return onAssetTableRenderRow(getAssetContent)
-  }, [getAssetContent])
+    return onAssetTableRenderRow(getAssetContent, onClickModule)
+  }, [getAssetContent, onClickModule])
 
   return (
     <Stack>

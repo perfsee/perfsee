@@ -67,7 +67,6 @@ import {
   LineChartOutlined,
   DownloadOutlined,
   ExportOutlined,
-  DatabaseFilled,
   WalletFilled,
 } from '@ant-design/icons'
 import { registerIcons } from '@fluentui/react'

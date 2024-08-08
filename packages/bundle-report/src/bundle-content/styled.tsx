@@ -55,31 +55,34 @@ export const ShortcutTips = styled.div({
 
 export const TreeviewColumnCell = styled(Stack)<{ concatenated?: boolean; lastChild?: boolean }>(
   ({ concatenated, lastChild }) => {
-    if (concatenated) {
-      return {
-        '::before': {
-          content: '""',
-          display: 'block',
-          position: 'absolute',
-          left: -19,
-          top: 0,
-          height: lastChild ? 22 : 32,
-          width: 2,
-          backgroundColor: NeutralColors.gray20,
-        },
+    const extra = concatenated
+      ? ({
+          '::before': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            left: -19,
+            top: 0,
+            height: lastChild ? 22 : 32,
+            width: 2,
+            backgroundColor: NeutralColors.gray20,
+          },
+        } as const)
+      : {}
 
-        '::after': {
-          content: '"concatenated"',
-          fontSize: 10,
-          marginLeft: 8,
-          padding: '0 4px',
-          color: 'white',
-          backgroundColor: SharedColors.blue10,
-          borderRadius: 4,
-        },
-      }
+    return {
+      width: '100%',
+
+      'span[role="icon"]': {
+        display: 'none',
+        color: NeutralColors.gray120,
+      },
+
+      '&:hover span[role="icon"]': {
+        display: 'unset',
+      },
+
+      ...extra,
     }
-
-    return {}
   },
 )

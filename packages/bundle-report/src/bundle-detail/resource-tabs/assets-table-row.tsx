@@ -6,22 +6,32 @@ import { useState, useMemo, useCallback, useContext, useEffect } from 'react'
 import { TooltipWithEllipsis } from '@perfsee/components'
 import { AssetInfo, ModuleTreeNode, SOURCE_CODE_PATH } from '@perfsee/shared'
 
+import { ModuleItem, TreeView } from '../../bundle-content/treeview'
 import { RouterContext } from '../../router-context'
 import { ColoredSize } from '../components'
 import { PackageTraceContext } from '../context'
 import { TableExtraWrap, StyledPivot, StyledInfoItem } from '../style'
-import { TreeView } from '@perfsee/bundle-report/bundle-content/treeview'
-import { ModuleExplorerContainer } from './style'
-import { AssetFilter } from './asset-filter'
 
-type Props = { item: AssetInfo; getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>; searchText?: string }
+import { AssetFilter } from './asset-filter'
+import { ModuleExplorerContainer } from './style'
+
+type Props = {
+  item: AssetInfo
+  getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
+  searchText?: string
+  onClickModule?: (item: ModuleItem) => void
+}
 
 const AssetModulesExplorer = (props: Props) => {
   const [content, setContent] = useState<ModuleTreeNode[] | null>(null)
 
+  const { getAssetContent, item } = props
+
   useEffect(() => {
-    props.getAssetContent(props.item).then(setContent)
-  }, [setContent, props.getAssetContent])
+    getAssetContent(item)
+      .then(setContent)
+      .catch(() => {})
+  }, [setContent, getAssetContent, item])
 
   if (!content) {
     return <Spinner size={SpinnerSize.medium} />
@@ -29,7 +39,7 @@ const AssetModulesExplorer = (props: Props) => {
 
   return (
     <ModuleExplorerContainer>
-      <TreeView content={content} searchText={props.searchText} />
+      <TreeView content={content} searchText={props.searchText} onClickItem={props.onClickModule} />
     </ModuleExplorerContainer>
   )
 }
@@ -80,10 +90,7 @@ const TableExtraInfo = (props: Props) => {
         selectedKey={selectKey}
         onLinkClick={onLinkClick}
       >
-        <PivotItem headerText="Modules" onRenderItemLink={onModulePivotRender} itemKey="0">
-          <AssetModulesExplorer {...props} searchText={moduleSearchText} />
-        </PivotItem>
-        <PivotItem headerText="Included packages" itemKey="1">
+        <PivotItem headerText="Included packages" itemKey="0">
           {item.packages.map((pkg) => {
             if (typeof pkg === 'string') {
               return <StyledInfoItem key={pkg}>{pkg}</StyledInfoItem>
@@ -98,13 +105,19 @@ const TableExtraInfo = (props: Props) => {
             )
           })}
         </PivotItem>
+        <PivotItem headerText="Modules" onRenderItemLink={onModulePivotRender} itemKey="1">
+          <AssetModulesExplorer {...props} searchText={moduleSearchText} onClickModule={props.onClickModule} />
+        </PivotItem>
       </StyledPivot>
     </TableExtraWrap>
   )
 }
 
 const DetailRowItem = (
-  props: IDetailsRowProps & { getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]> },
+  props: IDetailsRowProps & {
+    getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
+    onClickModule?: (item: ModuleItem) => void
+  },
 ) => {
   const [opened, setOpened] = useState<boolean>()
 
@@ -128,15 +141,18 @@ const DetailRowItem = (
   return (
     <>
       <DetailsRow {...props} styles={customStyles} onClick={onClick} />
-      {opened && <TableExtraInfo item={props.item} getAssetContent={props.getAssetContent} />}
+      {opened && (
+        <TableExtraInfo item={props.item} getAssetContent={props.getAssetContent} onClickModule={props.onClickModule} />
+      )}
     </>
   )
 }
 
 export const onAssetTableRenderRow =
-  (getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>) => (props?: IDetailsRowProps) => {
+  (getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>, onClickModule?: (item: ModuleItem) => void) =>
+  (props?: IDetailsRowProps) => {
     if (props) {
-      return <DetailRowItem {...props} getAssetContent={getAssetContent} />
+      return <DetailRowItem {...props} getAssetContent={getAssetContent} onClickModule={onClickModule} />
     }
     return null
   }

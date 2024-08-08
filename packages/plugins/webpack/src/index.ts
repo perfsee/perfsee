@@ -142,14 +142,20 @@ export class PerfseePlugin implements WebpackPluginInstance {
     await generateReports(this.stats, this.outputPath, this.options)
   }
 
-  private parseModuleSource(module: Module, reasonsMap: Map<ID, Reason[]>) {
+  private parseModuleSource(compilation: Compilation, module: Module, reasonsMap: Map<ID, Reason[]>) {
     // @ts-expect-error
-    module.modules?.forEach((module) => this.parseModuleSource(module, reasonsMap))
-    const source = module.originalSource()?.source()
+    module.modules?.forEach((module) => this.parseModuleSource(compilation, module, reasonsMap))
+    // @ts-expect-error
+    const source: string | Buffer = module.originalSource?.()?.source() ?? module._source?.source()
     if (!source) {
       return
     }
-    const id = hashCode(module.identifier())
+    const path = module.nameForCondition()
+    if (!path) {
+      return
+    }
+    const relativePath = relative(this.stats.buildPath!, path)
+    const id = hashCode(relativePath.startsWith('.') ? relativePath : `./${relativePath}`)
     if (source instanceof Buffer || !source || !id) {
       return
     }
@@ -165,25 +171,26 @@ export class PerfseePlugin implements WebpackPluginInstance {
       .split('\n')
       .map((lineSource, lineNum) => {
         if (lines.some((l) => Math.abs(l - lineNum) <= 1)) {
-          return lineSource || ' '
+          if (lines.includes(lineNum)) {
+            return lineSource || ' '
+          } else {
+            return lineSource.length > 100 ? lineSource.slice(0, 100) + ' ...' : lineSource
+          }
         }
         return ''
       })
       .join('\n')
-    const path = module.nameForCondition()
+
     this.stats.moduleReasons ||= {
       moduleSource: {},
     }
-    this.stats.moduleReasons!.moduleSource![id] = [
-      path ? relative(this.stats.buildPath!, path) : 'unkown',
-      sourceFiltered,
-    ]
+    this.stats.moduleReasons!.moduleSource![id] = [relativePath, sourceFiltered]
   }
 
   private readonly collectModuleSources = (compilation: Compilation) => {
     try {
       const reasonsMap = StatsParser.FromStats(this.stats, this.outputPath).parseReasons()
-      compilation.modules.forEach((module) => this.parseModuleSource(module, reasonsMap))
+      compilation.modules.forEach((module) => this.parseModuleSource(compilation, module, reasonsMap))
     } catch (e) {
       console.error(chalk.red(`Collect module sources failed, due to: ${(e as Error).message}`))
     }
