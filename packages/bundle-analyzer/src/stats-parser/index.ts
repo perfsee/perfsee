@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { existsSync, readFileSync } from 'fs'
-import { join, parse } from 'path'
+import { join, parse, relative } from 'path'
 
 import { uniqBy, chain, uniq, omit } from 'lodash'
 
@@ -83,7 +83,12 @@ export class StatsParser {
   private readonly modulesMap: Map<string, Module> = new Map()
   private readonly entryPointsMap: Map<string, EntryPoint> = new Map()
   private readonly packagePathRefMap: Map<string, BasePackage> = new Map()
+
+  // Used to collect module sources before upload.
+  private readonly reasonsMap: Map</* moduleId */ ID, /* reasons that contains current module */ Reason[]> = new Map()
+  // Used to find reasons of a module
   private readonly moduleReasonsMap: Map<ID, Reason[]> = new Map()
+  // Used to find reasons of a package. The two dimension array is used to record reasons from different pacakages.
   private readonly packageReasonsMap: Map<number, Reason[][]> = new Map()
   private readonly strictChunkRelationsMap: Map<ID, ID[]> = new Map()
 
@@ -119,6 +124,7 @@ export class StatsParser {
         ? {
             ...this.stats.moduleReasons,
             packageReasons: Object.fromEntries(this.packageReasonsMap.entries()),
+            moduleReasons: Object.fromEntries(this.moduleReasonsMap.entries()),
           }
         : undefined,
     }
@@ -145,7 +151,7 @@ export class StatsParser {
 
   parseReasons() {
     this.parseChunks()
-    return this.moduleReasonsMap
+    return this.reasonsMap
   }
 
   private serializeModuleMap(): ModuleMap {
@@ -406,7 +412,6 @@ export class StatsParser {
   }
 
   private readonly getIssuers = (m: BundleModule, meta: PackageMeta): Issuer[] => {
-    const { path } = meta
     return chain(m.reasons)
       .filter((reason) => !!reason.moduleName)
       .map((reason) => {
@@ -414,8 +419,8 @@ export class StatsParser {
         if (!meta) {
           return
         }
-        const moduleId =
-          typeof reason.moduleIdentifier === 'string' ? hashCode(reason.moduleIdentifier!) : reason.moduleIdentifier!
+
+        const moduleId = hashCode(reason.resolvedModule || '')
 
         return {
           name: meta.name,
@@ -425,9 +430,9 @@ export class StatsParser {
           moduleId,
         }
       })
-      .filter((value) => !!value && value.path !== path)
+      .filter((value) => !!value)
       .groupBy('path')
-      .mapValues((issuers) => {
+      .mapValues((issuers, path) => {
         const reasons = chain(issuers)
           .map((issuer) => ({
             type: issuer!.type,
@@ -447,15 +452,38 @@ export class StatsParser {
           .map((r) => [ModuleReasonTypes.indexOf(r.type), r.loc, r.moduleId] as Reason)
           .value()
 
+        // Record reasons that module's source need to be collected
         reasons.forEach((reason) => {
-          let reasons = this.moduleReasonsMap.get(reason[2])
+          let reasons = this.reasonsMap.get(reason[2])
           if (!reasons) {
             reasons = []
-            this.moduleReasonsMap.set(reason[2], reasons)
+            this.reasonsMap.set(reason[2], reasons)
           }
 
           reasons.push(reason)
         })
+
+        // Record reasons of all modules
+        if (this.stats.buildPath && m.nameForCondition) {
+          let relativePath = relative(this.stats.buildPath, m.nameForCondition)
+          if (!relativePath.startsWith('.')) {
+            relativePath = `./${relativePath}`
+          }
+          const id = hashCode(relativePath)
+          let reasonsToSet = this.moduleReasonsMap.get(id)
+          if (!reasonsToSet) {
+            reasonsToSet = []
+            this.moduleReasonsMap.set(id, reasonsToSet)
+          }
+
+          reasonsToSet.push(...reasons)
+        }
+
+        // Important. Only count modules from different packages as issuers.
+        // Avoid package import trace chart to draw infinite loop.
+        if (path === meta.path) {
+          return null
+        }
 
         return {
           name: issuers[0]!.name,
@@ -463,7 +491,7 @@ export class StatsParser {
           reasons,
         }
       })
-      .reduce((issuers, issuer) => issuers.concat(issuer), [] as Issuer[])
+      .reduce((issuers, issuer) => issuers.concat(issuer || []), [] as Issuer[])
       .value()
   }
 
