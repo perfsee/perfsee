@@ -454,6 +454,13 @@ export function parseModuleRequiredChunks(moduleContent: string): ID[] {
 
     return walkState.requiredModuleIds
   } catch (e) {
+    if (e instanceof SyntaxError && !moduleContent.trim().startsWith('let')) {
+      try {
+        return parseModuleRequiredChunks(`let _ = ${moduleContent}`)
+      } catch (error) {
+        console.warn(`Failed to parse strict chunk relations: `, String(error))
+      }
+    }
     console.warn(`Failed to parse strict chunk relations: `, String(e))
     return []
   }

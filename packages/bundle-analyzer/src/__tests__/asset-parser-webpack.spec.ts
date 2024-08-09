@@ -71,3 +71,15 @@ test('should parse moudle required chunks 2', (t) => {
   const requiredChunks = parseModuleRequiredChunks(`(a,b,c) => {var r=c(3307);c.O(0, [96], () => (c(4592)));}`)
   t.deepEqual(requiredChunks, [96])
 })
+
+test('should parse moudle required chunks 3', (t) => {
+  const requiredChunks = parseModuleRequiredChunks(
+    `function (n, t, e) {
+      function r() {
+        e.e(8224)
+          .then(e.bind(e, 98224))
+      }
+    }`,
+  )
+  t.deepEqual(requiredChunks, [8224])
+})
