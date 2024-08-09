@@ -22,6 +22,7 @@ import {
   TagOutlined,
   DownOutlined,
   SwapOutlined,
+  WalletFilled,
 } from '@ant-design/icons'
 import { useTheme } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -58,6 +59,7 @@ registerIcons({
     sortup: <ArrowUpOutlined />,
     chevrondown: <DownOutlined />,
     swap: <SwapOutlined />,
+    wallet: <WalletFilled />,
   },
 })
 

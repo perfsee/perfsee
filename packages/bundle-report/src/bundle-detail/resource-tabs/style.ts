@@ -14,6 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './diff'
-export * from './size'
-export * from './hashcode'
+import styled from '@emotion/styled'
+
+export const ModuleExplorerContainer = styled.div(({ theme }) => ({
+  maxHeight: 800,
+  overflowY: 'auto',
+  maxWidth: `calc(${theme.layout.mainMaxWidth} - 158px)`,
+}))

@@ -82,7 +82,7 @@ export const ColoredSize = ({ size, hoverable = true }: Props) => {
 
   const content = useMemo(
     () => (
-      <Wrapper underline={hoverable} color={sizeColor}>
+      <Wrapper underline={hoverable} color={sizeColor} style={{ cursor: hoverable ? 'pointer' : 'unset' }}>
         {PrettyBytes.create(size.raw).toString()}
       </Wrapper>
     ),
