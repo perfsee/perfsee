@@ -101,6 +101,7 @@ export interface ModuleReason {
   moduleIdentifier: string | null
   module: string | null
   moduleName: string | null
+  resolvedModule?: string
   type: ModuleReasonType
   explanation?: string
   userRequest: string
@@ -123,6 +124,7 @@ export interface BundleModule {
   }>
   modules: BundleModule[]
   name: string
+  nameForCondition?: string
   providedExports?: any
   reasons: ModuleReason[]
   usedExports?: boolean
@@ -211,6 +213,7 @@ export interface RollupRenderedModule {
 }
 
 export interface ModuleReasons {
+  moduleReasons?: Record<number, Reason[]>
   moduleSource?: ModuleSource
   packageReasons?: Record<number, Reason[][]>
 }

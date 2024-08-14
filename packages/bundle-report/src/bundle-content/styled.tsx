@@ -15,7 +15,8 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { SharedColors } from '@fluentui/theme'
+import { Stack } from '@fluentui/react'
+import { NeutralColors, SharedColors } from '@fluentui/theme'
 
 export const Container = styled.div({
   display: 'flex',
@@ -51,3 +52,37 @@ export const ShortcutTips = styled.div({
   fontSize: '12px',
   color: SharedColors.gray30,
 })
+
+export const TreeviewColumnCell = styled(Stack)<{ concatenated?: boolean; lastChild?: boolean }>(
+  ({ concatenated, lastChild }) => {
+    const extra = concatenated
+      ? ({
+          '::before': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            left: -19,
+            top: 0,
+            height: lastChild ? 22 : 32,
+            width: 2,
+            backgroundColor: NeutralColors.gray20,
+          },
+        } as const)
+      : {}
+
+    return {
+      width: '100%',
+
+      'span[role="icon"]': {
+        display: 'none',
+        color: NeutralColors.gray120,
+      },
+
+      '&:hover span[role="icon"]': {
+        display: 'unset',
+      },
+
+      ...extra,
+    }
+  },
+)
