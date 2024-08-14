@@ -101,15 +101,35 @@ export class PerfseePlugin implements WebpackPluginInstance {
     })
 
     try {
-      compiler.resolverFactory.hooks.resolver.for('normal').tap(PerfseePlugin.PluginName, (resolver) => {
-        try {
-          resolver.hooks.result.tap(PerfseePlugin.PluginName, (request) => {
-            catchModuleVersionFromRequest(request, this.modules, this.context || process.cwd(), getBuildEnv().pwd)
-          })
-        } catch (e) {
-          console.error('failed when applying module version catcher: ', e)
-        }
-      })
+      if (compiler.resolverFactory?.hooks?.resolver) {
+        compiler.resolverFactory.hooks.resolver.for('normal').tap(PerfseePlugin.PluginName, (resolver) => {
+          try {
+            resolver.hooks.result.tap(PerfseePlugin.PluginName, (request) => {
+              catchModuleVersionFromRequest(request, this.modules, this.context || process.cwd(), getBuildEnv().pwd)
+            })
+          } catch (e) {
+            console.error('failed when applying module version catcher: ', e)
+          }
+        })
+      } else {
+        // compatible with rspack, bacause rapack does not support resolverFactory.hook.resolver
+        compiler.hooks.compilation.tap(PerfseePlugin.PluginName, (_compilation, { normalModuleFactory }) => {
+          try {
+            normalModuleFactory.hooks.afterResolve.tap(PerfseePlugin.PluginName, (resolveData) => {
+              catchModuleVersionFromRequest(
+                resolveData.createData?.resourceResolveData || {
+                  path: resolveData.createData?.resource || resolveData.context,
+                },
+                this.modules,
+                this.context || process.cwd(),
+                getBuildEnv().pwd,
+              )
+            })
+          } catch (e) {
+            console.error('failed when applying module version catcher: ', e)
+          }
+        })
+      }
     } catch (e) {
       console.error('failed when applying module version catcher: ', e)
     }
