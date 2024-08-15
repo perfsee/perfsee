@@ -184,15 +184,27 @@ export class PerfseePlugin implements WebpackPluginInstance {
       return
     }
     const lines = reasons
-      .map((r) => r[1]?.split(':')[0])
+      .map((r) => r[1]?.split(':'))
       .filter(Boolean)
-      .map((l) => Number(l) - 1)
+      .map(([l, col]) => [Number(l) - 1, col] as const)
     const sourceFiltered = source
       .split('\n')
       .map((lineSource, lineNum) => {
-        if (lines.some((l) => Math.abs(l - lineNum) <= 1)) {
-          if (lines.includes(lineNum)) {
-            return lineSource || ' '
+        if (lines.some(([l]) => Math.abs(l - lineNum) <= 1)) {
+          const sourceLines = lines.filter(([l]) => l === lineNum)
+          if (sourceLines.length) {
+            const colStart = sourceLines
+              .map((l) => l[1])
+              .reduce((min, cur) => Math.min(min, Number(cur.split('-')[0])), Infinity)
+            const colEnd = sourceLines
+              .map((l) => l[1])
+              .reduce((max, cur) => Math.max(max, Number(cur.split('-')[1])), 0)
+            const start = Math.max(0, Number(colStart) - 50)
+            const end = Math.min(lineSource.length, Number(colEnd) + 50)
+            if (colStart >= 0 && colStart < Infinity && colEnd <= lineSource.length && colEnd > 0) {
+              return lineSource.length > end ? ' '.repeat(start) + lineSource.slice(start, end) + ' // ...' : lineSource
+            }
+            return lineSource.length > 500 ? lineSource.slice(0, 500) + ' ...' : lineSource
           } else {
             return lineSource.length > 100 ? lineSource.slice(0, 100) + ' ...' : lineSource
           }
