@@ -130,7 +130,12 @@ export const Code: FC<CodeProps> = ({ reasons, searchText, moduleReasons }) => {
               <Icon.icon />
               {path}
             </ModulePath>
-            <Empty title="Source code invalid" withIcon />
+            <Empty
+              title={`Source code invalid. Source locations: ${locations.map(
+                ([line, colStart, colEnd]) => `${line}:${colStart}-${colEnd}`,
+              )}`}
+              withIcon
+            />
           </Stack>
         )
       }
