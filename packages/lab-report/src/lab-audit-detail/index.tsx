@@ -39,10 +39,17 @@ export const LabAuditDetail = (props: DetailProps) => {
 
   useLayoutEffect(() => {
     if (containerRef.current) {
+      const dom = new DOM(document, containerRef.current)
       if (fullPageScreenshot) {
-        ElementScreenshotRenderer.installFullPageScreenshot(containerRef.current, fullPageScreenshot.screenshot)
+        ElementScreenshotRenderer.installFullPageScreenshot(document.body, fullPageScreenshot.screenshot)
+        ElementScreenshotRenderer.installOverlayFeature({
+          dom,
+          rootEl: document.body,
+          overlayContainerEl: document.body,
+          fullPageScreenshot: fullPageScreenshot,
+        })
       }
-      const elem = new DetailsRenderer(new DOM(document, containerRef.current), {
+      const elem = new DetailsRenderer(dom, {
         entities,
         fullPageScreenshot,
       }).render(details)
