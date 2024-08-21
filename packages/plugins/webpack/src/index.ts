@@ -75,7 +75,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
   private outputPath!: string
   private context?: string
   private stats!: PerfseeReportStats
-  private readonly modules = new Map<string, string>()
+  private readonly modules = new Map<string, [version: string, sideEffects?: boolean | string[]]>()
 
   constructor(options: Options = {}) {
     this.options = initOptions(options)
@@ -196,11 +196,13 @@ export class PerfseePlugin implements WebpackPluginInstance {
             const colStart = sourceLines
               .map((l) => l[1])
               .reduce((min, cur) => Math.min(min, Number(cur.split('-')[0])), Infinity)
-            const colEnd = sourceLines
-              .map((l) => l[1])
-              .reduce((max, cur) => Math.max(max, Number(cur.split('-')[1])), 0)
+
+            let colEnd = sourceLines.map((l) => l[1]).reduce((max, cur) => Math.max(max, Number(cur.split('-')[1])), 0)
+            colEnd = Math.min(colEnd, colStart + 100)
+
             const start = Math.max(0, Number(colStart) - 50)
             const end = Math.min(lineSource.length, Number(colEnd) + 50)
+
             if (colStart >= 0 && colStart < Infinity && colEnd <= lineSource.length && colEnd > 0) {
               return lineSource.length > end ? ' '.repeat(start) + lineSource.slice(start, end) + ' // ...' : lineSource
             }

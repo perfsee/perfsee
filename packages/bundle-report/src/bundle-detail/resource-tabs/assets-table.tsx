@@ -44,8 +44,15 @@ interface Props {
   hasMultipleEntries: boolean
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
   onClickModule?: (item: ModuleItem) => void
+  onClickSideEffects?: (item: ModuleItem) => void
 }
-export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetContent, onClickModule }) => {
+export const AssetsTable: FC<Props> = ({
+  diff,
+  hasMultipleEntries,
+  getAssetContent,
+  onClickModule,
+  onClickSideEffects,
+}) => {
   const { current: currentAllAssets, baseline: baselineAssets } = diff.assetsDiff
   const { current: currentChunks } = diff.chunksDiff
   const audits = diff.audits
@@ -308,8 +315,8 @@ export const AssetsTable: FC<Props> = ({ diff, hasMultipleEntries, getAssetConte
   }, [baselineAssets, columns, hasMultipleEntries, items])
 
   const onRenderRow = useMemo(() => {
-    return onAssetTableRenderRow(getAssetContent, onClickModule)
-  }, [getAssetContent, onClickModule])
+    return onAssetTableRenderRow(getAssetContent, onClickModule, onClickSideEffects)
+  }, [getAssetContent, onClickModule, onClickSideEffects])
 
   return (
     <Stack>

@@ -22,9 +22,11 @@ import { AssetInfo, BundleDiff, ModuleReasons, ModuleTreeNode } from '@perfsee/s
 import { PrettyBytes } from '@perfsee/utils'
 
 import { BuildHistory } from './build-history'
+import { ModuleTraceContext } from './context'
 import { Overview } from './overview'
 import { ResourceTabs } from './resource-tabs'
 import { Audits } from './resource-tabs/audits'
+import { TraceType } from './resource-tabs/code'
 import { cardGap } from './style'
 import { ArtifactDiff } from './types'
 
@@ -53,6 +55,19 @@ export const BundleReport: FC<BundleReportProps> = ({
   getAssetContent,
   getModuleReasons,
 }) => {
+  const [moduleTrace, setModuleTrace] = useState<string | null>(null)
+  const [moduleTraceType, setModuleTraceType] = useState(TraceType.SideEffects)
+  const moduleContextValue = useMemo(() => {
+    return {
+      module: moduleTrace,
+      setModule: (module: string | null, traceType?: TraceType) => {
+        setModuleTrace(module)
+        traceType !== undefined && setModuleTraceType(traceType)
+      },
+      traceType: moduleTraceType,
+    }
+  }, [moduleTrace, moduleTraceType])
+
   const dropdownOptions = useMemo<IDropdownOption<string>[]>(() => {
     return Object.entries(diff).map(([entryName, diff]) => ({
       key: entryName,
@@ -100,36 +115,38 @@ export const BundleReport: FC<BundleReportProps> = ({
   }
 
   return (
-    <ContentCard onRenderHeader={onRenderHeader}>
-      <Stack tokens={cardGap}>
-        <Stack horizontal verticalAlign="center" tokens={cardGap}>
-          <Select<string>
-            title="Entry Point"
-            options={dropdownOptions}
-            selectedKey={entryPoint}
-            onKeyChange={onSelectEntryPoint}
+    <ModuleTraceContext.Provider value={moduleContextValue}>
+      <ContentCard onRenderHeader={onRenderHeader}>
+        <Stack tokens={cardGap}>
+          <Stack horizontal verticalAlign="center" tokens={cardGap}>
+            <Select<string>
+              title="Entry Point"
+              options={dropdownOptions}
+              selectedKey={entryPoint}
+              onKeyChange={onSelectEntryPoint}
+            />
+            {artifact.baseline && (
+              <DefaultButton onClick={onBaselineSelectorOpen} iconProps={{ iconName: 'swap' }}>
+                Change Baseline
+              </DefaultButton>
+            )}
+          </Stack>
+          <BuildHistory artifact={artifact} onBaselineSelectorOpen={onBaselineSelectorOpen} />
+          <Overview artifact={artifact} diff={currentEntryPointDiff} />
+          <Audits
+            key={entryPoint}
+            audits={currentEntryPointDiff.audits.current}
+            baseline={currentEntryPointDiff.audits.baseline}
           />
-          {artifact.baseline && (
-            <DefaultButton onClick={onBaselineSelectorOpen} iconProps={{ iconName: 'swap' }}>
-              Change Baseline
-            </DefaultButton>
-          )}
+          <ResourceTabs
+            diff={currentEntryPointDiff}
+            visualizationLink={contentLink}
+            getAssetContent={getAssetContent}
+            getModuleReasons={getModuleReasons}
+            hasMultipleEntries={Object.keys(diff).length > 1}
+          />
         </Stack>
-        <BuildHistory artifact={artifact} onBaselineSelectorOpen={onBaselineSelectorOpen} />
-        <Overview artifact={artifact} diff={currentEntryPointDiff} />
-        <Audits
-          key={entryPoint}
-          audits={currentEntryPointDiff.audits.current}
-          baseline={currentEntryPointDiff.audits.baseline}
-        />
-        <ResourceTabs
-          diff={currentEntryPointDiff}
-          visualizationLink={contentLink}
-          getAssetContent={getAssetContent}
-          getModuleReasons={getModuleReasons}
-          hasMultipleEntries={Object.keys(diff).length > 1}
-        />
-      </Stack>
-    </ContentCard>
+      </ContentCard>
+    </ModuleTraceContext.Provider>
   )
 }

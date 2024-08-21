@@ -19,13 +19,16 @@ import { join } from 'path'
 
 import { readJSONFile, resolveNodeModulePath } from '@perfsee/bundle-analyzer'
 
-export function getAllPackagesVersions(repoPath: string, modules: Map<string, string>) {
+export function getAllPackagesVersions(
+  repoPath: string,
+  modules: Map<string, [version: string, sideEffects?: boolean | string[] | 'implicitly']>,
+) {
   const versions = []
-  for (const [fullpath, version] of modules) {
+  for (const [fullpath, [version, sideEffects = 'implicitly']] of modules) {
     // cut path
     const modulePath = resolveNodeModulePath(fullpath, repoPath)
     if (modulePath) {
-      versions.push({ name: modulePath.dependentPath, version })
+      versions.push({ name: modulePath.dependentPath, version, sideEffects })
     }
   }
 
@@ -40,7 +43,11 @@ export function resolveModuleVersion(path: string, rootPath: string) {
     if (fs.existsSync(packageJsonPath) && fs.statSync(packageJsonPath).isFile()) {
       const packageJsonData = readJSONFile<any>(packageJsonPath)
       if (typeof packageJsonData.name === 'string' && typeof packageJsonData.version === 'string') {
-        return [modulePath.dependentPath, packageJsonData.version as string] as const
+        return [
+          modulePath.dependentPath,
+          packageJsonData.version as string,
+          packageJsonData.sideEffects ?? 'implicitly',
+        ] as const
       }
     }
   }

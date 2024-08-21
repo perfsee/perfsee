@@ -16,17 +16,17 @@ limitations under the License.
 
 import { Panel, PanelBase, Pivot, PivotItem, Stack } from '@fluentui/react'
 import { parse, stringify } from 'query-string'
-import { FC, MouseEvent, useCallback, useContext, useRef, useState } from 'react'
+import { FC, MouseEvent, useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { AssetInfo, EntryDiff, ModuleReasons, ModuleTreeNode } from '@perfsee/shared'
 
 import { ModuleItem } from '../../bundle-content/treeview'
 import { RouterContext } from '../../router-context'
-import { PackageTraceContext } from '../context'
+import { ModuleTraceContext, PackageTraceContext } from '../context'
 
 import { AssetFilter } from './asset-filter'
 import { AssetsTable } from './assets-table'
-import { ModuleCode } from './code'
+import { ModuleCode, TraceType } from './code'
 import { ImportTraceModal } from './import-trace-modal'
 import { PackagesTable } from './packages-table'
 
@@ -55,9 +55,11 @@ export const ResourceTabs: FC<Props> = ({
   const { history, location } = useContext(RouterContext)
   const queries: { tab?: string; trace?: string } = parse(location?.search || '')
   const { ref } = useContext(PackageTraceContext)
+  const moduleTraceContext = useContext(ModuleTraceContext)
   const [traceSourceRef, setTraceSourceRef] = useState<number | null>(null)
   const panelRef = useRef<PanelBase>()
   const [traceModule, setTraceModule] = useState<string | null>(null)
+  const [traceType, setTraceType] = useState(TraceType.Reasons)
   const [panelSearchText, setPanelSearchText] = useState<string>('')
 
   const packageTraceContext = useContext(PackageTraceContext)
@@ -85,6 +87,14 @@ export const ResourceTabs: FC<Props> = ({
     [],
   )
 
+  useEffect(() => {
+    if (moduleTraceContext.module && getModuleReasons) {
+      panelRef.current?.open()
+      setTraceType(moduleTraceContext.traceType)
+      setTraceModule(moduleTraceContext.module)
+    }
+  }, [moduleTraceContext.module, getModuleReasons, moduleTraceContext.traceType])
+
   const onChange = useCallback(
     (item?: PivotItem) => {
       if (!item) {
@@ -108,11 +118,18 @@ export const ResourceTabs: FC<Props> = ({
       const modulePath = module.key.startsWith('.') ? module.key : `./${module.key}`
       if (getModuleReasons) {
         panelRef.current?.open()
+        setTraceType(TraceType.Reasons)
         setTraceModule(modulePath)
       }
     },
     [getModuleReasons],
   )
+
+  const onClickPanelModulePath = useCallback((path: string) => {
+    const modulePath = path.startsWith('.') ? path : `./${path}`
+    setTraceType(TraceType.Reasons)
+    setTraceModule(modulePath)
+  }, [])
 
   const onRenderPanelHeader = useCallback(() => {
     return (
@@ -123,7 +140,7 @@ export const ResourceTabs: FC<Props> = ({
           verticalAlign="center"
           horizontalAlign="space-between"
         >
-          Import trace for module:
+          {traceType === TraceType.SideEffects ? 'Side effects in' : 'Import trace for'} module:
           <span style={{ display: 'inline-block' }}>
             <AssetFilter searchText={panelSearchText} onChangeSearchText={setPanelSearchText} title="Filter Modules" />
           </span>
@@ -143,7 +160,23 @@ export const ResourceTabs: FC<Props> = ({
         </div>
       </div>
     )
-  }, [traceModule, panelSearchText])
+  }, [traceModule, panelSearchText, traceType])
+
+  const onClickPanelSideEffects = useCallback(
+    (module: ModuleItem) => {
+      const modulePath = module.key.startsWith('.') ? module.key : `./${module.key}`
+      if (getModuleReasons) {
+        panelRef.current?.open()
+        setTraceType(TraceType.SideEffects)
+        setTraceModule(modulePath)
+      }
+    },
+    [getModuleReasons],
+  )
+
+  const onTracePanelDismiss = useCallback(() => {
+    moduleTraceContext.setModule?.(null)
+  }, [moduleTraceContext])
 
   return (
     <>
@@ -154,6 +187,7 @@ export const ResourceTabs: FC<Props> = ({
             getAssetContent={getAssetContent}
             hasMultipleEntries={hasMultipleEntries}
             onClickModule={onClickModule}
+            onClickSideEffects={onClickPanelSideEffects}
           />
         </PivotItem>
         <PivotItem headerText="Packages" itemKey={Tab.Packages}>
@@ -178,8 +212,15 @@ export const ResourceTabs: FC<Props> = ({
           commands: { paddingBottom: 6 },
           navigation: { justifyContent: 'space-between' },
         }}
+        onDismiss={onTracePanelDismiss}
       >
-        <ModuleCode getModuleReasons={getModuleReasons} modulePath={traceModule || ''} searchText={panelSearchText} />
+        <ModuleCode
+          getModuleReasons={getModuleReasons}
+          modulePath={traceModule || ''}
+          searchText={panelSearchText}
+          onClickPath={onClickPanelModulePath}
+          type={traceType}
+        />
       </Panel>
     </>
   )

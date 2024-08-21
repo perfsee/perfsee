@@ -21,7 +21,7 @@ import { uniqBy, chain, uniq, omit } from 'lodash'
 
 import { readStatsFile } from '../bundle-extractor'
 import { installActivatedRunnerScript } from '../install-scripts'
-import { getPackageMeta } from '../module'
+import { getPackageMeta, trimModuleName } from '../module'
 import { BundleToolkit, PerfseeReportStats, BundleModule, ID, ModuleReasonTypes } from '../stats'
 import {
   calcStringCompressedSize,
@@ -35,6 +35,9 @@ import {
   detectFileType,
   getConsoleLogger,
   hashCode,
+  parseTreeshaking,
+  isDynamicModule,
+  isEsmModule,
 } from '../utils'
 
 import { assetModulesParser, parseModuleRequiredChunks } from './asset-parser'
@@ -76,7 +79,7 @@ export class StatsParser {
   }
 
   private assetsMap: Map<string, Asset> = new Map()
-  private packageVersionMap: Map<string, string> = new Map()
+  private packageVersionMap: Map<string, [version: string, sideEffects?: boolean | string[] | 'implicitly']> = new Map()
   private chunksMap: Map<ID, Chunk> = new Map()
   private auditFetcher?: (rule: string) => Promise<string | Audit | undefined>
   private readonly auditsForLocal: Audit[] = []
@@ -85,9 +88,14 @@ export class StatsParser {
   private readonly packagePathRefMap: Map<string, BasePackage> = new Map()
 
   // Used to collect module sources before upload.
-  private readonly reasonsMap: Map</* moduleId */ ID, /* reasons that contains current module */ Reason[]> = new Map()
+  private readonly reasonsMap: Map<
+    /* moduleId */ ID,
+    /* contains source code loations that should be uploaded */ Reason[]
+  > = new Map()
   // Used to find reasons of a module
   private readonly moduleReasonsMap: Map<ID, Reason[]> = new Map()
+  // side effects of a module
+  private readonly sideEffectsMap: Map<ID, Reason[]> = new Map()
   // Used to find reasons of a package. The two dimension array is used to record reasons from different pacakages.
   private readonly packageReasonsMap: Map<number, Reason[][]> = new Map()
   private readonly strictChunkRelationsMap: Map<ID, ID[]> = new Map()
@@ -105,8 +113,8 @@ export class StatsParser {
       throw new Error('No entrypoints or built assets found in webpack stats.')
     }
 
-    this.packageVersionMap = new Map<string, string>(
-      this.stats.packageVersions?.map(({ name, version }) => [name, version]),
+    this.packageVersionMap = new Map(
+      this.stats.packageVersions?.map(({ name, version, sideEffects }) => [name, [version, sideEffects]]),
     )
     await this.parseAssets()
     this.parseChunks()
@@ -125,6 +133,7 @@ export class StatsParser {
             ...this.stats.moduleReasons,
             packageReasons: Object.fromEntries(this.packageReasonsMap.entries()),
             moduleReasons: Object.fromEntries(this.moduleReasonsMap.entries()),
+            sideEffects: Object.fromEntries(this.sideEffectsMap.entries()),
           }
         : undefined,
     }
@@ -433,7 +442,7 @@ export class StatsParser {
       .filter((value) => !!value)
       .groupBy('path')
       .mapValues((issuers, path) => {
-        const reasons = chain(issuers)
+        const reasons: Reason[] = chain(issuers)
           .map((issuer) => ({
             type: issuer!.type,
             loc: issuer!.loc,
@@ -442,6 +451,7 @@ export class StatsParser {
           .uniqWith((a, b) => a.loc === b.loc && a.moduleId === b.moduleId && a.type === b.type)
           .groupBy('moduleId')
           .mapValues((issuers) => {
+            issuers = issuers.filter((i) => i.type !== 'cjs self exports reference')
             if (issuers.some((i) => i.type !== 'harmony import specifier')) {
               return issuers.filter((i) => i.type !== 'harmony import specifier')
             }
@@ -464,12 +474,8 @@ export class StatsParser {
         })
 
         // Record reasons of all modules
-        if (this.stats.buildPath && m.nameForCondition) {
-          let relativePath = relative(this.stats.buildPath, m.nameForCondition)
-          if (!relativePath.startsWith('.')) {
-            relativePath = `./${relativePath}`
-          }
-          const id = hashCode(relativePath)
+        const id = this.getModuleId(m)
+        if (id) {
           let reasonsToSet = this.moduleReasonsMap.get(id)
           if (!reasonsToSet) {
             reasonsToSet = []
@@ -549,8 +555,12 @@ export class StatsParser {
               m.path = meta.path
               m.issuers = this.getIssuers(fnModule, meta)
               m.ignored = false
-              m.version = this.packageVersionMap.get(m.path)
+              m.version = this.packageVersionMap.get(m.path)?.[0]
               m.realPath = fnModule.name
+              m.dynamic = isDynamicModule(fnModule)
+              m.treeShaking = parseTreeshaking(fnModule, meta, this.packageVersionMap.get(m.path)?.[1])
+              m.esm = isEsmModule(fnModule)
+              this.parseModuleSideEffects(fnModule)
 
               if (this.packagePathRefMap.has(m.path)) {
                 m.ref = this.packagePathRefMap.get(m.path)!.ref
@@ -693,6 +703,36 @@ export class StatsParser {
 
   private getPackageMeta(name: string): PackageMeta | null {
     return getPackageMeta(name, this.stats.repoPath ?? '/', this.stats.buildPath ?? '/')
+  }
+
+  private getModuleId(module: BundleModule): number {
+    if (this.stats.buildPath) {
+      let relativePath = relative(this.stats.buildPath, trimModuleName(module.name))
+      if (!relativePath.startsWith('.')) {
+        relativePath = `./${relativePath}`
+      }
+      return hashCode(relativePath)
+    }
+
+    return 0
+  }
+
+  private parseModuleSideEffects(module: BundleModule) {
+    const moduleId = this.getModuleId(module)
+    const sideEffects = module.optimizationBailout
+      ?.filter((o) => o.includes('with side effects in source code at'))
+      .map((o) => [-1, o.split('with side effects in source code at')[1], moduleId] as Reason)
+
+    if (!sideEffects) {
+      return
+    }
+
+    this.sideEffectsMap.set(moduleId, [...sideEffects])
+    if (this.reasonsMap.has(moduleId)) {
+      this.reasonsMap.get(moduleId)!.push(...sideEffects)
+    } else {
+      this.reasonsMap.set(moduleId, [...sideEffects])
+    }
   }
 
   private parseBundleContent() {

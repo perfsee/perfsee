@@ -86,3 +86,12 @@ export const TreeviewColumnCell = styled(Stack)<{ concatenated?: boolean; lastCh
     }
   },
 )
+
+export const ModuleLabel = styled.span<{ warning?: boolean; color?: string }>(({ theme, warning, color }) => ({
+  fontSize: 10,
+  display: 'inline-block',
+  padding: '0 4px',
+  color: 'white',
+  backgroundColor: warning ? theme.colors.warning : color,
+  borderRadius: 4,
+}))

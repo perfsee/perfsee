@@ -278,11 +278,11 @@ export const ModulePath = styled.div({
   alignItems: 'center',
   display: 'flex',
   wordBreak: 'break-word',
+  gap: 12,
 
   svg: {
     width: '16px !important',
     height: '16px !important',
-    marginRight: 12,
   },
 
   div: {

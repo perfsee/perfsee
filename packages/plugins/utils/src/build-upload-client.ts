@@ -43,11 +43,23 @@ const filteredFields = [
   'siblings',
   'origins',
   'module',
-  'optimizationBailout',
 ]
 
+function filterOptimizationBailout(optimizationBailout?: string[]): string[] | undefined {
+  // ignore commonjs
+  if (optimizationBailout?.some((o) => o.includes('CommonJS bailout'))) {
+    return
+  }
+
+  const filtered = optimizationBailout?.filter((o) => o.includes('with side effects in source code at'))
+
+  return filtered?.length ? filtered : undefined
+}
+
 function encodeStatsJson(stats: PerfseeReportStats) {
-  return JSONR.stringifyStream(stats, (key, v) => (filteredFields.includes(key) ? undefined : v))
+  return JSONR.stringifyStream(stats, (key, v) =>
+    filteredFields.includes(key) ? undefined : key === 'optimizationBailout' ? filterOptimizationBailout(v) : v,
+  )
 }
 
 export interface BuildUploadParams {

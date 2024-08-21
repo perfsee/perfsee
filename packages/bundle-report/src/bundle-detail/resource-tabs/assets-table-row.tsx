@@ -4,7 +4,7 @@ import { parse, stringify } from 'query-string'
 import { useState, useMemo, useCallback, useContext, useEffect } from 'react'
 
 import { TooltipWithEllipsis } from '@perfsee/components'
-import { AssetInfo, ModuleTreeNode, SOURCE_CODE_PATH } from '@perfsee/shared'
+import { AssetInfo, AssetTypeEnum, ModuleTreeNode, SOURCE_CODE_PATH } from '@perfsee/shared'
 
 import { ModuleItem, TreeView } from '../../bundle-content/treeview'
 import { RouterContext } from '../../router-context'
@@ -20,6 +20,7 @@ type Props = {
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
   searchText?: string
   onClickModule?: (item: ModuleItem) => void
+  onClickSideEffects?: (item: ModuleItem) => void
 }
 
 const AssetModulesExplorer = (props: Props) => {
@@ -39,7 +40,12 @@ const AssetModulesExplorer = (props: Props) => {
 
   return (
     <ModuleExplorerContainer>
-      <TreeView content={content} searchText={props.searchText} onClickItem={props.onClickModule} />
+      <TreeView
+        content={content}
+        searchText={props.searchText}
+        onClickItem={props.onClickModule}
+        onClickSideEffects={props.onClickSideEffects}
+      />
     </ModuleExplorerContainer>
   )
 }
@@ -117,6 +123,7 @@ const DetailRowItem = (
   props: IDetailsRowProps & {
     getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
     onClickModule?: (item: ModuleItem) => void
+    onClickSideEffects?: (item: ModuleItem) => void
   },
 ) => {
   const [opened, setOpened] = useState<boolean>()
@@ -135,24 +142,42 @@ const DetailRowItem = (
   )
 
   const onClick = useCallback(() => {
-    setOpened((opened) => !opened)
-  }, [])
+    if (props.item.type === AssetTypeEnum.Js) {
+      setOpened((opened) => !opened)
+    }
+  }, [props.item.type])
 
   return (
     <>
       <DetailsRow {...props} styles={customStyles} onClick={onClick} />
       {opened && (
-        <TableExtraInfo item={props.item} getAssetContent={props.getAssetContent} onClickModule={props.onClickModule} />
+        <TableExtraInfo
+          item={props.item}
+          getAssetContent={props.getAssetContent}
+          onClickModule={props.onClickModule}
+          onClickSideEffects={props.onClickSideEffects}
+        />
       )}
     </>
   )
 }
 
 export const onAssetTableRenderRow =
-  (getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>, onClickModule?: (item: ModuleItem) => void) =>
+  (
+    getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>,
+    onClickModule?: (item: ModuleItem) => void,
+    onClickSideEffects?: (item: ModuleItem) => void,
+  ) =>
   (props?: IDetailsRowProps) => {
     if (props) {
-      return <DetailRowItem {...props} getAssetContent={getAssetContent} onClickModule={onClickModule} />
+      return (
+        <DetailRowItem
+          {...props}
+          getAssetContent={getAssetContent}
+          onClickModule={onClickModule}
+          onClickSideEffects={onClickSideEffects}
+        />
+      )
     }
     return null
   }

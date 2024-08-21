@@ -21,7 +21,7 @@ import { readJSONFile, resolveNodeModulePath } from '@perfsee/bundle-analyzer'
 
 export const catchModuleVersionFromRequest = (
   request: any,
-  modules: Map<string, string>,
+  modules: Map<string, [version: string, sideEffects?: boolean | string[]]>,
   buildPath: string,
   repoPath: string,
 ) => {
@@ -48,7 +48,10 @@ export const catchModuleVersionFromRequest = (
         const moduleDirname = dirname(request.descriptionFilePath)
 
         if (!modules.has(moduleDirname)) {
-          modules.set(moduleDirname, request.descriptionFileData.version)
+          modules.set(moduleDirname, [
+            request.descriptionFileData.version,
+            request.descriptionFileData.sideEffects ?? 'implicitly',
+          ])
         }
 
         return
@@ -60,7 +63,7 @@ export const catchModuleVersionFromRequest = (
           const moduleDirname = dirname(packageJsonPath)
 
           if (!modules.has(moduleDirname)) {
-            modules.set(moduleDirname, packageJsonData.version)
+            modules.set(moduleDirname, [packageJsonData.version, packageJsonData.sideEffects ?? 'implicitly'])
           }
         }
       }

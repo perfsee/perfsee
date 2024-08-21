@@ -33,8 +33,9 @@ import { BundleAuditResult, BundleAuditDetail, BundleAuditScore, PrettyBytes } f
 
 import { RouterContext } from '../../router-context'
 import { ByteSizeWithDiff } from '../components'
-import { PackageTraceContext } from '../context'
+import { ModuleTraceContext, PackageTraceContext } from '../context'
 
+import { TraceType } from './code'
 import { useAuditScore } from './use-audit-score'
 
 type Unwrap<T> = T extends Array<infer S> ? S : unknown
@@ -54,9 +55,11 @@ const AuditTitle = styled.h3({
 export function AuditItemDetail({
   detail,
   onClickTrace,
+  onClickSideEffects,
 }: {
   detail: BundleAuditDetail
   onClickTrace?: (ref: number) => void
+  onClickSideEffects?: (path: string) => void
 }) {
   const columns = useMemo(() => {
     if (detail.type === 'list') {
@@ -102,7 +105,7 @@ export function AuditItemDetail({
                   return (
                     <ul>
                       {value.map((v: any, i: number) => (
-                        <li key={i}>
+                        <li key={i} style={{ height: 18 }}>
                           {
                             // eslint-disable-next-line
                             <Link onClick={() => onClickTrace(v)}>Trace</Link>
@@ -114,13 +117,33 @@ export function AuditItemDetail({
                 }
                 // eslint-disable-next-line
                 return <Link onClick={() => onClickTrace(value)}>Trace</Link>
+              case 'sideEffects':
+                if (!onClickSideEffects) {
+                  return null
+                }
+                if (Array.isArray(value)) {
+                  return (
+                    <ul>
+                      {value.map((v: any, i: number) => (
+                        <li key={i} style={{ visibility: v ? 'unset' : 'hidden', height: 18 }}>
+                          {
+                            // eslint-disable-next-line
+                            <Link onClick={() => onClickSideEffects?.(v)}>Trace</Link>
+                          }
+                        </li>
+                      ))}
+                    </ul>
+                  )
+                }
+                // eslint-disable-next-line
+                return <Link onClick={() => onClickSideEffects?.(value)}>Trace</Link>
             }
           },
         }
       })
     }
     return []
-  }, [detail, onClickTrace])
+  }, [detail, onClickTrace, onClickSideEffects])
 
   if (!detail.items.length) {
     return null
@@ -138,6 +161,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
   const queries: { trace?: string; tab?: string } = parse(location.search)
   const { history } = useContext(RouterContext)
   const packageTraceContext = useContext(PackageTraceContext)
+  const moduleTraceContext = useContext(ModuleTraceContext)
 
   const onClickTrace = useCallback(
     (ref: number) => {
@@ -148,6 +172,13 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
       }
     },
     [history, queries, packageTraceContext],
+  )
+
+  const onClickSideEffects = useCallback(
+    (path: string) => {
+      moduleTraceContext.setModule?.(path, TraceType.SideEffects)
+    },
+    [moduleTraceContext],
   )
 
   const diffScore = useMemo(() => {
@@ -202,7 +233,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
     >
       {audit.detail && audit.detail.items.length > 0 && (
         <CollapsiblePanel header="Detail">
-          <AuditItemDetail detail={audit.detail} onClickTrace={onClickTrace} />
+          <AuditItemDetail detail={audit.detail} onClickTrace={onClickTrace} onClickSideEffects={onClickSideEffects} />
         </CollapsiblePanel>
       )}
     </AuditItemBase>

@@ -24,7 +24,9 @@ import { largeAssets } from './large-assets'
 import { largeLibs } from './large-libs'
 import { missingSourceMap } from './missing-sourcemap'
 import { mixedJs } from './mixed-js'
+import { avoidNonEsmContent } from './non-esm-content'
 import { nonMinifiedAssets } from './non-minified-assets'
+import { avoidSideEffects } from './non-side-effects'
 import { outRepoLibs } from './out-repo-libs'
 import { preconnect } from './pre-connect'
 import { unhealthyLibs } from './unhealthy-libs'
@@ -41,6 +43,8 @@ const allAudits = {
   'pre-connect-origin': preconnect,
   'unhealthy-libraries': unhealthyLibs,
   'missing-sourcemap': missingSourceMap,
+  'avoid-non-esm': avoidNonEsmContent,
+  'avoid-side-effects': avoidSideEffects,
 }
 
 export const webAudits: Audit[] = [
@@ -55,6 +59,8 @@ export const webAudits: Audit[] = [
   preconnect,
   unhealthyLibs,
   missingSourceMap,
+  avoidNonEsmContent,
+  avoidSideEffects,
 ]
 
 const ruleSet = {

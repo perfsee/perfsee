@@ -109,12 +109,13 @@ function App() {
   const theme = useTheme()
 
   const [packageTrace, setPackageTrace] = useState<number | null>(null)
-  const contextValue = useMemo(() => {
+  const packageContextValue = useMemo(() => {
     return {
       ref: packageTrace,
       setRef: (ref: number | null) => setPackageTrace(ref),
     }
   }, [packageTrace])
+
   const location = useLocation()
   const history = useHistory()
 
@@ -131,7 +132,7 @@ function App() {
   return (
     <MDXProvider components={MDXComponents}>
       <RouterContext.Provider value={{ location, history, Link }}>
-        <PackageTraceContext.Provider value={contextValue}>
+        <PackageTraceContext.Provider value={packageContextValue}>
           <Switch>
             <Route path="/" exact={true} component={BundleReportContainer} />
             <Route path="/content" exact={true} component={BundleContentContainer} />

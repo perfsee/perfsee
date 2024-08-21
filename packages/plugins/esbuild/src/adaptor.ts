@@ -41,10 +41,11 @@ import {
 } from './util'
 
 const resolveModulesVersion = ({ inputs }: Metafile, rootPath: string, buildPath: string) => {
-  const modulesMap = new Map<string, string>(
+  const modulesMap = new Map<string, [string, any]>(
     Object.keys(inputs)
-      .map((i) => resolveModuleVersion(resolve(buildPath, i), rootPath))
-      .filter(Boolean) as [string, string][],
+      .map((i) => resolveModuleVersion(resolve(buildPath, i), rootPath)!)
+      .filter(Boolean)
+      .map(([path, version, sideEffects]) => [path, [version, sideEffects]]),
   )
 
   return getAllPackagesVersions(getBuildEnv().pwd, modulesMap)

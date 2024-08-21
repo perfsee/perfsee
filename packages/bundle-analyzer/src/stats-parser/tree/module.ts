@@ -47,6 +47,14 @@ export class Module extends Node {
       value: this.size.raw,
       gzip: this.size.gzip,
       brotli: this.size.brotli,
+      unused: this.data.esm
+        ? this.data.treeShaking?.sideEffects?.length
+          ? this.data.treeShaking.unused?.length
+          : undefined
+        : undefined,
+      dynamic: this.data.dynamic || undefined,
+      esm: this.data.esm ? undefined : false,
+      sideEffects: this.data.treeShaking?.markedSideEffects ? true : undefined,
     }
   }
 }
