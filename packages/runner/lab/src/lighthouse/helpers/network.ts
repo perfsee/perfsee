@@ -219,11 +219,11 @@ function getDevtoolsLogMap(devtoolsLog: LH.DevtoolsLog) {
 }
 
 function getServerTimingFromResponseHeaders(headers: Record<string, string>): ServerTiming[] {
-  if (!headers['server-timing']) {
+  if (!headers['server-timing'] && !headers['Server-Timing']) {
     return []
   }
 
-  return headers['server-timing'].split(',').map((metric) => {
+  return (headers['server-timing'] || headers['Server-Timing']).split(',').map((metric) => {
     const parts = metric.trim().split(';')
     const name = parts[0]
     let dur
