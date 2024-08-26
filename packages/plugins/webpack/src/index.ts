@@ -24,9 +24,18 @@ import {
   WebpackOptionsNormalized as Configuration,
   Compilation,
   Module,
+  NormalModule,
 } from 'webpack'
 
-import { BundleToolkit, ID, PerfseeReportStats, Reason, StatsParser, hashCode } from '@perfsee/bundle-analyzer'
+import {
+  BundleToolkit,
+  ID,
+  PerfseeReportStats,
+  Reason,
+  StatsParser,
+  hashCode,
+  trimModuleName,
+} from '@perfsee/bundle-analyzer'
 import {
   CommonPluginOptions as Options,
   initOptions,
@@ -170,7 +179,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
     if (!source) {
       return
     }
-    const path = module.nameForCondition()
+    const path = module.nameForCondition() || trimModuleName((module as NormalModule).resource)
     if (!path) {
       return
     }

@@ -193,7 +193,7 @@ export function parseTreeshaking(
     markedSideEffects = meta?.path !== SOURCE_CODE_PATH
   } else if (Array.isArray(packageSideEffects) && meta && meta.path !== SOURCE_CODE_PATH) {
     markedSideEffects = packageSideEffects.some((pattern) => {
-      const relativePath = relative(meta.path, trimModuleName(module.name))
+      const relativePath = relative(meta.path, module.nameForCondition || trimModuleName(module.name))
       return minimatch(relativePath.startsWith('.') ? relativePath : `./${relativePath}`, pattern)
     })
   }

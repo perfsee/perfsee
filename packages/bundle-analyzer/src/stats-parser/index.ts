@@ -707,7 +707,7 @@ export class StatsParser {
 
   private getModuleId(module: BundleModule): number {
     if (this.stats.buildPath) {
-      let relativePath = relative(this.stats.buildPath, trimModuleName(module.name))
+      let relativePath = relative(this.stats.buildPath, module.nameForCondition || trimModuleName(module.name))
       if (!relativePath.startsWith('.')) {
         relativePath = `./${relativePath}`
       }
