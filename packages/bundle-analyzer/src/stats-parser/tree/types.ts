@@ -15,10 +15,14 @@ limitations under the License.
 */
 
 import { Size } from '../../types'
+import { TreeShaking } from '../types'
 
 export type ModuleData = {
   id: string | number
   realPath: string
   concatenating: ModuleData[]
   size: Size
+  treeShaking?: TreeShaking
+  dynamic?: boolean
+  esm?: boolean
 }

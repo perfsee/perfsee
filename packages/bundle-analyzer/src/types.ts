@@ -74,7 +74,7 @@ export interface DuplicatePackage {
   versions: string[]
 }
 
-type TableItemType = 'text' | 'size' | 'list' | 'link' | 'trace'
+type TableItemType = 'text' | 'size' | 'list' | 'link' | 'trace' | 'sideEffects'
 
 type TableDetail = {
   type: 'table'
@@ -170,4 +170,8 @@ export interface ModuleTreeNode {
   modules?: string[]
   concatenated?: boolean
   entryPoints?: string[]
+  dynamic?: boolean
+  unused?: number
+  esm?: boolean
+  sideEffects?: boolean | 'implicitly'
 }

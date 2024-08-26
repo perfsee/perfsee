@@ -56,7 +56,21 @@ test.serial('analysis - perfsee archive', async (t) => {
 
   const task = parser.parse()
   await t.notThrowsAsync(task)
-  const { report, moduleTree } = await task
-  t.snapshot(report, 'perfsee report')
-  t.snapshot(moduleTree, 'perfsee module tree')
+  const { report, moduleTree, moduleMap, moduleReasons } = await task
+
+  const ignoreGzipReport = JSON.parse(
+    JSON.stringify(report, (key, val) => {
+      return key === 'gzip' ? 0 : val
+    }),
+  )
+
+  const ignoreGzipTree = JSON.parse(
+    JSON.stringify(moduleTree, (key, val) => {
+      return key === 'gzip' ? 0 : val
+    }),
+  )
+  t.snapshot(ignoreGzipReport, 'perfsee report')
+  t.snapshot(ignoreGzipTree, 'perfsee module tree')
+  t.snapshot(moduleMap, 'perfsee module map')
+  t.snapshot(moduleReasons, 'perfsee module reasons')
 })

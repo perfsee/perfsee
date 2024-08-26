@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { PartitionOutlined } from '@ant-design/icons'
 import { Shimmer, Stack } from '@fluentui/react'
 import { groupBy, range } from 'lodash'
 import { FC, useEffect, useMemo, useState } from 'react'
@@ -26,12 +27,18 @@ import { Empty, FileColorsMaps } from '@perfsee/components'
 import { ModuleReasons, hashCode, ModuleReasonTypes } from '@perfsee/shared'
 
 import { detectFileType } from '../../bundle-content/treeview'
-import { CodeContainer, ModulePath, MoreResults } from '../style'
+import { CodeContainer, ModulePath, MoreResults, TraceIconWrap } from '../style'
 
+export enum TraceType {
+  Reasons,
+  SideEffects,
+}
 export interface Props {
   modulePath: string
+  type: TraceType
   getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
   searchText?: string
+  onClickPath?: (path: string) => void
 }
 
 export const LoadingShimmer = () => {
@@ -53,10 +60,11 @@ export type Reason = [type: number, loc: string, moduleId: string | number]
 export interface CodeProps {
   reasons?: Reason[]
   searchText?: string
+  onClickPath?: (path: string) => void
   moduleReasons: ModuleReasons | null
 }
 
-export const Code: FC<CodeProps> = ({ reasons, searchText, moduleReasons }) => {
+export const Code: FC<CodeProps> = ({ reasons, searchText, moduleReasons, onClickPath }) => {
   const [highlighter, setHilighter] =
     useState<ReturnType<typeof getHighlighterCore> extends Promise<infer H> ? H : never>()
 
@@ -124,26 +132,23 @@ export const Code: FC<CodeProps> = ({ reasons, searchText, moduleReasons }) => {
             decorations,
           }) || ''
       } catch {
-        return (
-          <Stack key={module[0]}>
-            <ModulePath>
-              <Icon.icon />
-              {path}
-            </ModulePath>
-            <Empty
-              title={`Source code invalid. Source locations: ${locations.map(
-                ([line, colStart, colEnd]) => `${line}:${colStart}-${colEnd}`,
-              )}`}
-              withIcon
-            />
-          </Stack>
-        )
+        html =
+          highlighter.codeToHtml(filteredCode, {
+            lang: 'js',
+            theme: 'github-light',
+          }) || ''
       }
       return (
         <Stack key={module[0]}>
           <ModulePath>
             <Icon.icon />
-            {path}
+            {path}:{locations.map(([line, colStart, colEnd]) => `${line + 1}:${colStart}-${colEnd}`).join(', ')}
+            {onClickPath ? (
+              // eslint-disable-next-line
+              <TraceIconWrap className="button" onClick={() => onClickPath(path)}>
+                <PartitionOutlined />
+              </TraceIconWrap>
+            ) : null}
           </ModulePath>
           <CodeContainer
             dangerouslySetInnerHTML={{
@@ -153,7 +158,7 @@ export const Code: FC<CodeProps> = ({ reasons, searchText, moduleReasons }) => {
         </Stack>
       )
     })
-  }, [highlighter, reasons, searchText, moduleReasons])
+  }, [highlighter, reasons, searchText, moduleReasons, onClickPath])
 
   if (!highlighter) {
     return <LoadingShimmer />
@@ -184,7 +189,7 @@ export const Code: FC<CodeProps> = ({ reasons, searchText, moduleReasons }) => {
   )
 }
 
-export const ModuleCode: FC<Props> = ({ modulePath, getModuleReasons, searchText }) => {
+export const ModuleCode: FC<Props> = ({ modulePath, getModuleReasons, searchText, type, onClickPath }) => {
   const moduleId = hashCode(modulePath)
   const [loading, setLoading] = useState(true)
   const [moduleReasons, setModuleReasons] = useState<ModuleReasons | null>(null)
@@ -204,10 +209,12 @@ export const ModuleCode: FC<Props> = ({ modulePath, getModuleReasons, searchText
   }, [moduleId, getModuleReasons])
 
   const code = useMemo(() => {
-    const reasons = moduleReasons?.moduleReasons?.[moduleId]
+    const reasons = (type === TraceType.SideEffects ? moduleReasons?.sideEffects : moduleReasons?.moduleReasons)?.[
+      moduleId
+    ]
 
-    return <Code reasons={reasons} moduleReasons={moduleReasons} searchText={searchText} />
-  }, [moduleReasons, moduleId, searchText])
+    return <Code reasons={reasons} moduleReasons={moduleReasons} searchText={searchText} onClickPath={onClickPath} />
+  }, [moduleReasons, moduleId, searchText, onClickPath, type])
 
   if (loading) {
     return <LoadingShimmer />

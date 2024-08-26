@@ -15,12 +15,17 @@ limitations under the License.
 */
 
 import { readFileSync } from 'fs'
+import { relative } from 'path'
 import { Readable } from 'stream'
 import { createBrotliCompress, createGzip, constants as zlibConstants } from 'zlib'
 
 import { Parser } from 'htmlparser2'
+import { difference } from 'lodash'
+import { minimatch } from 'minimatch'
 
-import { Logger } from './stats-parser/types'
+import { trimModuleName } from './module'
+import { BundleModule, dynamicModuleReasonTypes, SOURCE_CODE_PATH } from './stats'
+import { Logger, PackageMeta, TreeShaking } from './stats-parser/types'
 import { Size, AssetTypeEnum } from './types'
 
 export function readJSONFile<T = any>(path: string): T {
@@ -174,4 +179,47 @@ export function hashCode(str: string) {
     hash |= 0 // Convert to 32bit integer
   }
   return hash
+}
+
+export function parseTreeshaking(
+  module: BundleModule,
+  meta: PackageMeta | null,
+  packageSideEffects?: boolean | string[] | 'implicitly',
+): TreeShaking {
+  const { usedExports, providedExports } = module
+  let markedSideEffects = false
+
+  if (packageSideEffects === true || packageSideEffects === 'implicitly') {
+    markedSideEffects = meta?.path !== SOURCE_CODE_PATH
+  } else if (Array.isArray(packageSideEffects) && meta && meta.path !== SOURCE_CODE_PATH) {
+    markedSideEffects = packageSideEffects.some((pattern) => {
+      const relativePath = relative(meta.path, trimModuleName(module.name))
+      return minimatch(relativePath.startsWith('.') ? relativePath : `./${relativePath}`, pattern)
+    })
+  }
+
+  if (
+    ((Array.isArray(usedExports) || usedExports === false) &&
+      Array.isArray(providedExports) &&
+      providedExports.length > (usedExports as string[])?.length) ||
+    0
+  ) {
+    return {
+      unused: difference(providedExports, (usedExports as string[] | false) || []),
+      sideEffects: module.optimizationBailout?.filter((o) => o.includes('with side effects in source code at ')),
+      markedSideEffects,
+    }
+  }
+
+  return {
+    markedSideEffects,
+  }
+}
+
+export function isDynamicModule(module: BundleModule): boolean {
+  return module.reasons.every((reason) => dynamicModuleReasonTypes.includes(reason.type))
+}
+
+export function isEsmModule(module: BundleModule): boolean {
+  return !(module.providedExports === null && module.usedExports === null)
 }

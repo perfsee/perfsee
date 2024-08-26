@@ -92,7 +92,26 @@ export const ModuleReasonTypes = [
   'single entry',
   'wasm export import',
   'wasm import',
+  'new URL()',
+  'cjs export require',
+  'cjs self exports reference',
+  'module decorator',
 ] as const
+
+export const dynamicModuleReasonTypes = [
+  'import() context development',
+  'import() context production',
+  'import() eager',
+  'import() weak',
+  'import()',
+  'prefetch',
+  'require.ensure',
+  'require.ensure item',
+  'amd require array',
+  'amd require context',
+  'amd require',
+  'module.hot.accept',
+]
 
 export type ModuleReasonType = typeof ModuleReasonTypes[number]
 
@@ -125,10 +144,11 @@ export interface BundleModule {
   modules: BundleModule[]
   name: string
   nameForCondition?: string
-  providedExports?: any
+  providedExports?: string[]
   reasons: ModuleReason[]
-  usedExports?: boolean
+  usedExports?: boolean | string[]
   source?: string
+  optimizationBailout?: string[]
 }
 
 export interface BundleChunk {
@@ -216,10 +236,11 @@ export interface ModuleReasons {
   moduleReasons?: Record<number, Reason[]>
   moduleSource?: ModuleSource
   packageReasons?: Record<number, Reason[][]>
+  sideEffects?: Record<number, Reason[]>
 }
 
 export interface PerfseeReportStats extends WebpackStats {
-  packageVersions?: { name: string; version: string }[]
+  packageVersions?: { name: string; version: string; sideEffects?: boolean | string[] | 'implicitly' }[]
   repoPath?: string
   buildPath?: string
   buildTool?: BundleToolkit

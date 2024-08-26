@@ -16,9 +16,20 @@ limitations under the License.
 
 import { createContext } from 'react'
 
+import { TraceType } from './resource-tabs/code'
+
 export const PackageTraceContext = createContext<{
   ref: number | null
   setRef?: (ref: number | null) => void
 }>({
   ref: null,
+})
+
+export const ModuleTraceContext = createContext<{
+  module: string | null
+  setModule?: (module: string | null, traceType?: TraceType) => void
+  traceType: TraceType
+}>({
+  module: null,
+  traceType: TraceType.SideEffects,
 })

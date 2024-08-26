@@ -75,10 +75,19 @@ export type Package = Omit<AcquiredPackage, 'assetRefs' | 'issuerRefs'> & {
   ignored: boolean
 }
 
+export type TreeShaking = {
+  unused?: string[]
+  sideEffects?: string[]
+  markedSideEffects?: boolean | 'implicitly'
+}
+
 export type Module = Package & {
   id: ID
   concatenating: Module[]
   realPath: string
+  treeShaking?: TreeShaking
+  dynamic?: boolean
+  esm?: boolean
 }
 
 export type AuditParam = {

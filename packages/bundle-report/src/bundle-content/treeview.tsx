@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ApartmentOutlined, FolderOpenFilled } from '@ant-design/icons'
+import { FolderOpenFilled, PartitionOutlined } from '@ant-design/icons'
 import {
   GroupedList,
   IGroup,
@@ -30,12 +30,13 @@ import {
 import { FC, MouseEvent, useCallback, useMemo } from 'react'
 
 import { ModuleTreeNode } from '@perfsee/bundle-analyzer'
-import { Empty, FileColorsMaps, TooltipWithEllipsis } from '@perfsee/components'
+import { Empty, FileColorsMaps, ForeignLink, TooltipWithEllipsis } from '@perfsee/components'
 import { SharedColors } from '@perfsee/dls'
 
 import { ColoredSize } from '../bundle-detail/components'
+import { TraceIconWrap } from '../bundle-detail/style'
 
-import { TreeviewColumnCell } from './styled'
+import { TreeviewColumnCell, ModuleLabel } from './styled'
 
 enum AssetTypeEnum {
   Js = 'js',
@@ -69,6 +70,7 @@ export interface TreeViewProps {
   content: ModuleTreeNode[]
   searchText?: string
   onClickItem?: (item: ModuleItem) => void
+  onClickSideEffects?: (item: ModuleItem) => void
 }
 
 export type ModuleItem = Omit<ModuleTreeNode, 'children'> & {
@@ -127,13 +129,19 @@ function flattenTree(
       if (node.modules?.length ?? 0 > 1) {
         const modules = node.modules!.filter((module) => (search ? module.includes(search) : true))
         modules.forEach((module, i) => {
+          const name = module.split(currentFolder).slice(-1)[0] || module
           items.push({
             key: module,
             level,
-            ...node,
-            name: module.split(currentFolder).slice(-1)[0] || module,
+            name,
             concatenated: true,
             lastChild: i === modules.length - 1,
+            value: 0,
+            gzip: 0,
+            brotli: 0,
+            dynamic: node.dynamic && node.name.includes(name),
+            sideEffects: node.sideEffects,
+            esm: node.esm,
           })
         })
         if (modules.length > 0) {
@@ -143,12 +151,7 @@ function flattenTree(
             startIndex: currentIndex,
             count: modules.length,
             level,
-            data: {
-              concatenated: true,
-              value: node.value,
-              gzip: node.gzip,
-              brotli: node.brotli,
-            },
+            data: node,
           })
         }
         currentIndex += modules.length
@@ -177,62 +180,7 @@ function flattenTree(
   return { items, groups, nextIndex: currentIndex }
 }
 
-const columns: IColumn[] = [
-  {
-    name: 'name',
-    key: 'key',
-    minWidth: 100,
-    onRender(item: ModuleItem, _index, _column) {
-      const Icon = FileColorsMaps[detectFileType(item.name)]
-      const size = {
-        raw: item.value,
-        gzip: item.gzip,
-        brotli: item.brotli,
-      }
-      return (
-        <TreeviewColumnCell
-          horizontal
-          verticalAlign="center"
-          tokens={{ childrenGap: 10 }}
-          concatenated={item.concatenated}
-          lastChild={item.lastChild}
-        >
-          <Icon.icon fontSize={14} style={{ flexShrink: 0 }} />
-          <span style={{ direction: item.concatenated ? 'rtl' : 'ltr', overflow: 'hidden' }}>
-            <TooltipHost
-              content={item.name}
-              overflowMode={TooltipOverflowMode.Parent}
-              calloutProps={{ styles: { calloutMain: { wordBreak: 'break-word' } } }}
-            >
-              <span style={{ direction: 'ltr', unicodeBidi: 'bidi-override' }}>{item.name}</span>
-            </TooltipHost>
-          </span>
-          {item.concatenated ? (
-            <span
-              style={{
-                fontSize: 10,
-                marginLeft: 8,
-                padding: '0 4px',
-                color: 'white',
-                backgroundColor: SharedColors.blue10,
-                borderRadius: 4,
-              }}
-            >
-              concatenated
-            </span>
-          ) : (
-            <span style={{ fontSize: 12 }}>
-              <ColoredSize size={size} />
-            </span>
-          )}
-          <ApartmentOutlined role="icon" />
-        </TreeviewColumnCell>
-      )
-    },
-  },
-]
-
-export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText }) => {
+export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText, onClickSideEffects }) => {
   const { items, groups } = useMemo(() => flattenTree(content, -1, searchText), [content, searchText])
 
   const onRowClick = useCallback(
@@ -245,6 +193,92 @@ export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText }
       }
     },
     [onClickItem, items],
+  )
+
+  const columns: IColumn[] = useMemo(
+    () => [
+      {
+        name: 'name',
+        key: 'key',
+        minWidth: 100,
+        onRender(item: ModuleItem, _index, _column) {
+          const Icon = FileColorsMaps[detectFileType(item.name)]
+          const size = {
+            raw: item.value,
+            gzip: item.gzip,
+            brotli: item.brotli,
+          }
+
+          const onClickUnused = (e: MouseEvent<HTMLElement>) => {
+            e.stopPropagation()
+            onClickSideEffects?.(item)
+          }
+
+          return (
+            <TreeviewColumnCell
+              horizontal
+              verticalAlign="center"
+              tokens={{ childrenGap: 10 }}
+              concatenated={item.concatenated}
+              lastChild={item.lastChild}
+            >
+              <Icon.icon fontSize={14} style={{ flexShrink: 0 }} />
+              <span style={{ direction: item.concatenated ? 'rtl' : 'ltr', overflow: 'hidden' }}>
+                <TooltipHost
+                  content={item.name}
+                  overflowMode={TooltipOverflowMode.Parent}
+                  calloutProps={{ styles: { calloutMain: { wordBreak: 'break-word' } } }}
+                >
+                  <span style={{ direction: 'ltr', unicodeBidi: 'bidi-override' }}>{item.name}</span>
+                </TooltipHost>
+              </span>
+              {item.concatenated ? (
+                <ModuleLabel color={SharedColors.blue10}>concatenated</ModuleLabel>
+              ) : (
+                <span style={{ fontSize: 12 }}>
+                  <ColoredSize size={size} />
+                </span>
+              )}
+              {item.dynamic ? <ModuleLabel color={SharedColors.cyan10}>dynamic</ModuleLabel> : null}
+              {item.sideEffects ? (
+                <TooltipHost
+                  content={
+                    <>
+                      Explicitly or implicitly marked as having side effects in package.json, which may prevent dead
+                      code removal from tree-shaking.{' '}
+                      <ForeignLink href="https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free">
+                        Learn more
+                      </ForeignLink>
+                    </>
+                  }
+                >
+                  <ModuleLabel color={SharedColors.orange20}>side effects</ModuleLabel>
+                </TooltipHost>
+              ) : null}
+              {item.unused ? (
+                <TooltipHost content="Tree-shaking bailout: having side effects in source code. Click to see side effects.">
+                  {/* eslint-disable-next-line */}
+                  <ModuleLabel warning onClick={onClickUnused}>
+                    {item.unused} unused
+                  </ModuleLabel>
+                </TooltipHost>
+              ) : null}
+              {item.esm === false ? (
+                <TooltipHost content="Not an ECMAScript module, which may prevent dead code removal from tree-shaking.">
+                  <ModuleLabel color={SharedColors.orange10}>non-esm</ModuleLabel>
+                </TooltipHost>
+              ) : null}
+              <TooltipHost content="Click to see module import reasons">
+                <TraceIconWrap>
+                  <PartitionOutlined role="icon" />
+                </TraceIconWrap>
+              </TooltipHost>
+            </TreeviewColumnCell>
+          )
+        },
+      },
+    ],
+    [onClickSideEffects],
   )
 
   const onRenderCell = useCallback(
@@ -280,7 +314,7 @@ export const TreeView: FC<TreeViewProps> = ({ content, onClickItem, searchText }
         </div>
       ) : null
     },
-    [onRowClick],
+    [onRowClick, columns],
   )
 
   const onRenderGroupHeaderCheckbox = useCallback(() => {

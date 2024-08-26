@@ -47,7 +47,7 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
     toolkit: 'rollup',
   })
 
-  const modulesMap = new Map<string, string>()
+  const modulesMap = new Map<string, [version: string, sideEffects?: boolean | string[]]>()
   const buildPath = process.cwd()
   const repoPath = getBuildEnv().pwd
   let publicPath = '/'
@@ -69,8 +69,8 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
 
       const module = resolveModuleVersion(resolve(buildPath, id), repoPath)
       if (module) {
-        const [name, version] = module
-        modulesMap.set(name, version)
+        const [name, version, sideEffects] = module
+        modulesMap.set(name, [version, sideEffects])
       }
     },
     async writeBundle(outputOptions, outputBundle) {
