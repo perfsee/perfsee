@@ -82,6 +82,7 @@ export const esbuildResult2Stats = (
         const importModule = moduleMap.get(path)
         if (importModule) {
           importModule.issuerName = name
+          importModule.reasons ||= []
           importModule.reasons.push({
             module: module.name,
             moduleName: module.name,

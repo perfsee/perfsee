@@ -217,7 +217,7 @@ export function parseTreeshaking(
 }
 
 export function isDynamicModule(module: BundleModule): boolean {
-  return module.reasons.every((reason) => dynamicModuleReasonTypes.includes(reason.type))
+  return module.reasons?.every((reason) => dynamicModuleReasonTypes.includes(reason.type)) || false
 }
 
 export function isEsmModule(module: BundleModule): boolean {
