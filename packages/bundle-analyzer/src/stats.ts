@@ -145,7 +145,7 @@ export interface BundleModule {
   name: string
   nameForCondition?: string
   providedExports?: string[]
-  reasons: ModuleReason[]
+  reasons?: ModuleReason[]
   usedExports?: boolean | string[]
   source?: string
   optimizationBailout?: string[]
