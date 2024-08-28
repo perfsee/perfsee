@@ -21,11 +21,14 @@ import { ParentMessage, RunnerConfig, WorkerMessage, logger } from '@perfsee/job
 import { JobInfo, UpdateJobTraceParams } from '@perfsee/server-common'
 import { JobLog, JobLogLevel } from '@perfsee/shared'
 
+const MAX_PUSH_RETRY_TIMES = 3
+
 export class JobWorkerExecutor extends EventEmitter {
   private workerProcess: ChildProcess | null = null
   private readonly logs: JobLog[] = []
   private startedAt = -1
 
+  private updateFailedTimes = 0
   private lastPushedLogIndex = 0
   private updateLocked = false
   private readonly updatesQueue: Partial<UpdateJobTraceParams>[] = []
@@ -188,17 +191,20 @@ export class JobWorkerExecutor extends EventEmitter {
               if (error) {
                 logger.error('failed to push update', error)
                 this.logs.push([JobLogLevel.error, Date.now(), 'Failed to push update to server', error])
-                this.updatesQueue.unshift(update)
+                if (++this.updateFailedTimes < MAX_PUSH_RETRY_TIMES) {
+                  this.updatesQueue.unshift(update)
+                }
               } else {
                 logger.verbose('update pushed')
-                this.updateLocked = false
                 this.lastPushedLogIndex = pendingLogs.length + this.lastPushedLogIndex
+                this.updateFailedTimes = 0
 
                 if (update.done) {
                   logger.verbose('done update pushed')
                   clearInterval(this.updatePushInterval)
                 }
               }
+              this.updateLocked = false
             },
           )
         }
