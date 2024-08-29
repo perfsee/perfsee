@@ -23,7 +23,7 @@
     "acorn-walk": "^8.2.0",
     "htmlparser2": "^8.0.1",
     "lodash": "^4.17.21",
-    "minimatch": "^10.0.1",
+    "minimatch": "^7.4.6",
     "query-string": "^7.1.1",
     "tar": "^6.1.11",
     "tslib": "^2.4.0"
