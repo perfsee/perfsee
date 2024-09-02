@@ -81,12 +81,18 @@ const ChildrenLogs = styled('div')({
 })
 
 const LogPayload = styled(({ payload, className, id }: { payload: any; id: number; className?: string }) => {
+  const payloadDetail =
+    payload?.encoding === 'base64' && payload?.type && payload?.data ? (
+      <img src={`data:image/${payload.type};base64,${payload.data}`} />
+    ) : (
+      <pre>{JSON.stringify(payload, null, 2)}</pre>
+    )
   return (
     <div className={className}>
       <input id={`payload-${id}`} type="checkbox" style={{ display: 'none' }} />
       <div>
         <label htmlFor={`payload-${id}`}>payload</label>
-        <pre>{JSON.stringify(payload, null, 2)}</pre>
+        {payloadDetail}
       </div>
     </div>
   )
@@ -107,6 +113,12 @@ const LogPayload = styled(({ payload, className, id }: { payload: any; id: numbe
       margin: 0,
       paddingLeft: 10,
     },
+
+    '+ img': {
+      maxWidth: 'calc(100% - 26px)',
+      height: 'auto',
+      display: 'none',
+    },
   },
 
   '& input:checked + div': {
@@ -115,6 +127,9 @@ const LogPayload = styled(({ payload, className, id }: { payload: any; id: numbe
         content: '""',
       },
       '+ pre': {
+        display: 'block',
+      },
+      '+ img': {
         display: 'block',
       },
     },

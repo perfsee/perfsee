@@ -86,6 +86,7 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
     } catch (err) {
       failedReason = 'JavaScript Error: ' + (err instanceof Error ? err.message : err)
       this.logger.error('User flow script ' + failedReason)
+      await this.recordScreenshot(wrappedPage)
     }
 
     try {
