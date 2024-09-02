@@ -18,7 +18,7 @@ import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
 
 import { groupBy, mapValues, pick } from 'lodash'
-import { Target } from 'puppeteer-core'
+import { Target, Page } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker, clearProxyCache, dynamicImport, startProxyServer } from '@perfsee/job-runner-shared'
@@ -452,6 +452,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         }
       } catch (err) {
         const failedReason = 'Error from login script: ' + (err instanceof Error ? err.message : err)
+        await this.recordScreenshot(wrappedPage)
         throw new Error(failedReason)
       } finally {
         await browser.close()
@@ -687,6 +688,27 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return {
       result,
       errorMessage,
+    }
+  }
+
+  protected async recordScreenshot(page: Page) {
+    const device = DEVICE_DESCRIPTORS[this.payload.deviceId] ?? DEVICE_DESCRIPTORS['no']
+    try {
+      const screenshot = await page.screenshot({
+        encoding: 'base64',
+        type: 'webp',
+        quality: 10,
+        clip: {
+          height: device.viewport.height,
+          width: device.viewport.width,
+          x: 0,
+          y: 0,
+          scale: 0.5,
+        },
+      })
+      this.logger.info('Screencast: ', { encoding: 'base64', type: 'webp', data: screenshot })
+    } catch (e) {
+      this.logger.error('Failed to take screenshot', { error: e })
     }
   }
 
