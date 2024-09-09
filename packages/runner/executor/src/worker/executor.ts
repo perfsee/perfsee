@@ -190,7 +190,7 @@ export class JobWorkerExecutor extends EventEmitter {
             (error) => {
               if (error) {
                 logger.error('failed to push update', error)
-                this.logs.push([JobLogLevel.error, Date.now(), 'Failed to push update to server', error])
+                this.logs.push([JobLogLevel.error, Date.now(), 'Failed to push update to server', String(error)])
                 if (++this.updateFailedTimes < MAX_PUSH_RETRY_TIMES) {
                   this.updatesQueue.unshift(update)
                 }
