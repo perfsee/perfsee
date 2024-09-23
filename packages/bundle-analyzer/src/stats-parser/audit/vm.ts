@@ -32,7 +32,7 @@ export const runInVm = async (
   logger: Logger,
 ) => {
   const ivm = (await dynamicImport('isolated-vm')).default as typeof import('isolated-vm')
-  const isolate = new ivm.Isolate({ memoryLimit: 512 })
+  const isolate = new ivm.Isolate({ memoryLimit: 1024 })
   const context = await isolate.createContext()
   const jail = context.global
   await jail.set('global', jail.derefInto())
@@ -149,13 +149,17 @@ export const runInVm = async (
   await bootstrap.run(context)
 
   const hostile = await isolate.compileScript(script)
-  const runResult = await hostile.run(context, { timeout: 10 * 1000, promise: true, release: true, reference: true })
+  const runResult = await hostile.run(context, { timeout: 30 * 1000, promise: true, reference: true })
 
   let result
   if (runResult) {
     result = await runResult.copy()
+    runResult.release()
   }
 
+  hostile.release()
+  bootstrap.release()
   context.release()
+  isolate.dispose()
   return result
 }

@@ -41,6 +41,7 @@ export const audit: (
       ruleResult = [ruleResult]
     }
 
+    ruleResult = ruleResult.filter(Boolean)
     ruleResult.forEach((rule) => {
       logger.verbose(`[weight=${rule.weight},score=${rule.numericScore?.value ?? 1}] Audit: ${rule.title}`)
     })
