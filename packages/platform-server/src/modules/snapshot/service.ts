@@ -748,7 +748,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       .innerJoin(Job, 'job', 'job.entity_id = report.id and job.job_type in (:...jobTypes)', {
         jobTypes: [JobType.LabAnalyze, JobType.E2EAnalyze],
       })
-      .select(['report.id as id', 'report.status as status'])
+      .select(['report.id as id', 'report.status as status', 'report.lighthouseStorageKey as lhKey'])
       .where('report.status in (:...status)', {
         status: [
           SnapshotStatus.Pending,
@@ -761,7 +761,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       .andWhere('job.started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
       .andWhere('job.created_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
       .take(30)
-      .getRawMany<{ id: number; status: SnapshotStatus }>()
+      .getRawMany<{ id: number; status: SnapshotStatus; lhKey?: string }>()
 
     this.logger.log(`Started to timeout reports. Length: ${reports.length}`, { ids: reports.map((r) => r.id) })
 
@@ -776,8 +776,10 @@ export class SnapshotService implements OnApplicationBootstrap {
           snapshotReport: {
             id: report.id,
             status:
-              report.status === SnapshotStatus.PartialCompleted ? SnapshotStatus.Completed : SnapshotStatus.Failed,
-            failedReason: report.status === SnapshotStatus.PartialCompleted ? undefined : 'Timeout',
+              report.status === SnapshotStatus.PartialCompleted || report.lhKey
+                ? SnapshotStatus.Completed
+                : SnapshotStatus.Failed,
+            failedReason: report.status === SnapshotStatus.PartialCompleted || report.lhKey ? undefined : 'Timeout',
           },
         })
       } catch (e) {
