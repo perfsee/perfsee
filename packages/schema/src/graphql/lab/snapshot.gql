@@ -9,6 +9,13 @@ query snapshot($projectId: ID!, $snapshotId: Int!) {
       failedReason
       title
       hash
+      reportsStatusCount {
+        Pending
+        Running
+        Completed
+        PartialCompleted
+        Failed
+      }
     }
   }
 }

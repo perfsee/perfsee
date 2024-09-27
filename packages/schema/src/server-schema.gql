@@ -410,6 +410,14 @@ input SnapshotReportFilter {
   hash: String
 }
 
+type ReportsStatusCount {
+  Completed: Int!
+  Failed: Int!
+  Running: Int!
+  Pending: Int!
+  PartialCompleted: Int!
+}
+
 """a group of page performance reports"""
 type Snapshot {
   id: Int!
@@ -437,6 +445,9 @@ type Snapshot {
 
   """by which the snapshot triggered"""
   trigger: SnapshotTrigger!
+
+  """the status of reports"""
+  reportsStatusCount: ReportsStatusCount!
 
   """get reports with given snapshot id"""
   snapshotReports: [SnapshotReport!]!

@@ -20,5 +20,12 @@ mutation takeTempSnapshot(
     failedReason
     title
     hash
+    reportsStatusCount {
+      Pending
+      Running
+      Completed
+      PartialCompleted
+      Failed
+    }
   }
 }

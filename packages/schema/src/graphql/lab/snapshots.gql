@@ -12,6 +12,13 @@ query snapshots($projectId: ID!, $pagination: PaginationInput, $trigger: Snapsho
           failedReason
           title
           hash
+          reportsStatusCount {
+            Pending
+            Running
+            Completed
+            PartialCompleted
+            Failed
+          }
         }
       }
       pageInfo {
