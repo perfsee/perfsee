@@ -36,23 +36,25 @@ export const ListTimeLabel = styled.p(({ theme }) => ({
   color: theme.text.colorSecondary,
 }))
 
-export const StatusText = styled(ForeignLink)<{ status: SnapshotStatus }>(({ status, theme }) => {
-  const color = getStatusColor(status, theme)
+export const StatusText = styled(ForeignLink)<{ status: SnapshotStatus; size?: 'normal' | 'small' }>(
+  ({ status, theme, size = 'normal' }) => {
+    const color = getStatusColor(status, theme)
 
-  return {
-    ':-webkit-any-link': {
+    return {
+      ':-webkit-any-link': {
+        color,
+      },
       color,
-    },
-    color,
-    fontSize: '14px',
-    fontWeight: 'bold',
-    textTransform: 'capitalize',
-    ':hover': {
-      textDecoration: 'none',
-      color,
-    },
-  }
-})
+      fontSize: size === 'normal' ? '14px' : '12px',
+      fontWeight: size === 'normal' ? 'bold' : 'normal',
+      textTransform: 'capitalize',
+      ':hover': {
+        textDecoration: 'none',
+        color,
+      },
+    }
+  },
+)
 
 export const ListCell = styled.div(({ theme }) => ({
   display: 'flex',

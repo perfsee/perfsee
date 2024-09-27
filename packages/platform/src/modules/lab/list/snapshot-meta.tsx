@@ -18,8 +18,11 @@ import { Stack } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { FC } from 'react'
 
+import { SnapshotStatus } from '@perfsee/schema'
+
 import { Commit } from '../../components/commit'
 import { ProjectModule } from '../../shared'
+import { StatusText } from '../style'
 
 import { SnapshotSchema } from './module'
 import { InfoTitle, InfoText } from './style'
@@ -47,6 +50,23 @@ export const SnapshotMeta: FC<Props> = ({ snapshot }) => {
       <div>
         <InfoTitle>Created by: </InfoTitle>
         <InfoText>{snapshot.trigger}</InfoText>
+      </div>
+      <div>
+        <InfoTitle>Reports: </InfoTitle>
+        <InfoText>
+          {Object.entries(snapshot.reportsStatusCount).map(([status, count]) => {
+            if (typeof count === 'number' && count > 0) {
+              return (
+                <span key={status}>
+                  <StatusText status={status as SnapshotStatus} size="small">
+                    {count} {status}{' '}
+                  </StatusText>
+                </span>
+              )
+            }
+            return null
+          })}
+        </InfoText>
       </div>
     </Stack>
   )

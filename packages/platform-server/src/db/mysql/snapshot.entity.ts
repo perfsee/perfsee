@@ -41,6 +41,24 @@ registerEnumType(SnapshotTrigger, {
   name: 'SnapshotTrigger',
 })
 
+@ObjectType()
+export class ReportsStatusCount {
+  @Field()
+  Completed!: number
+
+  @Field()
+  Failed!: number
+
+  @Field()
+  Running!: number
+
+  @Field()
+  Pending!: number
+
+  @Field()
+  PartialCompleted!: number
+}
+
 @ObjectType({ description: 'a group of page performance reports' })
 @Entity()
 export class Snapshot extends BaseEntity {

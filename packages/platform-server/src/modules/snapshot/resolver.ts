@@ -26,7 +26,7 @@ import {
   GraphQLISODateTime,
 } from '@nestjs/graphql'
 
-import { Snapshot, Project, User, SnapshotTrigger } from '@perfsee/platform-server/db'
+import { Snapshot, Project, User, SnapshotTrigger, ReportsStatusCount } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
 import { SnapshotStatus } from '@perfsee/server-common'
@@ -110,6 +110,11 @@ export class SnapshotResolver {
     private readonly sourceService: SourceService,
     private readonly projectService: ProjectService,
   ) {}
+
+  @ResolveField(() => ReportsStatusCount, { description: 'the status of reports' })
+  reportsStatusCount(@Parent() snapshot: Snapshot) {
+    return this.service.getReportsStatusCount(snapshot.id)
+  }
 
   @PermissionGuard(Permission.Admin, 'projectId')
   @Mutation(() => Boolean, { description: 'delete snapshot' })

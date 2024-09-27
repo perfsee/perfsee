@@ -41,6 +41,7 @@ import {
   PageWithEnv,
   Job,
   JobStatus,
+  ReportsStatusCount,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
@@ -155,6 +156,33 @@ export class SnapshotService implements OnApplicationBootstrap {
     }
 
     return qb.getOne()
+  }
+
+  async getReportsStatusCount(snapshotId: number) {
+    const reports = await this.reportService.getReportsBySnapshotId(snapshotId)
+    const statusCount: ReportsStatusCount = { Completed: 0, Failed: 0, Running: 0, Pending: 0, PartialCompleted: 0 }
+    reports.forEach(({ status }) => {
+      switch (status) {
+        case SnapshotStatus.Completed:
+          statusCount.Completed++
+          break
+        case SnapshotStatus.Failed:
+          statusCount.Failed++
+          break
+        case SnapshotStatus.Running:
+          statusCount.Running++
+          break
+        case SnapshotStatus.Pending:
+          statusCount.Pending++
+          break
+        case SnapshotStatus.PartialCompleted:
+          statusCount.PartialCompleted++
+          break
+        default:
+          break
+      }
+    })
+    return statusCount
   }
 
   async getSnapshotByCommit(projectId: number, hash: string) {
@@ -612,6 +640,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       .leftJoinAndSelect('report.profile', 'profile', 'profile.id = report.profile_id')
       .where('report.snapshot_id = :snapshotId', { snapshotId })
       .getMany()
+
     const project = await Project.findOneByOrFail({ id: snapshot.projectId })
     this.event.emit(`${AnalyzeUpdateType.SnapshotUpdate}.${SnapshotStatus.Completed}`, {
       project,
