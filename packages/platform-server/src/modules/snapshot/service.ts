@@ -23,7 +23,7 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common'
 import { times, omit } from 'lodash'
-import { In, Not, IsNull } from 'typeorm'
+import { In, Not, IsNull, Brackets } from 'typeorm'
 
 import { Config } from '@perfsee/platform-server/config'
 import { Cron, CronExpression } from '@perfsee/platform-server/cron'
@@ -800,8 +800,15 @@ export class SnapshotService implements OnApplicationBootstrap {
         const runningJobsCount = await Job.createQueryBuilder('job')
           .where('job.entity_id = :entityId', { entityId: report.id })
           .andWhere('job.job_type in (:...jobTypes)', { jobTypes: [JobType.LabAnalyze, JobType.E2EAnalyze] })
-          .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Running] })
-          .andWhere('job.started_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)')
+          .andWhere(
+            new Brackets((builder) => {
+              builder
+                .where('job.status = :jobStatus and job.started_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)', {
+                  jobStatus: JobStatus.Running,
+                })
+                .orWhere('job.status = :jobStatus', { jobStatus: JobStatus.Pending })
+            }),
+          )
           .getCount()
         if (runningJobsCount) {
           continue
