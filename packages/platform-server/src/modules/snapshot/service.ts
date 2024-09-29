@@ -800,8 +800,8 @@ export class SnapshotService implements OnApplicationBootstrap {
         const runningJobsCount = await Job.createQueryBuilder('job')
           .where('job.entity_id = :entityId', { entityId: report.id })
           .andWhere('job.job_type in (:...jobTypes)', { jobTypes: [JobType.LabAnalyze, JobType.E2EAnalyze] })
-          .andWhere('job.status in (:...jobStatus)', { JobStatus: [JobStatus.Running] })
-          .andWhere('job.started_at >= DATE_SUB(NOW() - INTERVAL 1 HOUR)')
+          .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Running] })
+          .andWhere('job.started_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)')
           .getCount()
         if (runningJobsCount) {
           continue
