@@ -797,8 +797,13 @@ export class SnapshotService implements OnApplicationBootstrap {
     for (const report of reports) {
       try {
         // if report has retries, detect all associated jobs
-        const jobs = await Job.find({ where: { entityId: report.id, jobType: JobType.LabAnalyze } })
-        if (jobs.some((job) => ![JobStatus.Done, JobStatus.Failed, JobStatus.Canceled].includes(job.status))) {
+        const runningJobsCount = await Job.createQueryBuilder('job')
+          .where('job.entity_id = :entityId', { entityId: report.id })
+          .andWhere('job.job_type in (:...jobTypes)', { jobTypes: [JobType.LabAnalyze, JobType.E2EAnalyze] })
+          .andWhere('job.status in (:...jobStatus)', { JobStatus: [JobStatus.Running] })
+          .andWhere('job.started_at >= DATE_SUB(NOW() - INTERVAL 1 HOUR)')
+          .getCount()
+        if (runningJobsCount) {
           continue
         }
         await this.updateLabReport({
