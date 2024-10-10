@@ -14,9 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BundleToolkit, PerfseeReportStats } from '../../stats'
+import { BundleModule, BundleToolkit, PerfseeReportStats } from '../../stats'
 
 import { parseAssetModules as parseWebpackAssetModules, parseModuleRequiredChunks } from './asset-parser-webpack'
+
+const parseModules = (
+  map: Map</* module id */ string | number, /* content or length */ string | number>,
+  modules?: BundleModule[],
+) => {
+  modules?.forEach((module) => {
+    module.size && map.set(module.id, module.size)
+    parseModules(map, module.modules)
+  })
+}
 
 export const assetModulesParser: {
   [T in BundleToolkit]: (
@@ -26,6 +36,25 @@ export const assetModulesParser: {
   ) => Map</* module id */ string | number, /* content or length */ string | number>
 } = {
   [BundleToolkit.Webpack]: parseWebpackAssetModules,
+  [BundleToolkit.Rspack]: (content, name, stats) => {
+    let modules: Map</* module id */ string | number, /* content or length */ string | number> = new Map()
+    try {
+      modules = parseWebpackAssetModules(content)
+    } catch {
+      // ignore
+    }
+    if (!modules?.size) {
+      const asset = stats.assets?.find((a) => a.name === name)
+      const chunkId = asset?.chunks[0]
+      if (chunkId) {
+        const chunk = stats.chunks?.find((c) => c.id === chunkId)
+        const result = new Map()
+        parseModules(result, chunk?.modules)
+        return result
+      }
+    }
+    return modules
+  },
   [BundleToolkit.Esbuild]: (_content, path, stats) => {
     return new Map(
       Object.entries(stats.metafile!.outputs[path].inputs).map(([name, { bytesInOutput }]) => [name, bytesInOutput]),

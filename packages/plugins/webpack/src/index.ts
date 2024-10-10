@@ -159,7 +159,8 @@ export class PerfseePlugin implements WebpackPluginInstance {
     this.stats.packageVersions = getAllPackagesVersions(getBuildEnv().pwd, this.modules)
     this.stats.repoPath = getBuildEnv().pwd
     this.stats.buildPath = this.context || process.cwd()
-    this.stats.buildTool = BundleToolkit.Webpack
+    // @ts-expect-error
+    this.stats.buildTool = this.stats.rspackVersion ? BundleToolkit.Rspack : BundleToolkit.Webpack
 
     return this
   }
@@ -179,7 +180,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
     if (!source) {
       return
     }
-    const path = module.nameForCondition() || trimModuleName((module as NormalModule).resource)
+    const path = module.nameForCondition() || trimModuleName((module as NormalModule).resource || '')
     if (!path) {
       return
     }
