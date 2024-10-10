@@ -340,6 +340,11 @@ function getModulesLocations(node: Node | null) {
   }
 
   if (node?.type === 'ArrayExpression' || node?.type === 'CallExpression') {
+    // @ts-expect-error
+    if (node.type === 'CallExpression' && !node.callee.object) {
+      return null
+    }
+
     // Modules array or optimized array
     const minId: number =
       node.type === 'CallExpression'
