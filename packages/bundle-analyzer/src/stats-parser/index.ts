@@ -363,7 +363,9 @@ export class StatsParser {
           asset.size = await calcStringCompressedSize(content)
           if (type === AssetTypeEnum.Js) {
             try {
-              const assetModules = assetModulesParser[buildTool ?? BundleToolkit.Webpack](content, path, this.stats)
+              const parser =
+                assetModulesParser[buildTool || BundleToolkit.Webpack] || assetModulesParser[BundleToolkit.Webpack]
+              const assetModules = parser(content, path || name, this.stats)
 
               if (this.stats.strictChunkRelations) {
                 const requiredChunkIds = new Set<ID>()

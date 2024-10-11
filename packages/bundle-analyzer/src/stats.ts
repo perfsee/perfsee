@@ -28,6 +28,7 @@ export enum BundleToolkit {
   Webpack = 'webpack',
   Esbuild = 'esbuild',
   Rollup = 'rollup',
+  Rspack = 'rspack',
 }
 
 export interface BundleChunkGroup {
