@@ -16,16 +16,14 @@ limitations under the License.
 
 import styled from '@emotion/styled'
 import { Modal, Spinner, SpinnerSize } from '@fluentui/react'
-import { FC, useEffect, useState } from 'react'
+import { FC, forwardRef, useState, useImperativeHandle, useCallback } from 'react'
 
 import { ShortcutTips, Header } from '@perfsee/bundle-report/bundle-content/styled'
 import { Treemap } from '@perfsee/bundle-report/bundle-content/treemap'
 import { AssetInfo, ModuleTreeNode } from '@perfsee/shared'
 
 export interface ContentModalProps {
-  asset: AssetInfo | undefined
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
-  onClose: () => void
 }
 
 const ChartWrapper = styled.div({
@@ -34,18 +32,35 @@ const ChartWrapper = styled.div({
   padding: '0 12px',
 })
 
-export const ContentModal: FC<ContentModalProps> = ({ asset, getAssetContent, onClose }) => {
+export const ContentModal: FC<ContentModalProps> = forwardRef(({ getAssetContent }, ref) => {
   const [content, setContent] = useState<ModuleTreeNode[] | null>(null)
+  const [open, setOpen] = useState(false)
 
-  useEffect(() => {
-    if (asset) {
-      void getAssetContent(asset).then(setContent)
-    }
-  }, [getAssetContent, asset])
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        open: (asset: AssetInfo) => {
+          setOpen(true)
+          void getAssetContent(asset).then((content) => {
+            setContent(content)
+          })
+        },
+        close: () => {
+          setOpen(false)
+        },
+      }
+    },
+    [getAssetContent],
+  )
+
+  const onClose = useCallback(() => {
+    setOpen(false)
+  }, [])
 
   return (
     <Modal
-      isOpen={!!asset}
+      isOpen={open}
       onDismiss={onClose}
       styles={{
         main: { width: '80vw', height: '80vh' },
@@ -80,4 +95,4 @@ export const ContentModal: FC<ContentModalProps> = ({ asset, getAssetContent, on
       )}
     </Modal>
   )
-}
+})
