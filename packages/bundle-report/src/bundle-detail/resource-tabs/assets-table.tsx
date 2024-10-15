@@ -17,7 +17,7 @@ limitations under the License.
 import { AppstoreOutlined, CheckOutlined, FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Stack, SelectionMode, IGroup, TooltipHost } from '@fluentui/react'
 import { groupBy } from 'lodash'
-import { FC, MouseEvent, useCallback, useMemo, useState } from 'react'
+import { FC, MouseEvent, useCallback, useMemo, useRef, useState } from 'react'
 
 import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
 import { SharedColors, lighten } from '@perfsee/dls'
@@ -57,19 +57,16 @@ export const AssetsTable: FC<Props> = ({
   const { current: currentChunks } = diff.chunksDiff
   const audits = diff.audits
 
-  const [contentRef, setContentRef] = useState<AssetInfo | undefined>()
+  const contentModalRef = useRef<{ open: (asset: AssetInfo) => void }>(null)
   const [searchText, setSearchText] = useState<string>('')
   const scoreItemsMap = useAuditScore()
   const onShowContentModal = useCallback(
     (asset: AssetInfo) => (e: MouseEvent<HTMLElement>) => {
       e.stopPropagation()
-      setContentRef(asset)
+      contentModalRef.current?.open(asset)
     },
     [],
   )
-  const onHideContentModal = useCallback(() => {
-    setContentRef(undefined)
-  }, [])
 
   const currentAssets = useMemo(
     () => currentAllAssets.filter((asset) => asset.name.includes(searchText)),
@@ -328,7 +325,7 @@ export const AssetsTable: FC<Props> = ({
         disableVirtualization={items.length < 100}
         onRenderRow={onRenderRow}
       />
-      <ContentModal asset={contentRef} getAssetContent={getAssetContent} onClose={onHideContentModal} />
+      <ContentModal getAssetContent={getAssetContent} ref={contentModalRef} />
     </Stack>
   )
 }

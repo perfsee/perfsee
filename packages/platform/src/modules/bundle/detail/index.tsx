@@ -36,6 +36,10 @@ import { SuspiciousBundle } from './suspicious-job'
 let resolveContent: ((content: ModuleTreeNode[]) => void) | undefined = undefined
 let resolveModuleSource: ((moduleSource: ModuleSource) => void) | undefined = undefined
 
+const contentPromise = new Promise<ModuleTreeNode[]>((resolve) => {
+  resolveContent = resolve
+})
+
 export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bundleId: string }>>(
   ({ match, location, history }) => {
     const { bundleId: routeBundleId } = match.params
@@ -46,11 +50,6 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
 
     const [state, dispatcher] = useModule(BundleModule)
     const [{ content }, bundleContentDispatcher] = useModule(BundleContentModule)
-    const contentPromise = useRef(
-      new Promise<ModuleTreeNode[]>((resolve) => {
-        resolveContent = resolve
-      }),
-    )
 
     useEffect(() => {
       if (content && resolveContent) {
@@ -80,7 +79,7 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
 
         if (!moduleTreeNodes) {
           bundleContentDispatcher.getContent(bundleId)
-          moduleTreeNodes = await contentPromise.current
+          moduleTreeNodes = await contentPromise
         }
 
         return moduleTreeNodes.filter((node) => node.name === asset.name)
