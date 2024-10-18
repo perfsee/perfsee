@@ -13,7 +13,7 @@
     "acorn-walk": "^8.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "jimp": "^0.22.0",
-    "lighthouse": "11.6.0",
+    "lighthouse": "11.7.1",
     "lighthouse-logger": "^2.0.1",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.2",
