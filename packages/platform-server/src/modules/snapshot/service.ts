@@ -597,7 +597,7 @@ export class SnapshotService implements OnApplicationBootstrap {
   }
 
   async updateFlowReport(data: E2EJobResult) {
-    const { flowReport: rest, jobId, snapshotReport: first } = data
+    const { flowReport: rest = [], jobId, snapshotReport: first } = data
 
     const stepOfReport = await SnapshotReport.findOneByOrFail({ id: first.id })
     const reports = []
