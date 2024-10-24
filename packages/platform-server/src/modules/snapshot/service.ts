@@ -483,6 +483,10 @@ export class SnapshotService implements OnApplicationBootstrap {
       const left = await this.redis.decr(`report-distribute-total-${redisKey}`)
 
       if (left < 0) {
+        if (await this.redis.get(`report-distribute-complete-${redisKey}`)) {
+          snapshotReport.status = SnapshotStatus.Completed
+          snapshotReport.failedReason = undefined
+        }
         await this.redis.del(`report-distribute-complete-${redisKey}`)
         await this.redis.del(`report-distribute-total-${redisKey}`)
         return snapshotReport
@@ -518,6 +522,7 @@ export class SnapshotService implements OnApplicationBootstrap {
             reportList.push(tempReport)
           }
           if (!reportList.length || reportList.length <= 1) {
+            snapshotReport.status = SnapshotStatus.Completed
             return snapshotReport
           }
           const medianIndex = computeMedianRun(
@@ -653,6 +658,18 @@ export class SnapshotService implements OnApplicationBootstrap {
     this.logger.verbose('Receive snapshot report update message', payload)
 
     const report = await this.db.transaction(async (manager) => {
+      const currentReport = await manager.findOneByOrFail(SnapshotReport, { id: payload.id })
+
+      // completed is the final status
+      if (currentReport.status === SnapshotStatus.Completed) {
+        payload.status = SnapshotStatus.Completed
+      } else if (
+        currentReport.status === SnapshotStatus.PartialCompleted &&
+        // partialCompleted can only turn to completed
+        payload.status !== SnapshotStatus.Completed
+      ) {
+        payload.status = SnapshotStatus.PartialCompleted
+      }
       await manager.update(SnapshotReport, payload.id, payload)
       return manager.findOneByOrFail(SnapshotReport, { id: payload.id })
     })
@@ -777,7 +794,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       .innerJoin(Job, 'job', 'job.entity_id = report.id and job.job_type in (:...jobTypes)', {
         jobTypes: [JobType.LabAnalyze, JobType.E2EAnalyze],
       })
-      .select(['report.id as id', 'report.status as status', 'report.lighthouseStorageKey as lhKey'])
+      .select(['report.id as id', 'report.status as status'])
       .where('report.status in (:...status)', {
         status: [
           SnapshotStatus.Pending,
@@ -787,14 +804,14 @@ export class SnapshotService implements OnApplicationBootstrap {
         ],
       })
       .andWhere('job.status in (:...jobStatus)', { jobStatus: [JobStatus.Done, JobStatus.Failed, JobStatus.Canceled] })
-      .andWhere('job.started_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
-      .andWhere('job.created_at < (DATE_SUB(NOW(), INTERVAL 1 HOUR))')
-      .take(30)
-      .getRawMany<{ id: number; status: SnapshotStatus; lhKey?: string }>()
+      .andWhere('job.started_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)')
+      .andWhere('job.created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)')
+      .take(200)
+      .getRawMany<{ id: number; status: SnapshotStatus }>()
 
     this.logger.log(`Started to timeout reports. Length: ${reports.length}`, { ids: reports.map((r) => r.id) })
 
-    for (const report of reports) {
+    for (const report of reports.slice(0, 200)) {
       try {
         // if report has retries, detect all associated jobs
         const runningJobsCount = await Job.createQueryBuilder('job')
@@ -803,7 +820,7 @@ export class SnapshotService implements OnApplicationBootstrap {
           .andWhere(
             new Brackets((builder) => {
               builder
-                .where('job.status = :jobStatus and job.started_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)', {
+                .where('job.status = :jobStatus and job.started_at >= DATE_SUB(NOW(), INTERVAL 30 MINUTE)', {
                   jobStatus: JobStatus.Running,
                 })
                 .orWhere('job.status = :jobStatus', { jobStatus: JobStatus.Pending })
@@ -816,11 +833,8 @@ export class SnapshotService implements OnApplicationBootstrap {
         await this.updateLabReport({
           snapshotReport: {
             id: report.id,
-            status:
-              report.status === SnapshotStatus.PartialCompleted || report.lhKey
-                ? SnapshotStatus.Completed
-                : SnapshotStatus.Failed,
-            failedReason: report.status === SnapshotStatus.PartialCompleted || report.lhKey ? undefined : 'Timeout',
+            status: SnapshotStatus.Failed,
+            failedReason: 'Timeout',
           },
         })
       } catch (e) {
