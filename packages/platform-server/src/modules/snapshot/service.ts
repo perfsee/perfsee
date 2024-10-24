@@ -668,7 +668,11 @@ export class SnapshotService implements OnApplicationBootstrap {
         // partialCompleted can only turn to completed
         payload.status !== SnapshotStatus.Completed
       ) {
-        payload.status = SnapshotStatus.PartialCompleted
+        if (payload.status === SnapshotStatus.Failed) {
+          payload.status = SnapshotStatus.Completed
+        } else {
+          payload.status = SnapshotStatus.PartialCompleted
+        }
       }
       await manager.update(SnapshotReport, payload.id, payload)
       return manager.findOneByOrFail(SnapshotReport, { id: payload.id })
