@@ -268,41 +268,33 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     this.logger.info('Downloading bundle artifacts.')
     const pwd = this.pwd
 
-    const bundleList = await Promise.allSettled(
-      this.payload.artifacts.map(
-        async ({ id: artifactId, iid: artifactIid, name: artifactName, buildKey, reportKey, moduleMapKey, hash }) => {
-          if (!reportKey) {
-            throw new Error(`Skip artifact ${artifactId} missing reportKey`)
-          }
-          const readStream = await this.client.getArtifactStream(buildKey)
-          this.logger.verbose(`Downloading ${[artifactId, buildKey]} now.`)
-          const bundlePath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
-          this.logger.verbose(`Downloading ${[artifactId, buildKey]} finished.`)
-
-          this.logger.verbose(`Downloading ${[artifactId, reportKey]} now.`)
-          const bundleReport = JSON.parse((await this.client.getArtifact(reportKey)).toString('utf-8')) as BundleResult
-          this.logger.verbose(`Downloading ${[artifactId, reportKey]} finished.`)
-
-          this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} now.`)
-          const moduleMap =
-            moduleMapKey && (JSON.parse((await this.client.getArtifact(moduleMapKey)).toString('utf-8')) as ModuleMap)
-          this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} finished.`)
-
-          return { artifactId, artifactIid, artifactName, hash, bundlePath, bundleReport, moduleMap }
-        },
-      ),
-    ).then((list) => {
-      const result = []
-      for (let i = 0; i < list.length; i++) {
-        const item = list[i]
-        if (item.status === 'fulfilled') {
-          result.push(item.value)
-        } else {
-          this.logger.error(`Failed to download artifact ${this.payload.artifacts[i]}`, item.reason)
+    const bundleList = []
+    for (const { id: artifactId, iid: artifactIid, name: artifactName, buildKey, reportKey, moduleMapKey, hash } of this
+      .payload.artifacts) {
+      try {
+        if (!reportKey) {
+          throw new Error(`Skip artifact ${artifactId} missing reportKey`)
         }
+
+        this.logger.verbose(`Downloading ${[artifactId, buildKey]} now.`)
+        const readStream = await this.client.getArtifactStream(buildKey)
+        const bundlePath = await extractBundleFromStream(readStream, join(pwd, `artifact-${artifactId}`))
+        this.logger.verbose(`Downloading ${[artifactId, buildKey]} finished.`)
+
+        this.logger.verbose(`Downloading ${[artifactId, reportKey]} now.`)
+        const bundleReport = JSON.parse((await this.client.getArtifact(reportKey)).toString('utf-8')) as BundleResult
+        this.logger.verbose(`Downloading ${[artifactId, reportKey]} finished.`)
+
+        this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} now.`)
+        const moduleMap =
+          moduleMapKey && (JSON.parse((await this.client.getArtifact(moduleMapKey)).toString('utf-8')) as ModuleMap)
+        this.logger.verbose(`Downloading ${[artifactId, moduleMapKey]} finished.`)
+
+        bundleList.push({ artifactId, artifactIid, artifactName, hash, bundlePath, bundleReport, moduleMap })
+      } catch (error) {
+        this.logger.error(`Failed to download artifact ${artifactId}`, { error })
       }
-      return result
-    })
+    }
 
     const files: BundleMeta['files'] = []
     const bundles: BundleMeta['bundles'] = {}
