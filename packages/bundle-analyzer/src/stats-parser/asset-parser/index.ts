@@ -37,13 +37,9 @@ export const assetModulesParser: {
 } = {
   [BundleToolkit.Webpack]: parseWebpackAssetModules,
   [BundleToolkit.Rspack]: (content, name, stats) => {
-    let modules: Map</* module id */ string | number, /* content or length */ string | number> = new Map()
     try {
-      modules = parseWebpackAssetModules(content)
+      return parseWebpackAssetModules(content)
     } catch {
-      // ignore
-    }
-    if (!modules?.size) {
       const asset = stats.assets?.find((a) => a.name === name)
       const chunkId = asset?.chunks[0]
       if (chunkId) {
@@ -53,7 +49,7 @@ export const assetModulesParser: {
         return result
       }
     }
-    return modules
+    return new Map()
   },
   [BundleToolkit.Esbuild]: (_content, path, stats) => {
     return new Map(
