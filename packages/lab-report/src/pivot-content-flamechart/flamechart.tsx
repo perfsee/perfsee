@@ -18,7 +18,7 @@ import { SharedColors } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 
-import { ReactLogoIcon, useWideScreen } from '@perfsee/components'
+import { ReactLogoIcon } from '@perfsee/components'
 import {
   buildProfileFromFlameChartData,
   buildProfileFromNetworkRequests,
@@ -37,6 +37,7 @@ import {
   ReactDevtoolProfilingDataExport,
   prepareProfilingDataFrontendFromExport,
 } from '@perfsee/flamechart'
+import { FlamechartBindingManager } from '@perfsee/flamechart/views/flamechart-binding-manager'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
@@ -107,6 +108,13 @@ export const FlamechartView: React.FunctionComponent<{
   flamechartData?: PerfseeFlameChartData
   reactProfileData?: ReactDevtoolProfilingDataExport
   disableFetch?: boolean
+  bindingManager?: FlamechartBindingManager
+  initialRight?: number
+  FlamechartModule?: typeof FlamechartModule
+  ReactFlameGraphModule?: typeof ReactFlameGraphModule
+  showProfiles?: string[]
+  initCollapsed?: (boolean | undefined)[]
+  useSimpleDetailView?: boolean
 }> = memo(
   ({
     flameChartLink,
@@ -123,10 +131,16 @@ export const FlamechartView: React.FunctionComponent<{
     flamechartData,
     reactProfileData,
     disableFetch,
+    bindingManager,
+    initialRight: propInitialRight,
+    FlamechartModule: propFlamechartModule,
+    ReactFlameGraphModule: propReactFlameGraphModule,
+    showProfiles,
+    initCollapsed: propInitCollapsed,
+    useSimpleDetailView,
   }) => {
-    useWideScreen()
-    const [{ flamechart }, dispatcher] = useModule(FlamechartModule)
-    const [{ reactProfile }, reactFlameDispatcher] = useModule(ReactFlameGraphModule)
+    const [{ flamechart }, dispatcher] = useModule(propFlamechartModule || FlamechartModule)
+    const [{ reactProfile }, reactFlameDispatcher] = useModule(propReactFlameGraphModule || ReactFlameGraphModule)
 
     useEffect(() => {
       if (disableFetch) {
@@ -166,6 +180,9 @@ export const FlamechartView: React.FunctionComponent<{
       [flameChartLink],
     )
     const [initCollapsed, initSplitSizes] = useMemo(() => {
+      if (propInitCollapsed) {
+        return propInitCollapsed
+      }
       try {
         const storageConfig = JSON.parse(localStorage.getItem(FLAME_CHART_LOCAL_STORAGE_KEY) || '{}')
         const storageKey = getStorageKey(flameChartLink)
@@ -173,7 +190,7 @@ export const FlamechartView: React.FunctionComponent<{
       } catch {
         return []
       }
-    }, [flameChartLink])
+    }, [flameChartLink, propInitCollapsed])
 
     const flamechartTimeOffset = requestsBaseTimestamp && flamechart ? requestsBaseTimestamp - flamechart.startTime : 0
     const tasksTimeOffset = requestsBaseTimestamp && tasksBaseTimestamp ? requestsBaseTimestamp - tasksBaseTimestamp : 0
@@ -272,7 +289,7 @@ export const FlamechartView: React.FunctionComponent<{
     }, [userTimings])
 
     const tti = useMemo(() => metrics?.find((score) => score.id === LighthouseScoreType.TTI)?.value, [metrics])
-    const initialRight = tti ? (tti + 500) * 1000 : undefined
+    const initialRight = propInitialRight ?? (tti ? (tti + 500) * 1000 : undefined)
 
     const profiles = useMemo(() => {
       return (
@@ -306,9 +323,11 @@ export const FlamechartView: React.FunctionComponent<{
           },
           tasksProfile && { name: 'Tasks', profile: tasksProfile, grow: 0.1 },
           { name: 'Main', profile: profile, grow: 1 },
-        ].filter(Boolean) as FlamechartGroupContainerProps['profiles'])
+        ].filter((profile) => {
+          return !!profile && (showProfiles ? showProfiles.includes(profile.name as string) : true)
+        }) as FlamechartGroupContainerProps['profiles'])
       )
-    }, [networkProfile, profile, tasksProfile, userTimingsProfile, reactSchedulingEventsProfiles])
+    }, [networkProfile, profile, tasksProfile, userTimingsProfile, reactSchedulingEventsProfiles, showProfiles])
 
     if (!profiles) {
       return <FlamechartPlaceholder>Loading</FlamechartPlaceholder>
@@ -323,6 +342,8 @@ export const FlamechartView: React.FunctionComponent<{
           onSelectFrame={onSelectFrame}
           onClickTiming={onClickTiming}
           focusedFrame={focusedFrame}
+          bindingManager={bindingManager}
+          useSimpleDetailView={useSimpleDetailView}
         />
       )
     }
@@ -340,6 +361,8 @@ export const FlamechartView: React.FunctionComponent<{
           onSplitChange={onSplitChange}
           initCollapsed={initCollapsed}
           initSplitSizes={initSplitSizes}
+          bindingManager={bindingManager}
+          useSimpleDetailView={useSimpleDetailView}
         />
       </>
     )

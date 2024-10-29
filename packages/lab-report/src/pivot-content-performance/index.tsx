@@ -39,6 +39,7 @@ type Props = {
   type: AnalysisReportTabType
   snapshot: SnapshotDetailType
   hideBorder?: boolean
+  disableAutoScroll?: boolean
 }
 
 interface RelevantsChoiceProps {
@@ -84,13 +85,17 @@ export const PerformanceContent = memo((props: Props) => {
   )
 
   useEffect(() => {
-    updateQueryString({ relevant: undefined })
+    if (type !== AnalysisReportTabType.Performance) {
+      updateQueryString({ relevant: undefined })
+    }
     // eslint-disable-next-line
   }, [type])
 
   useEffect(() => {
-    relevant && containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }, [relevant])
+    relevant &&
+      !props.disableAutoScroll &&
+      containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [relevant, props.disableAutoScroll])
 
   const performance = categories?.[type]
   if (!performance) {
@@ -232,7 +237,10 @@ export const AdviceList = (props: {
   )
 }
 
-export const AnalysisReportContent = ({ snapshot }: Pick<Props, 'snapshot'>) => {
+export const AnalysisReportContent = ({
+  snapshot,
+  disableAutoScroll: disableScroll,
+}: Pick<Props, 'snapshot' | 'disableAutoScroll'>) => {
   const categories = snapshot.categories ?? ({} as Record<string, LH.Result.Category>)
   const [{ category = AnalysisReportTabType.Performance }, updateQueryString] = useQueryString<{
     category?: AnalysisReportTabType
@@ -256,7 +264,7 @@ export const AnalysisReportContent = ({ snapshot }: Pick<Props, 'snapshot'>) => 
           )
         })}
       </StyledPivot>
-      <PerformanceContent type={category} snapshot={snapshot} />
+      <PerformanceContent type={category} snapshot={snapshot} disableAutoScroll={disableScroll} />
     </div>
   )
 }

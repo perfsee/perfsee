@@ -6,9 +6,11 @@ import { Frame, Profile } from '../lib/profile'
 import { ProfileFrameKeySearch, ProfileSearchEngine } from '../lib/profile-search'
 import { Timing } from '../lib/timing'
 import { lightTheme, Theme } from '../themes/theme'
+import { FlamechartBindingManager } from '../views/flamechart-binding-manager'
 
 import { withErrorBoundary } from './error-catcher'
 import { FlamechartFactory, FlamechartFactoryMap } from './flamechart-factory'
+import { SimpleDetailView } from './flamechart-group-container'
 import { FlamechartViewContainer, FlamechartViewContainerRef } from './flamechart-view-container'
 import { SearchBox, searchBoxStyles, searchHint, useSearchBoxShortcut } from './search-box'
 import { useElementSize } from './utils'
@@ -110,6 +112,14 @@ export interface FlamechartProps {
    * on click timing
    */
   onClickTiming?: (click: { timing: Timing; event: MouseEvent } | null) => void
+  /**
+   * binding manager
+   */
+  bindingManager?: FlamechartBindingManager
+  /**
+   * whether to use simple detail view
+   */
+  useSimpleDetailView?: boolean
 }
 
 const styles = {
@@ -145,6 +155,8 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
           onSelectFrame,
           images,
           onClickTiming,
+          bindingManager,
+          useSimpleDetailView,
         },
         ref,
       ) => {
@@ -244,11 +256,11 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 minLeft={minLeft}
                 maxRight={maxRight}
                 topPadding={topPadding}
-                disableDetailView={disableDetailView}
+                disableDetailView={disableDetailView || useSimpleDetailView}
                 disableTimelineCursor={disableTimelineCursor}
                 disableTimeIndicators={disableTimeIndicators}
                 width={containerWidth}
-                height={containerHeight}
+                height={containerHeight - (useSimpleDetailView ? 24 : 0)}
                 bottomTimingLabels={bottomTimingLabels}
                 bottomPadding={bottomPadding}
                 hiddenFrameLabels={hiddenFrameLabels}
@@ -257,8 +269,10 @@ export const FlamechartContainer = withErrorBoundary<React.FunctionComponent<Fla
                 onSelectFrame={handleSelectFlamechart}
                 onClickTiming={onClickTiming}
                 selectedFrame={selectedFrame}
+                bindingManager={bindingManager}
               />
             )}
+            {useSimpleDetailView && selectedFrame && <SimpleDetailView frame={selectedFrame} theme={theme} />}
           </div>
         )
       },

@@ -48,9 +48,15 @@ export function useElementSize(element: RefObject<HTMLElement> | HTMLElement | W
         clientRectRef.current = newClientRect
       }
     }
+    const ob = new ResizeObserver(update)
+    //@ts-expect-error
+    ob.observe(element.current || element)
     window.addEventListener('resize', update)
     setTimeout(update)
-    return () => window.removeEventListener('resize', update)
+    return () => {
+      window.removeEventListener('resize', update)
+      ob.disconnect()
+    }
   }, [element])
 
   return { width: clientRect?.width, height: clientRect?.height, clientRect }

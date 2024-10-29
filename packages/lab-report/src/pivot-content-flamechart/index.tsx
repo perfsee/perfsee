@@ -17,6 +17,7 @@ limitations under the License.
 import { Panel, LayerHost } from '@fluentui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useWideScreen } from '@perfsee/components'
 import { PerfseeFlameChartData, ReactDevtoolProfilingDataExport, Timing } from '@perfsee/flamechart'
 
 import { useQueryString } from '../context'
@@ -41,6 +42,8 @@ export const FlameChartPivotContent = (props: Props) => {
   const [queryString, updateQueryString] = useQueryString<{ insight?: string }>()
   const [clickedMetric, setClickedMetric] = useState<string | null>(queryString.insight ?? null)
   const [focusedFrame, setFocusedFrame] = useState<{ key: string; parentKeys?: string[] } | undefined>()
+
+  useWideScreen()
 
   const onClickTiming = useCallback(
     (click: { timing: Timing } | null) => {

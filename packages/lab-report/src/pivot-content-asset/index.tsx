@@ -76,7 +76,7 @@ const DetailRowItem = (props: IDetailsRowProps) => {
   )
 }
 
-const onRenderRow: IDetailsListProps['onRenderRow'] = (props) => {
+export const onRenderRow: IDetailsListProps['onRenderRow'] = (props) => {
   if (props) {
     return <DetailRowItem {...props} />
   }

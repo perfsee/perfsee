@@ -20,7 +20,7 @@ import { PerformanceTabType, SnapshotDetailType } from '@perfsee/lab-report/snap
 import { lazy } from '@perfsee/platform/common'
 import { Trace } from '@perfsee/platform/modules/job-trace'
 
-import { MultiContentOverview, MultiContentBreakdown } from './multi-report'
+import { MultiContentOverview, MultiContentFlamechart, MultiContentRequests, MultiContentReport } from './multi-report'
 import { OverviewPivotContent } from './pivot-content-overview'
 import { SourceStatisticsContent } from './pivot-content-source'
 
@@ -80,8 +80,12 @@ export const MultiReportPivotContent = (props: Props) => {
   switch (type) {
     case PerformanceTabType.Overview:
       return <MultiContentOverview snapshots={snapshots} />
-    case PerformanceTabType.Breakdown:
-      return <MultiContentBreakdown snapshots={snapshots} />
+    case PerformanceTabType.Flamechart:
+      return <MultiContentFlamechart snapshots={snapshots} />
+    case PerformanceTabType.Asset:
+      return <MultiContentRequests snapshots={snapshots} />
+    case PerformanceTabType.Report:
+      return <MultiContentReport snapshots={snapshots} />
     default:
       return null
   }
