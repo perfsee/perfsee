@@ -47,6 +47,7 @@ import {
   deleteSnapshotReportMutation,
   snapshotQuery,
   SnapshotQuery,
+  setSnapshotTitleMutation,
 } from '@perfsee/schema'
 
 import { ProjectModule } from '../../shared'
@@ -308,6 +309,30 @@ export class LabListModule extends EffectModule<State> {
     )
   }
 
+  @Effect()
+  setSnapshotTitle(payload$: Observable<{ snapshotId: number; title: string }>) {
+    return payload$.pipe(
+      withLatestFrom(this.projectModule.state$),
+      filter(([, { project }]) => !!project),
+      mergeMap(([{ snapshotId, title }, { project }]) =>
+        this.client
+          .mutate({
+            mutation: setSnapshotTitleMutation,
+            variables: { snapshotId, title, projectId: project!.id },
+          })
+          .pipe(
+            createErrorCatcher('Failed to set snapshot title.'),
+            map(() => {
+              return this.getActions().updateSnapshotTitle({
+                snapshotId,
+                title,
+              })
+            }),
+          ),
+      ),
+    )
+  }
+
   @ImmerReducer()
   setLoading(state: Draft<State>, loading: boolean) {
     state.loading = loading
@@ -366,6 +391,14 @@ export class LabListModule extends EffectModule<State> {
     const snapshot = state.snapshots.find((snapshot) => snapshot.id === payload.snapshotId)
     if (snapshot) {
       snapshot.hash = payload.hash
+    }
+  }
+
+  @ImmerReducer()
+  updateSnapshotTitle(state: Draft<State>, payload: { snapshotId: number; title: string }) {
+    const snapshot = state.snapshots.find((snapshot) => snapshot.id === payload.snapshotId)
+    if (snapshot) {
+      snapshot.title = payload.title
     }
   }
 

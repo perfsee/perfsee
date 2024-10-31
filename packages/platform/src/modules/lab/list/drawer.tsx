@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Panel, PanelType, Stack } from '@fluentui/react'
+import { EditOutlined, SaveOutlined } from '@ant-design/icons'
+import { ITextField, Panel, PanelType, SharedColors, Stack, TextField } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { noop } from 'lodash'
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useRef, useState } from 'react'
 
 import { useToggleState } from '@perfsee/components'
 import { SnapshotStatus } from '@perfsee/schema'
@@ -37,7 +38,7 @@ type SnapshotDrawerProps = {
 }
 
 export const SnapshotDrawer: FC<SnapshotDrawerProps> = (props) => {
-  const { snapshotId, visible, onClose } = props
+  const { snapshotId, visible } = props
 
   const [{ snapshot }, dispatcher] = useModule(LabListModule, {
     selector: (state) => ({
@@ -47,6 +48,24 @@ export const SnapshotDrawer: FC<SnapshotDrawerProps> = (props) => {
   })
 
   const [artifactSelectVisible, showArtifactSelect, hideArtifactSelect] = useToggleState(false)
+  const [editingTitle, setIsEditingTitle] = useState(false)
+  const inputRef = useRef<ITextField>(null)
+
+  const onEditTitle = useCallback(() => {
+    setIsEditingTitle(true)
+  }, [])
+
+  const onSaveTitle = useCallback(() => {
+    if (inputRef.current?.value && inputRef.current.value !== snapshot?.title) {
+      dispatcher.setSnapshotTitle({ snapshotId: snapshot!.id, title: inputRef.current?.value })
+    }
+    setIsEditingTitle(false)
+  }, [dispatcher, snapshot, inputRef])
+
+  const onClose = useCallback(() => {
+    props.onClose()
+    setIsEditingTitle(false)
+  }, [props])
 
   const onRenderHeader = useCallback(() => {
     if (!snapshot) {
@@ -56,10 +75,46 @@ export const SnapshotDrawer: FC<SnapshotDrawerProps> = (props) => {
     return (
       <Stack grow={1} horizontal tokens={{ childrenGap: '16px', padding: '0 24px' }} verticalAlign="center">
         <SnapshotStatusTag status={snapshot.status as SnapshotStatus} />
-        <DrawerTitle>{snapshot.title}</DrawerTitle>
+        <DrawerTitle>
+          {editingTitle ? (
+            <Stack horizontal verticalAlign="center">
+              <TextField
+                defaultValue={snapshot.title}
+                componentRef={inputRef}
+                styles={{
+                  root: { width: `${snapshot.title.length + 2}ch`, minWidth: 200, maxWidth: '100%', padding: 2 },
+                }}
+              />
+              <SaveOutlined
+                style={{
+                  color: SharedColors.cyanBlue10,
+                  cursor: 'pointer',
+                  paddingLeft: '4px',
+                  fontSize: 18,
+                  marginLeft: 8,
+                }}
+                onClick={onSaveTitle}
+              />
+            </Stack>
+          ) : (
+            <Stack horizontal verticalAlign="center">
+              {snapshot.title}
+              <EditOutlined
+                style={{
+                  color: SharedColors.cyanBlue10,
+                  cursor: 'pointer',
+                  paddingLeft: '4px',
+                  fontSize: 18,
+                  marginLeft: 8,
+                }}
+                onClick={onEditTitle}
+              />
+            </Stack>
+          )}
+        </DrawerTitle>
       </Stack>
     )
-  }, [snapshot])
+  }, [snapshot, onEditTitle, editingTitle, onSaveTitle])
 
   const onSelectArtifact = useCallback(
     (payload: ArtifactSelectEventPayload) => {

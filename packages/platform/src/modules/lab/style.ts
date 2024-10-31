@@ -30,6 +30,9 @@ export const SnapshotTitle = styled.div(({ theme }) => ({
   maxWidth: '100%',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  display: '-webkit-box',
+  '-webkit-line-clamp': '2',
+  '-webkit-box-orient': 'vertical',
 }))
 
 export const ListTimeLabel = styled.p(({ theme }) => ({

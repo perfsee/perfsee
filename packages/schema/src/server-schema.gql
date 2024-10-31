@@ -1628,6 +1628,9 @@ type Mutation {
   Set the commit hash associated with the snapshot, and the associated version cannot be modified. If the status of the snapshot is not completed will throw an error.
   """
   setSnapshotHash(projectId: ID!, snapshotId: Int!, hash: String!): Boolean!
+
+  """Set the title of a snapshot"""
+  setSnapshotTitle(projectId: ID!, snapshotId: Int!, title: String!): Boolean!
   createPage(projectId: ID!, input: CreatePageInput!): Page!
   updatePage(projectId: ID!, input: UpdatePageInput!): Page!
 
