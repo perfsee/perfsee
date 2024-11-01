@@ -30,6 +30,7 @@ export interface CommonProps<T> {
   placeholder?: string
   multiSelect?: boolean
   options: { id: T; name: string }[]
+  maxWidth?: number | string
 }
 interface Props<T> extends CommonProps<T> {
   defaultIds?: T[]
@@ -49,6 +50,7 @@ export const MultiSelector = <T,>(props: Props<T>) => {
     required = true,
     label,
     tips,
+    maxWidth,
     onChange,
     ...otherProps
   } = props
@@ -95,7 +97,7 @@ export const MultiSelector = <T,>(props: Props<T>) => {
     <Dropdown
       styles={{
         callout: { marginTop: '4px' },
-        root: { minWidth: '300px' },
+        root: { minWidth: '300px', maxWidth },
       }}
       multiSelect={multiSelect}
       selectedKey={multiSelect ? undefined : (ids[0] as any)}

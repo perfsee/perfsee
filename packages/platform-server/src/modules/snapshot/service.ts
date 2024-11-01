@@ -868,6 +868,18 @@ export class SnapshotService implements OnApplicationBootstrap {
     return snapshot
   }
 
+  async setSnapshotTitle(projectId: number, iid: number, title: string) {
+    const snapshot = await Snapshot.findOneByOrFail({
+      projectId,
+      iid,
+    })
+
+    snapshot.title = title
+    await snapshot.save()
+
+    return snapshot
+  }
+
   async getSnapshotCount(projectId: number) {
     return Snapshot.countBy({ projectId })
   }

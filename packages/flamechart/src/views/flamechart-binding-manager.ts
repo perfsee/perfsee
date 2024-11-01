@@ -4,6 +4,7 @@ export type FlamechartBindingCallback = {
 }
 
 export class FlamechartBindingManager {
+  private listening = true
   private readonly listeners: Set<FlamechartBindingCallback> = new Set()
 
   addListener(listener: FlamechartBindingCallback) {
@@ -15,10 +16,18 @@ export class FlamechartBindingManager {
   }
 
   notifyViewport(x: number, size: number) {
-    this.listeners.forEach((listener) => listener.viewport(x, size))
+    this.listening && this.listeners.forEach((listener) => listener.viewport(x, size))
   }
 
   notifyTimelineCursor(timelineCursor: number | undefined) {
-    this.listeners.forEach((listener) => listener.timelineCursor(timelineCursor))
+    this.listening && this.listeners.forEach((listener) => listener.timelineCursor(timelineCursor))
+  }
+
+  turnOff() {
+    this.listening = false
+  }
+
+  turnOn() {
+    this.listening = true
   }
 }

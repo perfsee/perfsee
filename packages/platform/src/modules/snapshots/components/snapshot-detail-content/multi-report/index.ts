@@ -15,4 +15,6 @@ limitations under the License.
 */
 
 export * from './overview'
-export * from './breakdown'
+export * from './flamechart'
+export * from './asset'
+export * from './analysis-report'

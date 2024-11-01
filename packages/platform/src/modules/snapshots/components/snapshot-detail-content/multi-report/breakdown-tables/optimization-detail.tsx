@@ -27,8 +27,7 @@ import {
 } from '@perfsee/components'
 import { ChartHeaderTitle } from '@perfsee/components/chart/style'
 import { needOptimizeCache, needOptimizeCompression } from '@perfsee/lab-report/pivot-content-asset/utils'
-import { RequestType, SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
-import { RequestSchema } from '@perfsee/shared'
+import { RequestType, SnapshotDetailType } from '@perfsee/lab-report/snapshot-type'
 
 type ItemType = {
   name: string
@@ -122,15 +121,15 @@ type Props = {
 export const OptimizationTable: FC<Props> = ({ snapshots }) => {
   const items = useMemo(() => {
     return snapshots.map((snapshot, i) => {
-      const report = snapshot.report as NonNullable<SnapshotReportSchema>
-      const requests = snapshot.requests as RequestSchema[]
+      const report = snapshot.report
+      const requests = snapshot.requests
 
       let needGzipRequestsCount = 0
       let needCacheRequestsCount = 0
       const noGzip: string[] = []
       const noCache: string[] = []
 
-      requests.forEach((req) => {
+      requests?.forEach((req) => {
         if ([RequestType.Image, RequestType.Media, RequestType.Font].every((v) => v !== req.type)) {
           needGzipRequestsCount++
           if (needOptimizeCompression(req)) {

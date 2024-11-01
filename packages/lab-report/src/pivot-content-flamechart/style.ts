@@ -24,6 +24,20 @@ export const FlamechartContainer = styled.div(({ theme }) => ({
   background: theme.colors.white,
 }))
 
+export const FlamechartSmallContainer = styled.div(({ theme }) => ({
+  width: '100%',
+  height: 'calc(46vh - 120px)',
+  minHeight: '200px',
+  background: theme.colors.white,
+  resize: 'vertical',
+  overflow: 'hidden',
+  display: 'block',
+
+  '> div': {
+    height: '100%',
+  },
+}))
+
 export const DetailContentContainer = styled(Stack)({
   overflow: 'hidden',
   lineBreak: 'anywhere',

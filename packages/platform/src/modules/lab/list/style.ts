@@ -39,6 +39,8 @@ export const DrawerTitle = styled.span(({ theme }) => ({
   color: theme.text.color,
   fontSize: '24px',
   fontWeight: 600,
+  wordBreak: 'break-all',
+  width: '100%',
 }))
 
 export const SnapshotListWrap = styled.div({

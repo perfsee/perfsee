@@ -50,6 +50,7 @@ export interface FlamechartGroupContainerProps {
   onSplitChange?: (collapsed: (boolean | undefined)[], sizes: number[]) => void
   initCollapsed?: (boolean | undefined)[]
   initSplitSizes?: number[]
+  bindingManager?: FlamechartBindingManager
 }
 
 const CollapseButton = memo<{ collapsed: boolean; onClick: MouseEventHandler<SVGSVGElement> }>(
@@ -79,7 +80,10 @@ const CollapseButton = memo<{ collapsed: boolean; onClick: MouseEventHandler<SVG
   },
 )
 
-const SimpleDetailView: React.FunctionComponent<{ frame: FlamechartFrame; theme: Theme }> = ({ frame, theme }) => {
+export const SimpleDetailView: React.FunctionComponent<{ frame: FlamechartFrame; theme: Theme }> = ({
+  frame,
+  theme,
+}) => {
   return (
     <div
       style={{
@@ -128,11 +132,12 @@ export const FlamechartGroupContainer = withErrorBoundary<React.FunctionComponen
       onSplitChange,
       initCollapsed,
       initSplitSizes,
+      bindingManager: propBindingManager,
     }) => {
       const containerRef = useRef<HTMLDivElement>(null)
       const bindingManager = useMemo(() => {
-        return new FlamechartBindingManager()
-      }, [])
+        return propBindingManager || new FlamechartBindingManager()
+      }, [propBindingManager])
       const viewsRef = useRef<(FlamechartViewContainerRef | null)[]>([])
       const { width: containerWidth, height: containerHeight } = useElementSize(containerRef)
       const [searchEngine, setSearchEngine] = useState<ProfileSearchEngine | null>()

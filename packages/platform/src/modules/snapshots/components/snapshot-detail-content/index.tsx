@@ -41,12 +41,12 @@ import { SnapshotModule } from '../../snapshot.module'
 import {
   OverviewTab,
   AssetTab,
-  BreakdownTab,
   FlamechartTab,
   SourceCoverageTab,
   ReactTab,
   SourceStatisticsTab,
   LogTab,
+  ReportTab,
 } from '../../utils/format-lighthouse'
 import { LoadingShimmer } from '../loading-shimmer'
 
@@ -120,8 +120,8 @@ const sourceLoadingProps: IButtonProps = {
 }
 
 const overviewPivot = <PivotItem itemKey={OverviewTab.id} key={OverviewTab.id} headerText={OverviewTab.title} />
-const breakdownPivot = <PivotItem itemKey={BreakdownTab.id} key={BreakdownTab.id} headerText={BreakdownTab.title} />
 const assetPivot = <PivotItem itemKey={AssetTab.id} key={AssetTab.id} headerText={AssetTab.title} />
+const reportPivot = <PivotItem itemKey={ReportTab.id} key={ReportTab.id} headerText={ReportTab.title} />
 const flamechartPivot = <PivotItem itemKey={FlamechartTab.id} key={FlamechartTab.id} headerText={FlamechartTab.title} />
 const flamechartLoadingPivot = (
   <PivotItem
@@ -224,7 +224,9 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
       <div>
         <Pivot styles={{ root: { marginBottom: '16px' } }} selectedKey={tabName} onLinkClick={onLinkClick}>
           {overviewPivot}
-          {breakdownPivot}
+          {flamechartPivot}
+          {assetPivot}
+          {reportPivot}
         </Pivot>
         <MultiReportPivotContent snapshots={details} type={tabName} />
       </div>

@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { PivotItem, Stack } from '@fluentui/react'
+import { uniqueId } from 'lodash'
 import { ReactNode, memo } from 'react'
 
 import { RequestSchema, StackTrack } from '@perfsee/shared'
@@ -94,16 +95,16 @@ const traverseStack = (stack: StackTrack): ReactNode[] => {
 
   if (stack.description) {
     elements.push(
-      <StyledInfoItem>
+      <StyledInfoItem key={uniqueId()}>
         <StyledInfoKey>{stack.description} (async)</StyledInfoKey>
       </StyledInfoItem>,
     )
   }
 
   elements.push(
-    stack.callFrames.map((frame, i) => {
+    stack.callFrames.map((frame) => {
       return (
-        <StyledInfoItem key={i}>
+        <StyledInfoItem key={uniqueId()}>
           <StyledInfoKey>{frame.functionName || '(anonymous)'}</StyledInfoKey>
           {`${frame.url}:${frame.lineNumber}:${frame.columnNumber}`}
         </StyledInfoItem>

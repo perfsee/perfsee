@@ -21,11 +21,6 @@ export const OverviewTab = {
   title: 'Overview',
 }
 
-export const BreakdownTab = {
-  id: PerformanceTabType.Breakdown,
-  title: 'Breakdown',
-}
-
 export const AssetTab = {
   id: PerformanceTabType.Asset,
   title: 'Asset',

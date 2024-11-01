@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { SelectionMode } from '@fluentui/react'
+import { IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react'
 import { groupBy } from 'lodash'
 import { FC, useMemo } from 'react'
 
@@ -25,6 +25,9 @@ import { RequestSchema, PrettyBytes } from '@perfsee/shared'
 
 type Props = {
   requests: RequestSchema[]
+  reportId: number
+  domains: string[]
+  onRenderRow?: IRenderFunction<IDetailsRowProps>
 }
 
 type RequestByDomain = {
@@ -42,7 +45,7 @@ const durationColumns = ['ssl', 'dns', 'connect', 'timing'].map((key) => {
   return {
     key: key,
     name: key.toUpperCase(),
-    minWidth: 100,
+    minWidth: 75,
     maxWidth: 120,
     sorter: (a, b) => a[key] - b[key],
     onRender: (item) => formatMsDuration(item[key], true, 2),
@@ -55,12 +58,14 @@ const columns: TableColumnProps<RequestByDomain>[] = [
     name: 'Domain',
     minWidth: 120,
     maxWidth: 260,
+    sorter: (a, b) => a.domain.localeCompare(b.domain),
     onRender: (item) => <TooltipWithEllipsis content={item.domain} />,
+    isSorted: true,
   },
   {
     key: 'count',
     name: 'Requests',
-    minWidth: 80,
+    minWidth: 70,
     maxWidth: 100,
     sorter: (a, b) => a.count - b.count,
     onRender: (item) => item.count,
@@ -68,7 +73,7 @@ const columns: TableColumnProps<RequestByDomain>[] = [
   {
     key: 'size',
     name: 'Size',
-    minWidth: 100,
+    minWidth: 60,
     maxWidth: 120,
     sorter: (a, b) => a.size - b.size,
     onRender: (item) => PrettyBytes.stringify(item.size),
@@ -84,15 +89,15 @@ const columns: TableColumnProps<RequestByDomain>[] = [
   ...durationColumns,
 ]
 
-export const ConnectionByDomainTable: FC<Props> = ({ requests }) => {
+export const ConnectionByDomainTable: FC<Props> = ({ requests, domains, onRenderRow }) => {
   const items = useMemo(() => {
     const requestByDomain = groupBy(requests, (request) => {
       return getRequestDomain(request)
     })
-    return Object.keys(requestByDomain).map((domain) => {
+    return domains.map((domain) => {
       const values = requestByDomain[domain]
 
-      const payload = values.reduce(
+      const payload = values?.reduce(
         (p, c) => {
           const { timings, timing } = c as RequestSchema
           timings.forEach((time) => {
@@ -111,22 +116,28 @@ export const ConnectionByDomainTable: FC<Props> = ({ requests }) => {
           p.timing += timing
           return p
         },
-        { size: 0, transferred: 0, dns: 0, ssl: 0, connect: 0, timing: 0 },
-      )
+        { size: 0, transferred: 0, dns: 0, ssl: 0, connect: 0, timing: 0, requests },
+      ) || { size: 0, transferred: 0, dns: 0, ssl: 0, connect: 0, timing: 0, requests }
       return {
         domain,
-        count: values.length,
+        count: values?.length || 0,
         ...payload,
       }
     })
-  }, [requests])
+  }, [requests, domains])
+
+  const itemsForceRerender = useMemo(() => {
+    return [...items]
+    // eslint-disable-next-line
+  }, [items, onRenderRow])
 
   return (
     <Table
-      items={items}
+      items={itemsForceRerender}
       detailsListStyles={{ headerWrapper: { '> div[role=row]': { paddingTop: 0 } } }}
       selectionMode={SelectionMode.none}
       columns={columns}
+      onRenderRow={onRenderRow}
     />
   )
 }

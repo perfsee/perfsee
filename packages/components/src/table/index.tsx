@@ -213,7 +213,7 @@ export function Table<T = any>({
   }, [columns, coloredItems, groups])
 
   const emptyRowRenderer: IRenderFunction<IDetailsRowProps> = useCallback(
-    (row) => {
+    (row, defaultRenderer) => {
       if (!row) {
         return null
       }
@@ -224,7 +224,7 @@ export function Table<T = any>({
 
       const customStyle = columnVerticalCentered ? VerticalCenteredStyles : undefined
 
-      const rawRow = onRenderRow ? onRenderRow(row) : <DetailsRow {...row} styles={customStyle} />
+      const rawRow = onRenderRow ? onRenderRow(row, defaultRenderer) : <DetailsRow {...row} styles={customStyle} />
       return <div onClick={onClickCustomRow(row?.item)}>{rawRow}</div>
     },
     [columnVerticalCentered, onRenderRow, onClickCustomRow],

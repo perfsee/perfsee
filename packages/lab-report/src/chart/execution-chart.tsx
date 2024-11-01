@@ -261,7 +261,7 @@ export const ExecutionChart = memo((props: Props) => {
 
   return (
     <StyleChartWrapper>
-      <Chart option={option} style={{ height: 220 }}>
+      <Chart option={option} style={{ height: 220, overflow: 'hidden' }}>
         {!hideTitle && (
           <ChartHeader
             title="Main thread execution timeline"

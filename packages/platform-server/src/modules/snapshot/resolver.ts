@@ -169,7 +169,7 @@ export class SnapshotResolver {
     })
   }
 
-  @PermissionGuard(Permission.Read, 'projectId')
+  @PermissionGuard(Permission.Admin, 'projectId')
   @Mutation(() => Snapshot, { name: 'takeTempSnapshot' })
   async takeTempSnapshot(
     @Args({ name: 'projectId', type: () => ID }) projectId: string,
@@ -185,7 +185,7 @@ export class SnapshotResolver {
     return this.service.takeTempSnapshot(projectRawId, user.email, url, profileIids, envIid, title, script)
   }
 
-  @PermissionGuard(Permission.Read, 'projectId')
+  @PermissionGuard(Permission.Admin, 'projectId')
   @Mutation(() => Boolean, { name: 'dispatchSnapshotReport' })
   async dispatchJob(
     @Args({ name: 'projectId', type: () => ID }) projectId: string,
@@ -210,7 +210,7 @@ export class SnapshotResolver {
       })
   }
 
-  @PermissionGuard(Permission.Read, 'projectId')
+  @PermissionGuard(Permission.Admin, 'projectId')
   @Mutation(() => Boolean, {
     name: 'setSnapshotHash',
     description:
@@ -225,6 +225,22 @@ export class SnapshotResolver {
     const snapshot = await this.service.setSnapshotHash(projectRawId, iid, hash)
     const reports = await this.reportService.getReportsBySnapshotId(snapshot.id)
     await this.sourceService.startSourceIssueAnalyze(reports)
+
+    return true
+  }
+
+  @PermissionGuard(Permission.Admin, 'projectId')
+  @Mutation(() => Boolean, {
+    name: 'setSnapshotTitle',
+    description: 'Set the title of a snapshot',
+  })
+  async setSnapshotTitle(
+    @Args({ name: 'projectId', type: () => ID }) projectId: string,
+    @Args({ name: 'snapshotId', type: () => Int }) iid: number,
+    @Args({ name: 'title', type: () => String }) title: string,
+  ) {
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+    await this.service.setSnapshotTitle(projectRawId, iid, title)
 
     return true
   }

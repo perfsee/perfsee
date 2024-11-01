@@ -1,0 +1,3 @@
+mutation setSnapshotTitle($projectId: ID!, $snapshotId: Int!, $title: String!) {
+  setSnapshotTitle(projectId: $projectId, snapshotId: $snapshotId, title: $title)
+}

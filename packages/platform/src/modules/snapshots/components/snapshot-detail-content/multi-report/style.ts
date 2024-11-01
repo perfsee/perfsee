@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
+import { Stack } from '@fluentui/react'
 
 export const CommonBoxContainer = styled.div({
   display: 'flex',
@@ -39,3 +40,24 @@ export const DescText = styled.span(({ theme }) => ({
   fontSize: '12px',
   color: theme.text.colorSecondary,
 }))
+
+export const ShowMoreTip = styled(Stack)(({ theme }) => {
+  return {
+    color: theme.text.colorSecondary,
+    paddingTop: 12,
+  }
+})
+
+export const AssetRowContainer = styled.div<{ hovered: boolean }>(({ hovered }) => {
+  if (hovered) {
+    return {
+      cursor: 'pointer',
+      '> div': {
+        background: 'rgb(243, 242, 241)',
+      },
+    }
+  }
+  return {
+    cursor: 'pointer',
+  }
+})

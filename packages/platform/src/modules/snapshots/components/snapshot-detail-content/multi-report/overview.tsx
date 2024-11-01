@@ -15,11 +15,15 @@ limitations under the License.
 */
 
 import { Separator, Stack } from '@fluentui/react'
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 
+import { IconWithTips } from '@perfsee/components'
+import { ExecutionChart } from '@perfsee/lab-report/chart'
+import { getChartEndTime } from '@perfsee/lab-report/chart/helper'
 import { AssetTransferred } from '@perfsee/lab-report/pivot-content-asset/asset-transferred'
 import { SnapshotDetailType, SnapshotReportSchema } from '@perfsee/lab-report/snapshot-type'
 
+import { OptimizationTable, TimingByResourceKindTable } from './breakdown-tables'
 import {
   OverviewRequestSummary,
   OverviewFirstRequest,
@@ -34,6 +38,13 @@ type Props = {
 }
 
 export const MultiContentOverview: FC<Props> = ({ snapshots }) => {
+  const endTime = useMemo(() => {
+    return snapshots.reduce((p, c) => {
+      const endTime = getChartEndTime(c.traceData, c.timings)
+      return Math.max(endTime, p)
+    }, 0)
+  }, [snapshots])
+
   return (
     <Stack tokens={{ childrenGap: 10, padding: '8px' }}>
       <ComparisonPropertyTable snapshots={snapshots} />
@@ -53,7 +64,33 @@ export const MultiContentOverview: FC<Props> = ({ snapshots }) => {
         )
       })}
       <Separator />
+      <OptimizationTable snapshots={snapshots} />
+      <Separator />
       <OverviewRequestSummary snapshots={snapshots} />
+      <Separator />
+      <HeaderTitle>
+        Main Thread Processing Breakdown
+        <IconWithTips marginLeft="4px" content="Blocking tasks that took more than 50ms to execute during page load." />
+      </HeaderTitle>
+      {snapshots.map((snapshot, i) => {
+        const report = snapshot.report as NonNullable<SnapshotReportSchema>
+        const title = report.snapshot.title ?? `Snapshot #${report.snapshot.id}`
+        return (
+          <div key={snapshot.report.id}>
+            <b>
+              {i + 1}. {report.page.name} - {title}
+            </b>
+            <ExecutionChart
+              hideTitle={true}
+              defaultEndTime={endTime}
+              tasks={snapshot.traceData}
+              timings={snapshot.timings}
+            />
+          </div>
+        )
+      })}
+      <Separator />
+      <TimingByResourceKindTable snapshots={snapshots} />
     </Stack>
   )
 }

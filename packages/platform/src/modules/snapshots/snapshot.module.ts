@@ -228,11 +228,15 @@ export class SnapshotModule extends EffectModule<State> {
 
   @ImmerReducer()
   setReportTraceData(state: Draft<State>, payload: { key: string; traceData: Task[] }) {
-    state.snapshotReportsDetail[payload.key]['traceData'] = payload.traceData
+    if (state.snapshotReportsDetail[payload.key]) {
+      state.snapshotReportsDetail[payload.key]['traceData'] = payload.traceData
+    }
   }
 
   @ImmerReducer()
   setReportRequests(state: Draft<State>, payload: { key: string; requests: RequestSchema[] }) {
-    state.snapshotReportsDetail[payload.key]['requests'] = payload.requests
+    if (state.snapshotReportsDetail[payload.key]) {
+      state.snapshotReportsDetail[payload.key]['requests'] = payload.requests
+    }
   }
 }
