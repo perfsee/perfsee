@@ -19,7 +19,7 @@ import { Module } from '@sigi/core'
 import { FC, useCallback, useMemo, useState } from 'react'
 
 import { ForeignLink, MultiSelector, useWideScreen } from '@perfsee/components'
-import { FlamechartBindingManager } from '@perfsee/flamechart/views/flamechart-binding-manager'
+import { FlamechartBindingManager } from '@perfsee/flamechart'
 import { getChartEndTime } from '@perfsee/lab-report/chart/helper'
 import { FlamechartModule, FlamechartPlaceholder } from '@perfsee/lab-report/flamechart'
 import { FlamechartView } from '@perfsee/lab-report/pivot-content-flamechart/flamechart'

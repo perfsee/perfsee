@@ -4,3 +4,4 @@ export {
   ControllerProps as FlamechartViewControllerProps,
 } from './flamechart-view-controller'
 export { FlamechartView, Props as FlamechartViewProps } from './flamechart-view'
+export { FlamechartBindingManager } from './flamechart-binding-manager'
