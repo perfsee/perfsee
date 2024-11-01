@@ -36,8 +36,8 @@ import {
   PerfseeFlameChartData,
   ReactDevtoolProfilingDataExport,
   prepareProfilingDataFrontendFromExport,
+  FlamechartBindingManager,
 } from '@perfsee/flamechart'
-import { FlamechartBindingManager } from '@perfsee/flamechart/views/flamechart-binding-manager'
 import { LighthouseScoreType, MetricScoreSchema, RequestSchema, UserTimingSchema } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
