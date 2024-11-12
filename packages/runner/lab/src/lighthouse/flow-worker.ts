@@ -110,6 +110,13 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       }
     }
 
+    try {
+      await browser.close()
+      this.logger.verbose('Browser closed')
+    } catch (e) {
+      this.logger.error('Failed to close browser', { error: e })
+    }
+
     return {
       result: {
         report: [],
