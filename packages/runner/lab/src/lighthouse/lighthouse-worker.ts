@@ -466,7 +466,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
 
-    const browser = await createBrowser({ enableProxy, withCache: warmup && this.cacheDir, ...options })
+    const browser = await createBrowser({
+      enableProxy,
+      userDataDir: warmup ? this.cacheDir : undefined,
+      ...options,
+    })
 
     browser.on('targetcreated', (e: Target) => {
       const setup = async () => {

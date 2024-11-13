@@ -44,10 +44,6 @@ export async function createBrowser(options: BrowserOptions = {}) {
     chromeArgs.push('--host-rules=MAP * 127.0.0.1')
   }
 
-  if (options.withCache) {
-    chromeArgs.push(`--disk-cache-dir=${options.withCache}`)
-  }
-
   const browser = await puppeteer.launch({
     executablePath,
     ignoreHTTPSErrors: true,
