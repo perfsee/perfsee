@@ -136,6 +136,10 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
     return getLighthouseMetricScores('timespan', audits, timings, timelines)
   }
 
+  protected shouldHaveLcp(): boolean {
+    return false
+  }
+
   protected async collectResults(lhResult: LH.PerfseeRunnerResult & { userFlowResult?: FlowResult[] }) {
     const userFlowResult = lhResult.userFlowResult
 

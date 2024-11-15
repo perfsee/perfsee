@@ -50,40 +50,26 @@ export class LabJobWorker extends LighthouseJobWorker {
       failedReason,
     } = await this.audit()
 
-    if (failedReason) {
-      this.updateJob({
-        type: JobType.LabAnalyze,
-        payload: {
-          snapshotReport: {
-            id: payload.reportId,
-            screencastStorageKey,
-            status: SnapshotStatus.Failed,
-            failedReason: failedReason,
-          },
-          jobId: this.job.jobId,
+    this.updateJob({
+      type: JobType.LabAnalyze,
+      payload: {
+        snapshotReport: {
+          id: payload.reportId,
+          lighthouseStorageKey,
+          screencastStorageKey,
+          jsCoverageStorageKey,
+          traceEventsStorageKey,
+          reactProfileStorageKey,
+          traceDataStorageKey,
+          requestsStorageKey,
+          status: failedReason ? SnapshotStatus.Failed : SnapshotStatus.Completed,
+          performanceScore: metrics?.[LighthouseScoreMetric.Performance],
+          metrics,
+          failedReason: failedReason,
         },
-      })
-    } else {
-      this.updateJob({
-        type: JobType.LabAnalyze,
-        payload: {
-          snapshotReport: {
-            id: payload.reportId,
-            lighthouseStorageKey,
-            screencastStorageKey,
-            jsCoverageStorageKey,
-            traceEventsStorageKey,
-            reactProfileStorageKey,
-            traceDataStorageKey,
-            requestsStorageKey,
-            status: SnapshotStatus.Completed,
-            performanceScore: metrics![LighthouseScoreMetric.Performance],
-            metrics,
-          },
-          jobId: this.job.jobId,
-        },
-      })
-    }
+        jobId: this.job.jobId,
+      },
+    })
   }
 
   protected onError(e: Error) {
@@ -185,7 +171,7 @@ export class UserFlowJobWorker extends LabWithFlowJobWorker {
           failedReason,
           stepId,
           stepName,
-          status: SnapshotStatus.Completed,
+          status: failedReason ? SnapshotStatus.Failed : SnapshotStatus.Completed,
           performanceScore: metrics?.[LighthouseScoreMetric.Performance],
           id: payload.reportId,
         },
@@ -213,7 +199,7 @@ export class UserFlowJobWorker extends LabWithFlowJobWorker {
             reactProfileStorageKey,
             traceDataStorageKey,
             requestsStorageKey,
-            status: SnapshotStatus.Completed,
+            status: SnapshotStatus.Completed, // always completed here
             stepName,
             stepId,
             performanceScore: metrics?.[LighthouseScoreMetric.Performance],

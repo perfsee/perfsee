@@ -85,13 +85,13 @@ export const ReportContentWithRoute: FC<Props> = memo((props) => {
     [history, routerParams, project],
   )
 
-  if (![SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(report.status)) {
+  if (![SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(report.status) && !report.reportLink) {
     return <Stack horizontalAlign="center">{renderMessageBar(report.status, getReportMessage(report))}</Stack>
   }
 
   return (
     <>
-      {report.status === SnapshotStatus.PartialCompleted
+      {[SnapshotStatus.PartialCompleted, SnapshotStatus.Failed].includes(report.status)
         ? renderMessageBar(report.status, getReportMessage(report))
         : null}
       <ReportContent
@@ -170,7 +170,7 @@ export const ReportContent: FC<ReportContentProps> = (props) => {
 
   const completedReports = useMemo(() => {
     return snapshotReports.filter(
-      (v) => [SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(v.status) && v.reportLink,
+      (v) => [SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(v.status) || v.reportLink,
     )
   }, [snapshotReports])
 

@@ -185,7 +185,11 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
 
   const onRowClick = useCallback(
     (report: SnapshotReportSchema) => () => {
-      if (report.status === SnapshotStatus.Completed || report.status === SnapshotStatus.PartialCompleted) {
+      if (
+        report.status === SnapshotStatus.Completed ||
+        report.status === SnapshotStatus.PartialCompleted ||
+        report.reportLink
+      ) {
         const url = getDetailUrl(report, project!.id)
         history.push(url)
       }

@@ -41,6 +41,7 @@ import {
   LHTosUserFlowSchema,
   TimelineSchema,
   SessionStorageType,
+  getScore,
 } from '@perfsee/shared'
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
@@ -101,6 +102,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return getLighthouseMetricScores('navigation', audits, timings, timelines)
   }
 
+  protected shouldHaveLcp() {
+    return true
+  }
+
   protected async collectResults(lhResult: LH.PerfseeRunnerResult, flowResults?: LHTosUserFlowSchema[]) {
     const { artifacts, lhr } = lhResult
 
@@ -140,6 +145,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           fiberLocations?: string[]
         })
       | null
+
+    if (this.shouldHaveLcp() && !Number.isFinite(getScore(lhr, 'first-contentful-paint'))) {
+      failedReason = 'No valid FCP result emitted.'
+    }
+    const hasRedirected = (lhr.audits['redirects']?.numericValue || 0) > 0
+    if (hasRedirected && !this.payload.lighthouseFlags?.ignoreRedirection) {
+      failedReason =
+        'Page has redirected, may due to login failure. If you want to ignore redirection, please set lighthouse running flags in the profile.'
+    }
 
     // artifacts
     const lighthouseFile = `snapshots/${uuid()}.json`
@@ -251,6 +265,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       traceDataStorageKey,
       requestsStorageKey,
       metrics,
+      failedReason,
     }
   }
 
