@@ -56,9 +56,13 @@ export const OperationButton = ({ snapshotId, report, project, onDelete }: Props
     return compareReports[project.id]?.[report.id]
   }, [compareReports, report.id, project.id])
 
-  const onRerun = useCallback(() => {
-    dispatcher.rerunSnapshotReport({ id: report.id, snapshotId: snapshotId })
-  }, [dispatcher, report.id, snapshotId])
+  const onRerun = useCallback(
+    (e: MouseEvent<HTMLElement>) => {
+      e.stopPropagation()
+      dispatcher.rerunSnapshotReport({ id: report.id, snapshotId: snapshotId })
+    },
+    [dispatcher, report.id, snapshotId],
+  )
 
   const onAddCompare = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {

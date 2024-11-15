@@ -82,8 +82,13 @@ async function getMainThreadTasks(processedTrace: LH.Artifacts.ProcessedTrace) {
   const { MainThreadTasks } = (await dynamicImport(
     'lighthouse/core/lib/tracehouse/main-thread-tasks.js',
   )) as typeof import('lighthouse/core/lib/tracehouse/main-thread-tasks')
-  const tasks = MainThreadTasks.getMainThreadTasks(mainThreadEvents, frames, timestamps.traceEnd) as TaskNode[]
-  return transformTask(tasks)
+  try {
+    const tasks = MainThreadTasks.getMainThreadTasks(mainThreadEvents, frames, timestamps.traceEnd) as TaskNode[]
+    return transformTask(tasks)
+  } catch (e) {
+    console.error(String(e))
+    return []
+  }
 }
 
 async function processNavigation(processedTrace: LH.Artifacts.ProcessedTrace) {
