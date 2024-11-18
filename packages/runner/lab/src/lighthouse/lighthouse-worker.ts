@@ -149,10 +149,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     if (this.shouldHaveLcp() && !Number.isFinite(getScore(lhr, 'first-contentful-paint'))) {
       failedReason = 'No valid FCP result emitted.'
     }
-    const hasRedirected = (lhr.audits['redirects']?.numericValue || 0) > 0
+
+    const finalDisplayUrl = new URL(lhr.finalDisplayedUrl || this.payload.url)
+    const targetUrl = new URL(this.payload.url)
+    const hasRedirected =
+      (lhr.audits['redirects']?.numericValue || 0) > 0 &&
+      `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${targetUrl.origin}${targetUrl.pathname}`
     if (hasRedirected && !this.payload.lighthouseFlags?.ignoreRedirection) {
       failedReason =
-        'Page has redirected, may due to login failure. If you want to ignore redirection, please set lighthouse running flags in the profile.'
+        'Page has redirected (may due to login failure), please check the report detail. If you want to ignore redirection, please set lighthouse running flags `{"ignoreRedirection": true}` in the profile.'
     }
 
     // artifacts
