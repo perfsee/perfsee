@@ -157,7 +157,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${targetUrl.origin}${targetUrl.pathname}`
     if (hasRedirected && !this.payload.lighthouseFlags?.ignoreRedirection) {
       failedReason =
-        'Page has redirected (may due to login failure), please check the report detail. If you want to ignore redirection, please set lighthouse running flags `{"ignoreRedirection": true}` in the profile.'
+        'The page has been redirected (may due to login failure), please check the report detail. If you want to ignore redirection, please set lighthouse running flags `{"ignoreRedirection": true}` in the profile.'
     }
 
     // artifacts
