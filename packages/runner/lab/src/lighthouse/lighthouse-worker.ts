@@ -151,11 +151,21 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     }
 
     const finalDisplayUrl = new URL(lhr.finalDisplayedUrl || this.payload.url)
-    const targetUrl = new URL(this.payload.url)
+    const requestUrl = new URL(this.payload.url)
+    const ignoreRedirection = this.payload.lighthouseFlags?.ignoreRedirection
     const hasRedirected =
-      (lhr.audits['redirects']?.numericValue || 0) > 0 &&
-      `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${targetUrl.origin}${targetUrl.pathname}`
-    if (hasRedirected && !this.payload.lighthouseFlags?.ignoreRedirection) {
+      // @ts-expect-error
+      lhr.audits['redirects']?.details?.items?.filter((item: { url: string }) => {
+        if (ignoreRedirection === false) {
+          return true
+        }
+        if (!ignoreRedirection || !Array.isArray(ignoreRedirection)) {
+          return false
+        }
+        return !ignoreRedirection.some((url) => item.url.includes(url))
+      }).length &&
+      `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${requestUrl.origin}${requestUrl.pathname}`
+    if (hasRedirected) {
       failedReason =
         'The page has been redirected (may due to login failure), please check the report detail. If you want to ignore redirection, please set lighthouse running flags `{"ignoreRedirection": true}` in the profile.'
     }

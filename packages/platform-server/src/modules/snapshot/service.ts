@@ -955,7 +955,8 @@ export class SnapshotService implements OnApplicationBootstrap {
     const { id, performanceScore, status } = report
     if (status !== SnapshotStatus.Completed) {
       if (await this.redis.get(`report-flagged-count-${id}`)) {
-        report.status = SnapshotStatus.PartialCompleted
+        const left = Number((await this.redis.get(`report-distribute-total-${id}`)) || 0)
+        report.status = left <= 0 ? SnapshotStatus.Completed : SnapshotStatus.PartialCompleted
       }
       return report
     }

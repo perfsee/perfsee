@@ -43,7 +43,7 @@ type FromProps = {
 }
 
 const LIGHTHOUSE_FLAGS_PLACEHOLDER = `Support: 'ignoreRedirection', 'pauseAfterLoadMs', 'pauseAfterFcpMs', 'networkQuietThresholdMs' and 'cpuQuietThresholdMs'.
-e.g. { "pauseAfterLoadMs": 5000, "ignoreRedirection": true }`
+e.g. { "pauseAfterLoadMs": 5000, "ignoreRedirection": false }`
 
 export const ProfileForm = (props: FromProps) => {
   const { profile: defaultProfile, closeModal, onSubmit } = props
