@@ -53,9 +53,10 @@ export class ScriptFileService {
             fileName: script.fileName,
             fromArtifactId: artifactId,
             artifactName,
+            createdAt: new Date(),
           })),
         )
-        .orIgnore()
+        .orUpdate(['from_artifact_id', 'created_at'], ['project_id', 'file_name', 'artifact_name'])
         .execute()
     }
   }
