@@ -105,10 +105,7 @@ export const LabReportList = ({ snapshotId, failedReason, onClose }: Props) => {
           return scoreA - scoreB
         },
         onRender: (report) => {
-          if (
-            typeof report.performanceScore !== 'number' ||
-            ![SnapshotStatus.Completed, SnapshotStatus.PartialCompleted].includes(report.status)
-          ) {
+          if (typeof report.performanceScore !== 'number') {
             return 'Not available'
           }
           if (report.performanceScore === 0) {
