@@ -50,6 +50,7 @@ declare module LH {
       withCache?: boolean
     }
     ignoreRedirection?: boolean
+    disableCache?: boolean
   }
 
   export interface ScreencastGathererResult {
