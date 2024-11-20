@@ -17,7 +17,7 @@ limitations under the License.
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
 
-import { groupBy, mapValues, pick } from 'lodash'
+import { groupBy, mapValues, omit } from 'lodash'
 import { Target, Page } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
@@ -150,22 +150,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       failedReason = 'No valid FCP result emitted.'
     }
 
-    const finalDisplayUrl = new URL(lhr.finalDisplayedUrl || this.payload.url)
-    const requestUrl = new URL(this.payload.url)
-    const ignoreRedirection = this.payload.lighthouseFlags?.ignoreRedirection
-    const hasRedirected =
-      // @ts-expect-error
-      lhr.audits['redirects']?.details?.items?.filter((item: { url: string }) => {
-        if (ignoreRedirection === false) {
-          return true
-        }
-        if (!ignoreRedirection || !Array.isArray(ignoreRedirection)) {
-          return false
-        }
-        return !ignoreRedirection.some((url) => item.url.includes(url))
-      }).length &&
-      `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${requestUrl.origin}${requestUrl.pathname}`
-    if (hasRedirected) {
+    if (this.hasRedirection(lhr)) {
       failedReason =
         'The page has been redirected (may due to login failure), please check the report detail. If you want to ignore redirection, please set lighthouse running flags `{"ignoreRedirection": true}` in the profile.'
     }
@@ -492,12 +477,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
   protected async createBrowser(options: BrowserOptions = {}) {
     const { cookies, localStorageContent, sessionStorageContent } = this
-    const { url, deviceId, enableProxy, warmup } = this.payload
+    const { url, deviceId, enableProxy, warmup, lighthouseFlags } = this.payload
     const device = DEVICE_DESCRIPTORS[deviceId] ?? DEVICE_DESCRIPTORS['no']
     const domain = new URL(url).host
 
     const browser = await createBrowser({
       enableProxy,
+      disableCache: !!lighthouseFlags?.disableCache,
       userDataDir: warmup ? this.cacheDir : undefined,
       ...options,
     })
@@ -571,7 +557,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         uploadThroughputKbps: uploadKbps,
         rttMs: throttle.rtt ?? 0,
       },
-      ...pick(userFlags!, 'pauseAfterFcpMs', 'pauseAfterLoadMs', 'networkQuietThresholdMs', 'cpuQuietThresholdMs'),
+      ...omit(userFlags!, ['output', 'channel', 'debugNavigation', 'auditMode', 'gatherMode']),
       customFlags: {
         headers,
         reactProfiling,
@@ -744,6 +730,28 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     } catch (e) {
       this.logger.error('Failed to take screenshot', { error: e })
     }
+  }
+
+  protected hasRedirection(lhr: LH.Result) {
+    const finalDisplayUrl = new URL(lhr.finalDisplayedUrl || this.payload.url)
+    const requestUrl = new URL(this.payload.url)
+    const ignoreRedirection = this.payload.lighthouseFlags?.ignoreRedirection
+    if (typeof ignoreRedirection === 'undefined') {
+      return false
+    }
+    return (
+      // @ts-expect-error
+      lhr.audits['redirects']?.details?.items?.filter((item: { url: string }) => {
+        if (ignoreRedirection === false) {
+          return true
+        }
+        if (!ignoreRedirection || !Array.isArray(ignoreRedirection)) {
+          return false
+        }
+        return !ignoreRedirection.some((url) => item.url.includes(url))
+      })?.length &&
+      `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${requestUrl.origin}${requestUrl.pathname}`
+    )
   }
 
   private async uploadScreencast(screencast: LH.ScreencastGathererResult | null) {

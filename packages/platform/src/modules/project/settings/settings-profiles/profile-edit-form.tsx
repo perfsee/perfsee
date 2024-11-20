@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import {
   DialogFooter,
   PrimaryButton,
@@ -22,12 +23,14 @@ import {
   IDropdownOption,
   Stack,
   TextField,
+  ITextFieldProps,
 } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { pick } from 'lodash'
 import { useCallback, useState, FormEvent, useRef } from 'react'
 
-import { RequiredTextField } from '@perfsee/components'
+import { ForeignLink, IconWithTips, RequiredTextField } from '@perfsee/components'
+import { staticPath } from '@perfsee/shared/routes'
 
 import { ProfileSchema, PropertyModule } from '../../../shared'
 import { getDevicesOptions, getConnectionsOptions, DefaultConnection, DefaultDevice } from '../helper'
@@ -42,8 +45,8 @@ type FromProps = {
   onSubmit: (payload: Partial<ProfileSchema>) => void
 }
 
-const LIGHTHOUSE_FLAGS_PLACEHOLDER = `Support: 'ignoreRedirection', 'pauseAfterLoadMs', 'pauseAfterFcpMs', 'networkQuietThresholdMs' and 'cpuQuietThresholdMs'.
-e.g. { "pauseAfterLoadMs": 5000, "ignoreRedirection": false }`
+const LIGHTHOUSE_FLAGS_PLACEHOLDER = `// For example:
+{ "pauseAfterLoadMs": 5000 }`
 
 export const ProfileForm = (props: FromProps) => {
   const { profile: defaultProfile, closeModal, onSubmit } = props
@@ -110,6 +113,28 @@ export const ProfileForm = (props: FromProps) => {
     const type = (e.target as HTMLDivElement).dataset.type!
     setProfile((p) => ({ ...p, [type]: option.key }))
   }, [])
+
+  const onRenderLabel = useCallback(
+    (props?: ITextFieldProps, renderer?: (props?: ITextFieldProps) => JSX.Element | null) => {
+      return (
+        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+          {renderer?.(props) || null}
+          <IconWithTips
+            content={
+              <div>
+                Used to customize lighthouse behaviors.{' '}
+                <ForeignLink href={staticPath.docs.home + '/lab/lighthouse-running-flags'}>More details</ForeignLink>
+              </div>
+            }
+          >
+            <QuestionCircleOutlined />
+          </IconWithTips>
+        </Stack>
+      )
+    },
+    [],
+  )
+
   return (
     <Stack tokens={{ childrenGap: 6 }}>
       <RequiredTextField label="Profile name" defaultValue={profile.name} onChange={onNameChange} />
@@ -143,6 +168,7 @@ export const ProfileForm = (props: FromProps) => {
         placeholder={LIGHTHOUSE_FLAGS_PLACEHOLDER}
         onChange={onLighthouseFlagsChange}
         errorMessage={flagsError}
+        onRenderLabel={onRenderLabel}
       />
       <FormReact defaultEnable={defaultProfile?.reactProfiling ?? false} ref={reactProfilingRef} />
       <FormProxy defaultEnable={defaultProfile?.enableProxy ?? false} ref={proxyRef} />
