@@ -17,10 +17,10 @@ limitations under the License.
 import { FallOutlined, RiseOutlined } from '@ant-design/icons'
 import { useTheme } from '@emotion/react'
 import styled from '@emotion/styled'
-import { CommandButton, Link, SelectionMode } from '@fluentui/react'
+import { CommandButton, Link, SelectionMode, SharedColors } from '@fluentui/react'
 import { partition } from 'lodash'
 import { parse, stringify } from 'query-string'
-import { FC, useCallback, useContext, useMemo, useState } from 'react'
+import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   CollapsiblePanel,
@@ -158,10 +158,11 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
   const scoreItemsMap = useAuditScore()
   const icon = scoreItemsMap[audit.score].icon
   const theme = useTheme()
-  const queries: { trace?: string; tab?: string } = parse(location.search)
+  const queries: { trace?: string; tab?: string; audit?: string } = parse(location.search)
   const { history } = useContext(RouterContext)
   const packageTraceContext = useContext(PackageTraceContext)
   const moduleTraceContext = useContext(ModuleTraceContext)
+  const scrollElement = useRef<HTMLSpanElement>(null)
 
   const onClickTrace = useCallback(
     (ref: number) => {
@@ -180,6 +181,16 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
     },
     [moduleTraceContext],
   )
+
+  const isFocused = queries.audit && queries.audit === audit.id
+  useEffect(() => {
+    if (isFocused && audit.score <= 2) {
+      scrollElement.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }
+  }, [isFocused, audit.score])
 
   const diffScore = useMemo(() => {
     if (audit.weight && audit.numericScore && audit.baseline) {
@@ -222,7 +233,11 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
 
   return (
     <AuditItemBase
-      title={audit.title}
+      title={
+        <span ref={scrollElement} style={{ background: isFocused ? SharedColors.yellow10 : 'unset' }}>
+          {audit.title}
+        </span>
+      }
       icon={icon}
       description={
         <>
@@ -232,7 +247,7 @@ function AuditItem({ audit }: { audit: BundleAuditResult & { baseline?: BundleAu
       labels={labels}
     >
       {audit.detail && audit.detail.items.length > 0 && (
-        <CollapsiblePanel header="Detail">
+        <CollapsiblePanel header="Detail" defaultCollapsed={!isFocused}>
           <AuditItemDetail detail={audit.detail} onClickTrace={onClickTrace} onClickSideEffects={onClickSideEffects} />
         </CollapsiblePanel>
       )}

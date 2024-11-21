@@ -743,10 +743,10 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return (
       // @ts-expect-error
       lhr.audits['redirects']?.details?.items?.filter((item: { url: string }) => {
-        if (ignoreRedirection === false) {
+        if (!ignoreRedirection) {
           return true
         }
-        if (!ignoreRedirection || !Array.isArray(ignoreRedirection)) {
+        if (!Array.isArray(ignoreRedirection)) {
           return false
         }
         return !ignoreRedirection.some((url) => item.url.includes(url))

@@ -44,10 +44,17 @@ interface Props {
   className?: string
   iconPosition?: 'left' | 'right'
   children?: ReactNode
+  defaultCollapsed?: boolean
 }
 
-export const CollapsiblePanel: FC<Props> = ({ header, children, className, iconPosition = 'left' }) => {
-  const [collapsed, setCollapsed] = useState(true)
+export const CollapsiblePanel: FC<Props> = ({
+  header,
+  children,
+  className,
+  iconPosition = 'left',
+  defaultCollapsed = true,
+}) => {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed)
 
   const toggle = useCallback(() => {
     setCollapsed((v) => !v)
