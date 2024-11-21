@@ -57,7 +57,7 @@ export async function getLighthouseConfigs({ customFlags }: LH.Flags = {}): Prom
   }
 }
 
-export function getLighthouseFlags({ customFlags, ...flags }: LH.Flags = {}) {
+export function getLighthouseFlags({ customFlags, disableCache, ...flags }: LH.Flags = {}) {
   return {
     maxWaitForFcp: 30 * 1000,
     maxWaitForLoad: 45 * 1000,
@@ -65,7 +65,7 @@ export function getLighthouseFlags({ customFlags, ...flags }: LH.Flags = {}) {
     logLevel: 'info' as const,
     skipAudits: ['bf-cache'], // not working in headless mode
     ignoreStatusCode: true,
-    disableStorageReset: !!customFlags?.withCache,
+    disableStorageReset: disableCache ? false : !!customFlags?.withCache,
     ...flags,
   }
 }
