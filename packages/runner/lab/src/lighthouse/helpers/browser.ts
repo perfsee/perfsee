@@ -21,6 +21,7 @@ import { findChrome } from '@perfsee/chrome-finder'
 export type BrowserOptions = Parameters<typeof puppeteer.launch>[0] & {
   enableProxy?: boolean
   disableCache?: boolean
+  originToForceQuicOn?: string[]
 }
 
 export async function createBrowser(options: BrowserOptions = {}) {
@@ -47,6 +48,10 @@ export async function createBrowser(options: BrowserOptions = {}) {
   if (options.disableCache) {
     chromeArgs.push('--disable-cache')
   }
+
+  options.originToForceQuicOn?.forEach((domain) => {
+    chromeArgs.push(`--origin-to-force-quic-on=${domain}`)
+  })
 
   const browser = await puppeteer.launch({
     executablePath,

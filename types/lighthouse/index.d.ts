@@ -51,6 +51,7 @@ declare module LH {
     }
     ignoreRedirection?: boolean
     disableCache?: boolean
+    originToForceQuicOn?: string[]
   }
 
   export interface ScreencastGathererResult {

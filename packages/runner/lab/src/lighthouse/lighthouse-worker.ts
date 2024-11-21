@@ -485,6 +485,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       enableProxy,
       disableCache: !!lighthouseFlags?.disableCache,
       userDataDir: warmup ? this.cacheDir : undefined,
+      originToForceQuicOn: lighthouseFlags?.originToForceQuicOn,
       ...options,
     })
 

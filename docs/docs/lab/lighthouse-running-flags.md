@@ -88,6 +88,8 @@ interface LighthouseRunningFlags {
   ignoreRedirection?: boolean | string[]
   /** If true, the browser will be launched with `--disable-cache` flag. Defaults to false */
   disableCache?: boolean
+  /** The domains need to force enable quic protocol. e.g. originToForceQuicOn: ['domain1.com:443'] */
+  originToForceQuicOn?: string[]
 }
 
 type StorageType =
