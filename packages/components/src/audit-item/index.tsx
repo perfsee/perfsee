@@ -20,7 +20,7 @@ import { ReactNode } from 'react'
 import { StyledAuditItem, StyledItemContent, StyledAuditAdorn, StyledAuditDesc } from './style'
 
 type Props = {
-  title: string
+  title: ReactNode
   icon: ReactNode
   score?: number | string
   labels?: (string | JSX.Element)[]
