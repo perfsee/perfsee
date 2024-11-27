@@ -180,6 +180,9 @@ export class SnapshotResolver {
     @Args({ name: 'userflowScript', type: () => String, nullable: true }) script: string,
     @CurrentUser() user: User,
   ) {
+    if (!url) {
+      throw new UserError('Url should not be empty')
+    }
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
 
     return this.service.takeTempSnapshot(projectRawId, user.email, url, profileIids, envIid, title, script)
