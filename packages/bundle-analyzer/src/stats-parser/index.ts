@@ -257,12 +257,12 @@ export class StatsParser {
       }
     }
 
-    for (const [name] of Object.entries(this.stats.entrypoints!)) {
+    for (const [name, entrypoint] of Object.entries(this.stats.entrypoints!)) {
       this.logger.verbose(`entry: '${name}'`)
       const chunks = entryChunksMap.get(name)!
       const assets = uniq(chunks.map((chunk) => mapRefs(chunk.assets)).flat()).map((ref) => refMappedAssets.get(ref)!)
       const packages = this.reduceModules(chunks)
-      const initialChunks = chunks.filter((chunk) => !chunk.async)
+      const initialChunks = uniqBy(this.flatChunks(entrypoint.chunks, new Set(), true), 'ref')
 
       const assetSizeReducer = (acc: Size, asset: Asset) => (asset.intermediate ? acc : addSize(acc, asset.size))
 
@@ -684,19 +684,22 @@ export class StatsParser {
     return result
   }
 
-  private flatChunks(chunks: ID[], existed: Set<ID> = new Set()): Chunk[] {
+  private flatChunks(chunks: ID[], existed: Set<ID> = new Set(), onlyInitial?: boolean): Chunk[] {
     return chunks
       .filter((id) => !existed.has(id))
       .map((id) => {
         existed.add(id)
         const chunk = this.chunksMap.get(id)!
         if (chunk) {
+          if (onlyInitial && chunk.async) {
+            return []
+          }
           const children =
             (this.stats.strictChunkRelations
               ? chunk.children?.filter((chunkId) => this.strictChunkRelationsMap.get(id)?.includes(chunkId))
               : chunk.children) || []
 
-          return [chunk, ...this.flatChunks(children, existed)].filter(isNotNil)
+          return [chunk, ...this.flatChunks(children, existed, onlyInitial)].filter(isNotNil)
         }
         return []
       })
