@@ -157,15 +157,18 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       }
     })
 
-    const [first, ...rest] = (
-      await Promise.all(userFlowResult?.map((r, i) => super.collectResults(r, i === 0 ? flowResults : undefined)) ?? [])
-    ).map((r, i) => {
-      return {
-        ...r,
-        stepName: userFlowResult?.[i].stepName,
-        stepId: i,
-      }
-    })
+    const results = []
+
+    for (const [index, r] of (userFlowResult ?? []).entries()) {
+      const result = await super.collectResults(r, index === 0 ? flowResults : undefined)
+      results.push({
+        ...result,
+        stepName: r.stepName,
+        stepId: index,
+      })
+    }
+
+    const [first, ...rest] = results
 
     if (!first) {
       throw new Error('no valid user flow step result')
