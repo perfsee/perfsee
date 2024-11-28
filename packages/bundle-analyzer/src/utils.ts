@@ -37,9 +37,9 @@ export function detectFileType(name: string): AssetTypeEnum {
     [AssetTypeEnum.Js]: /\.m?js$/i,
     [AssetTypeEnum.Css]: /\.css$/i,
     [AssetTypeEnum.Html]: /\.html?$/i,
-    [AssetTypeEnum.Image]: /\.(jpe?g|png|svg|gif|webp|heif|bmp)$/i,
+    [AssetTypeEnum.Image]: /\.(jpe?g|png|svg|gif|webp|heif|bmp|avif|cur|tiff?|apng|jxl)$/i,
     [AssetTypeEnum.Font]: /\.(otf|ttf|eot|woff2?)$/i,
-    [AssetTypeEnum.Media]: /\.(mp4|webm|mkv|flv|avi|wmv)$/i,
+    [AssetTypeEnum.Media]: /\.(mp4|webm|mkv|flv|avi|wmv|ogv|mp3|wav|ogg|m4a|aac)$/i,
   }
   for (const [type, regexp] of Object.entries(regexps)) {
     if (regexp?.test(name)) {
