@@ -734,12 +734,14 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected hasRedirection(lhr: LH.Result) {
-    const finalDisplayUrl = new URL(lhr.finalDisplayedUrl || this.payload.url)
-    const requestUrl = new URL(this.payload.url)
     const ignoreRedirection = this.payload.lighthouseFlags?.ignoreRedirection
     if (typeof ignoreRedirection === 'undefined') {
       return false
     }
+
+    const finalDisplayUrl = new URL(lhr.finalDisplayedUrl || this.payload.url)
+    const requestUrl = new URL(this.payload.url)
+
     return (
       // @ts-expect-error
       lhr.audits['redirects']?.details?.items?.filter((item: { url: string }) => {

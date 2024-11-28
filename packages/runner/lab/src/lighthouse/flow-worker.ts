@@ -176,4 +176,8 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       steps: rest,
     }
   }
+
+  protected hasRedirection() {
+    return false
+  }
 }
