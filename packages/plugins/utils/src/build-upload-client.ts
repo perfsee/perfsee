@@ -111,22 +111,28 @@ export class BuildUploadClient {
       }
     }
 
+    let statsPath: string | undefined
     try {
       // firstly write stats json down to disk in output path.
-      const statsPath = await this.writeStats(stats)
+      statsPath = await this.writeStats(stats)
 
       // then pack the assets in output path
       const packPath = await this.pack(statsPath, stats)
 
       // then upload the pack to platform
       await this.uploadPack(packPath, stats)
-
-      if (!process.env.KEEP_STATS) {
-        unlinkSync(statsPath)
-      }
     } catch (e) {
       console.error(chalk.red('[perfsee] Failed to upload build'))
       console.error(chalk.red(String(e)))
+    } finally {
+      if (!process.env.KEEP_STATS && statsPath) {
+        try {
+          unlinkSync(statsPath)
+        } catch (e) {
+          console.error(chalk.red('[perfsee] Failed to remove stats file'))
+          console.error(chalk.red(String(e)))
+        }
+      }
     }
   }
 
