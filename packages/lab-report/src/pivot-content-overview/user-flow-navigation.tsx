@@ -305,7 +305,7 @@ const Thumbnails = ({
   current?: boolean
   onClick?: MouseEventHandler
 }) => {
-  const [size, setSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
+  const [size, setSize] = useState<{ width: number; height: number }>({ width: 100, height: 50 })
   const [frameNum, setFrameNum] = useState(0)
 
   const firstImage = timeline[0]?.data
