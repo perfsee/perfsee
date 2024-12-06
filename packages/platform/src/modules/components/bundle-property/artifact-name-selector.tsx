@@ -30,7 +30,7 @@ interface Props {
 
 export function ArtifactNameSelector({ onChange, defaultArtifactName }: Props) {
   const [{ artifactNames }, { getRecentArtifactNames }] = useModule(BundlePropertiesModule)
-  const [currentArtifactName, setCurrentArtifactName] = useState<string>()
+  const [currentArtifactName, setCurrentArtifactName] = useState<string | undefined>(defaultArtifactName)
 
   const options = useMemo(() => {
     return artifactNames.map((name) => ({ key: name, text: name }))

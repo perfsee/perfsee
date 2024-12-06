@@ -60,7 +60,7 @@ export function BranchSelector({ onChange, defaultBranch, shouldAutoSelect = fal
   const project = useProject()
 
   const [{ recentBranches }, { getBranches }] = useModule(BundlePropertiesModule)
-  const [currentBranch, setCurrentBranch] = useState<string>()
+  const [currentBranch, setCurrentBranch] = useState<string | undefined>(defaultBranch)
 
   const options = useMemo(() => {
     return recentBranches.map((branch) => ({ key: branch, text: branch }))
@@ -89,7 +89,7 @@ export function BranchSelector({ onChange, defaultBranch, shouldAutoSelect = fal
       } else {
         onChange(undefined)
       }
-    } else if (recentBranches?.length === 0) {
+    } else if (recentBranches?.length === 0 && !defaultBranch) {
       onChange(undefined)
     }
   }, [currentBranch, defaultBranch, recentBranches, onChange, shouldAutoSelect, project?.artifactBaselineBranch])
