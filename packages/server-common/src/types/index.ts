@@ -18,13 +18,12 @@ import {
   ThrottleType,
   FlameChartDiagnostic,
   Size,
-  BundleAuditWarning,
   HeaderType,
   CookieType,
   MetricKeyType,
   LocalStorageType,
-  EntryDiffBrief,
   SessionStorageType,
+  BundleJobEntryPoint,
 } from '@perfsee/shared'
 
 type PartialSnapshotReport = {
@@ -102,11 +101,6 @@ export interface BundleJobPayload {
   artifactId: number
   buildKey: string
   baselineReportKey?: string | null
-}
-
-export type BundleJobEntryPoint = EntryDiffBrief & {
-  name: string
-  warnings: BundleAuditWarning[]
 }
 
 export type BundleJobRunningUpdate = {

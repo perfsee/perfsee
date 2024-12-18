@@ -20,26 +20,16 @@ import { join, parse, basename } from 'path'
 import { v4 as uuid } from 'uuid'
 
 import {
-  addSize,
   appendCacheInvalidation,
   calcBundleScore,
-  getDefaultSize,
-  Size,
-  EntryPoint,
   StatsParser,
   extractBundleFromStream,
   readStatsFile,
   AssetTypeEnum,
 } from '@perfsee/bundle-analyzer'
 import { JobWorker } from '@perfsee/job-runner-shared'
-import {
-  BundleJobPayload,
-  BundleJobUpdate,
-  BundleJobStatus,
-  JobType,
-  BundleJobEntryPoint,
-} from '@perfsee/server-common'
-import { briefEntryDiff, BundleAuditWarning, BundleResult, diffBundleResult } from '@perfsee/shared'
+import { BundleJobPayload, BundleJobUpdate, BundleJobStatus, JobType } from '@perfsee/server-common'
+import { BundleResult, calculateJobTotalSize, generateEntryPoints } from '@perfsee/shared'
 
 export class BundleWorker extends JobWorker<BundleJobPayload> {
   private pwd!: string
@@ -118,7 +108,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     }
 
     this.logger.info('Generating bundle audit aggregated result')
-    const entryPoints = this.generateEntryPoints(report, baselineResult)
+    const entryPoints = generateEntryPoints(report, baselineResult)
 
     const scripts = []
     for (const asset of assets) {
@@ -139,7 +129,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
       score: calcBundleScore(report.entryPoints),
       entryPoints,
       duration: this.timeSpent,
-      totalSize: this.calculateTotalSize(report),
+      totalSize: calculateJobTotalSize(report),
       scripts,
     }
     this.updateJob({
@@ -172,62 +162,5 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
         duration: this.timeSpent,
       },
     })
-  }
-
-  private generateEntryPoints(
-    jobResult: BundleResult,
-    baselineResult?: BundleResult | null,
-  ): Record<string, BundleJobEntryPoint> {
-    const diffResult = diffBundleResult(jobResult, baselineResult)
-
-    const result: Record<string, BundleJobEntryPoint> = {}
-
-    for (const entryPointName in diffResult) {
-      const entryPoint = briefEntryDiff(diffResult[entryPointName])
-      const warnings = this.generateWarnings(
-        jobResult.entryPoints.find(({ name }) => name === entryPointName)!,
-        baselineResult?.entryPoints?.find(({ name }) => name === entryPointName),
-      )
-      result[entryPointName] = {
-        ...entryPoint,
-        name: entryPointName,
-        warnings,
-      }
-    }
-
-    return result
-  }
-
-  private generateWarnings(entryPoint: EntryPoint, baseline?: EntryPoint | null): BundleAuditWarning[] {
-    const baselineScoreMap = new Map(baseline?.audits?.map((audit) => [audit.id, audit.numericScore?.value]))
-    const entryPointWarnings: BundleAuditWarning[] = []
-    entryPoint.audits?.forEach((audit) => {
-      if (!audit.numericScore) {
-        return
-      }
-
-      const baselineScore = baselineScoreMap.get(audit.id)
-      const score = audit.numericScore.value
-      const throttle =
-        baselineScore && audit.numericScore.relativeWarningThrottle
-          ? baselineScore - audit.numericScore.relativeWarningThrottle
-          : audit.numericScore.absoluteWarningThrottle
-
-      if (score < throttle) {
-        entryPointWarnings.push({
-          rule: audit.title,
-          score: score.toFixed(2),
-          throttle: `< ${throttle.toFixed(2)}`,
-        })
-      }
-    })
-
-    return entryPointWarnings
-  }
-
-  private calculateTotalSize(jobResult: BundleResult): Size {
-    return jobResult.assets.reduce((total, asset) => {
-      return addSize(total, asset.size)
-    }, getDefaultSize())
   }
 }

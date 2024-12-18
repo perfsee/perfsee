@@ -21,6 +21,7 @@ import {
   AssetTypeEnum,
   BasePackage,
   BundleAuditResult,
+  BundleAuditWarning,
   BundleResult,
   Chunk,
   DuplicatePackage,
@@ -141,6 +142,11 @@ export interface EntryDiffBrief {
   packagesCountDiff: Diff<number>
   duplicatedPackagesCountDiff: Diff<number>
   score: Diff<number | undefined>
+}
+
+export type BundleJobEntryPoint = EntryDiffBrief & {
+  name: string
+  warnings: BundleAuditWarning[]
 }
 
 export interface EntryDiff extends EntryDiffBrief {
@@ -411,4 +417,61 @@ export const analysisPackages = (job: BundleResult) => {
   })
 
   return generatePackage(firstLevel, includesMap, packagesMap)
+}
+
+export function generateEntryPoints(
+  jobResult: BundleResult,
+  baselineResult?: BundleResult | null,
+): Record<string, BundleJobEntryPoint> {
+  const diffResult = diffBundleResult(jobResult, baselineResult)
+
+  const result: Record<string, BundleJobEntryPoint> = {}
+
+  for (const entryPointName in diffResult) {
+    const entryPoint = briefEntryDiff(diffResult[entryPointName])
+    const warnings = generateWarnings(
+      jobResult.entryPoints.find(({ name }) => name === entryPointName)!,
+      baselineResult?.entryPoints?.find(({ name }) => name === entryPointName),
+    )
+    result[entryPointName] = {
+      ...entryPoint,
+      name: entryPointName,
+      warnings,
+    }
+  }
+
+  return result
+}
+
+export function generateWarnings(entryPoint: EntryPoint, baseline?: EntryPoint | null): BundleAuditWarning[] {
+  const baselineScoreMap = new Map(baseline?.audits?.map((audit) => [audit.id, audit.numericScore?.value]))
+  const entryPointWarnings: BundleAuditWarning[] = []
+  entryPoint.audits?.forEach((audit) => {
+    if (!audit.numericScore) {
+      return
+    }
+
+    const baselineScore = baselineScoreMap.get(audit.id)
+    const score = audit.numericScore.value
+    const throttle =
+      baselineScore && audit.numericScore.relativeWarningThrottle
+        ? baselineScore - audit.numericScore.relativeWarningThrottle
+        : audit.numericScore.absoluteWarningThrottle
+
+    if (score < throttle) {
+      entryPointWarnings.push({
+        rule: audit.title,
+        score: score.toFixed(2),
+        throttle: `< ${throttle.toFixed(2)}`,
+      })
+    }
+  })
+
+  return entryPointWarnings
+}
+
+export function calculateJobTotalSize(jobResult: BundleResult): Size {
+  return jobResult.assets.reduce((total, asset) => {
+    return addSize(total, asset.size)
+  }, getDefaultSize())
 }
