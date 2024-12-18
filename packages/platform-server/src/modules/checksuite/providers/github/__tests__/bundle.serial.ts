@@ -1,6 +1,7 @@
 import { Artifact } from '@perfsee/platform-server/db'
 import test from '@perfsee/platform-server/test'
-import { BundleJobEntryPoint, BundleJobPassedUpdate, BundleJobStatus } from '@perfsee/server-common'
+import { BundleJobPassedUpdate, BundleJobStatus } from '@perfsee/server-common'
+import { BundleJobEntryPoint } from '@perfsee/shared'
 
 import { BundleCompletedAction, CheckType } from '../../../types'
 import { renderBundleOutput } from '../bundle'
