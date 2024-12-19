@@ -58,6 +58,7 @@ interface SearchSelectProps<T1 extends boolean, T2 extends SelectedKey> {
   dropdownLoading?: boolean
   errorMessage?: string
   calloutMaxHeight?: number
+  multiSelectMaxVisible?: number
 }
 
 export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey = number>({
@@ -77,6 +78,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
   dropdownLoading,
   errorMessage,
   calloutMaxHeight,
+  multiSelectMaxVisible = 3,
 }: SearchSelectProps<T1, T2>) => {
   const theme = useTheme()
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -197,24 +199,40 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
     autoComplete: 'off',
   }
 
-  const searchBox = multiSelect ? (
-    <>
-      <TargetWrapper error={!!errorMessage} ref={wrapperRef}>
-        <Stack horizontal tokens={{ childrenGap: 4 }} styles={{ root: { flexWrap: 'wrap' } }}>
-          {_values?.map((v) => (
-            <Tag css={css({ margin: '2px 0' })} key={v}>
+  const onRenderInput = useCallback(
+    (props: any, defaultRenderer?: (props?: any) => JSX.Element | null) => {
+      return (
+        <Stack horizontal tokens={{ childrenGap: 4 }} styles={{ root: { flexWrap: 'no-wrap' } }} verticalAlign="center">
+          {_values.length > multiSelectMaxVisible ? <span style={{ marginLeft: 4 }}>...</span> : null}
+          {_values?.slice(-multiSelectMaxVisible).map((v) => (
+            <Tag css={css({ margin: '2px 0', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis' })} key={v}>
               {v}
               <CloseOutlined onClick={removeItem(v)} />
             </Tag>
           ))}
+          <Stack>{defaultRenderer?.(props)}</Stack>
         </Stack>
+      )
+    },
+    [_values, removeItem, multiSelectMaxVisible],
+  )
 
+  const searchBox = multiSelect ? (
+    <>
+      <TargetWrapper error={!!errorMessage} ref={wrapperRef}>
         <TextField
           styles={{
-            root: { flex: 1, minWidth: '200px', height: '100%', border: 'none', outline: 'none' },
+            root: { flex: 1, minWidth: '200px', height: '30px', border: 'none', outline: 'none', overflow: 'hidden' },
             fieldGroup: { border: 'none', outline: 'none', ':after': { display: 'none' } },
+            prefix: {
+              background: 'transparent',
+              borderRight: `1px solid ${NeutralColors.gray110}`,
+              color: theme.text.color,
+            },
           }}
           {...textFieldCommonProps}
+          onRenderInput={onRenderInput}
+          prefix={title}
         />
       </TargetWrapper>
       <ErrorMessage>{errorMessage}</ErrorMessage>
@@ -223,7 +241,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
     <div ref={wrapperRef}>
       <TextField
         styles={{
-          root: { minWidth: 300 },
+          root: { minWidth: 200 },
           prefix: {
             background: 'transparent',
             borderRight: `1px solid ${NeutralColors.gray110}`,

@@ -97,7 +97,7 @@ const snapshotsColumns: TableColumnProps<SnapshotMetricsSchema>[] = [
       />
     ),
   },
-  ...['FMP', 'TTI', 'FCP', 'LCP', 'TBT'].map((key) => {
+  ...['FCP', 'LCP', 'SI', 'CLS', 'TBT'].map((key) => {
     return {
       key: key,
       name: key,
@@ -109,7 +109,7 @@ const snapshotsColumns: TableColumnProps<SnapshotMetricsSchema>[] = [
           prev={data.prev?.metrics[MetricType[key]]}
           label={key}
           comparator={lessBetterComparator}
-          formatter={formatMillisecond}
+          formatter={key === 'CLS' ? undefined : formatMillisecond}
         />
       ),
     }
