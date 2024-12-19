@@ -1,0 +1,37 @@
+query entrypointHistory($projectId: ID!, $pagination: PaginationInput, $branch: String, $name: String, $hash: String, $version: String, $from: DateTime, $to: DateTime, $artifactName: String) {
+  project(id: $projectId) {
+    entrypoints(pagination: $pagination, branch: $branch, name: $name, hash: $hash, version: $version, from: $from, to: $to, artifactName: $artifactName) {
+      edges {
+        node {
+          artifactId
+          hash
+          artifactName
+          branch
+          entrypoint
+          size {
+            raw
+            gzip
+            brotli
+          }
+          baselineSize {
+            raw
+            gzip
+            brotli
+          }
+          initialSize {
+            raw
+            gzip
+            brotli
+          }
+          baselineInitialSize {
+            raw
+            gzip
+            brotli
+          }
+          createdAt
+          score
+        }
+      }
+    }
+  }
+}

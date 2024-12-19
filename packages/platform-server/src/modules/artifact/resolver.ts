@@ -39,6 +39,9 @@ import { ArtifactService } from './service'
 @ObjectType()
 class PaginatedArtifacts extends Paginated(Artifact) {}
 
+@ObjectType()
+class PaginatedEntrypoints extends Paginated(ArtifactEntrypoint) {}
+
 @Resolver(() => Project)
 export class ProjectArtifactResolver {
   constructor(private readonly service: ArtifactService) {}
@@ -51,6 +54,31 @@ export class ProjectArtifactResolver {
   @ResolveField(() => [String])
   artifactNames(@Parent() project: Project) {
     return this.service.getArtifactNames(project.id)
+  }
+
+  @ResolveField(() => [String])
+  async entrypointNames(
+    @Parent() project: Project,
+    @Args({
+      name: 'pagination',
+      type: () => PaginationInput,
+      nullable: true,
+      defaultValue: { first: 20 },
+    })
+    paginationOption: PaginationInput,
+    @Args({ name: 'branch', type: () => String, nullable: true, description: 'git branch filter' }) branch?: string,
+    @Args({ name: 'artifactName', type: () => String, nullable: true, description: 'artifact name filter' })
+    artifactName?: string,
+  ) {
+    const entrypoints = await this.service.getEntrypoints(
+      project.id,
+      paginationOption,
+      undefined,
+      undefined,
+      branch,
+      artifactName,
+    )
+    return entrypoints[0].map((e) => e.entrypoint)
   }
 
   @ResolveField(() => Artifact, {
@@ -96,7 +124,6 @@ export class ProjectArtifactResolver {
       name: 'branch',
       type: () => String,
       nullable: true,
-      defaultValue: 'master',
       description: 'branch filter',
     })
     branch: string,
@@ -121,6 +148,40 @@ export class ProjectArtifactResolver {
   @ResolveField(() => Int, { name: 'artifactCount' })
   artifactCount(@Parent() project: Project) {
     return this.service.getArtifactCount(project.id)
+  }
+
+  @ResolveField(() => PaginatedEntrypoints, { name: 'entrypoints', description: 'get entrypoints' })
+  async entrypoints(
+    @Parent() project: Project,
+    @Args({
+      name: 'pagination',
+      type: () => PaginationInput,
+      nullable: true,
+      defaultValue: { first: 20 },
+    })
+    paginationOption: PaginationInput,
+    @Args({ name: 'from', type: () => GraphQLISODateTime, nullable: true }) from: Date | undefined,
+    @Args({ name: 'to', type: () => GraphQLISODateTime, nullable: true }) to: Date | undefined,
+    @Args({ name: 'branch', type: () => String, nullable: true, description: 'git branch filter' }) branch?: string,
+    @Args({ name: 'name', type: () => String, nullable: true, description: 'name filter' }) name?: string,
+    @Args({ name: 'artifactName', type: () => String, nullable: true, description: 'artifact name filter' })
+    artifactName?: string,
+    @Args({ name: 'hash', type: () => String, nullable: true, description: 'hash filter' }) hash?: string,
+    @Args({ name: 'version', type: () => String, nullable: true, description: 'version filter' }) version?: string,
+  ) {
+    const [entrypoints, totalCount] = await this.service.getEntrypoints(
+      project.id,
+      paginationOption,
+      from,
+      to,
+      branch,
+      artifactName,
+      name,
+      hash,
+      version,
+    )
+
+    return paginate(entrypoints, 'id', paginationOption, totalCount)
   }
 }
 

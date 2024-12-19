@@ -125,6 +125,65 @@ export class ArtifactService implements OnApplicationBootstrap {
       .getManyAndCount()
   }
 
+  async getEntrypoints(
+    projectId: number | undefined,
+    { first, after, skip }: PaginationInput,
+    from?: Date,
+    to?: Date,
+    branch?: string,
+    artifactName?: string,
+    name?: string,
+    hash?: string,
+    version?: string,
+  ) {
+    const query = ArtifactEntrypoint.createQueryBuilder('entrypoint')
+
+    if (projectId) {
+      query.where('entrypoint.project_id = :projectId', { projectId })
+    }
+
+    if (after) {
+      query.andWhere('entrypint.id > :after', { after })
+    }
+
+    if (branch) {
+      query.andWhere('entrypoint.branch = :branch', { branch })
+    }
+
+    if (name) {
+      query.andWhere('entrypoint.entrypoint = :name', { name })
+    }
+
+    if (artifactName) {
+      query.andWhere('entrypoint.artifact_name = :artifactName', { artifactName })
+    }
+
+    if (hash) {
+      query.andWhere('entrypoint.hash = :hash', { hash })
+    }
+
+    if (from && to) {
+      query.andWhere('entrypoint.created_at between :from and :to', { from, to })
+    }
+
+    if (version) {
+      query
+        .leftJoinAndMapOne(
+          'entrypoint.version',
+          AppVersion,
+          'version',
+          'version.hash = entrypoint.hash and version.project_id = entrypoint.project_id',
+        )
+        .andWhere('version.version = :version', { version })
+    }
+
+    return query
+      .orderBy('entrypoint.id', 'DESC')
+      .skip(skip)
+      .take(first ?? 10)
+      .getManyAndCount()
+  }
+
   /**
    * @deprecated use getArtifacts
    */
@@ -150,13 +209,15 @@ export class ArtifactService implements OnApplicationBootstrap {
   ) {
     const builder = ArtifactEntrypoint.createQueryBuilder().where('project_id = :projectId', { projectId })
 
-    if (isBaseline) {
-      const artifact = await Artifact.findOne({ where: { projectId, isBaseline }, order: { id: 'DESC' } })
-      if (artifact) {
-        builder.andWhere('branch = :branch', { branch: artifact.branch })
+    if (branch) {
+      if (isBaseline) {
+        const artifact = await Artifact.findOne({ where: { projectId, isBaseline }, order: { id: 'DESC' } })
+        if (artifact) {
+          builder.andWhere('branch = :branch', { branch: artifact.branch })
+        }
+      } else {
+        builder.andWhere('branch = :branch', { branch })
       }
-    } else {
-      builder.andWhere('branch = :branch', { branch })
     }
 
     if (artifactName) {

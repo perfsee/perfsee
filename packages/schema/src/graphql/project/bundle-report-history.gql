@@ -1,4 +1,4 @@
-query bundleHistory($projectId: ID!, $from: DateTime, $to: DateTime, $length: Int, $branch: String!, $name: String) {
+query bundleHistory($projectId: ID!, $from: DateTime, $to: DateTime, $length: Int, $branch: String, $name: String) {
   project(id: $projectId) {
     artifactHistory(from: $from, to: $to, length: $length, branch: $branch, name: $name) {
       artifactId

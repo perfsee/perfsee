@@ -19,12 +19,14 @@ import { Stack } from '@fluentui/react'
 import { ContentCard } from '@perfsee/components'
 
 import { ArtifactSizeChart } from './chart'
+import { EntrypointMetricsList } from './list'
 
 export const ArtifactSizeChartPage = () => {
   return (
     <Stack tokens={{ padding: '0 28px', childrenGap: 10 }}>
       <ContentCard>
         <ArtifactSizeChart />
+        <EntrypointMetricsList />
       </ContentCard>
     </Stack>
   )

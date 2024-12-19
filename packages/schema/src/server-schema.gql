@@ -195,6 +195,15 @@ type Project {
     id: Int!
   ): Artifact!
   artifactNames: [String!]!
+  entrypointNames(
+    pagination: PaginationInput = {first: 20}
+
+    """git branch filter"""
+    branch: String
+
+    """artifact name filter"""
+    artifactName: String
+  ): [String!]!
 
   """get artifacts by git commit hash"""
   artifactByCommit(
@@ -225,7 +234,7 @@ type Project {
     length: Int
 
     """branch filter"""
-    branch: String = "master"
+    branch: String
 
     """name filter"""
     name: String
@@ -234,6 +243,28 @@ type Project {
     isBaseline: Boolean
   ): [ArtifactEntrypoint!]!
   artifactCount: Int!
+
+  """get entrypoints"""
+  entrypoints(
+    pagination: PaginationInput = {first: 20}
+    from: DateTime
+    to: DateTime
+
+    """git branch filter"""
+    branch: String
+
+    """name filter"""
+    name: String
+
+    """artifact name filter"""
+    artifactName: String
+
+    """hash filter"""
+    hash: String
+
+    """version filter"""
+    version: String
+  ): PaginatedEntrypoints!
   recentBranches: [String!]!
 
   """get app versions by project"""
@@ -1253,6 +1284,16 @@ type ArtifactEdge {
 
 type PaginatedArtifacts {
   edges: [ArtifactEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ArtifactEntrypointEdge {
+  cursor: String!
+  node: ArtifactEntrypoint!
+}
+
+type PaginatedEntrypoints {
+  edges: [ArtifactEntrypointEdge!]!
   pageInfo: PageInfo!
 }
 

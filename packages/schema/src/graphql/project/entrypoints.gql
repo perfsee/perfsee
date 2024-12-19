@@ -1,0 +1,5 @@
+query recentEntrypoints($projectId: ID!, $branch: String, $artifactName: String) {
+  project(id: $projectId) {
+    entrypointNames(branch: $branch, artifactName: $artifactName)
+  }
+}

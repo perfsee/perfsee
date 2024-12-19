@@ -16,16 +16,17 @@ limitations under the License.
 
 import { Effect, EffectModule, ImmerReducer, Module } from '@sigi/core'
 import { Draft } from 'immer'
-import { map, Observable, switchMap } from 'rxjs'
+import { filter, map, Observable, switchMap, withLatestFrom } from 'rxjs'
 
 import { createErrorCatcher, GraphQLClient } from '@perfsee/platform/common'
-import { recentArtifactNamesQuery, recentBranchesQuery } from '@perfsee/schema'
+import { recentArtifactNamesQuery, recentBranchesQuery, recentEntrypointsQuery } from '@perfsee/schema'
 
 import { ProjectModule } from './project.module'
 
 type State = {
   recentBranches: string[]
   artifactNames: string[]
+  entrypoints: string[]
 }
 
 @Module('BundlePropertiesModule')
@@ -33,6 +34,7 @@ export class BundlePropertiesModule extends EffectModule<State> {
   defaultState = {
     recentBranches: [],
     artifactNames: [],
+    entrypoints: [],
   }
 
   constructor(private readonly client: GraphQLClient, private readonly project: ProjectModule) {
@@ -47,6 +49,11 @@ export class BundlePropertiesModule extends EffectModule<State> {
   @ImmerReducer()
   setArtifactNames(state: Draft<State>, names: string[]) {
     state.artifactNames = names
+  }
+
+  @ImmerReducer()
+  setEntrypoints(state: Draft<State>, entrypoints: string[]) {
+    state.entrypoints = entrypoints
   }
 
   @Effect()
@@ -83,6 +90,31 @@ export class BundlePropertiesModule extends EffectModule<State> {
             createErrorCatcher('Failed to fetch artifact names'),
             map((data) => {
               return this.getActions().setArtifactNames(data.project.artifactNames)
+            }),
+          ),
+      ),
+    )
+  }
+
+  @Effect()
+  getEntrypoints(payload$: Observable<{ artifactName?: string; branch?: string }>) {
+    return payload$.pipe(
+      withLatestFrom(this.project.state$),
+      filter(([, { project }]) => !!project),
+      switchMap(([{ artifactName, branch }, { project }]) =>
+        this.client
+          .query({
+            query: recentEntrypointsQuery,
+            variables: {
+              projectId: project!.id,
+              artifactName,
+              branch,
+            },
+          })
+          .pipe(
+            createErrorCatcher('Failed to fetch artifact names'),
+            map((data) => {
+              return this.getActions().setEntrypoints(data.project.entrypointNames)
             }),
           ),
       ),
