@@ -21,7 +21,7 @@ import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
-import { ByteSizeWithDiff } from '@perfsee/bundle-report/bundle-detail/components'
+import { ByteSizeWithDiff, NumberWithDiff } from '@perfsee/bundle-report/bundle-detail/components'
 import { onRenderVerticalLineRow, Table, TableColumnProps, TooltipWithEllipsis } from '@perfsee/components'
 import { InformationContainer } from '@perfsee/platform/modules/bundle/list/style'
 import { Commit } from '@perfsee/platform/modules/components/commit'
@@ -29,11 +29,8 @@ import { ProjectInfo, useProject } from '@perfsee/platform/modules/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { InfoItem, InfoRow } from '../../style'
-import { ReportScore } from '../components/report-score'
 
 import { Entrypoint, EntrypointsChartModule } from './module'
-
-const greaterBetterComparator = (current: number, prev: number) => current >= prev
 
 type EntrypointSchema = Entrypoint & {
   prev?: EntrypointSchema
@@ -89,7 +86,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'commit',
     name: 'Commit',
-    minWidth: 200,
+    minWidth: 160,
     maxWidth: 300,
     onRender: (data) => (
       <InformationContainer>
@@ -113,7 +110,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
       data.score === null ? (
         <>No Score</>
       ) : (
-        <ReportScore value={data.score} prev={data.prev?.score} label={'Score'} comparator={greaterBetterComparator} />
+        <NumberWithDiff current={data.score} baseline={data.prev?.score} hideIfNonComparable />
       ),
   },
   {
