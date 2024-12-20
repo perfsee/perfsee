@@ -110,7 +110,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
       data.score === null ? (
         <>No Score</>
       ) : (
-        <NumberWithDiff current={data.score} baseline={data.prev?.score} hideIfNonComparable />
+        <NumberWithDiff current={data.score} baseline={data.prev?.score} hideIfNonComparable showPercentile={false} />
       ),
   },
   {
