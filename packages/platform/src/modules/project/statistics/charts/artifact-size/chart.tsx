@@ -35,7 +35,6 @@ import { useProject, useProjectRouteGenerator } from '@perfsee/platform/modules/
 import { PrettyBytes, Size } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
-import { StatisticsModule } from '../../module'
 import { CustomTooltip, ColorDot } from '../style'
 
 import { EntrypointsChartModule } from './module'
@@ -67,12 +66,7 @@ export const ArtifactSizeChart = () => {
   const startDate = useMemo(() => dayjs.unix(startTime).toDate(), [startTime])
   const endDate = useMemo(() => dayjs.unix(endTime).toDate(), [endTime])
 
-  const [{ bundleHistory }, dispatcher] = useModule(StatisticsModule, {
-    selector: (state) => ({ bundleHistory: state.bundleHistory }),
-    dependencies: [],
-  })
-
-  const [, { getAggregatedEntrypoints }] = useModule(EntrypointsChartModule)
+  const [{ entrypoints }, { getAggregatedEntrypoints }] = useModule(EntrypointsChartModule)
 
   const handleStartDateSelect = useCallback(
     (date?: Date | null) => {
@@ -114,14 +108,6 @@ export const ArtifactSizeChart = () => {
   )
 
   useEffect(() => {
-    dispatcher.getAggregatedArtifacts({
-      length: null,
-      from: dayjs.unix(startTime).toISOString(),
-      to: dayjs.unix(endTime).toISOString(),
-      branch: branch ?? null,
-      name: name ?? null,
-    })
-
     getAggregatedEntrypoints({
       from: dayjs.unix(startTime).toISOString(),
       to: dayjs.unix(endTime).toISOString(),
@@ -129,18 +115,18 @@ export const ArtifactSizeChart = () => {
       artifactName: name,
       entrypoint,
     })
-  }, [dispatcher, startTime, endTime, branch, name, entrypoint, getAggregatedEntrypoints])
+  }, [startTime, endTime, branch, name, entrypoint, getAggregatedEntrypoints])
 
   const { flatData, largest, smallest } = useMemo(() => {
     const data: DataType[] = []
     let largest = 0
     let smallest = Number.MAX_SAFE_INTEGER
     // avoid weird chart looking
-    if (!bundleHistory?.length) {
+    if (!entrypoints?.length) {
       largest = 1000
       smallest = 0
     } else {
-      bundleHistory.forEach(({ artifactName, entrypoint, artifactId, hash, size }) => {
+      entrypoints.forEach(({ artifactName, entrypoint, artifactId, hash, size }) => {
         const record = {
           id: artifactId,
           hash,
@@ -158,7 +144,7 @@ export const ArtifactSizeChart = () => {
 
     data.sort((a, b) => a.id - b.id)
     return { flatData: data, largest, smallest }
-  }, [bundleHistory])
+  }, [entrypoints])
 
   const { data, groupData } = useMemo(() => {
     return formatChartData<DataType, DataType>(flatData, 'entryPoint', 'id', 'raw')
@@ -277,7 +263,7 @@ export const ArtifactSizeChart = () => {
   }
 
   return (
-    <Chart option={option} showLoading={!bundleHistory} notMerge={true} hideBorder>
+    <Chart option={option} showLoading={!entrypoints} notMerge={true} hideBorder>
       <ChartHeader title="Entrypoint Size History">
         <Space wrap>
           <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 12 }}>
