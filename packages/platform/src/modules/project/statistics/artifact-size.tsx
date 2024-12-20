@@ -39,6 +39,7 @@ import { ArtifactLabel, ChartPartHeader, ChartPartWrap, tableHeaderStyles } from
 type BundleAggregation = {
   entrypoint: React.ReactNode
   data: BundleEntrypoint[]
+  entryName: string
 }
 
 const detailIconProps: IIconProps = {
@@ -152,9 +153,15 @@ export const ArtifactSize = () => {
   const [branchFetched, setBranchFetched] = useState(false)
 
   useEffect(() => {
-    if (branch) {
-      dispatcher.getAggregatedArtifacts({ length: 15, from: null, to: null, branch, name: artifactName ?? null })
-    } else if (branchFetched) {
+    if (branchFetched) {
+      dispatcher.getAggregatedArtifacts({
+        length: 15,
+        from: null,
+        to: null,
+        branch: branch ?? null,
+        name: artifactName ?? null,
+      })
+    } else {
       dispatcher.setArtifacts([])
     }
   }, [dispatcher, branch, artifactName, branchFetched])
@@ -185,6 +192,7 @@ export const ArtifactSize = () => {
               entrypoint
             ),
           data: data.sort((a, b) => (a.artifactId && b.artifactId ? a.artifactId - b.artifactId : 0)),
+          entryName: entrypoint,
         }))
       })
       .flat()
@@ -196,7 +204,7 @@ export const ArtifactSize = () => {
       const path = generateProjectRoute(
         pathFactory.project.statistics.artifacts,
         {},
-        { branch, name: name ?? artifactName ?? null },
+        { branch, name: name ?? artifactName ?? null, entrypoint: item.entryName },
       )
       history.push(path)
     },

@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { LinkOutlined } from '@ant-design/icons'
+import { Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { compact, floor } from 'lodash'
@@ -29,13 +30,15 @@ import {
   ChartHeader,
   formatChartData,
 } from '@perfsee/components/chart'
-import { ArtifactNameSelector, BranchSelector } from '@perfsee/platform/modules/components'
+import { ArtifactNameSelector, BranchSelector, EntrypointSelector } from '@perfsee/platform/modules/components'
 import { useProject, useProjectRouteGenerator } from '@perfsee/platform/modules/shared'
 import { PrettyBytes, Size } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { StatisticsModule } from '../../module'
 import { CustomTooltip, ColorDot } from '../style'
+
+import { EntrypointsChartModule } from './module'
 
 type DataType = {
   id: number
@@ -57,9 +60,9 @@ export const ArtifactSizeChart = () => {
   const generateProjectRoute = useProjectRouteGenerator()
 
   const [
-    { startTime = dayjs().subtract(2, 'months').unix(), endTime = dayjs().unix(), branch, name },
+    { startTime = dayjs().subtract(2, 'months').unix(), endTime = dayjs().unix(), branch, name, entrypoint },
     updateQueryString,
-  ] = useQueryString<{ startTime: number; endTime: number; branch: string; name: string }>()
+  ] = useQueryString<{ startTime: number; endTime: number; branch: string; name: string; entrypoint?: string }>()
 
   const startDate = useMemo(() => dayjs.unix(startTime).toDate(), [startTime])
   const endDate = useMemo(() => dayjs.unix(endTime).toDate(), [endTime])
@@ -68,6 +71,8 @@ export const ArtifactSizeChart = () => {
     selector: (state) => ({ bundleHistory: state.bundleHistory }),
     dependencies: [],
   })
+
+  const [, { getAggregatedEntrypoints }] = useModule(EntrypointsChartModule)
 
   const handleStartDateSelect = useCallback(
     (date?: Date | null) => {
@@ -101,16 +106,30 @@ export const ArtifactSizeChart = () => {
     [updateQueryString],
   )
 
+  const handleEntrypointsSelect = useCallback(
+    (entrypoint?: string) => {
+      updateQueryString({ entrypoint })
+    },
+    [updateQueryString],
+  )
+
   useEffect(() => {
-    branch &&
-      dispatcher.getAggregatedArtifacts({
-        length: null,
-        from: dayjs.unix(startTime).toISOString(),
-        to: dayjs.unix(endTime).toISOString(),
-        branch,
-        name: name ?? null,
-      })
-  }, [dispatcher, startTime, endTime, branch, name])
+    dispatcher.getAggregatedArtifacts({
+      length: null,
+      from: dayjs.unix(startTime).toISOString(),
+      to: dayjs.unix(endTime).toISOString(),
+      branch: branch ?? null,
+      name: name ?? null,
+    })
+
+    getAggregatedEntrypoints({
+      from: dayjs.unix(startTime).toISOString(),
+      to: dayjs.unix(endTime).toISOString(),
+      branch: branch,
+      artifactName: name,
+      entrypoint,
+    })
+  }, [dispatcher, startTime, endTime, branch, name, entrypoint, getAggregatedEntrypoints])
 
   const { flatData, largest, smallest } = useMemo(() => {
     const data: DataType[] = []
@@ -259,10 +278,18 @@ export const ArtifactSizeChart = () => {
 
   return (
     <Chart option={option} showLoading={!bundleHistory} notMerge={true} hideBorder>
-      <ChartHeader title="Bundle Size History">
+      <ChartHeader title="Entrypoint Size History">
         <Space wrap>
-          <ArtifactNameSelector defaultArtifactName={name} onChange={handleArtifactNameSelect} />
-          <BranchSelector defaultBranch={branch} shouldAutoSelect onChange={handleBranchSelect} />
+          <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 12 }}>
+            <ArtifactNameSelector defaultArtifactName={name} onChange={handleArtifactNameSelect} />
+            <BranchSelector defaultBranch={branch} onChange={handleBranchSelect} />
+            <EntrypointSelector
+              defaultEntrypoints={entrypoint}
+              artifactName={name}
+              branch={branch}
+              onChange={handleEntrypointsSelect}
+            />
+          </Stack>
           <DateRangeSelector
             startDate={startDate}
             endDate={endDate}
