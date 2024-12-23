@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BranchesOutlined, CalendarOutlined, NodeIndexOutlined } from '@ant-design/icons'
+import { BranchesOutlined, CalendarOutlined, NodeIndexOutlined, TagOutlined } from '@ant-design/icons'
 import { ConstrainMode, SelectionMode, Stack, Text } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import dayjs from 'dayjs'
@@ -41,8 +41,8 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'entrypoint',
     name: 'Entrypoint',
-    minWidth: 150,
-    maxWidth: 220,
+    minWidth: 100,
+    maxWidth: 200,
     onRender: (data) => (
       <Stack>
         <Stack
@@ -86,17 +86,23 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'commit',
     name: 'Commit',
-    minWidth: 160,
-    maxWidth: 300,
+    minWidth: 280,
+    maxWidth: 400,
     onRender: (data) => (
       <InformationContainer>
         <Stack horizontal={true} verticalAlign="center" tokens={{ childrenGap: 8 }}>
           <BranchesOutlined />
           <span>{data.branch}</span>
+          {data.version?.version ? (
+            <>
+              <TagOutlined />
+              <span>{data.version?.version}</span>
+            </>
+          ) : null}
         </Stack>
         <Stack horizontal={true} verticalAlign="center" tokens={{ childrenGap: 8 }}>
           <NodeIndexOutlined />
-          <Commit hash={data.hash} />
+          <Commit hash={data.hash} commitMessage={data.version?.commitMessage} />
         </Stack>
       </InformationContainer>
     ),
@@ -116,7 +122,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'size',
     name: 'Total Size',
-    minWidth: 180,
+    minWidth: 150,
     maxWidth: 300,
     onRender: (data) => {
       return <ByteSizeWithDiff current={data.size} baseline={data.prev?.size} hideIfNonComparable />
@@ -125,7 +131,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'intialSize',
     name: 'Initial Size',
-    minWidth: 180,
+    minWidth: 150,
     maxWidth: 300,
     onRender: (data) => {
       return <ByteSizeWithDiff current={data.initialSize} baseline={data.prev?.initialSize} hideIfNonComparable />

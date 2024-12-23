@@ -20,6 +20,7 @@ import {
   BranchesOutlined,
   NodeIndexOutlined,
   SelectOutlined,
+  TagOutlined,
 } from '@ant-design/icons'
 import {
   IColumn,
@@ -220,8 +221,8 @@ export const BundleList = memo(() => {
       {
         key: 'status',
         name: 'Status',
-        minWidth: 140,
-        maxWidth: 180,
+        minWidth: 100,
+        maxWidth: 120,
         onRender: (item: Artifact) => {
           if (item) {
             const status = (
@@ -247,27 +248,33 @@ export const BundleList = memo(() => {
       {
         key: 'artifact',
         name: 'Artifact',
-        minWidth: 80,
-        maxWidth: 150,
+        minWidth: 60,
+        maxWidth: 80,
         onRender: (item: Artifact) => `#${item.id}`,
       },
       {
         key: 'name',
         name: 'Artifact Name',
-        minWidth: 150,
+        minWidth: 100,
         maxWidth: 220,
         onRender: (item: Artifact) => <TooltipWithEllipsis content={item.name}>{item.name}</TooltipWithEllipsis>,
       },
       {
         key: 'commit',
         name: 'Commit',
-        minWidth: 200,
-        maxWidth: 300,
+        minWidth: 300,
+        maxWidth: 400,
         onRender: (item: Artifact) => (
           <InformationContainer>
             <Stack horizontal={true} verticalAlign="center" tokens={tableItemStackTokens}>
               <BranchesOutlined />
               <span>{item.branch}</span>
+              {item.version?.version ? (
+                <>
+                  <TagOutlined />
+                  <span>{item.version?.version}</span>
+                </>
+              ) : null}
             </Stack>
             <Stack horizontal={true} verticalAlign="center" tokens={tableItemStackTokens}>
               <NodeIndexOutlined />
@@ -299,8 +306,8 @@ export const BundleList = memo(() => {
       {
         key: 'score',
         name: 'Score',
-        minWidth: 80,
-        maxWidth: 80,
+        minWidth: 60,
+        maxWidth: 60,
         onRender: (artifact: Artifact) => {
           if (artifact.status !== BundleJobStatus.Passed) {
             return null

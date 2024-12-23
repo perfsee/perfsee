@@ -30,6 +30,10 @@ query entrypointHistory($projectId: ID!, $pagination: PaginationInput, $branch: 
           }
           createdAt
           score
+          version {
+            version
+            commitMessage
+          }
         }
       }
     }

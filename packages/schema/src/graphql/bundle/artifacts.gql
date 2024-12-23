@@ -16,6 +16,7 @@ query artifacts($projectId: ID!, $pagination: PaginationInput, $branch: String, 
           uploadSize
           version {
             commitMessage
+            version
           }
         }
       }

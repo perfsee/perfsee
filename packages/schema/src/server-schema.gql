@@ -127,6 +127,7 @@ type ArtifactEntrypoint {
   """artifact created timestamp"""
   createdAt: DateTime!
   artifactId: Int
+  version: AppVersion
 }
 
 type UsagePack {
