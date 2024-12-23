@@ -68,6 +68,13 @@ export class ArtifactService implements OnApplicationBootstrap {
     return (await ArtifactName.findBy({ projectId: id })).map((name) => name.name)
   }
 
+  async getEntrypointVersion(entrypoint: ArtifactEntrypoint) {
+    return AppVersion.findOneBy({
+      hash: entrypoint.hash,
+      projectId: entrypoint.projectId,
+    })
+  }
+
   async getLastAvailableBaseline(projectId: number, artifactName: string): Promise<Pick<Artifact, 'id'> | null> {
     return Artifact.findOne({
       where: {

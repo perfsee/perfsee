@@ -287,4 +287,9 @@ export class ArtifactEntrypointResolver {
     const artifact = await this.artifact.loader.load(entrypoint.artifactId)
     return artifact?.iid ?? null
   }
+
+  @ResolveField(() => AppVersion, { nullable: true })
+  async version(@Parent() entrypoint: ArtifactEntrypoint) {
+    return this.artifact.getEntrypointVersion(entrypoint)
+  }
 }
