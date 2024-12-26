@@ -14,14 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { CloseOutlined } from '@ant-design/icons'
-import { Modal, SelectionMode, TooltipHost } from '@fluentui/react'
+import { CloseOutlined, BranchesOutlined, TagOutlined } from '@ant-design/icons'
+import { Modal, SelectionMode, TooltipHost, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { FC, useState, useEffect, useMemo, useCallback } from 'react'
 
 import { Pagination, Table, TableColumnProps } from '@perfsee/components'
+import { BundleJobStatus } from '@perfsee/schema'
 
+import { Score } from '../../bundle/list/style'
 import { useProject } from '../../shared'
 import { ArtifactNameSelector, BranchSelector } from '../bundle-property'
 import { Commit } from '../commit'
@@ -72,16 +74,18 @@ export const ArtifactSelect: FC<Props> = (props) => {
     () => [
       {
         key: 'id',
-        minWidth: 50,
-        name: 'id',
+        minWidth: 40,
+        maxWidth: 60,
+        name: 'Id',
         onRender(item) {
           return `#${item.id}`
         },
       },
       {
         key: 'name',
-        name: 'name',
-        minWidth: 150,
+        name: 'Name',
+        minWidth: 80,
+        maxWidth: 140,
         onRender(item) {
           return (
             <TooltipHost content={item.name}>
@@ -93,7 +97,8 @@ export const ArtifactSelect: FC<Props> = (props) => {
       {
         key: 'commit',
         minWidth: 200,
-        name: 'commit',
+        maxWidth: 400,
+        name: 'Commit',
         onRender(item) {
           return <Commit hash={item.hash} commitMessage={item.version?.commitMessage} />
         },
@@ -101,19 +106,51 @@ export const ArtifactSelect: FC<Props> = (props) => {
       {
         key: 'branch',
         minWidth: 200,
-        name: 'branch',
+        maxWidth: 400,
+        name: 'Branch',
         onRender(item) {
           return (
-            <TooltipHost content={item.branch}>
-              <EllipsisDiv>{item.branch}</EllipsisDiv>
-            </TooltipHost>
+            <Stack tokens={{ childrenGap: 4 }} horizontal verticalAlign="center">
+              <Stack tokens={{ childrenGap: 2 }} horizontal verticalAlign="center">
+                <BranchesOutlined />
+                <TooltipHost content={item.branch}>
+                  <EllipsisDiv>{item.branch}</EllipsisDiv>
+                </TooltipHost>
+              </Stack>
+              {item.version?.version ? (
+                <Stack tokens={{ childrenGap: 2 }} horizontal verticalAlign="center">
+                  <TagOutlined />
+                  <TooltipHost content={item.version.version}>
+                    <EllipsisDiv>{item.version.version}</EllipsisDiv>
+                  </TooltipHost>
+                </Stack>
+              ) : null}
+            </Stack>
           )
         },
       },
       {
+        key: 'score',
+        name: 'Score',
+        minWidth: 40,
+        maxWidth: 60,
+        onRender: (artifact: Artifact) => {
+          if (artifact.status !== BundleJobStatus.Passed) {
+            return null
+          }
+
+          if (artifact.score === null) {
+            return <>No Score</>
+          }
+
+          return <Score score={artifact.score}>{artifact.score}</Score>
+        },
+      },
+      {
         key: 'created',
-        minWidth: 200,
-        name: 'created at',
+        minWidth: 140,
+        maxWidth: 200,
+        name: 'Created At',
         onRender(item) {
           return dayjs(item.createdAt).format('YYYY/MM/DD HH:mm:ss')
         },
@@ -148,7 +185,7 @@ export const ArtifactSelect: FC<Props> = (props) => {
   useEffect(() => dispatcher.reset(), [dispatcher])
 
   return (
-    <Modal isOpen={true} styles={{ scrollableContent: { overflow: 'visible' } }} onDismiss={onDismiss}>
+    <Modal isOpen={true} styles={{ scrollableContent: { overflow: 'visible', width: 1200 } }} onDismiss={onDismiss}>
       <Header>
         <span>Select baseline</span>
 
