@@ -110,15 +110,17 @@ export const ArtifactSelect: FC<Props> = (props) => {
         name: 'Branch',
         onRender(item) {
           return (
-            <Stack tokens={{ childrenGap: 4 }} horizontal verticalAlign="center">
-              <Stack tokens={{ childrenGap: 2 }} horizontal verticalAlign="center">
-                <BranchesOutlined />
-                <TooltipHost content={item.branch}>
-                  <EllipsisDiv>{item.branch}</EllipsisDiv>
-                </TooltipHost>
-              </Stack>
+            <Stack tokens={{ childrenGap: 8 }} horizontal verticalAlign="center">
+              {item.branch ? (
+                <Stack tokens={{ childrenGap: 4 }} horizontal verticalAlign="center">
+                  <BranchesOutlined />
+                  <TooltipHost content={item.branch}>
+                    <EllipsisDiv>{item.branch}</EllipsisDiv>
+                  </TooltipHost>
+                </Stack>
+              ) : null}
               {item.version?.version ? (
-                <Stack tokens={{ childrenGap: 2 }} horizontal verticalAlign="center">
+                <Stack tokens={{ childrenGap: 4 }} horizontal verticalAlign="center">
                   <TagOutlined />
                   <TooltipHost content={item.version.version}>
                     <EllipsisDiv>{item.version.version}</EllipsisDiv>

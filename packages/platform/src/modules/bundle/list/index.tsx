@@ -267,8 +267,12 @@ export const BundleList = memo(() => {
         onRender: (item: Artifact) => (
           <InformationContainer>
             <Stack horizontal={true} verticalAlign="center" tokens={tableItemStackTokens}>
-              <BranchesOutlined />
-              <span>{item.branch}</span>
+              {item.branch ? (
+                <>
+                  <BranchesOutlined />
+                  <span>{item.branch}</span>
+                </>
+              ) : null}
               {item.version?.version ? (
                 <>
                   <TagOutlined />
