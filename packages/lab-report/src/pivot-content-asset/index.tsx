@@ -88,11 +88,14 @@ type Props = {
 }
 
 const defaultKeys = Object.values(ColumnKeys).filter((key) => getColumnConfig(key).defaultShown)
+const ASSETS_FILTER_KEYS_STORAGE_KEYS = 'perfsee_assets_filter_keys'
 
 export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
   useWideScreen()
   const [searchedList, setSearchedList] = useState<RequestSchema[] | undefined>()
-  const [filterColumnKeys, setFilterColumnKeys] = useState<Set<string>>(new Set(defaultKeys))
+  const [filterColumnKeys, setFilterColumnKeys] = useState<Set<string>>(
+    () => new Set(localStorage.getItem(ASSETS_FILTER_KEYS_STORAGE_KEYS)?.split(',') || defaultKeys),
+  )
   const [groupByKey, setGroupBy] = useState<GroupByKey>(GroupByKey.None)
   const [, setQueryString] = useQueryString<{ opened?: string }>()
 
@@ -105,6 +108,11 @@ export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
       setQueryString({ opened: undefined })
     }
   }, [setQueryString])
+
+  const onSetFilterColumnKeys = useCallback((keys: Set<string>) => {
+    setFilterColumnKeys(keys)
+    localStorage.setItem(ASSETS_FILTER_KEYS_STORAGE_KEYS, [...keys.values()].join(','))
+  }, [])
 
   const waterfallColumn = useMemo(() => {
     return [
@@ -172,7 +180,7 @@ export const AssetContent = ({ snapshot: snapshotDetail }: Props) => {
         requests={snapshotDetail.requests ?? []}
         metricScores={snapshotDetail.metricScores ?? []}
         onChange={onFilter}
-        onFilterColumns={setFilterColumnKeys}
+        onFilterColumns={onSetFilterColumnKeys}
         filteredColumnKeys={filterColumnKeys}
         columnKeys={Object.values(ColumnKeys)}
         groupBy={groupByKey}
