@@ -440,6 +440,8 @@ input SnapshotReportFilter {
   length: Int
   withCompetitor: Boolean
   hash: String
+  excludeCompetitor: Boolean
+  excludeTemp: Boolean
 }
 
 type ReportsStatusCount {

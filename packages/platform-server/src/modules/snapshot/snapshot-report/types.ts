@@ -49,4 +49,10 @@ export class SnapshotReportFilter {
 
   @Field(() => String, { nullable: true })
   hash!: string | null
+
+  @Field(() => Boolean, { nullable: true })
+  excludeCompetitor!: boolean | null
+
+  @Field(() => Boolean, { nullable: true })
+  excludeTemp!: boolean | null
 }

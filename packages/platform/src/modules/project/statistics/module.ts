@@ -16,8 +16,8 @@ limitations under the License.
 
 import { Module, EffectModule, Effect, ImmerReducer, Reducer } from '@sigi/core'
 import { Draft } from 'immer'
-import { from, Observable } from 'rxjs'
-import { switchMap, map, withLatestFrom, filter, concatMap, delay } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { switchMap, map, withLatestFrom, filter, delay } from 'rxjs/operators'
 
 import { GraphQLClient, createErrorCatcher } from '@perfsee/platform/common'
 import {
@@ -80,42 +80,37 @@ export class StatisticsModule extends EffectModule<State> {
   }
 
   @Effect()
-  getAggregatedPages(payload$: Observable<Partial<SnapshotReportFilter>[]>) {
+  getAggregatedPages(payload$: Observable<Partial<SnapshotReportFilter>>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$, this.state$),
-      filter(([, { project }]) => !!project),
-      switchMap(([payload, { project }, { aggregatedPages }]) =>
-        from(payload).pipe(
-          filter(
-            (filter) =>
-              (aggregatedPages ?? []).findIndex(
-                (page) =>
-                  page.pageId === filter.pageId && page.profileId === filter.profileId && page.envId === filter.envId,
-              ) === -1,
+      filter(
+        ([filter, { project }, { aggregatedPages }]) =>
+          !!project &&
+          (aggregatedPages ?? []).findIndex(
+            (page) => page.profileId === filter.profileId && page.envId === filter.envId,
+          ) === -1,
+      ),
+      switchMap(([filter, { project }]) =>
+        this.client
+          .query({
+            query: snapshotReportHistoryQuery,
+            variables: {
+              projectId: project!.id,
+              filter,
+            },
+          })
+          .pipe(
+            createErrorCatcher('Failed to get snapshot statistics'),
+            map((data) =>
+              this.getActions().setPageSnapshots({
+                envId: filter.envId!,
+                profileId: filter.profileId!,
+                pageId: filter.pageId!,
+                reports: data.project.snapshotReports,
+              }),
+            ),
+            delay(100),
           ),
-          concatMap((filter) => {
-            return this.client
-              .query({
-                query: snapshotReportHistoryQuery,
-                variables: {
-                  projectId: project!.id,
-                  filter,
-                },
-              })
-              .pipe(
-                createErrorCatcher('Failed to get snapshot statistics'),
-                map((data) =>
-                  this.getActions().setPageSnapshots({
-                    envId: filter.envId!,
-                    profileId: filter.profileId!,
-                    pageId: filter.pageId!,
-                    reports: data.project.snapshotReports,
-                  }),
-                ),
-                delay(100),
-              )
-          }),
-        ),
       ),
     )
   }
