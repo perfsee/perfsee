@@ -136,6 +136,9 @@ export class SnapshotReportService {
       }
 
       const pageIds = await pagesQb.getRawMany<{ pageId: number }>().then((rows) => rows.map(({ pageId }) => pageId))
+      if (!pageIds.length) {
+        return []
+      }
       qb.andWhere('page_id in (:...pageIds)', { pageIds })
     }
 
