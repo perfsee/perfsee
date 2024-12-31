@@ -124,6 +124,19 @@ export class SnapshotReportService {
       } else {
         qb.andWhere('page_id = :pageId', { pageId })
       }
+    } else {
+      const pagesQb = Page.createQueryBuilder().select('id as pageId').where('project_id = :projectId', { projectId })
+
+      if (filter.excludeTemp) {
+        pagesQb.andWhere('is_temp = false')
+      }
+
+      if (filter.excludeCompetitor) {
+        pagesQb.andWhere('is_competitor = false')
+      }
+
+      const pageIds = await pagesQb.getRawMany<{ pageId: number }>().then((rows) => rows.map(({ pageId }) => pageId))
+      qb.andWhere('page_id in (:...pageIds)', { pageIds })
     }
 
     if (envId) {

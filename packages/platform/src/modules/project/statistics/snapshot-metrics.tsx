@@ -18,6 +18,7 @@ import { SelectOutlined } from '@ant-design/icons'
 import { IconButton, IIconProps, SelectionMode, Stack, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
+import { groupBy } from 'lodash'
 import { stringifyUrl } from 'query-string'
 import { useEffect, useMemo, useState, memo, useCallback } from 'react'
 import { useHistory } from 'react-router'
@@ -167,19 +168,18 @@ export const SnapshotMetrics = memo(() => {
   const [selectedProfileId, setProfileId] = useState<number>()
   const generateProjectRoute = useProjectRouteGenerator()
 
-  const [
-    { loading: propertyLoading, pages, environments, profileMap, pageRelationMap },
-    { fetchProperty, fetchPageRelation },
-  ] = useModule(PropertyModule, {
-    selector: (s) => ({
-      loading: s.loading,
-      pages: s.pages.filter((p) => !p.isCompetitor && !p.isTemp),
-      environments: s.environments,
-      profileMap: s.profileMap,
-      pageRelationMap: s.pageRelationMap,
-    }),
-    dependencies: [],
-  })
+  const [{ loading: propertyLoading, environments, profileMap }, { fetchProperty, fetchPageRelation }] = useModule(
+    PropertyModule,
+    {
+      selector: (s) => ({
+        loading: s.loading,
+        environments: s.environments,
+        profileMap: s.profileMap,
+        pageRelationMap: s.pageRelationMap,
+      }),
+      dependencies: [],
+    },
+  )
 
   const profiles = useMemo(() => Array.from(profileMap.values()), [profileMap])
 
@@ -200,56 +200,25 @@ export const SnapshotMetrics = memo(() => {
     fetchPageRelation()
   }, [fetchProperty, fetchPageRelation])
 
-  const selectedPages = useMemo(() => {
-    // means have not calculate selectedPages
-    if (propertyLoading || (environments.length && !selectedEnvId) || (profiles.length && !selectedProfileId)) {
-      return null
-    }
-
-    if (pages.length && pageRelationMap.size && selectedEnvId && selectedProfileId) {
-      return pages.filter((page) => {
-        const relation = pageRelationMap.get(page.id)
-        return !!(relation?.envIds.includes(selectedEnvId) && relation.profileIds.includes(selectedProfileId))
-      })
-    } else {
-      return []
-    }
-  }, [environments.length, pageRelationMap, pages, profiles.length, propertyLoading, selectedEnvId, selectedProfileId])
-
-  const queryPages = useMemo(() => {
-    return (loadMore ? selectedPages : selectedPages?.slice(0, 5)) ?? []
-  }, [loadMore, selectedPages])
-
   useEffect(() => {
-    if (queryPages.length > 0 && selectedEnvId && selectedProfileId) {
-      dispatcher.getAggregatedPages(
-        queryPages.map((page) => ({
-          pageId: page.id,
-          profileId: selectedProfileId,
-          envId: selectedEnvId,
-          length: BARCHART_LENGTH,
-          from: null,
-          to: null,
-        })),
-      )
+    if (selectedEnvId && selectedProfileId) {
+      dispatcher.getAggregatedPages({
+        profileId: selectedProfileId,
+        envId: selectedEnvId,
+        length: BARCHART_LENGTH,
+        from: null,
+        to: null,
+        excludeTemp: true,
+        excludeCompetitor: true,
+      })
     } else if (
       // not in loading property and have calculated no pages in current env & profile
       !propertyLoading &&
-      selectedPages &&
-      (!environments.length || !profiles.length || !selectedPages.length)
+      (!environments.length || !profiles.length)
     ) {
       dispatcher.setEmptyPageSnapshots()
     }
-  }, [
-    dispatcher,
-    selectedPages,
-    selectedEnvId,
-    selectedProfileId,
-    queryPages,
-    environments.length,
-    profiles.length,
-    propertyLoading,
-  ])
+  }, [dispatcher, selectedEnvId, selectedProfileId, environments.length, profiles.length, propertyLoading])
 
   useEffect(() => {
     return dispatcher.reset
@@ -264,19 +233,22 @@ export const SnapshotMetrics = memo(() => {
       return null
     }
 
-    const res = []
-    for (const page of queryPages) {
-      const reports = aggregated.find(
-        (item) => item.pageId === page.id && item.envId === selectedEnvId && item.profileId === selectedProfileId,
-      )?.reports
-      res.push({
-        page,
-        reports: reports?.slice().sort((a, b) => a.id - b.id),
+    const reports = groupBy(
+      aggregated.find((item) => item.envId === selectedEnvId && item.profileId === selectedProfileId)?.reports || [],
+      'page.id',
+    )
+
+    if (Object.keys(reports)?.length) {
+      return Object.values(reports).map((values) => {
+        return {
+          page: values[0].page as any,
+          reports: values?.slice().sort((a, b) => a.id - b.id),
+        }
       })
     }
 
-    return res
-  }, [aggregated, queryPages, selectedEnvId, selectedProfileId])
+    return []
+  }, [aggregated, selectedEnvId, selectedProfileId])
 
   const handleRowClick = useCallback(
     (data: PageMetricsSchema) => {
@@ -324,7 +296,7 @@ export const SnapshotMetrics = memo(() => {
         </Space>
       </ChartPartHeader>
       <Table
-        items={data ?? []}
+        items={loadMore ? data ?? [] : (data ?? []).slice(0, 5)}
         columns={columns}
         selectionMode={SelectionMode.none}
         detailsListStyles={tableHeaderStyles}
@@ -338,7 +310,7 @@ export const SnapshotMetrics = memo(() => {
           </ForeignLink>
         </Stack>
       ) : null}
-      {!loadMore && (selectedPages ?? []).length > 5 && <LoadMore onClick={handleLoadMore} />}
+      {!loadMore && (data ?? []).length > 5 && <LoadMore onClick={handleLoadMore} />}
     </ChartPartWrap>
   )
 })
