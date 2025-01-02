@@ -163,6 +163,10 @@ export class ProjectReportResolver {
     if (!Object.keys(filter).length) {
       throw new BadRequestException('Filter must at least have one field')
     }
+
+    if (typeof filter.length === 'number' && filter.length < 0) {
+      throw new BadRequestException('Length should be positive integer')
+    }
     if (filter.hash) {
       return this.service.getReportsByCommitHash(project.id, filter.hash)
     }
