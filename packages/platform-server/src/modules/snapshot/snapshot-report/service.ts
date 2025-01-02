@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Injectable } from '@nestjs/common'
-import { FindOptionsWhere, In, SelectQueryBuilder } from 'typeorm'
+import { FindOptionsWhere, In } from 'typeorm'
 
 import {
   Artifact,
@@ -88,29 +88,8 @@ export class SnapshotReportService {
   async filterReports(projectId: number, filter: SnapshotReportFilter) {
     filter.to = filter.to ?? new Date()
 
-    const subQuery = SnapshotReport.createQueryBuilder('sub')
-    const query = SnapshotReport.createQueryBuilder('report')
-
-    // If filter.length exist and pageId not specified
-    // should make sure every page get the specific length of data
-    const createProxy = (qb: SelectQueryBuilder<SnapshotReport>) =>
-      new Proxy(qb, {
-        get(target, p) {
-          if (p === 'where' || p === 'andWhere' || p === 'leftJoin') {
-            return function (...args: any) {
-              // @ts-expect-error
-              subQuery[p].apply(subQuery, args)
-              // @ts-expect-error
-              return createProxy(target[p].apply(target, args))
-            }
-          }
-          return target[p]
-        },
-      })
-
-    let qb = filter.length && !filter.pageIid ? createProxy(query) : query
-
-    qb.where('project_id = :projectId', { projectId })
+    const qb = SnapshotReport.createQueryBuilder('report')
+      .where('project_id = :projectId', { projectId })
       .andWhere('created_at <= :to', { to: filter.to })
       .andWhere('status = :status', { status: SnapshotStatus.Completed })
       .andWhere('step_of_id is null')
@@ -119,7 +98,7 @@ export class SnapshotReportService {
       qb.andWhere('created_at >= :from', {
         from: filter.from ?? new Date(filter.to.getTime() - 1000 * 60 * 60 * 24 * 7 /* 7 days */),
       })
-    } else if (filter.pageIid) {
+    } else {
       qb.take(filter.length)
     }
 
@@ -132,7 +111,7 @@ export class SnapshotReportService {
     const pageIds = pageId && filter.withCompetitor ? [pageId] : []
     let competitorIds: number[] = []
 
-    if (filter.pageIid) {
+    if (pageId) {
       if (filter.withCompetitor) {
         competitorIds = await PageWithCompetitor.createQueryBuilder()
           .select('competitor_id as competitorId')
@@ -160,7 +139,6 @@ export class SnapshotReportService {
       if (!pageIds.length) {
         return []
       }
-
       qb.andWhere('page_id in (:...pageIds)', { pageIds })
     }
 
@@ -179,15 +157,6 @@ export class SnapshotReportService {
 
     if (profileId) {
       qb.andWhere('profile_id = :profileId', { profileId })
-    }
-
-    qb = query
-    if (!filter.pageIid && filter.length) {
-      subQuery
-        .select('COUNT(*)')
-        .andWhere('sub.page_id = report.page_id')
-        .andWhere('sub.created_at >= report.created_at')
-      qb.andWhere(() => `(${subQuery.getQuery()}) <= :length`, { length: filter.length })
     }
 
     return qb.orderBy('created_at', 'DESC').getMany()
