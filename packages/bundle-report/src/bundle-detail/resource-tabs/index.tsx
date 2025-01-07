@@ -129,6 +129,7 @@ export const ResourceTabs: FC<Props> = ({
     const modulePath = path.startsWith('.') ? path : `./${path}`
     setTraceType(TraceType.Reasons)
     setTraceModule(modulePath)
+    panelRef.current?.open()
   }, [])
 
   const onRenderPanelHeader = useCallback(() => {
@@ -201,6 +202,7 @@ export const ResourceTabs: FC<Props> = ({
         onClose={onHideTraceModal}
         onChangeSource={onChangeSource}
         getModuleReasons={getModuleReasons}
+        onTraceModule={onClickPanelModulePath}
       />
       <Panel
         isLightDismiss
