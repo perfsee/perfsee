@@ -67,7 +67,7 @@ const snapshotsColumns: TableColumnProps<SnapshotMetricsSchema>[] = [
               tabName: 'overview',
             })}
           >
-            {data.snapshot.title ?? 'Snapshot ' + data.snapshot.id}
+            {data.snapshot.title || 'Snapshot ' + data.snapshot.id}
           </Link>
         </Stack>
         <Stack
