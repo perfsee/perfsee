@@ -255,15 +255,15 @@ export const BundleList = memo(() => {
       {
         key: 'name',
         name: 'Artifact Name',
-        minWidth: 100,
-        maxWidth: 220,
+        minWidth: 60,
+        maxWidth: 140,
         onRender: (item: Artifact) => <TooltipWithEllipsis content={item.name}>{item.name}</TooltipWithEllipsis>,
       },
       {
         key: 'commit',
         name: 'Commit',
         minWidth: 300,
-        maxWidth: 400,
+        maxWidth: 500,
         onRender: (item: Artifact) => (
           <InformationContainer>
             <Stack horizontal={true} verticalAlign="center" tokens={tableItemStackTokens}>

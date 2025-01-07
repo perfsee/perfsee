@@ -32,6 +32,7 @@ type Props = {
   onClose: () => void
   onChangeSource: (ref: number) => void
   getModuleReasons?: (sourceRef: number, targetRef: number) => Promise<ModuleReasons | null>
+  onTraceModule?: (path: string) => void
 }
 
 type GraphNodeData = { name: string; ref?: number; symbolSize?: number; version?: string; id: string }
@@ -42,6 +43,7 @@ export const ImportTraceModal: FC<Props> = ({
   onClose,
   onChangeSource,
   getModuleReasons,
+  onTraceModule,
 }) => {
   const [currentSelected, setCurrentSelected] = useState<
     [sourceRef: number, targetRef: number, sourceName: string, targetName: string] | null
@@ -238,8 +240,8 @@ export const ImportTraceModal: FC<Props> = ({
     const issuerIndex = packageIssue.issuerRefs.indexOf(currentSelected[0])
     const reasons = moduleReasons.packageReasons[currentSelected[1]]?.[issuerIndex]
 
-    return <Code moduleReasons={moduleReasons} searchText={searchText} reasons={reasons} />
-  }, [currentSelected, packageIssueMap, moduleReasons, searchText, loading])
+    return <Code moduleReasons={moduleReasons} searchText={searchText} reasons={reasons} onClickPath={onTraceModule} />
+  }, [currentSelected, packageIssueMap, moduleReasons, searchText, loading, onTraceModule])
 
   const importLocations = getModuleReasons ? (
     <Stack

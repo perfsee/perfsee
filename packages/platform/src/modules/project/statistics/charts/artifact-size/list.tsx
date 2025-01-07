@@ -41,8 +41,8 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'entrypoint',
     name: 'Entrypoint',
-    minWidth: 100,
-    maxWidth: 200,
+    minWidth: 80,
+    maxWidth: 180,
     onRender: (data) => (
       <Stack>
         <Stack
@@ -79,15 +79,15 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'name',
     name: 'Artifact Name',
-    minWidth: 100,
-    maxWidth: 180,
+    minWidth: 80,
+    maxWidth: 150,
     onRender: (data) => <TooltipWithEllipsis content={data.artifactName}>{data.artifactName}</TooltipWithEllipsis>,
   },
   {
     key: 'commit',
     name: 'Commit',
-    minWidth: 280,
-    maxWidth: 400,
+    minWidth: 320,
+    maxWidth: 500,
     onRender: (data) => (
       <InformationContainer>
         <Stack horizontal={true} verticalAlign="center" tokens={{ childrenGap: 8 }}>
@@ -110,7 +110,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'score',
     name: 'Score',
-    minWidth: 80,
+    minWidth: 60,
     maxWidth: 100,
     onRender: (data) =>
       data.score === null ? (
@@ -122,7 +122,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'size',
     name: 'Total Size',
-    minWidth: 150,
+    minWidth: 130,
     maxWidth: 300,
     onRender: (data) => {
       return <ByteSizeWithDiff current={data.size} baseline={data.prev?.size} hideIfNonComparable />
@@ -131,7 +131,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'intialSize',
     name: 'Initial Size',
-    minWidth: 150,
+    minWidth: 130,
     maxWidth: 300,
     onRender: (data) => {
       return <ByteSizeWithDiff current={data.initialSize} baseline={data.prev?.initialSize} hideIfNonComparable />
