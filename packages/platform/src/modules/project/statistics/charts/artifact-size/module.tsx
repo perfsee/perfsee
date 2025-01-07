@@ -61,6 +61,9 @@ export class EntrypointsChartModule extends EffectModule<State> {
               name: entrypoint,
               from,
               to,
+              pagination: {
+                first: 1000,
+              },
             },
           })
           .pipe(
