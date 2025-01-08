@@ -90,6 +90,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
             >
               <BuildRound>#{baseline.id}</BuildRound>
             </Link>
+            <ArtifactName>{baseline.name}</ArtifactName>
             <Tag type="default">baseline</Tag>
             <CommitInfo artifact={baseline} />
           </BuildHistoryItem>
