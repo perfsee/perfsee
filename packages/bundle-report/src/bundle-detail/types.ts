@@ -32,6 +32,7 @@ export interface ArtifactDiff {
   version?: {
     commitMessage?: string | null
   } | null
+  name: string
 }
 
 export interface ItemAudit {

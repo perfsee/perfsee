@@ -50,6 +50,12 @@ export const BuildRound = styled.span(({ theme }) => ({
   fontWeight: 'bold',
 }))
 
+export const ArtifactName = styled.span(({ theme }) => ({
+  color: theme.text.color,
+  lineHeight: '18px',
+  marginRight: '8px',
+}))
+
 export const PackageDiffWrap = styled.div(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
