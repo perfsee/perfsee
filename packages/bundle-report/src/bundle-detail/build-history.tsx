@@ -26,7 +26,7 @@ import { pathFactory } from '@perfsee/shared/routes'
 
 import { RouterContext } from '../router-context'
 
-import { BundleCard, BuildRound, EmptyBaselineWrap, EmptyBaselineIcon } from './style'
+import { BundleCard, BuildRound, EmptyBaselineWrap, EmptyBaselineIcon, ArtifactName } from './style'
 import { ArtifactDiff } from './types'
 
 const CommitMessage = styled.span({
@@ -75,6 +75,7 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
       <BuildHistoryContainer horizontal verticalAlign="center">
         <BuildHistoryItem>
           <BuildRound>#{artifact.id}</BuildRound>
+          <ArtifactName>{artifact.name}</ArtifactName>
           <Tag type="warning">current</Tag>
           <CommitInfo artifact={artifact} />
         </BuildHistoryItem>
