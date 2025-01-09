@@ -57,8 +57,8 @@ export async function createBrowser(options: BrowserOptions = {}) {
     executablePath,
     ignoreHTTPSErrors: true,
     defaultViewport: {
-      height: 720,
-      width: 1080,
+      height: 1080,
+      width: 1920,
     },
     ...options,
     args: [...chromeArgs, ...(options.args ?? [])],
