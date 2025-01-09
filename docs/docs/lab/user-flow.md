@@ -30,9 +30,26 @@ Click the `User Flow Mode` checkbox on the page settings.
 
 ![enable-userflow](/settings/enable-userflow.png)
 
-### Step 2: Write User Flow Scripts (Or record using Chrome Devtools)
+### Step 2: Write User Flow Scripts
 
-This platform uses [puppeteer](https://github.com/puppeteer/puppeteer) to run user flows. The scripts are compatible with most common puppeteer APIs.
+:::tip Natural Languages Supported!
+
+Perfsee now supports using natural language to describe and control page interactions.
+
+Example:
+
+```ts
+await ai('type "Headphones" in search box')
+await ai('hit Enter')
+```
+
+This feature is powered by [Midscene](https://midscenejs.com/). For more usage please refer to their [API reference](https://midscenejs.com/api).
+
+Important: **Steps should always be described clearly and thoroughly**. A very brief prompt like 'Tweet "Hello World"' will result in unstable performance and a high likelihood of failure. **We strongly recommend reading the [propmting tips](https://midscenejs.com/prompting-tips.html) before getting started**.
+
+:::
+
+Perfsee uses [puppeteer](https://github.com/puppeteer/puppeteer) to run user flows. The scripts are compatible with most common puppeteer APIs.
 
 #### Scripts running environments
 
@@ -56,7 +73,7 @@ await page.waitForNetworkIdle()
 
 #### Record using Chrome Devtools
 
-A more convenient way is to use Chrome Devtools to record the script.
+Another convenient way is to use Chrome Devtools to record the script.
 
 1. Open the target page on your chrome and open the devltoos.
 2. Click the `Recorder` tab and create a new recording.

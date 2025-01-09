@@ -643,6 +643,7 @@ type ApplicationSettings {
   enableOauth: Boolean!
   enableProjectCreate: Boolean!
   enableProjectDelete: Boolean!
+  enableMidscene: Boolean!
   enableProjectImport: Boolean!
   usePendingJobTable: Boolean!
   registrationToken: String!
@@ -1984,6 +1985,7 @@ input UpdateApplicationSettingsInput {
   enableOauth: Boolean
   enableProjectCreate: Boolean
   enableProjectDelete: Boolean
+  enableMidscene: Boolean
   enableProjectImport: Boolean
   usePendingJobTable: Boolean
 }

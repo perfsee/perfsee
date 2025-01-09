@@ -46,7 +46,7 @@ sidebar_position: 4
 
 ##### Stringify
 
-该格式无法直接方便地使用浏览器获取，建议安装第三方插件[EditThisCookie](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)，导出页面所需 cookies 粘贴至文本框即可。
+该格式无法直接方便地使用浏览器获取，建议安装第三方插件[EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol)，导出页面所需 cookies 粘贴至文本框即可。
 ![](/settings/cookies-stringify.png)
 
 ### Headers
@@ -71,6 +71,10 @@ sidebar_position: 4
 ![login script](/settings/login-script.png)
 
 开启这个功能后，Perfsee 会在 Lab 分析之前启动一个标签页页运行该脚本并保存所有 cookies，这个功能通常用于自动登录网站。
+
+:::tip
+你可以使用自然语言编写脚本或者从浏览器调试工具中录制脚本，更多信息请查看[编写 userflow 脚本](/lab/user-flow#step-2编写-user-flow-脚本)。
+:::
 
 Perfsee 使用 [puppeteer](https://pptr.dev/) 来运行脚本，脚本兼容大部分常用 Puppeteer API。
 

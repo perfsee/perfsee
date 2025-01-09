@@ -46,7 +46,7 @@ Table mode is default, just input data according to the prompt. Click the button
 
 ##### Stringify
 
-We don't have a convenient way to export cookies in Chrome, so we recommend installing [EditThisCookie](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg) to export cookies.
+We don't have a convenient way to export cookies in Chrome, so we recommend installing [EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol) to export cookies.
 ![](/settings/cookies-stringify.png)
 
 ### Headers
@@ -72,6 +72,10 @@ Table mode is default, just input data according to the prompt. Click the button
 ![login script](/settings/login-script.png)
 
 By enabling this feature, Perfsee will launch a page to run the script and store the cookies before lab, usually used to login the website.
+
+:::tip
+You can use natural languages to describe your login steps or record scripts with Chrome Devtools. For more detail please see [write userflow scripts](/lab/user-flow#step-2-write-user-flow-scripts).
+:::
 
 Perfsee uses [puppeteer](https://pptr.dev/) to run scripts. The scripts are compatible with most common puppeteer APIs.
 

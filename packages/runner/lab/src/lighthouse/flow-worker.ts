@@ -14,10 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { PuppeteerAgent } from '@midscene/web/puppeteer'
+
 import { TimelineSchema } from '@perfsee/shared'
 
 import { createSandbox } from './e2e-runtime/sandbox'
 import { FlowResult, LighthouseFlow } from './e2e-runtime/wrapper/flow'
+import { midsceneWrapper } from './e2e-runtime/wrapper/midscene'
 import { puppeteerNodeWrapper } from './e2e-runtime/wrapper/puppeteer'
 import { getLighthouseMetricScores } from './helpers'
 import { getLighthouseConfigs, getLighthouseFlags } from './lighthouse-runtime'
@@ -41,7 +44,7 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       config: await getLighthouseConfigs(lhFlags),
     })
 
-    const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
+    const wrapperOptions = {
       page,
       browser,
       flow,
@@ -49,9 +52,10 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
       ignoreErrorOnWaitNavigation: true,
       ignoreErrorOnWaitNetworkIdle: true,
       logger: this.logger,
-    })
+    }
+    const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, wrapperOptions)
     const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
-
+    const mid = midsceneWrapper.wrap(new PuppeteerAgent(page, { cacheId: this.getCacheId() }), wrapperOptions)
     // create sandbox
     const sandbox = createSandbox(
       {
@@ -71,6 +75,12 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
             return flow.endStep()
           },
         },
+        mid,
+        ai: mid.ai,
+        aiQuery: mid.aiQuery,
+        aiWaitFor: mid.aiWaitFor,
+        aiAction: mid.aiAction,
+        aiAssert: mid.aiAssert,
       },
       (method, message) => this.logger.info(`[From User Flow Script] ${message} - [${method}]`),
     )

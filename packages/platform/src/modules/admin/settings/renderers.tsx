@@ -39,6 +39,10 @@ const settingsDesc: Partial<
     desc: 'Whether use pending job table to accelerate job fetching',
     type: 'boolean',
   },
+  enableMidscene: {
+    desc: 'Whether to enable midscene',
+    type: 'boolean',
+  },
 }
 
 interface RendererProps {

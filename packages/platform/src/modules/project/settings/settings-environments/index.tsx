@@ -174,7 +174,6 @@ export const SettingsEnvironments = () => {
         type="Environment"
         onCloseDialog={closeModal}
         editContent={editContent}
-        isTable={isTable}
         visible={visible}
         deleteContent={deleteContent}
         isCreate={!env}

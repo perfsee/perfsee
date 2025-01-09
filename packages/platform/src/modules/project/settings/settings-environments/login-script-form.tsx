@@ -15,9 +15,11 @@ limitations under the License.
 */
 
 import { Stack, Checkbox, Link } from '@fluentui/react'
-import { FC, FormEvent, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
+import { FormEvent, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 
-import { IconWithTips, LabelWithTips, RequiredTextField } from '@perfsee/components'
+import { ForeignLink, IconWithTips, LabelWithTips, RequiredTextField } from '@perfsee/components'
+import { useSettings } from '@perfsee/platform/modules/shared'
+import { staticPath } from '@perfsee/shared/routes'
 
 export interface LoginScriptProps {
   defaultScript?: string | null
@@ -55,7 +57,7 @@ const label = (
   />
 )
 
-export const LoginScriptForm: FC<LoginScriptProps> = forwardRef(({ defaultScript }, ref) => {
+export const LoginScriptForm = forwardRef(({ defaultScript }: LoginScriptProps, ref) => {
   const [toggle, setToggle] = useState(!!defaultScript)
   const [script, setScript] = useState(defaultScript)
 
@@ -88,6 +90,8 @@ export const LoginScriptForm: FC<LoginScriptProps> = forwardRef(({ defaultScript
     setScript(value)
   }, [])
 
+  const settings = useSettings()
+
   return (
     <>
       <Stack styles={{ root: { marginTop: 4 } }} horizontal>
@@ -99,13 +103,41 @@ export const LoginScriptForm: FC<LoginScriptProps> = forwardRef(({ defaultScript
       </Stack>
       {toggle && (
         <Stack verticalAlign="center">
-          {label}
+          <Stack horizontal verticalAlign="center">
+            {label}
+            <span style={{ marginLeft: 16, fontSize: 12, whiteSpace: 'pre' }}>You can </span>
+            {settings.enableMidscene ? (
+              <>
+                <ForeignLink style={{ fontSize: 12 }} href="https://midscenejs.com/api">
+                  use natural languages
+                </ForeignLink>
+                <span style={{ fontSize: 12, whiteSpace: 'pre' }}> or </span>
+              </>
+            ) : null}
+
+            <ForeignLink
+              style={{ fontSize: 12 }}
+              href={staticPath.docs.home + '/lab/user-flow#record-using-chrome-devtools'}
+            >
+              record with devtools
+            </ForeignLink>
+          </Stack>
           <RequiredTextField
             multiline
             onChange={onTextChange}
             maxLength={65535}
             value={script ?? ''}
-            placeholder={placeholder}
+            placeholder={
+              settings.enableMidscene
+                ? `// MidScene AI supported!!!
+// You can use natural languages to describe the steps and control the page.
+await ai('Type "your account id" in the account input')
+await ai('Type "your password" in the password input')
+await ai('Click "Login"')
+
+` + placeholder
+                : placeholder
+            }
             rows={15}
           />
         </Stack>
