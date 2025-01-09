@@ -60,6 +60,7 @@ export async function createBrowser(options: BrowserOptions = {}) {
       height: 1080,
       width: 1920,
     },
+    headless: false,
     ...options,
     args: [...chromeArgs, ...(options.args ?? [])],
   })

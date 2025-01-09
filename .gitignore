@@ -196,3 +196,11 @@ temp/
 !.yarn/sdks
 !.yarn/versions
 perfsee.private-key.pem
+
+# Midscene.js dump files
+midscene_run
+
+# Midscene.js dump files
+midscene_run/report
+midscene_run/dump
+midscene_run/tmp

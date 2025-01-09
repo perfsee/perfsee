@@ -17,13 +17,20 @@ limitations under the License.
 import { Stack, Checkbox, Link } from '@fluentui/react'
 import { FC, FormEvent, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 
-import { IconWithTips, LabelWithTips, RequiredTextField } from '@perfsee/components'
+import { ForeignLink, IconWithTips, LabelWithTips, RequiredTextField } from '@perfsee/components'
+import { staticPath } from '@perfsee/shared/routes'
 
 export interface LoginScriptProps {
   defaultScript?: string | null
 }
 
-const placeholder = `// Perfsee uses puppeteer to run scripts.
+const placeholder = `// MidScene AI supported!!!
+// You can use natural languages to describe the steps and control the page.
+await ai('Type "your account id" in the account input')
+await ai('Type "your password" in the password input')
+await ai('Click "Login"')
+
+// Perfsee uses puppeteer to run scripts.
 // The script only needs to call the methods on \`page\` to operate it.
 // See https://pptr.dev/api/puppeteer.page.
 await page.goto('https://test.com/')
@@ -99,7 +106,20 @@ export const LoginScriptForm: FC<LoginScriptProps> = forwardRef(({ defaultScript
       </Stack>
       {toggle && (
         <Stack verticalAlign="center">
-          {label}
+          <Stack horizontal verticalAlign="center">
+            {label}
+            <span style={{ marginLeft: 16, fontSize: 12, whiteSpace: 'pre' }}>You can </span>
+            <ForeignLink style={{ fontSize: 12 }} href="https://midscenejs.com/api">
+              use natural languages
+            </ForeignLink>
+            <span style={{ fontSize: 12, whiteSpace: 'pre' }}> or </span>
+            <ForeignLink
+              style={{ fontSize: 12 }}
+              href={staticPath.docs.home + '/lab/user-flow#record-using-chrome-devtools'}
+            >
+              record with devtools
+            </ForeignLink>
+          </Stack>
           <RequiredTextField
             multiline
             onChange={onTextChange}

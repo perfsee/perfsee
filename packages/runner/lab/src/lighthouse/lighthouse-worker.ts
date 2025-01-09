@@ -17,6 +17,7 @@ limitations under the License.
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
 
+import { PuppeteerAgent } from '@midscene/web/puppeteer'
 import { groupBy, mapValues, omit } from 'lodash'
 import { Target, Page } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
@@ -46,6 +47,7 @@ import {
 import { computeMainThreadTasksWithTimings } from '@perfsee/tracehouse'
 
 import { createSandbox } from './e2e-runtime/sandbox'
+import { midsceneWrapper } from './e2e-runtime/wrapper/midscene'
 import { puppeteerNodeWrapper } from './e2e-runtime/wrapper/puppeteer'
 import {
   createBrowser,
@@ -58,6 +60,8 @@ import {
   DEFAULT_BENCHMARK_INDEX,
   onRequestFactory,
   BrowserOptions,
+  removeOldFiles,
+  uploadDirFiles,
 } from './helpers'
 import { lighthouse } from './lighthouse-runtime'
 import { ReactProfiler } from './lighthouse-runtime/gatherers'
@@ -82,8 +86,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   protected async after() {
     try {
       await rm('tmp', { recursive: true, force: true })
+      const midsceneReportKeys = await uploadDirFiles('midscene_run/report', this.client)
+      midsceneReportKeys.forEach((key) => {
+        this.logger.info('Midscene report uploaded', { type: 'link', url: key })
+      })
+      await rm('midscene_run/report', { recursive: true, force: true })
+      await removeOldFiles('midscene_run/cache', 30 * 24 * 60 * 60 * 1000 /* 1 month */)
+      await removeOldFiles('midscene_run/dump', 24 * 60 * 60 * 1000 /* 1 day */)
     } catch (e: unknown) {
-      this.logger.warn('Failed to clean up tmp dir: ', { error: String(e) })
+      this.logger.warn('Failed to clean up tmp dir', { error: String(e) })
     }
   }
 
@@ -347,6 +358,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     try {
       await rm('tmp', { recursive: true, force: true })
+      await rm('midscene_run/report', { recursive: true, force: true })
       await mkdir(this.cacheDir, { recursive: true })
     } catch {
       //
@@ -408,13 +420,15 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         sessionStorageContent,
       )
       page.on('request', onRequest)
-      const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, {
+      const wrapperOptions = {
         browser,
         page,
         ignoreEmulate: true,
         logger: this.logger,
-      })
+      }
+      const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, wrapperOptions)
       const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
+      const mid = midsceneWrapper.wrap(new PuppeteerAgent(page, { cacheId: this.getCacheId() }), wrapperOptions)
       const sandbox = createSandbox(
         {
           require: (m: string) => {
@@ -422,6 +436,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           },
           page: wrappedPage,
           puppeteer: wrappedPuppeteer,
+          mid,
+          ai: mid.ai,
+          aiQuery: mid.aiQuery,
+          aiWaitFor: mid.aiWaitFor,
+          aiAction: mid.aiAction,
+          aiAssert: mid.aiAssert,
         },
         (method, message) => this.logger.info(`[From Login Script] ${message} - [${method}]`),
       )
@@ -755,6 +775,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       })?.length &&
       `${finalDisplayUrl.origin}${finalDisplayUrl.pathname}` !== `${requestUrl.origin}${requestUrl.pathname}`
     )
+  }
+
+  protected getCacheId() {
+    const { pageId, envId, profileId } = this.payload
+    return `${pageId}-${envId}-${profileId}`
   }
 
   private async uploadScreencast(screencast: LH.ScreencastGathererResult | null) {
