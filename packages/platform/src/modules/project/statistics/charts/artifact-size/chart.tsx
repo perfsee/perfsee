@@ -59,7 +59,13 @@ export const ArtifactSizeChart = () => {
   const generateProjectRoute = useProjectRouteGenerator()
 
   const [
-    { startTime = dayjs().subtract(2, 'months').unix(), endTime = dayjs().unix(), branch, name, entrypoint },
+    {
+      startTime = dayjs().subtract(1, 'months').startOf('day').unix(),
+      endTime = dayjs().endOf('day').unix(),
+      branch,
+      name,
+      entrypoint,
+    },
     updateQueryString,
   ] = useQueryString<{ startTime: number; endTime: number; branch: string; name: string; entrypoint?: string }>()
 
