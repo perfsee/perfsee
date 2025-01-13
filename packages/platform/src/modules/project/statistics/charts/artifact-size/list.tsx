@@ -42,7 +42,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
     key: 'entrypoint',
     name: 'Entrypoint',
     minWidth: 80,
-    maxWidth: 180,
+    maxWidth: 170,
     onRender: (data) => (
       <Stack>
         <Stack
@@ -75,6 +75,24 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
         </Stack>
       </Stack>
     ),
+  },
+  {
+    key: 'artifact',
+    name: 'Artifact',
+    minWidth: 30,
+    maxWidth: 60,
+    onRender(data) {
+      return (
+        <Link
+          to={pathFactory.project.bundle.detail({
+            projectId: data.project.id,
+            bundleId: data.artifactId!,
+          })}
+        >
+          #{data.artifactId}
+        </Link>
+      )
+    },
   },
   {
     key: 'name',
@@ -122,7 +140,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'size',
     name: 'Total Size',
-    minWidth: 130,
+    minWidth: 120,
     maxWidth: 300,
     onRender: (data) => {
       return <ByteSizeWithDiff current={data.size} baseline={data.prev?.size} hideIfNonComparable />
@@ -131,7 +149,7 @@ const entrypointsColumns: TableColumnProps<EntrypointSchema>[] = [
   {
     key: 'intialSize',
     name: 'Initial Size',
-    minWidth: 130,
+    minWidth: 120,
     maxWidth: 300,
     onRender: (data) => {
       return <ByteSizeWithDiff current={data.initialSize} baseline={data.prev?.initialSize} hideIfNonComparable />

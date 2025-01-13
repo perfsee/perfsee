@@ -67,7 +67,7 @@ export class EntrypointsChartModule extends EffectModule<State> {
             },
           })
           .pipe(
-            createErrorCatcher('Failed to get snapshot statistics'),
+            createErrorCatcher('Failed to get entrypoint statistics'),
             map((data) => this.getActions().setEntrypoints(data.project.entrypoints.edges.map((e) => e.node))),
             startWith(this.getActions().setEntrypoints(undefined)),
           ),
