@@ -121,19 +121,21 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
 
   const renderOptions = useMemo(
     () =>
-      uniqBy([...options, ...(selectOptions ?? [])], 'key').map((option) => {
-        return (
-          <SearchSelectOption
-            checked={!!_values.find((value) => value === option.key)}
-            key={option.key}
-            id={option.key as string}
-            text={option.text}
-            multiSelect={!!multiSelect}
-            onChange={handleOnChange}
-          />
-        )
-      }),
-    [handleOnChange, multiSelect, options, selectOptions, _values],
+      uniqBy([...options, ...(selectOptions ?? [])], 'key')
+        .filter((option) => option.text.includes(showText))
+        .map((option) => {
+          return (
+            <SearchSelectOption
+              checked={!!_values.find((value) => value === option.key)}
+              key={option.key}
+              id={option.key as string}
+              text={option.text}
+              multiSelect={!!multiSelect}
+              onChange={handleOnChange}
+            />
+          )
+        }),
+    [handleOnChange, multiSelect, options, selectOptions, _values, showText],
   )
 
   const handleCloseDropdown = useCallback(() => {
