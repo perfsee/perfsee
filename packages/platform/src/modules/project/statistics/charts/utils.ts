@@ -19,7 +19,7 @@ import { MetricType, LighthouseScoreMetric, MetricKeyType } from '@perfsee/share
 type MetricFormatter = 'duration' | 'unitless' | 'decimal'
 
 export const Metrics: {
-  [k in MetricKeyType]: {
+  [k in MetricKeyType]?: {
     title: string
     des: string
     formatter: MetricFormatter

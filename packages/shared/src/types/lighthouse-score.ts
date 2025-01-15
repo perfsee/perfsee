@@ -35,7 +35,9 @@ export enum MetricType { // For homepage aggregation metrics chart
 }
 
 type MetricUnion = Pick<typeof MetricType, 'FCP' | 'LCP' | 'FMP' | 'CLS' | 'TBT' | 'SI' | 'TTI' | 'MPFID'> &
-  Pick<typeof LighthouseScoreMetric, 'Performance' | 'Accessibility' | 'SEO' | 'BestPractices' | 'PWA'>
+  Pick<typeof LighthouseScoreMetric, 'Performance' | 'Accessibility' | 'SEO' | 'BestPractices' | 'PWA'> & {
+    benchmark: 'benchmark'
+  }
 
 export type MetricKeyType = MetricUnion[keyof MetricUnion]
 
