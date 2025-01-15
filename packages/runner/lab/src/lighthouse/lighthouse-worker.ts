@@ -878,6 +878,8 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       metrics[type] = Math.round(score * 100)
     })
 
+    metrics['benchmark'] = lhResult.environment.benchmarkIndex
+
     return metrics
   }
 }
