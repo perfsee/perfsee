@@ -86,6 +86,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
   const [dropdownVisible, openDropdown, closeDropdown] = useToggleState(false)
   const [wrapperWidth, setWrapperWidth] = useState(0)
   const [showText, setShowText] = useState<string>('')
+  const [searchText, setSearchText] = useState<string>('')
   const [_values, setValues] = useState<SelectedKey[]>(values ?? [])
 
   const handleOnChange = useCallback(
@@ -103,6 +104,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
           setShowText(text)
           ;(onChange as (value: string) => void)(option.key)
         }
+        setSearchText('')
       }
     },
     [multiSelect, _values, closeDropdown, onChange],
@@ -114,6 +116,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
         openDropdown()
         onKeywordChange?.(value)
         setShowText(value)
+        setSearchText(value)
       }
     },
     [onKeywordChange, openDropdown],
@@ -122,7 +125,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
   const renderOptions = useMemo(
     () =>
       uniqBy([...options, ...(selectOptions ?? [])], 'key')
-        .filter((option) => option.text.includes(showText))
+        .filter((option) => option.text.includes(searchText))
         .map((option) => {
           return (
             <SearchSelectOption
@@ -135,13 +138,14 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
             />
           )
         }),
-    [handleOnChange, multiSelect, options, selectOptions, _values, showText],
+    [handleOnChange, multiSelect, options, selectOptions, _values, searchText],
   )
 
   const handleCloseDropdown = useCallback(() => {
     closeDropdown()
     if (multiSelect) {
       ;(onChange as (value: SelectedKey[]) => void)(_values)
+      setSearchText('')
     } else {
       const dropdown = selectOptions?.find(({ key }) => key === value)
       dropdown && setShowText(dropdown.text)
@@ -151,6 +155,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
   const handleOnBlur = useCallback(() => {
     if (allowFreeform) {
       ;(onChange as (value: string) => void)(showText)
+      setSearchText('')
     }
   }, [allowFreeform, onChange, showText])
 
@@ -183,6 +188,7 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
         const selected = _values.filter((k) => k !== key)
         setValues(selected)
         ;(onChange as (value: SelectedKey[]) => void)(selected)
+        setSearchText('')
         e.stopPropagation()
       }
     },
