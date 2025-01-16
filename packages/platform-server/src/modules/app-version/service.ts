@@ -85,6 +85,7 @@ export class AppVersionService {
       .where('project_id = :projectId', { projectId })
       .andWhere('created_at > :createdAt', { createdAt: nDaysBefore(30, latestUpdated.createdAt) })
       .andWhere('branch is not null')
+      .orderBy('created_at', 'DESC')
       .getRawMany<{ branch: string }>()
 
     return rawData.map(({ branch }) => branch)
