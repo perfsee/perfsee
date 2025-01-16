@@ -81,11 +81,18 @@ export class AppVersionService {
     }
 
     const rawData = await AppVersion.createQueryBuilder()
-      .select('distinct branch as branch')
-      .where('project_id = :projectId', { projectId })
-      .andWhere('created_at > :createdAt', { createdAt: nDaysBefore(30, latestUpdated.createdAt) })
-      .andWhere('branch is not null')
-      .orderBy('created_at', 'DESC')
+      .select('sub.branch', 'branch')
+      .from((subQuery) => {
+        return subQuery
+          .select('branch')
+          .addSelect('MAX(created_at)', 'latest_created_at')
+          .from(AppVersion, 'app_version')
+          .where('project_id = :projectId', { projectId })
+          .andWhere('created_at > :createdAt', { createdAt: nDaysBefore(30, latestUpdated.createdAt) })
+          .andWhere('branch is not null')
+          .groupBy('branch')
+      }, 'sub')
+      .orderBy('sub.latest_created_at', 'DESC')
       .getRawMany<{ branch: string }>()
 
     return rawData.map(({ branch }) => branch)

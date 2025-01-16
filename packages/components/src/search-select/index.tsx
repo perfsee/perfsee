@@ -116,8 +116,8 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
         openDropdown()
         onKeywordChange?.(value)
         setShowText(value)
-        setSearchText(value)
       }
+      setSearchText(value || '')
     },
     [onKeywordChange, openDropdown],
   )
@@ -155,7 +155,6 @@ export const SearchSelect = <T1 extends boolean = false, T2 extends SelectedKey 
   const handleOnBlur = useCallback(() => {
     if (allowFreeform) {
       ;(onChange as (value: string) => void)(showText)
-      setSearchText('')
     }
   }, [allowFreeform, onChange, showText])
 
