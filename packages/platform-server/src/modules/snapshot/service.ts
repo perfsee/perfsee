@@ -500,7 +500,7 @@ export class SnapshotService implements OnApplicationBootstrap {
           `report-result-${snapshotReport.id}-${flaggedCount}-${left}`,
           JSON.stringify(Object.assign({ jobId }, snapshotReport)),
           'EX',
-          3600,
+          3600 * 2,
         )
       }
 
@@ -1016,19 +1016,20 @@ export class SnapshotService implements OnApplicationBootstrap {
         'lcp',
       )
 
-      this.logger.verbose(`Get median result of report ${id}`, reportList[medianIndex])
-      const { jobId: reportJobId, ...medianReport } = reportList[medianIndex]
+      this.logger.log(`Getting median result of report ${id}: `, JSON.stringify(reportList.map((r) => r.metrics)))
+      const { jobId: medianReportJobId, ...medianReport } = reportList[medianIndex]
       Object.assign(report, medianReport)
       report.status = SnapshotStatus.Completed
 
       try {
-        if (job) {
-          job.extra ||= {}
-          job.extra.finalPicked = 'true'
-          await job.save()
+        if (medianReportJobId) {
+          const medianJob = await Job.findOneByOrFail({ id: medianReportJobId })
+          medianJob.extra ||= {}
+          medianJob.extra.finalPicked = 'true'
+          await medianJob.save()
         }
       } catch (e) {
-        this.logger.error(`Failed to set picked to jobId ${reportJobId}`, {
+        this.logger.error(`Failed to set picked to jobId ${medianReportJobId}`, {
           error: e,
           phase: 'handle distributed report',
         })

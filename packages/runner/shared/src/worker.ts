@@ -105,7 +105,7 @@ export abstract class JobWorker<Payload = any> {
   }
 
   protected updateJob(event: UpdateJobEvent) {
-    this.logger.info('Event emitted to server.', { type: event.type })
+    this.logger.info('Event emitted to server.', event)
     this.postMessage('event', event)
   }
 
