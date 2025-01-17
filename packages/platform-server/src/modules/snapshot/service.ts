@@ -970,12 +970,6 @@ export class SnapshotService implements OnApplicationBootstrap {
       return report
     }
     const average = recentReports.reduce((sum, b) => sum + (b.performanceScore || 0), 0) / recentReports.length
-    if (Math.abs((performanceScore || 0) - average) <= (this.config.job.lab.variabilityThreshold || Infinity)) {
-      this.logger.log(
-        `Report ${id} performance ${performanceScore} (average: ${average}) is under variability threshold.`,
-      )
-      return report
-    }
     const flaggedCount = await this.redis.incr(`report-flagged-count-${id}`)
     const earliestJob = await Job.findOne({
       where: { entityId: reportEntity.id, projectId: reportEntity.projectId, startedAt: Not(IsNull()) },
@@ -983,7 +977,9 @@ export class SnapshotService implements OnApplicationBootstrap {
     })
     if (
       flaggedCount >= 3 ||
-      (earliestJob?.startedAt && Date.now() - new Date(earliestJob.startedAt).valueOf() >= 1000 * 60 * 60) /* 1 HOUR */
+      (earliestJob?.startedAt &&
+        Date.now() - new Date(earliestJob.startedAt).valueOf() >= 1000 * 60 * 60) /* 1 HOUR */ ||
+      Math.abs((performanceScore || 0) - average) <= (this.config.job.lab.variabilityThreshold || Infinity)
     ) {
       this.logger.log(
         `Report flagged more than 3 times or has reached time limit. Collecting the most reliable result.`,
@@ -993,14 +989,17 @@ export class SnapshotService implements OnApplicationBootstrap {
       const distributedCount = this.config.job.lab.distributedConfig?.[zone!]?.count || 1
 
       const reportList: (LabJobResult['snapshotReport'] & { jobId?: number })[] = []
-      for (const flagged of times(flaggedCount)) {
-        for (const count of times(distributedCount)) {
-          const storageString = await this.redis.get(`report-result-${id}-${flagged}-${count}`)
-          if (!storageString) {
-            continue
+      if (flaggedCount > 1) {
+        // if flagged count is 1, the median value was already get from handleDistribution
+        for (const flagged of times(flaggedCount)) {
+          for (const count of times(distributedCount)) {
+            const storageString = await this.redis.get(`report-result-${id}-${flagged}-${count}`)
+            if (!storageString) {
+              continue
+            }
+            const tempReport = JSON.parse(storageString)
+            reportList.push(tempReport)
           }
-          const tempReport = JSON.parse(storageString)
-          reportList.push(tempReport)
         }
       }
       if (!reportList.length || reportList.length <= 1) {
