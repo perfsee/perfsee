@@ -48,7 +48,7 @@ export const Notification = () => {
   return (
     <>
       <NotificationType onChange={onChange} value={state.messageTargetType} />
-      {state.messageTargetType === MessageTargetType.Specified && (
+      {[MessageTargetType.Both, MessageTargetType.Specified].includes(state.messageTargetType) && (
         <NotificationTarget onChange={onChange} value={state.messageTarget} />
       )}
       <BundleNotificationFilter onChange={onChange} value={state.bundleMessageFilter} />
@@ -75,11 +75,23 @@ const choiceOptionStyles: IChoiceGroupOptionStyles = {
 const textInputStyles: Partial<ITextFieldStyles> = { root: { maxWidth: 400 } }
 
 // ===== Notification Target Type Setting =====
-const notificationTypeChoiceOptions: IChoiceGroupOption[] = Object.values(MessageTargetType).map((v) => ({
-  key: v,
-  text: v,
-  styles: choiceOptionStyles,
-}))
+const notificationTypeChoiceOptions: IChoiceGroupOption[] = [
+  {
+    key: MessageTargetType.Issuer,
+    text: MessageTargetType.Issuer,
+    styles: choiceOptionStyles,
+  },
+  {
+    key: MessageTargetType.Specified,
+    text: MessageTargetType.Specified,
+    styles: choiceOptionStyles,
+  },
+  {
+    key: MessageTargetType.Both,
+    text: 'Issuer & Specified',
+    styles: choiceOptionStyles,
+  },
+]
 function NotificationType({ onChange, value }: SubSettingProps<MessageTargetType>) {
   const onSelect = useCallback(
     (_e: any, option?: IChoiceGroupOption) => {

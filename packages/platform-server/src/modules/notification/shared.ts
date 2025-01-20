@@ -76,6 +76,12 @@ export function getBundleJobMessageTargets(
         return { emails: artifact.issuer ? [artifact.issuer] : [] }
       case MessageTargetType.Specified:
         return { emails: setting.messageTarget.userEmails }
+      case MessageTargetType.Both:
+        return {
+          emails: artifact.issuer
+            ? [artifact.issuer, ...setting.messageTarget.userEmails]
+            : setting.messageTarget.userEmails,
+        }
     }
   }
 
@@ -89,6 +95,12 @@ export function getLabJobMessageTargets(snapshot: Snapshot, setting: Setting): {
         return { emails: snapshot.issuer ? [snapshot.issuer] : [] }
       case MessageTargetType.Specified:
         return { emails: setting.messageTarget.userEmails }
+      case MessageTargetType.Both:
+        return {
+          emails: snapshot.issuer
+            ? [snapshot.issuer, ...setting.messageTarget.userEmails]
+            : setting.messageTarget.userEmails,
+        }
     }
   }
 
@@ -97,12 +109,16 @@ export function getLabJobMessageTargets(snapshot: Snapshot, setting: Setting): {
 
 export function getCookieMessageTargets(setting: Setting, projectOwners: User[]): { emails?: string[] } {
   if (shouldSendJobMessage(setting)) {
+    const owners = projectOwners
     switch (setting.messageTargetType) {
       case MessageTargetType.Issuer:
-        const owners = projectOwners
         return { emails: owners.map(({ email }) => email) }
       case MessageTargetType.Specified:
         return { emails: setting.messageTarget.userEmails }
+      case MessageTargetType.Both:
+        return {
+          emails: owners.map(({ email }) => email).concat(setting.messageTarget.userEmails),
+        }
     }
   }
 
