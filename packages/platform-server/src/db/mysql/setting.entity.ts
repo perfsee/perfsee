@@ -23,6 +23,7 @@ import { dbJSONTransformerFactory } from './utils'
 export enum MessageTargetType {
   Issuer = 1,
   Specified,
+  Both,
 }
 
 export enum BundleMessageFilter {
