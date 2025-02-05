@@ -14,6 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { readdir, stat, unlink } from 'fs/promises'
+import { join } from 'path'
+
+import { PlatformClient } from '@perfsee/job-runner-shared/platform-client'
 import {
   LighthouseScoreType,
   TimelineSchema,
@@ -162,4 +166,36 @@ export function formatCookies(cookies: CookieType[], domain: string) {
     path: c.path || '/',
     domain: c.domain || domain,
   }))
+}
+
+export async function removeOldFiles(directoryPath: string, expireTime: number) {
+  const files = await readdir(directoryPath)
+
+  for (const file of files) {
+    const filePath = join(directoryPath, file)
+    const stats = await stat(filePath)
+
+    if (stats.isFile()) {
+      const lastModified = stats.mtimeMs
+      if (lastModified < Date.now() - expireTime) {
+        await unlink(filePath)
+      }
+    }
+  }
+}
+
+export async function uploadDirFiles(directoryPath: string, client: PlatformClient) {
+  const files = await readdir(directoryPath)
+  const uploadKeys: string[] = []
+
+  for (const file of files) {
+    const filePath = join(directoryPath, file)
+    const stats = await stat(filePath)
+
+    if (stats.isFile()) {
+      uploadKeys.push(await client.uploadArtifactFile(file, filePath))
+    }
+  }
+
+  return uploadKeys
 }

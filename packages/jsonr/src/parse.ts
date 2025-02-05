@@ -133,6 +133,7 @@ export class JSONRParser {
       if (this.nextChar() !== ':') this.throwHere()
       this.skipWhiteSpace()
       const value = this.parseValue()
+      // @ts-expect-error
       o[key] = value
       this.skipWhiteSpace()
       if (this.lookNextChar() === ',') {

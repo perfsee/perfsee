@@ -29,4 +29,6 @@ fragment environmentFields on Environment {
     needReminder
     zone
     loginScript
+    cookieTarget
+    cookieTargetType
 }

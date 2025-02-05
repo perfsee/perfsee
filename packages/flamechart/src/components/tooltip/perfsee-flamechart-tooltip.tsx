@@ -14,7 +14,7 @@ export const PerfseeFlamechartTooltip: React.FC<{
 
   const frame = node.frame as PerfseeFrame
 
-  const tipData = {
+  const tipData: Record<string, string> = {
     Name: FlamechartImage.parseStrWithImageLabel(frame.name).str,
     'Self time': formatValue(node.getSelfWeight()),
     'Total time': formatValue(node.getTotalWeight()),

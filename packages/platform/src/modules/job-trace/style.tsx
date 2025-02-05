@@ -17,6 +17,7 @@ limitations under the License.
 import styled from '@emotion/styled'
 import { NeutralColors, SharedColors } from '@fluentui/theme'
 
+import { ForeignLink } from '@perfsee/components'
 import { JobLogLevel } from '@perfsee/shared'
 
 import { Log as LogType } from './module'
@@ -82,7 +83,11 @@ const ChildrenLogs = styled('div')({
 
 const LogPayload = styled(({ payload, className, id }: { payload: any; id: number; className?: string }) => {
   const payloadDetail =
-    payload?.encoding === 'base64' && payload?.type && payload?.data ? (
+    payload.type === 'link' && payload.url ? (
+      <ForeignLink
+        href={`${PERFSEE_PLATFORM_HOST}/${payload.url}`}
+      >{`${PERFSEE_PLATFORM_HOST}/${payload.url}`}</ForeignLink>
+    ) : payload?.encoding === 'base64' && payload?.type && payload?.data ? (
       <img src={`data:image/${payload.type};base64,${payload.data}`} />
     ) : (
       <pre>{JSON.stringify(payload, null, 2)}</pre>
@@ -108,7 +113,7 @@ const LogPayload = styled(({ payload, className, id }: { payload: any; id: numbe
       content: '"  (collapsed)"',
     },
 
-    '+ pre': {
+    '+ pre, + a': {
       display: 'none',
       margin: 0,
       paddingLeft: 10,
@@ -126,7 +131,7 @@ const LogPayload = styled(({ payload, className, id }: { payload: any; id: numbe
       '::after': {
         content: '""',
       },
-      '+ pre': {
+      '+ pre, + a': {
         display: 'block',
       },
       '+ img': {

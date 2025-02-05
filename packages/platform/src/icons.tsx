@@ -79,7 +79,7 @@ import {
   CubeShapeIcon,
 } from '@fluentui/react-icons-mdl2'
 
-import { FlameIcon } from '@perfsee/components'
+import { CookieIcon, FlameIcon } from '@perfsee/components'
 
 registerIcons({
   icons: {
@@ -150,6 +150,7 @@ registerIcons({
     download: <DownloadOutlined />,
     ExportOutlined: <ExportOutlined />,
     wallet: <WalletFilled />,
+    cookie: <CookieIcon />,
 
     // for password text field
     Hide: <HideIcon />,

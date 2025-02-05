@@ -57,6 +57,10 @@ export class ApplicationSetting extends BaseEntity {
 
   @Column({ default: false })
   @Field()
+  enableMidscene!: boolean
+
+  @Column({ default: false })
+  @Field()
   enableProjectImport!: boolean
 
   @Column({ default: false })

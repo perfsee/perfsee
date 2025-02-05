@@ -32,6 +32,12 @@ export const packageList = [
     location: 'packages/bundle-report',
   },
   {
+    name: '@perfsee/chrome-extension',
+    version: '1.8.1',
+    private: true,
+    location: 'packages/chrome-extension',
+  },
+  {
     name: '@perfsee/chrome-finder',
     version: '1.10.0',
     private: false,

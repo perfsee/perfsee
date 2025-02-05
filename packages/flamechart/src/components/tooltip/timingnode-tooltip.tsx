@@ -17,7 +17,7 @@ function omit(obj: any, ...keys: string[]) {
 export const TimingTreeNodeTooltip: React.FC<{
   frame: TimingFrame
 }> = ({ frame }) => {
-  const tipData = {
+  const tipData: Record<string, string | undefined> = {
     Name: frame.info?.name,
     'Total time': formatTiming(frame.info?.duration ?? 0),
     Timestamp: formatTiming(frame.info?.timestamp ?? 0),

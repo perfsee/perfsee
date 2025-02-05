@@ -15,7 +15,7 @@ const formatRequestInfoTiming = (v?: number) => {
 export const NetworkTreeNodeTooltip: React.FC<{
   frame: NetworkFrame
 }> = ({ frame }) => {
-  const tipData = {
+  const tipData: Record<string, string | undefined> = {
     Url: frame.info?.url,
     Method: frame.info?.method,
     Timing: formatRequestInfoTiming(frame.info?.timing),

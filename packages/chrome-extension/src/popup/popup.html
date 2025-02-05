@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Perfsee Chrome Extension</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Perfsee Cookies Sync</h2>
+    <div class="setting-group">
+      <div style="display: flex;align-items: center;gap: 4px;">
+        <label>
+          <input type="checkbox" id="consentCheckbox">
+          Agree to Cookies Upload
+        </label>
+        <button id="details-toggle" class="details-toggle">
+          <span>Details</span>
+          <span class="chevron">▼</span>
+        </button>
+      </div>
+      <div class="consent-details" id="consentDetails" style="display: none;">
+        <h3>Cookie Upload Agreement</h3>
+        <section>
+          <h4>1. Purpose of Collection:</h4>
+          <ul>
+            <li>This extension will sync cookies from selected domains</li>
+            <li>Cookies will be uploaded to Perfsee platform to maintain authenticated when running lab analysis</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>2. Data Handling:</h4>
+          <ul>
+            <li>Cookies will be encrypted and securely transmitted to Perfsee platform</li>
+            <li>Only domains you explicitly select will be included</li>
+            <li>No personal browsing history or other data will be collected</li>
+            <li>All cookie data is stored and managed within Perfsee's secure infrastructure</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>3. Security Measures:</h4>
+          <ul>
+            <li>Cookies are stored securely in Perfsee's environment</li>
+            <li>Access is limited to authenticated Perfsee services only</li>
+            <li>Perfsee implements industry-standard security protocols to protect your data</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>4. User Control:</h4>
+          <ul>
+            <li>You can modify domain selection at any time</li>
+            <li>You can revoke access and clear synced cookies from Perfsee</li>
+            <li>Cookie sync can be disabled completely through extension settings</li>
+            <li>You can view all synced cookies in the personal page on Perfsee</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>5. Privacy Notice:</h4>
+          <ul>
+            <li>This extension operates in compliance with Perfsee's privacy policy</li>
+            <li>Cookie data is used exclusively by Perfsee for maintaining authenticated when running lab analysis</li>
+            <li>No data is shared with third parties outside of Perfsee platform</li>
+          </ul>
+        </section>
+
+        <p class="consent-footer">By proceeding, you consent to the collection and transmission of cookies to Perfsee platform as described above.</p>
+      </div>
+
+    </div>
+
+    <div class="setting-group">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label style="justify-content: unset;">
+          <input type="checkbox" id="autoSyncCheckbox">
+          Auto Sync
+        </label>
+        <div id="nextSync" class="next-sync"></div>
+      </div>
+      <label>
+        Sync Time:
+        <input type="time" id="syncTime">
+      </label>
+      <label>
+        Sync Interval:
+        <select id="syncInterval">
+          <option value="144">Weekly</option>
+          <option value="24">Daily</option>
+          <option value="12">Every 12 Hours</option>
+          <option value="8">Every 8 Hours</option>
+          <option value="4">Every 4 Hours</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="setting-group">
+      <button id="openDomainSettings" class="button manage-button">
+        Manage Sync Domains
+      </button>
+      <div class="domain-summary">
+        Selected <span id="selectedDomainCount">0</span> Domain(s)
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="input-group">
+        <label for="platform-domain">Platform Host</label>
+        <div class="select-wrapper">
+          <input
+            type="text"
+            id="platform-domain"
+            class="domain-select"
+            placeholder="Select or enter platform domain"
+          >
+          <div class="options-list">
+            <div class="option" data-value="https://perfsee.com">
+              <span class="option-name">https://perfsee.com</span>
+              <span class="option-desc">Official Host</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="input-group">
+        <div style="display: flex; align-items: center; margin-top: 4px; gap: 12px;">
+          <label for="perfsee-token">Access Token</label>
+          <p class="token-hint">You can get token <a id="token-link" target="_blank" href="https://perfsee.com/me/access-token">here</a></p>
+        </div>
+        <div class="token-input-wrapper">
+          <input
+            type="password"
+            id="perfsee-token"
+            placeholder="Please paste your access token"
+            class="token-input"
+          >
+          <button id="show-token-btn" class="show-token-btn">
+            <span class="eye-icon">👁️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="uploadBtn" class="sync-button">Sync Now</button>
+      <button id="copyButton" class="secondary-button" title="export cookies of current tab">📋</button>
+    </div>
+
+    <div id="status"></div>
+    <a id="lastSync" class="last-sync" target="_blank"></a>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -125,10 +125,13 @@ export function copyTheme(theme: Theme, variables: DeepPartial<Theme> = {}): The
 function mergeTheme<T>(target: T, data: DeepPartial<T>): T {
   const dest: T = Object.create(null)
   for (const [key, value] of Object.entries(target)) {
+    // @ts-expect-error
     const newProperty = data[key]
     if (typeof newProperty === 'object') {
+      // @ts-expect-error
       dest[key] = mergeTheme(value, newProperty)
     } else {
+      // @ts-expect-error
       dest[key] = data[key] ?? value
     }
   }

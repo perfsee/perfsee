@@ -27,6 +27,7 @@ import { ProfileModule } from '../profile'
 import { ProjectModule } from '../project'
 import { ProjectUsageModule } from '../project-usage'
 import { SourceModule } from '../source'
+import { UserModule } from '../user'
 
 import { SnapshotController } from './controller'
 import { ProjectSnapshotResolver, SnapshotResolver } from './resolver'
@@ -46,6 +47,7 @@ import { SnapshotReportModule } from './snapshot-report'
     ProfileModule,
     ProjectUsageModule,
     ConfigModule,
+    UserModule,
   ],
   controllers: [SnapshotController],
   providers: [SnapshotResolver, ProjectSnapshotResolver, SnapshotService],

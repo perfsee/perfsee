@@ -123,6 +123,7 @@ export default class SDFTextRender {
       const originHeight = (metrics.size + metrics.buffer * 2) * 1.1
       let originWidth = 0
       for (const char of textBoxDraw.text) {
+        // @ts-expect-error
         const metric = metrics.chars[char]
         if (!metric) continue
         originWidth += metric[4]
@@ -160,6 +161,7 @@ export default class SDFTextRender {
   }
 
   measureChar(char: string, start: Vec2, scale: number) {
+    // @ts-expect-error
     const metric = metrics.chars[char]
 
     if (!metric) return
@@ -191,6 +193,7 @@ export default class SDFTextRender {
     const sizeData = new Float32Array(drawList.length * 12)
     for (let i = 0; i < drawList.length; i++) {
       const draw = drawList[i]
+      // @ts-expect-error
       const metric = metrics.chars[draw.char]
       const rect = draw.rect
 

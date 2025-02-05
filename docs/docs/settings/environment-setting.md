@@ -46,8 +46,24 @@ Table mode is default, just input data according to the prompt. Click the button
 
 ##### Stringify
 
-We don't have a convenient way to export cookies in Chrome, so we recommend installing [EditThisCookie](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg) to export cookies.
+We don't have a convenient way to export cookies in Chrome, so we recommend installing [Perfsee Extension](https://todo.todo) or [EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol) to export cookies.
 ![](/settings/cookies-stringify.png)
+
+#### Use personal cookies
+
+Through the [Perfsee Extension](https://todo.todo), you can synchronize all cookies from selected domains in your browser to the Perfsee platform on a scheduled basis. This allows you to use personal cookies when running snapshots. Here's how to set it up:
+
+1. Accept the extension's request to upload your cookies
+2. Check the domains you want to sync in the extension's domain management page
+3. Select or input your Perfsee platform host (e.g., for non-official deployment scenarios)
+4. Obtain and enter your access token - you can apply for an API Token on the Token Management page
+5. Click immediate sync or schedule sync, and wait for the cookies to upload to the platform
+6. After successful upload, enable personal cookies in your target Environment configuration
+7. You can choose to use either your own cookies or dynamically use the cookies of the person who triggered the snapshot
+
+| chrome extension                                            | use personal cookies                                        |
+| ----------------------------------------------------------- | ----------------------------------------------------------- |
+| ![chrome extension](/settings/chrome-extension-cookies.png) | ![use personal cookies](/settings/use-personal-cookies.png) |
 
 ### Headers
 
@@ -72,6 +88,10 @@ Table mode is default, just input data according to the prompt. Click the button
 ![login script](/settings/login-script.png)
 
 By enabling this feature, Perfsee will launch a page to run the script and store the cookies before lab, usually used to login the website.
+
+:::tip
+You can use natural languages to describe your login steps or record scripts with Chrome Devtools. For more detail please see [write userflow scripts](/lab/user-flow#step-2-write-user-flow-scripts).
+:::
 
 Perfsee uses [puppeteer](https://pptr.dev/) to run scripts. The scripts are compatible with most common puppeteer APIs.
 

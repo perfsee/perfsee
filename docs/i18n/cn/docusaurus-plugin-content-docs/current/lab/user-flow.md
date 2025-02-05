@@ -30,7 +30,23 @@ sidebar_position: 5
 
 ![enable-userflow](/settings/enable-userflow.png)
 
-### Step 2：编写 User flow 脚本 （或使用 Chrome Devtools 录制）
+### Step 2：编写 User flow 脚本
+
+:::tip 现已支持自然语言!
+Perfsee 现已支持使用自然语言来描述和控制页面操作。
+
+示例代码：
+
+```ts
+await ai('在搜索框中输入 "耳机"')
+await ai('按下回车键')
+```
+
+该功能基于 [Midscene](https://midscenejs.com/zh) 实现。更多用法请参考 [API 参考](https://midscenejs.com/zh/api.html)。
+
+请注意：**步骤描述应当清晰且详细**。过于简短的指令（如 '发一条微博'）可能会导致不稳定的执行结果和较高的失败率。在使用之前，我们强烈建议您阅读[提示词编写指南](https://midscenejs.com/zh/prompting-tips.html)。
+
+:::
 
 本平台使用 [puppeteer](https://github.com/puppeteer/puppeteer) 来运行 user flow，user flow 脚本兼容大部分常用 puppeteer API。
 
@@ -55,7 +71,7 @@ await page.waitForNetworkIdle()
 
 #### 使用 Chrome Devtools 录制脚本
 
-一个更方便的方法是使用 Chrome devtools 来录制脚本
+另一个方便的方法是使用 Chrome devtools 来录制脚本
 
 1. 打开目标页面，并打开 devltools.
 2. 切换到 `Recorder` 标签，创建一个新的录制.
