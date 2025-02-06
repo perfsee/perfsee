@@ -137,17 +137,17 @@ export class UserService {
 
   async getUserCookies(email: string): Promise<CookieType[]> {
     const user = await User.findOneByOrFail({ email })
-    const userCookie = await UserCookies.findOneOrFail({ where: { userId: user.id }, order: { createdAt: 'DESC' } })
-    if (!userCookie.cookieStorageKey) {
+    const userCookie = await UserCookies.findOne({ where: { userId: user.id }, order: { createdAt: 'DESC' } })
+    if (!userCookie?.cookieStorageKey) {
       return []
     }
     const buffer = await this.storage.get(userCookie.cookieStorageKey)
     return JSON.parse(buffer.toString())
   }
 
-  async getUserCookiesLastUpdate(userId: number): Promise<Date> {
-    const userCookie = await UserCookies.findOneOrFail({ where: { userId }, order: { createdAt: 'DESC' } })
-    return userCookie.createdAt
+  async getUserCookiesLastUpdate(userId: number): Promise<Date | null> {
+    const userCookie = await UserCookies.findOne({ where: { userId }, order: { createdAt: 'DESC' } })
+    return userCookie?.createdAt || null
   }
 
   private async findByEmailsInternal(emails: string[]) {

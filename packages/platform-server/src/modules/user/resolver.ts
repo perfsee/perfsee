@@ -98,12 +98,12 @@ export class UserResolver {
     return true
   }
 
-  @ResolveField(() => GraphQLJSON)
+  @ResolveField(() => GraphQLJSON, { nullable: true })
   async userCookies(@CurrentUser() user: User) {
     return this.service.getUserCookies(user.email)
   }
 
-  @ResolveField(() => GraphQLISODateTime)
+  @ResolveField(() => GraphQLISODateTime, { nullable: true })
   async userCookiesLastUpdate(@CurrentUser() user: User) {
     return this.service.getUserCookiesLastUpdate(user.id)
   }

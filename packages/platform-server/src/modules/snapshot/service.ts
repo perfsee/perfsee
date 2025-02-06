@@ -403,21 +403,22 @@ export class SnapshotService implements OnApplicationBootstrap {
 
     const { pages, profiles, envs } = await this.getAllProperties([report.projectId])
 
+    const reportEnv = envs.find((env) => env.id === report.envId)
     try {
-      for (const env of envs) {
-        switch (env.cookieTargetType) {
+      if (reportEnv) {
+        switch (reportEnv.cookieTargetType) {
           case CookieTargetType.Issuer: {
             if (snapshot.issuer) {
               const cookies = await this.user.getUserCookies(snapshot.issuer)
               // @ts-expect-error
-              env.cookies = cookies
+              reportEnv.cookies = cookies
             }
             break
           }
           case CookieTargetType.Specified: {
-            const cookies = await this.user.getUserCookies(env.cookieTarget)
+            const cookies = await this.user.getUserCookies(reportEnv.cookieTarget)
             // @ts-expect-error
-            env.cookies = cookies
+            reportEnv.cookies = cookies
             break
           }
           case CookieTargetType.None:

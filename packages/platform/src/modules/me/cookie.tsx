@@ -39,7 +39,7 @@ export const UserCookie: React.FC<Partial<IPersonaProps>> = () => {
       }),
     )
       .then((result) => {
-        setCookies(result.user?.userCookies)
+        setCookies(result.user?.userCookies || [])
         setLastUpdate(result.user?.userCookiesLastUpdate || null)
       })
       .catch((e) => {
