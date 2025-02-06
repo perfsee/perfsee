@@ -15,7 +15,18 @@ limitations under the License.
 */
 
 import { ForbiddenException } from '@nestjs/common'
-import { Resolver, Query, ResolveField, Parent, Mutation, Args, ObjectType, Field } from '@nestjs/graphql'
+import {
+  Resolver,
+  Query,
+  ResolveField,
+  Parent,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+  GraphQLISODateTime,
+} from '@nestjs/graphql'
+import GraphQLJSON from 'graphql-type-json'
 
 import { User } from '@perfsee/platform-server/db'
 import { ExternalAccount } from '@perfsee/shared'
@@ -85,5 +96,15 @@ export class UserResolver {
     await this.service.disconnectAccount(user, provider)
 
     return true
+  }
+
+  @ResolveField(() => GraphQLJSON)
+  async userCookies(@CurrentUser() user: User) {
+    return this.service.getUserCookies(user.email)
+  }
+
+  @ResolveField(() => GraphQLISODateTime)
+  async userCookiesLastUpdate(@CurrentUser() user: User) {
+    return this.service.getUserCookiesLastUpdate(user.id)
   }
 }

@@ -68,10 +68,11 @@ jobs:
           yarn test:concurrent
       - name: Upload coverage
         if: ${{ matrix.host == 'ubuntu-latest' }}
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: test-coverage
           path: ${{ env.NODE_V8_COVERAGE }}
+          overwrite: true
 
   integration-test:
     runs-on: ubuntu-latest
@@ -111,10 +112,11 @@ jobs:
           yarn codegen
           yarn test:serial
       - name: Upload coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-coverage
           path: ${{ env.NODE_V8_COVERAGE }}
+          overwrite: true
 
   coverage:
     runs-on: ubuntu-latest
@@ -129,10 +131,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Download coverage
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: test-coverage
           path: ${{ env.NODE_V8_COVERAGE }}
+          overwrite: true
 
       - name: Generate coverage report
         run: |

@@ -41,6 +41,9 @@ type PartialSnapshotReport = {
 }
 
 export interface LabJobPayload {
+  pageId: number
+  envId: number
+  profileId: number
   url: string
   reportId: number
   throttle: Partial<ThrottleType>

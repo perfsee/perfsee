@@ -20,6 +20,7 @@ import { useModule } from '@sigi/react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { SharedColors } from '@perfsee/dls'
+import { CookieTargetType } from '@perfsee/schema'
 
 import { DeleteProgress, EnvSchema, PropertyModule } from '../../../shared'
 import { SettingCards } from '../cards'
@@ -115,6 +116,12 @@ export const SettingsEnvironments = () => {
       const cookieCount = item.cookies.length
       const localStorageCount = item.localStorage?.length
       const sessionStorageCount = item.sessionStorage?.length
+      const personalCookiesBlock =
+        item.cookieTargetType === CookieTargetType.Issuer ? (
+          <CountBlock title="issuer cookies" />
+        ) : item.cookieTargetType === CookieTargetType.Specified ? (
+          <CountBlock title={`cookies of ${item.cookieTarget?.split('@')[0]}`} />
+        ) : null
 
       return (
         <PropertyCard>
@@ -126,10 +133,12 @@ export const SettingsEnvironments = () => {
                 <PropertyId>#{item.id}</PropertyId>
               </Stack>
               <div>
+                {personalCookiesBlock}
                 <CountBlock title="cookie" count={cookieCount} />
                 <CountBlock title="header" count={headerCount} />
                 <CountBlock title="local storage" count={localStorageCount} />
                 <CountBlock title="session storage" count={sessionStorageCount} />
+                {item.loginScript ? <CountBlock title="login script" /> : null}
                 <StyledDesc size="12px">{item.zone}</StyledDesc>
               </div>
             </PropertyInfos>
@@ -174,7 +183,6 @@ export const SettingsEnvironments = () => {
         type="Environment"
         onCloseDialog={closeModal}
         editContent={editContent}
-        isTable={isTable}
         visible={visible}
         deleteContent={deleteContent}
         isCreate={!env}

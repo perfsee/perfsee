@@ -42,6 +42,7 @@ import {
   Job,
   JobStatus,
   ReportsStatusCount,
+  CookieTargetType,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
@@ -68,6 +69,7 @@ import { AppVersionService } from '../app-version/service'
 import { PageService } from '../page/service'
 import { ProjectUsageService } from '../project-usage/service'
 import { SourceService } from '../source/service'
+import { UserService } from '../user'
 
 import { SnapshotReportService } from './snapshot-report/service'
 
@@ -91,6 +93,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     private readonly redis: Redis,
     private readonly projectUsage: ProjectUsageService,
     private readonly config: Config,
+    private readonly user: UserService,
   ) {}
 
   onApplicationBootstrap() {
@@ -393,7 +396,37 @@ export class SnapshotService implements OnApplicationBootstrap {
       throw new NotFoundException(`snapshot report with id ${reportId} not found`)
     }
 
+    const snapshot = await this.loader.load(report.snapshotId)
+    if (!snapshot) {
+      throw new NotFoundException(`snapshot with id ${report.snapshotId} not found`)
+    }
+
     const { pages, profiles, envs } = await this.getAllProperties([report.projectId])
+
+    try {
+      for (const env of envs) {
+        switch (env.cookieTargetType) {
+          case CookieTargetType.Issuer: {
+            if (snapshot.issuer) {
+              const cookies = await this.user.getUserCookies(snapshot.issuer)
+              // @ts-expect-error
+              env.cookies = cookies
+            }
+            break
+          }
+          case CookieTargetType.Specified: {
+            const cookies = await this.user.getUserCookies(env.cookieTarget)
+            // @ts-expect-error
+            env.cookies = cookies
+            break
+          }
+          case CookieTargetType.None:
+            break
+        }
+      }
+    } catch (e) {
+      this.logger.error(`Failed to get user cookies on snapshot ${snapshot.id}:`, String(e))
+    }
 
     return getLighthouseRunData(pages, profiles, envs, [report], this.config)[0]
   }

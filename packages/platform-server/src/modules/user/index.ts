@@ -16,10 +16,15 @@ limitations under the License.
 
 import { Module } from '@nestjs/common'
 
+import { StorageModule } from '@perfsee/platform-server/storage'
+
+import { UserController } from './controller'
 import { CurrentUserResolver, UserResolver } from './resolver'
 import { UserService } from './service'
 
 @Module({
+  imports: [StorageModule],
+  controllers: [UserController],
   providers: [CurrentUserResolver, UserResolver, UserService],
   exports: [UserService],
 })

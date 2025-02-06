@@ -48,6 +48,9 @@ export function getLighthouseRunData(
     const distributed = config.job.lab.distributedConfig?.[env.zone]
 
     return {
+      pageId: report.pageId,
+      envId: report.envId,
+      profileId: report.profileId,
       reportId: report.id,
       url: page.url,
       throttle: throttle ?? {},

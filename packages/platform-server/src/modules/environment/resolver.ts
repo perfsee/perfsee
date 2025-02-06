@@ -14,11 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ForbiddenException } from '@nestjs/common'
 import { Resolver, Args, Int, Mutation, ResolveField, Parent, ID } from '@nestjs/graphql'
 
-import { Environment, Project } from '@perfsee/platform-server/db'
+import { Environment, Project, User } from '@perfsee/platform-server/db'
 import { transformInputType } from '@perfsee/platform-server/graphql'
 
+import { CurrentUser } from '../auth/auth.guard'
 import { PermissionGuard, Permission } from '../permission'
 import { ProjectService } from '../project/service'
 
@@ -44,7 +46,11 @@ export class EnvironmentResolver {
   async updateEnvironment(
     @Args({ name: 'projectId', type: () => ID }) projectId: string,
     @Args({ name: 'input', type: () => UpdateEnvironmentInput }, transformInputType) input: UpdateEnvironmentInput,
+    @CurrentUser() user: User,
   ) {
+    if (input.cookieTarget && user.email !== input.cookieTarget && !user.isAdmin) {
+      throw new ForbiddenException('no permission to user others cookies')
+    }
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
     return this.service.updateEnvironment(projectRawId, input)
   }

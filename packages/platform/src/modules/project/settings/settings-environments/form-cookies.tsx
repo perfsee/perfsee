@@ -42,8 +42,9 @@ export type PartialCookie = Partial<CookieSchema>
 type CookieProps = {
   cookie: PartialCookie
   index: number
-  onCookieChange: (value: PartialCookie, index: number) => void
-  onCookieRemove: (index: number) => void
+  onCookieChange?: (value: PartialCookie, index: number) => void
+  onCookieRemove?: (index: number) => void
+  readonly?: boolean
 }
 
 const removeIconProps: IIconProps = { iconName: 'delete' }
@@ -74,26 +75,26 @@ const SameSiteOptions = [
   },
 ]
 
-const FormCookie = (props: CookieProps) => {
+export const FormCookie = (props: CookieProps) => {
   const [editing, open, close] = useToggleState(!props.cookie.value)
 
-  const { cookie, index, onCookieRemove, onCookieChange } = props
+  const { cookie, index, onCookieRemove, onCookieChange, readonly } = props
 
   const onRemove = useCallback(() => {
-    onCookieRemove(index)
+    onCookieRemove?.(index)
   }, [index, onCookieRemove])
 
   const onSelectDate = useCallback(
     (date?: Date | null) => {
       if (date) {
-        onCookieChange({ ...cookie, expire: date.toISOString() }, index)
+        onCookieChange?.({ ...cookie, expire: date.toISOString() }, index)
       }
     },
     [cookie, index, onCookieChange],
   )
 
   const onRemoveDate = useCallback(() => {
-    onCookieChange({ ...cookie, expire: undefined }, index)
+    onCookieChange?.({ ...cookie, expire: undefined }, index)
   }, [cookie, index, onCookieChange])
 
   const onChange = useCallback(
@@ -102,7 +103,7 @@ const FormCookie = (props: CookieProps) => {
         return
       }
       const type = (e.target as HTMLInputElement).dataset.type!
-      onCookieChange(
+      onCookieChange?.(
         {
           ...cookie,
           [type]: typeof value === 'string' ? value.trim() : value,
@@ -115,7 +116,7 @@ const FormCookie = (props: CookieProps) => {
 
   const onSameSiteChange = useCallback(
     (_e?: any, _o?: IComboBoxOption, _i?: number, value?: string) => {
-      onCookieChange(
+      onCookieChange?.(
         {
           ...cookie,
           sameSite: value as 'Strict' | 'Lax' | 'None',
@@ -129,18 +130,20 @@ const FormCookie = (props: CookieProps) => {
   const header = (
     <Stack horizontal verticalAlign="center" horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
       Cookie #{index + 1}
-      <div>
-        <IconButton
-          disabled={editing ? !cookie.name || !cookie.value : false}
-          iconProps={!editing ? editIconProps : saveIconProps}
-          onClick={!editing ? open : close}
-        />
-        <IconButton
-          iconProps={removeIconProps}
-          styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
-          onClick={onRemove}
-        />
-      </div>
+      {readonly ? null : (
+        <div>
+          <IconButton
+            disabled={editing ? !cookie.name || !cookie.value : false}
+            iconProps={!editing ? editIconProps : saveIconProps}
+            onClick={!editing ? open : close}
+          />
+          <IconButton
+            iconProps={removeIconProps}
+            styles={{ root: { color: SharedColors.red10 }, rootHovered: { color: SharedColors.red10 } }}
+            onClick={onRemove}
+          />
+        </div>
+      )}
     </Stack>
   )
 
@@ -253,7 +256,7 @@ const FormCookie = (props: CookieProps) => {
               selectedKey={cookie.sameSite ?? 'Lax'}
               placeholder="Same Site"
               onChange={onSameSiteChange}
-              styles={{ root: { flex: 1 }, textField: { '> span': { display: 'none' } } }}
+              styles={{ root: { flex: 1 } }}
               useComboBoxAsMenuWidth={true}
               allowFreeform={false}
               options={SameSiteOptions}
@@ -285,126 +288,146 @@ const FormCookie = (props: CookieProps) => {
 
 const defaultCookie = { httpOnly: true, secure: false, sameSite: 'Lax' }
 
-export const FormCookies = forwardRef((props: { defaultCookies: CookieSchema[] }, ref) => {
-  const [cookies, setCookies] = useState<PartialCookie[]>(props.defaultCookies)
-  const [isTable, toggle] = useState<boolean>(true)
-  const [errorInfo, setErrorInfo] = useState<string>()
-
-  useImperativeHandle(
+export const FormCookies = forwardRef(
+  (
+    props: {
+      defaultCookies: CookieSchema[]
+      usePersonalCookies?: boolean
+      onUsePersonalCookiesChange?: (ev?: FormEvent<HTMLElement>, usePersonalCookies?: boolean) => void
+    },
     ref,
-    () => ({
-      getCookies: () => {
-        return cookies.filter((c) => c.name && c.value) // before updating env
+  ) => {
+    const [cookies, setCookies] = useState<PartialCookie[]>(props.defaultCookies)
+    const [isTable, toggle] = useState<boolean>(true)
+    const [errorInfo, setErrorInfo] = useState<string>()
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        getCookies: () => {
+          return cookies.filter((c) => c.name && c.value) // before updating env
+        },
+      }),
+      [cookies],
+    )
+
+    const onCookieRemove = useCallback(
+      (index: number) => {
+        const newCookies = cookies.filter((_, i) => i !== index)
+        setCookies(newCookies)
       },
-    }),
-    [cookies],
-  )
+      [cookies],
+    )
 
-  const onCookieRemove = useCallback(
-    (index: number) => {
-      const newCookies = cookies.filter((_, i) => i !== index)
-      setCookies(newCookies)
-    },
-    [cookies],
-  )
+    const onCookieChange = useCallback(
+      (value: PartialCookie, index: number) => {
+        const newCookies = [...cookies]
+        newCookies[index] = value
+        setCookies(newCookies)
+      },
+      [cookies],
+    )
 
-  const onCookieChange = useCallback(
-    (value: PartialCookie, index: number) => {
-      const newCookies = [...cookies]
-      newCookies[index] = value
-      setCookies(newCookies)
-    },
-    [cookies],
-  )
+    const onAddCookie = useCallback(() => {
+      setCookies([...cookies, defaultCookie])
+    }, [cookies])
 
-  const onAddCookie = useCallback(() => {
-    setCookies([...cookies, defaultCookie])
-  }, [cookies])
+    const onToggle = useCallback(() => {
+      toggle((checked) => !checked)
+    }, [toggle])
 
-  const onToggle = useCallback(() => {
-    toggle((checked) => !checked)
-  }, [toggle])
+    const cookieString = useMemo(() => {
+      return cookies.length ? JSON.stringify(cookies) : undefined
+    }, [cookies])
 
-  const cookieString = useMemo(() => {
-    return cookies.length ? JSON.stringify(cookies) : undefined
-  }, [cookies])
-
-  const onCookiesChange = useCallback((_e: any, value?: string) => {
-    if (!value) {
-      setCookies([])
-      return
-    }
-
-    try {
-      const newCookies = (JSON.parse(value) as CookieSchema[]).map((c) => {
-        const sameSite = capitalize(c.sameSite)
-        // @ts-expect-error
-        const expire = c.expire || (c.expirationDate ? new Date(c.expirationDate * 1000).toISOString() : null)
-        return {
-          ...defaultCookie,
-          ...pick(c, 'name', 'value', 'domain', 'path', 'httpOnly', 'secure'),
-          expire,
-          sameSite:
-            sameSite === 'Lax' || sameSite === 'Strict' || sameSite === 'None'
-              ? sameSite
-              : sameSite === 'No_restriction'
-              ? 'None'
-              : 'Lax',
-        }
-      })
-
-      if (newCookies.some((c) => !c.name || !c.value)) {
-        setErrorInfo('Lack of name or value')
+    const onCookiesChange = useCallback((_e: any, value?: string) => {
+      if (!value) {
+        setCookies([])
         return
       }
 
-      setCookies(newCookies)
-      setErrorInfo(undefined)
-    } catch (e) {
-      setErrorInfo('Invalid JSON formatting')
-    }
-  }, [])
+      try {
+        const newCookies = (JSON.parse(value) as CookieSchema[]).map((c) => {
+          const sameSite = capitalize(c.sameSite)
+          // @ts-expect-error
+          const expire = c.expire || (c.expirationDate ? new Date(c.expirationDate * 1000).toISOString() : null)
+          return {
+            ...defaultCookie,
+            ...pick(c, 'name', 'value', 'domain', 'path', 'httpOnly', 'secure'),
+            expire,
+            sameSite:
+              sameSite === 'Lax' || sameSite === 'Strict' || sameSite === 'None'
+                ? sameSite
+                : sameSite === 'No_restriction'
+                ? 'None'
+                : 'Lax',
+          }
+        })
 
-  const formCookies = useMemo(() => {
-    return cookies.map((_, i) => {
-      return (
-        <FormCookie
-          onCookieChange={onCookieChange}
-          onCookieRemove={onCookieRemove}
-          cookie={cookies[i]}
-          index={i}
-          key={i}
-        />
-      )
-    })
-  }, [cookies, onCookieChange, onCookieRemove])
+        if (newCookies.some((c) => !c.name || !c.value)) {
+          setErrorInfo('Lack of name or value')
+          return
+        }
 
-  return (
-    <>
-      <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
-        <Label htmlFor="cookies">Cookies</Label>
-        <Stack horizontal verticalAlign="center">
-          <Toggle
-            defaultChecked={isTable}
-            styles={{ root: { marginBottom: 0 } }}
-            onText="Table"
-            offText="Json"
-            onClick={onToggle}
+        setCookies(newCookies)
+        setErrorInfo(undefined)
+      } catch (e) {
+        setErrorInfo('Invalid JSON formatting')
+      }
+    }, [])
+
+    const formCookies = useMemo(() => {
+      return cookies.map((_, i) => {
+        return (
+          <FormCookie
+            onCookieChange={onCookieChange}
+            onCookieRemove={onCookieRemove}
+            cookie={cookies[i]}
+            index={i}
+            key={i}
           />
-          {isTable && <DefaultButton onClick={onAddCookie}>add cookie</DefaultButton>}
+        )
+      })
+    }, [cookies, onCookieChange, onCookieRemove])
+
+    return (
+      <>
+        <Stack horizontal horizontalAlign="space-between" tokens={{ padding: '8px 0 0 0' }}>
+          <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 12 }}>
+            <Label htmlFor="cookies">Cookies</Label>
+            <Toggle
+              defaultChecked={props.usePersonalCookies}
+              styles={{ root: { marginBottom: 0 } }}
+              onText="Personal"
+              offText="Normal"
+              onChange={props.onUsePersonalCookiesChange}
+            />
+          </Stack>
+          <Stack horizontal verticalAlign="center">
+            {!props.usePersonalCookies ? (
+              <Toggle
+                defaultChecked={isTable}
+                styles={{ root: { marginBottom: 0 } }}
+                onText="Table"
+                offText="Json"
+                onClick={onToggle}
+              />
+            ) : null}
+            {isTable && !props.usePersonalCookies && <DefaultButton onClick={onAddCookie}>add cookie</DefaultButton>}
+          </Stack>
         </Stack>
-      </Stack>
-      {isTable ? (
-        formCookies
-      ) : (
-        <TextField
-          defaultValue={cookieString}
-          onChange={onCookiesChange}
-          multiline={true}
-          errorMessage={errorInfo}
-          placeholder={`[{"name": "a", "value": "b", "domain": "localhost", "path": "/" }]`}
-        />
-      )}
-    </>
-  )
-})
+        {props.usePersonalCookies ? null : isTable ? (
+          formCookies
+        ) : (
+          <TextField
+            defaultValue={cookieString}
+            onChange={onCookiesChange}
+            multiline={true}
+            errorMessage={errorInfo}
+            placeholder={`[{"name": "a", "value": "b", "domain": "localhost", "path": "/" }]`}
+          />
+        )}
+      </>
+    )
+  },
+)

@@ -6,4 +6,5 @@ fragment settings on ApplicationSettings {
   enableProjectImport
   oauthProviders
   usePendingJobTable
+  enableMidscene
 }
