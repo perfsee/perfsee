@@ -15,4 +15,9 @@ fragment artifact on Artifact {
   version {
     commitMessage
   }
+  size {
+    raw
+    gzip
+    brotli
+  }
 }

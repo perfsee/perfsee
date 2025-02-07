@@ -26,6 +26,7 @@ import { pathFactory } from '@perfsee/shared/routes'
 
 import { RouterContext } from '../router-context'
 
+import { ColoredSize } from './components'
 import { BundleCard, BuildRound, EmptyBaselineWrap, EmptyBaselineIcon, ArtifactName } from './style'
 import { ArtifactDiff } from './types'
 
@@ -74,24 +75,34 @@ export const BuildHistory: FC<Props> = ({ artifact, onBaselineSelectorOpen }) =>
     <BundleCard>
       <BuildHistoryContainer horizontal verticalAlign="center">
         <BuildHistoryItem>
-          <BuildRound>#{artifact.id}</BuildRound>
-          <ArtifactName>{artifact.name}</ArtifactName>
-          <Tag type="warning">current</Tag>
+          <Stack horizontal verticalAlign="center">
+            <BuildRound>#{artifact.id}</BuildRound>
+            <ArtifactName>{artifact.name}</ArtifactName>
+            <Tag type="warning">current</Tag>
+            <Stack styles={{ root: { marginLeft: 8 } }}>
+              {artifact.size ? <ColoredSize size={artifact.size} /> : null}
+            </Stack>
+          </Stack>
           <CommitInfo artifact={artifact} />
         </BuildHistoryItem>
 
         {baseline && project && Link ? (
           <BuildHistoryItem>
-            <Link
-              to={pathFactory.project.bundle.detail({
-                projectId: project.id,
-                bundleId: baseline.id,
-              })}
-            >
-              <BuildRound>#{baseline.id}</BuildRound>
-            </Link>
-            <ArtifactName>{baseline.name}</ArtifactName>
-            <Tag type="default">baseline</Tag>
+            <Stack horizontal verticalAlign="center">
+              <Link
+                to={pathFactory.project.bundle.detail({
+                  projectId: project.id,
+                  bundleId: baseline.id,
+                })}
+              >
+                <BuildRound>#{baseline.id}</BuildRound>
+              </Link>
+              <ArtifactName>{baseline.name}</ArtifactName>
+              <Tag type="default">baseline</Tag>
+              <Stack styles={{ root: { marginLeft: 8 } }}>
+                {artifact.baseline?.size ? <ColoredSize size={artifact.baseline.size} /> : null}
+              </Stack>
+            </Stack>
             <CommitInfo artifact={baseline} />
           </BuildHistoryItem>
         ) : (

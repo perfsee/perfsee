@@ -42,7 +42,7 @@ const cardGroups: Array<
 > = [
   [
     {
-      title: 'Bundle Size',
+      title: 'Entrypoint Size',
       diffField: 'sizeDiff',
     },
     {
@@ -96,7 +96,7 @@ export function Overview({ artifact, diff }: OverviewProps) {
       <Stack horizontal tokens={cardGap} wrap>
         <Stack.Item grow={1}>
           <BundleCard>
-            <BundleCardTitle>Bundle Score</BundleCardTitle>
+            <BundleCardTitle>Entrypoint Score</BundleCardTitle>
             <ScoreCircle
               score={diff.score.current ?? artifact.score}
               baseline={diff.score.baseline ?? artifact.baseline?.score}
@@ -105,7 +105,7 @@ export function Overview({ artifact, diff }: OverviewProps) {
         </Stack.Item>
         <Stack.Item grow={4}>
           <BundleCard>
-            <BundleCardTitle>Bundle Overview</BundleCardTitle>
+            <BundleCardTitle>Entrypoint Overview</BundleCardTitle>
             <BriefSize diff={diff} />
           </BundleCard>
         </Stack.Item>
@@ -114,7 +114,7 @@ export function Overview({ artifact, diff }: OverviewProps) {
         <Stack key={i} horizontal tokens={cardGap} wrap>
           {items.map((item) => {
             const diffData = diff[item.diffField]
-            if (!('current' in diffData)) {
+            if (!diffData || !('current' in diffData)) {
               return null
             }
 
