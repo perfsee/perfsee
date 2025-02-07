@@ -36,6 +36,9 @@ type Artifact {
   """total size introduced by build, report and content files, in bytes"""
   uploadSize: Int!
 
+  """total size of all assets in this artifact, in bytes"""
+  size: FileSize
+
   """bundle audit score"""
   score: Int
 

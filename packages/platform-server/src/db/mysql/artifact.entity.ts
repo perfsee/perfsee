@@ -33,6 +33,7 @@ import { BundleJobStatus } from '@perfsee/server-common'
 import type { Project } from './project.entity'
 import type { ScriptFile } from './script-file.entity'
 import type { AppVersion } from './app-version.entity'
+import { FileSize } from '.'
 
 registerEnumType(BundleJobStatus, {
   name: 'BundleJobStatus',
@@ -111,6 +112,10 @@ export class Artifact extends BaseEntity {
   @Field(() => Int, { description: 'total size introduced by build, report and content files, in bytes' })
   @Column({ default: 0 })
   uploadSize!: number
+
+  @Field(() => FileSize, { description: 'total size of all assets in this artifact, in bytes', nullable: true })
+  @Column({ type: 'json', nullable: true, comment: 'total size of all assets in this artifact, in bytes' })
+  size!: FileSize
 
   @Field(() => Int, { description: 'bundle audit score', nullable: true })
   @Column({ type: 'int', nullable: true })

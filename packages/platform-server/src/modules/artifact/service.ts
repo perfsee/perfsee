@@ -283,6 +283,7 @@ export class ArtifactService implements OnApplicationBootstrap {
       artifact.moduleSourceKey = update.moduleReasonsKey!
       artifact.duration = update.duration!
       artifact.score = update.score!
+      artifact.size = update.totalSize!
     } else if (update.status === BundleJobStatus.Failed) {
       artifact.failedReason = update.failedReason!
     }
