@@ -18,14 +18,7 @@ import { readdir, stat, unlink } from 'fs/promises'
 import { join } from 'path'
 
 import { PlatformClient } from '@perfsee/job-runner-shared/platform-client'
-import {
-  LighthouseScoreType,
-  TimelineSchema,
-  MetricScoreSchema,
-  TimingType,
-  HeaderType,
-  CookieType,
-} from '@perfsee/shared'
+import { LighthouseScoreType, MetricScoreSchema, TimingType, HeaderType, CookieType } from '@perfsee/shared'
 import { Task } from '@perfsee/tracehouse'
 
 const getParams = (audit?: LH.Audit.Result) => {
@@ -58,8 +51,8 @@ export function slimTraceData(tasks: Task[], endTime: number, level = 1): Task[]
 export function getLighthouseMetricScores(
   mode: LH.Result.GatherMode,
   audits: Record<string, LH.Audit.Result>,
+  artifacts: LH.PerfseeArtifacts,
   timings?: LH.Artifacts.NavigationTraceTimes | null,
-  timelines?: TimelineSchema[],
 ) {
   return Object.values(LighthouseScoreType)
     .map((type) => {
@@ -98,7 +91,9 @@ export function getLighthouseMetricScores(
           if (mode !== 'navigation') return {}
           return {
             id: LighthouseScoreType.VC,
-            value: timelines?.[timelines.length - 1]?.timing,
+            value: artifacts.Screencast
+              ? (artifacts.Screencast.lastFrameTime - artifacts.Screencast.firstFrameTime) * 1000
+              : undefined,
             formatter: 'duration',
             title: 'Visually Complete',
           }

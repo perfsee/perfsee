@@ -120,7 +120,6 @@ const CenterTitle = styled(PrimaryTitle)({
   gridArea: 'current-title',
   textAlign: 'center',
   margin: '16px 4px 0',
-  marginTop: -20,
 })
 
 const NextThumbnailContainer = styled.div({

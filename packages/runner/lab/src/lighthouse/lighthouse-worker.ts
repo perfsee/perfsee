@@ -106,11 +106,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected getLighthouseMetricScores(
-    audits: Record<string, LH.Audit.Result>,
+    lhr: LH.Result,
+    artifacts: LH.PerfseeArtifacts,
     timings?: LH.Artifacts.NavigationTraceTimes | null,
-    timelines?: TimelineSchema[],
   ) {
-    return getLighthouseMetricScores('navigation', audits, timings, timelines)
+    return getLighthouseMetricScores(lhr.gatherMode, lhr.audits, artifacts, timings)
   }
 
   protected shouldHaveLcp() {
@@ -148,7 +148,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     // format overview render timeline data
     // @ts-expect-error
     const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
-    const metricScores = this.getLighthouseMetricScores(lhr.audits, timings, timelines)
+    const metricScores = this.getLighthouseMetricScores(lhr, artifacts, timings)
 
     const jsCoverage = artifacts.JsUsage ?? {}
     const reactProfile = artifacts.ReactProfiler as
