@@ -138,14 +138,6 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
     }
   }
 
-  protected getLighthouseMetricScores(
-    audits: Record<string, LH.Audit.Result>,
-    timings?: LH.Artifacts.NavigationTraceTimes | null,
-    timelines?: TimelineSchema[],
-  ) {
-    return getLighthouseMetricScores('timespan', audits, timings, timelines)
-  }
-
   protected shouldHaveLcp(): boolean {
     return false
   }
@@ -153,11 +145,11 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
   protected async collectResults(lhResult: LH.PerfseeRunnerResult & { userFlowResult?: FlowResult[] }) {
     const userFlowResult = lhResult.userFlowResult
 
-    const flowResults = userFlowResult?.map(({ lhr, stepName }, i) => {
+    const flowResults = userFlowResult?.map(({ lhr, stepName, artifacts }, i) => {
       // format overview render timeline data
       // @ts-expect-error
       const timelines = (lhr.audits['screenshot-thumbnails'].details?.items ?? []) as TimelineSchema[]
-      const metricScores = getLighthouseMetricScores(lhr.gatherMode, lhr.audits, undefined, timelines)
+      const metricScores = getLighthouseMetricScores(lhr.gatherMode, lhr.audits, artifacts)
 
       return {
         stepName,

@@ -622,8 +622,8 @@ type User {
   isAdmin: Boolean!
   starredProjects: [ID!]!
   connectedAccounts: [Account!]!
-  userCookies: JSON!
-  userCookiesLastUpdate: DateTime!
+  userCookies: JSON
+  userCookiesLastUpdate: DateTime
   accessTokens: [AccessToken!]!
 }
 
@@ -1230,8 +1230,8 @@ type UserWithPermission {
   isAdmin: Boolean!
   starredProjects: [ID!]!
   connectedAccounts: [Account!]!
-  userCookies: JSON!
-  userCookiesLastUpdate: DateTime!
+  userCookies: JSON
+  userCookiesLastUpdate: DateTime
   accessTokens: [AccessToken!]!
 
   """user permission of project"""
