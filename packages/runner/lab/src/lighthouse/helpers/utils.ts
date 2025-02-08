@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { existsSync } from 'fs'
 import { readdir, stat, unlink } from 'fs/promises'
 import { join } from 'path'
 
@@ -164,6 +165,9 @@ export function formatCookies(cookies: CookieType[], domain: string) {
 }
 
 export async function removeOldFiles(directoryPath: string, expireTime: number) {
+  if (!existsSync(directoryPath)) {
+    return
+  }
   const files = await readdir(directoryPath)
 
   for (const file of files) {
