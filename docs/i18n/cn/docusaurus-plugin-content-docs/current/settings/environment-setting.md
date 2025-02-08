@@ -46,12 +46,12 @@ sidebar_position: 4
 
 ##### Stringify
 
-Cookies 无法直接方便地使用浏览器获取，建议安装[Perfsee 插件](https://todo.todo)或第三方插件[EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol)，导出页面所需 cookies 粘贴至文本框即可。
+Cookies 无法直接方便地使用浏览器获取，建议安装[Perfsee 插件](https://chromewebstore.google.com/detail/perfsee/hbbeibaddddehhfhgdddojabmigdloea)或第三方插件[EditThisCookie](https://chromewebstore.google.com/detail/editthiscookie/ojfebgpkimhlhcblbalbfjblapadhbol)，导出页面所需 cookies 粘贴至文本框即可。
 ![](/settings/cookies-stringify.png)
 
 #### 使用个人 Cookies
 
-通过[Perfsee 插件](https://todo.todo)，可以定时将浏览器中选定域名的所有 cookies 同步至 Perfsee 平台，在运行快照时可以使用个人 cookies，具体步骤如下：
+通过[Perfsee 插件](https://chromewebstore.google.com/detail/perfsee/hbbeibaddddehhfhgdddojabmigdloea)，可以定时将浏览器中选定域名的所有 cookies 同步至 Perfsee 平台，在运行快照时可以使用个人 cookies，具体步骤如下：
 
 1. 同意插件上传你的 cookies
 2. 在插件域名管理页面勾选你要同步的域名
