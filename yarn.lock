@@ -7696,36 +7696,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@midscene/core@npm:0.10.5":
-  version: 0.10.5
-  resolution: "@midscene/core@npm:0.10.5"
+"@midscene/core@npm:0.11.0":
+  version: 0.11.0
+  resolution: "@midscene/core@npm:0.11.0"
   dependencies:
     "@anthropic-ai/sdk": 0.33.1
     "@azure/identity": 4.5.0
     "@langchain/core": 0.3.26
-    "@midscene/shared": 0.10.5
+    "@midscene/shared": 0.11.0
     "@ui-tars/action-parser": 1.0.1
     openai: 4.81.0
     socks-proxy-agent: 8.0.4
-  checksum: 56ac4c55cf1011570a6a79b73dd606339a28b711444fb79838326fb3772cef7f2cdd15190f4d573e4d2101947e0c8786291453d169df1edf5e26c3aeea0fe67f
+  checksum: f2c55e2ed15c25526bdfcf3b1f53cd4716d4eed55c8c794edbe2bca073f8867a8410bdf2aa4f06eb93ca7a4057a502048247acd2b6e1310039711d2cb5f12fe1
   languageName: node
   linkType: hard
 
-"@midscene/shared@npm:0.10.5":
-  version: 0.10.5
-  resolution: "@midscene/shared@npm:0.10.5"
+"@midscene/shared@npm:0.11.0":
+  version: 0.11.0
+  resolution: "@midscene/shared@npm:0.11.0"
   dependencies:
     jimp: 0.22.12
-  checksum: ad5cd839ca3ad988eb72b6b9749b20f9cee9856d0b53655a7e5678b0265f5e1fd3b678951051fe85a8c27f090ada4ea34cdf6d69ddca692872bd329a2f259b64
+  checksum: b963fbd91b8e587032a5ad216c6132f426822adead963ff37cf3454560c92645be1af79dec5695b871c11330bb24efebca2ce05e112185f77623aced4b41a705
   languageName: node
   linkType: hard
 
-"@midscene/web@npm:~0.10.5":
-  version: 0.10.5
-  resolution: "@midscene/web@npm:0.10.5"
+"@midscene/web@npm:~0.11.0":
+  version: 0.11.0
+  resolution: "@midscene/web@npm:0.11.0"
   dependencies:
-    "@midscene/core": 0.10.5
-    "@midscene/shared": 0.10.5
+    "@midscene/core": 0.11.0
+    "@midscene/shared": 0.11.0
     "@xmldom/xmldom": 0.8.10
     cors: 2.8.5
     express: 4.21.1
@@ -7747,7 +7747,7 @@ __metadata:
       optional: true
   bin:
     midscene-playground: bin/midscene-playground
-  checksum: 7c4c5fbcb51b43f21ef8073ba6c11166e10c00e43f9a8bc498a600401324945a5425a2839640de367802762cca8b5199e0e303283f52bf6b9116ab8fda54d7c1
+  checksum: 59fc9d35cf728f174870c91890e95c8f8a90255e3acca5bf9077a40becfd9d81d7c6d5ba2f0e85c91e105f59aa8fc929d08a50594833ccbc91a0213c71dadc67
   languageName: node
   linkType: hard
 
@@ -8726,7 +8726,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@perfsee/job-runner-lab@workspace:packages/runner/lab"
   dependencies:
-    "@midscene/web": ~0.10.5
+    "@midscene/web": ~0.11.0
     "@perfsee/chrome-finder": "workspace:*"
     "@perfsee/job-runner-shared": "workspace:*"
     "@perfsee/shared": "workspace:*"

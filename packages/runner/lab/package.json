@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "private": true,
   "dependencies": {
-    "@midscene/web": "~0.10.5",
+    "@midscene/web": "~0.11.0",
     "@perfsee/chrome-finder": "workspace:*",
     "@perfsee/job-runner-shared": "workspace:*",
     "@perfsee/shared": "workspace:*",
