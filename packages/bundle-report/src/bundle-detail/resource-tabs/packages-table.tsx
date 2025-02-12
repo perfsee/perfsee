@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { PartitionOutlined } from '@ant-design/icons'
-import { SelectionMode, HoverCard, HoverCardType } from '@fluentui/react'
+import { SelectionMode, HoverCard, HoverCardType, Checkbox } from '@fluentui/react'
 import { useMemo, useCallback, useState, FC, MouseEvent } from 'react'
 
 import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
@@ -77,11 +77,16 @@ interface Props {
 export const PackagesTable: FC<Props> = ({ diff, onShowTraceModal }) => {
   const { packagesDiff, assetsDiff, audits } = diff
   const [filterPackages, setFilterPackages] = useState<Package[] | null>(null)
+  const [onlyDiff, setOnlyDiff] = useState(false)
 
   const scoreItemsMap = useAuditScore()
 
   const onChangePackages = useCallback((packages: Package[] | null) => {
     setFilterPackages(packages)
+  }, [])
+
+  const onChangeOnlyDiff = useCallback((_ev: any, checked?: boolean) => {
+    setOnlyDiff(!!checked)
   }, [])
 
   const allPackages = useMemo(() => {
@@ -137,22 +142,24 @@ export const PackagesTable: FC<Props> = ({ diff, onShowTraceModal }) => {
   }, [audits])
 
   const packages: PackageRow[] = useMemo(() => {
-    return (filterPackages ?? allPackages).map((p) => {
-      const audits = packageAuditMap[p.path] || packageAuditMap[p.name] || []
-      const suggestion = packageSuggestions.get(p.name)
-      if (suggestion) {
-        audits.push({
-          title: 'Package suggestion',
-          desc: suggestion,
-          score: BundleAuditScore.Notice,
-        })
-      }
-      return {
-        ...p,
-        audits,
-      }
-    })
-  }, [allPackages, filterPackages, packageAuditMap])
+    return (filterPackages ?? allPackages)
+      .filter((p) => (onlyDiff ? !p.base || p.size.raw !== p.base.raw : true))
+      .map((p) => {
+        const audits = packageAuditMap[p.path] || packageAuditMap[p.name] || []
+        const suggestion = packageSuggestions.get(p.name)
+        if (suggestion) {
+          audits.push({
+            title: 'Package suggestion',
+            desc: suggestion,
+            score: BundleAuditScore.Notice,
+          })
+        }
+        return {
+          ...p,
+          audits,
+        }
+      })
+  }, [allPackages, filterPackages, packageAuditMap, onlyDiff])
 
   const packagesLoadTypeMap = useMemo(() => {
     const map = new Map<number, LoadType>()
@@ -262,6 +269,19 @@ export const PackagesTable: FC<Props> = ({ diff, onShowTraceModal }) => {
         name: 'Size',
         minWidth: 100,
         maxWidth: 200,
+        onRenderHeader: () => {
+          return (
+            <TableHeaderFilterWrap>
+              <span>Size</span>
+              <Checkbox
+                label="diff only"
+                styles={{ root: { marginLeft: 12 } }}
+                checked={onlyDiff}
+                onChange={onChangeOnlyDiff}
+              />
+            </TableHeaderFilterWrap>
+          )
+        },
         onRender: (pkg) => (
           <ByteSizeWithDiff
             underline={true}
@@ -272,7 +292,9 @@ export const PackagesTable: FC<Props> = ({ diff, onShowTraceModal }) => {
             showNewIfIsNew
           />
         ),
-        sorter: (pkg1, pkg2) => pkg1.size.raw - pkg2.size.raw,
+        sorter: onlyDiff
+          ? (pkg1, pkg2) => pkg1.size.raw - (pkg1.base?.raw || 0) - (pkg2.size.raw - (pkg2.base?.raw || 0))
+          : (pkg1, pkg2) => pkg1.size.raw - pkg2.size.raw,
         isSorted: true,
         isSortedDescending: true,
       },
@@ -344,6 +366,8 @@ export const PackagesTable: FC<Props> = ({ diff, onShowTraceModal }) => {
       packagesDiff.baseline,
       scoreItemsMap,
       hasPackageAudit,
+      onChangeOnlyDiff,
+      onlyDiff,
     ],
   )
 
