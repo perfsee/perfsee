@@ -185,7 +185,7 @@ export async function removeOldFiles(directoryPath: string, expireTime: number) 
 
 export async function uploadDirFiles(directoryPath: string, client: PlatformClient) {
   if (!existsSync(directoryPath)) {
-    return
+    return []
   }
   const files = await readdir(directoryPath)
   const uploadKeys: string[] = []
