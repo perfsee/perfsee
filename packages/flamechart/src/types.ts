@@ -68,6 +68,7 @@ export type NetworkRequest = {
   initiator: Initiator
   requestId: string
   fromCache: 'Disk' | 'Memory' | 'Prefetch' | false
+  fromSerivceWorker: boolean
 }
 
 export interface TracehouseTask {

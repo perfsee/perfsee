@@ -170,7 +170,7 @@ export const DefaultColumns: TableColumnProps<RequestSchema>[] = [
         : undefined
       return (
         <span style={{ color }}>{`${getTransferred(item, true)}${
-          item.fromCache ? ` (${item.fromCache} cache)` : ''
+          item.fromCache ? ` (${item.fromCache} cache)` : item.fromSerivceWorker ? ' (service worker)' : ''
         }`}</span>
       )
     },

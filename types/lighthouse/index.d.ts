@@ -51,7 +51,9 @@ declare module LH {
     }
     ignoreRedirection?: boolean
     disableCache?: boolean
+    bypassSerivceWorker?: boolean
     originToForceQuicOn?: string[]
+    proxyExcludeHost?: string[]
   }
 
   export interface ScreencastGathererResult {

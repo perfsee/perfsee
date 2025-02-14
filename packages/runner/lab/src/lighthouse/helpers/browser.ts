@@ -20,8 +20,8 @@ import { findChrome } from '@perfsee/chrome-finder'
 
 export type BrowserOptions = Parameters<typeof puppeteer.launch>[0] & {
   enableProxy?: boolean
-  disableCache?: boolean
   originToForceQuicOn?: string[]
+  proxyExcludeHost?: string[]
 }
 
 export async function createBrowser(options: BrowserOptions = {}) {
@@ -42,11 +42,16 @@ export async function createBrowser(options: BrowserOptions = {}) {
   ]
 
   if (options.enableProxy) {
-    chromeArgs.push('--host-rules=MAP * 127.0.0.1')
-  }
-
-  if (options.disableCache) {
-    chromeArgs.push('--disable-cache')
+    if (options.proxyExcludeHost?.length) {
+      chromeArgs.push(
+        `--host-rules=${options.proxyExcludeHost
+          .map((host) => `EXCLUDE ${host}`)
+          .concat('MAP * 127.0.0.1')
+          .join(', ')}`,
+      )
+    } else {
+      chromeArgs.push('--host-rules=MAP * 127.0.0.1')
+    }
   }
 
   options.originToForceQuicOn?.forEach((domain) => {

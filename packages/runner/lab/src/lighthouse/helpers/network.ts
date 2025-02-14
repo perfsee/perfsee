@@ -194,6 +194,7 @@ export async function getNetworkRecords(devtoolsLog: LH.DevtoolsLog) {
           : record.fromPrefetchCache
           ? 'prefetch'
           : false,
+        fromServiceWorker: record.fetchedViaServiceWorker,
         serverTimings: getServerTimingFromResponseHeaders(responseHeader),
       }
     })
