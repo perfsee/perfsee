@@ -15,11 +15,11 @@ limitations under the License.
 */
 
 import { LinkOutlined } from '@ant-design/icons'
-import { Stack } from '@fluentui/react'
+import { Stack, Toggle } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { compact, floor } from 'lodash'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ForeignLink, Space, DateRangeSelector, useQueryString } from '@perfsee/components'
 import {
@@ -57,7 +57,7 @@ const xAxisLabel = {
 export const ArtifactSizeChart = () => {
   const project = useProject()
   const generateProjectRoute = useProjectRouteGenerator()
-
+  const [useInitialSize, setUseInitialSize] = useState(false)
   const [
     {
       startTime = dayjs().subtract(1, 'months').startOf('day').unix(),
@@ -113,6 +113,10 @@ export const ArtifactSizeChart = () => {
     [updateQueryString],
   )
 
+  const onToggleInitialSize = useCallback((_ev: any, checked?: boolean) => {
+    setUseInitialSize(!!checked)
+  }, [])
+
   useEffect(() => {
     getAggregatedEntrypoints({
       from: dayjs.unix(startTime).toISOString(),
@@ -132,15 +136,15 @@ export const ArtifactSizeChart = () => {
       largest = 1000
       smallest = 0
     } else {
-      entrypoints.forEach(({ artifactName, entrypoint, artifactId, hash, size }) => {
+      entrypoints.forEach(({ artifactName, entrypoint, artifactId, hash, size, initialSize }) => {
         const record = {
           id: artifactId,
           hash,
           artifactName,
           entryPoint: entrypoint,
-          raw: size.raw / 1000,
-          gzip: size.gzip / 1000,
-          brotli: size.brotli / 1000,
+          raw: useInitialSize ? initialSize.raw / 1000 : size.raw / 1000,
+          gzip: useInitialSize ? initialSize.gzip / 1000 : size.gzip / 1000,
+          brotli: useInitialSize ? initialSize.brotli / 1000 : size.brotli / 1000,
         } as DataType
         largest = Math.max(largest, record.raw)
         smallest = Math.min(smallest, record.raw)
@@ -150,7 +154,7 @@ export const ArtifactSizeChart = () => {
 
     data.sort((a, b) => a.id - b.id)
     return { flatData: data, largest, smallest }
-  }, [entrypoints])
+  }, [entrypoints, useInitialSize])
 
   const { data, groupData } = useMemo(() => {
     return formatChartData<DataType, DataType>(flatData, 'entryPoint', 'id', 'raw')
@@ -217,9 +221,9 @@ export const ArtifactSizeChart = () => {
                 <th />
                 <th>artifact name</th>
                 <th>entrypoint</th>
-                <th>raw</th>
-                <th>gzip</th>
-                <th>brotli</th>
+                <th>raw{useInitialSize ? '(initial)' : ''}</th>
+                <th>gzip{useInitialSize ? '(initial)' : ''}</th>
+                <th>brotli{useInitialSize ? '(initial)' : ''}</th>
               </tr>
             </thead>
             <tbody>
@@ -242,7 +246,7 @@ export const ArtifactSizeChart = () => {
 
       return renderTooltip('artifact-size', node)
     },
-    [generateProjectRoute, groupData],
+    [generateProjectRoute, groupData, useInitialSize],
   )
 
   const option = useMemo<EChartsOption>(
@@ -280,6 +284,17 @@ export const ArtifactSizeChart = () => {
               artifactName={name}
               branch={branch}
               onChange={handleEntrypointsSelect}
+            />
+            <Toggle
+              onText="Initial Size"
+              offText="Total Size"
+              styles={{
+                root: { alignSelf: 'stretch', marginBottom: 0, display: 'flex' },
+                container: { alignItems: 'center' },
+              }}
+              inlineLabel
+              label="Total / Initial"
+              onChange={onToggleInitialSize}
             />
           </Stack>
           <DateRangeSelector
