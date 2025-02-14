@@ -503,9 +503,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     const browser = await createBrowser({
       enableProxy,
-      disableCache: !!lighthouseFlags?.disableCache,
       userDataDir: warmup ? this.cacheDir : undefined,
       originToForceQuicOn: lighthouseFlags?.originToForceQuicOn,
+      proxyExcludeHost: lighthouseFlags?.proxyExcludeHost,
       ...options,
     })
 
@@ -517,6 +517,14 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         }
         await page.setCookie(...formatCookies(cookies, domain))
         await page.setViewport(device.viewport)
+
+        if (lighthouseFlags?.disableCache) {
+          await page.setCacheEnabled(false)
+        }
+
+        if (lighthouseFlags?.bypassSerivceWorker) {
+          await page.setBypassServiceWorker(true)
+        }
 
         await page.evaluateOnNewDocument(
           (localStorageContent: LocalStorageType[], sessionStorageContent: SessionStorageType[]) => {
