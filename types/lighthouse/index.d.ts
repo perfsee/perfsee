@@ -51,7 +51,7 @@ declare module LH {
     }
     ignoreRedirection?: boolean
     disableCache?: boolean
-    bypassSerivceWorker?: boolean
+    bypassServiceWorker?: boolean
     originToForceQuicOn?: string[]
     proxyExcludeHost?: string[]
   }

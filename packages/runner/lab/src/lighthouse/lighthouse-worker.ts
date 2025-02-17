@@ -522,7 +522,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           await page.setCacheEnabled(false)
         }
 
-        if (lighthouseFlags?.bypassSerivceWorker) {
+        if (lighthouseFlags?.bypassServiceWorker) {
           await page.setBypassServiceWorker(true)
         }
 
