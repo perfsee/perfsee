@@ -260,6 +260,9 @@ async fn run_server(
               {
                 let _ = mem::replace(res.headers_mut(), headers.clone());
                 println!("Resource [{}] hit the cache", req_uri);
+                res
+                  .headers_mut()
+                  .append("proxy-cache", HeaderValue::from_static("hit"));
                 return Ok(res);
               }
             }
@@ -277,6 +280,9 @@ async fn run_server(
               {
                 let _ = mem::replace(res.headers_mut(), headers.clone());
                 println!("Resource [{}] hit the API cache", req_uri);
+                res
+                  .headers_mut()
+                  .append("proxy-cache", HeaderValue::from_static("hit"));
                 return Ok(res);
               }
             }
