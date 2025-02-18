@@ -23,7 +23,7 @@ import { RouteComponentProps, Link } from 'react-router-dom'
 import { BundleReport, RouterContext } from '@perfsee/bundle-report'
 import { useToggleState } from '@perfsee/components'
 import { BundleJobStatus } from '@perfsee/schema'
-import { AssetInfo, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
+import { AssetInfo, diffBundleContent, ModuleSource, ModuleTreeNode } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
 import { ArtifactSelect, ArtifactSelectEventPayload } from '../../components'
@@ -49,13 +49,13 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
     const hasBaselineInQueries = !!queries.baseline
 
     const [state, dispatcher] = useModule(BundleModule)
-    const [{ content }, bundleContentDispatcher] = useModule(BundleContentModule)
+    const [{ content, baselineContent, loading }, bundleContentDispatcher] = useModule(BundleContentModule)
 
     useEffect(() => {
-      if (content && resolveContent) {
-        resolveContent(content)
+      if (content && resolveContent && !loading && state.diff) {
+        resolveContent(diffBundleContent(state.current, state.baseline, state.diff, content, baselineContent))
       }
-    }, [content])
+    }, [content, loading, baselineContent, state])
 
     const moduleSourcePromise = useRef(
       new Promise<ModuleSource>((resolve) => {
@@ -75,16 +75,20 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
 
     const getAssetContent = useCallback(
       async (asset: AssetInfo) => {
-        let moduleTreeNodes = content
+        let moduleTreeNodes
+
+        if (!loading && content && state.diff) {
+          moduleTreeNodes = diffBundleContent(state.current, state.baseline, state.diff, content, baselineContent)
+        }
 
         if (!moduleTreeNodes) {
-          bundleContentDispatcher.getContent(bundleId)
+          bundleContentDispatcher.getContent({ current: bundleId, baseline: state.baseline?.id })
           moduleTreeNodes = await contentPromise
         }
 
         return moduleTreeNodes.filter((node) => node.name === asset.name)
       },
-      [bundleContentDispatcher, bundleId, content],
+      [bundleContentDispatcher, bundleId, loading, content, baselineContent, state],
     )
 
     const getModuleReasons = useCallback(async () => {
@@ -103,7 +107,8 @@ export const BundleReportContainer = memo<RouteComponentProps<{ name: string; bu
       dependencies: [],
     })
     const generateProjectRoute = useProjectRouteGenerator()
-    const contentPath = generateProjectRoute(pathFactory.project.bundle.jobBundleContent, { bundleId })
+    const contentPath =
+      generateProjectRoute(pathFactory.project.bundle.jobBundleContent, { bundleId }) + location.search
 
     const [artifactSelectVisible, showArtifactSelect, hideArtifactSelect] = useToggleState(false)
 

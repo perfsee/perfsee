@@ -174,4 +174,8 @@ export interface ModuleTreeNode {
   unused?: number
   esm?: boolean
   sideEffects?: boolean | 'implicitly'
+  baseline?: {
+    size: Size
+    name?: string
+  } | null
 }

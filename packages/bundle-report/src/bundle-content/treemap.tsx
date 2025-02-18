@@ -21,6 +21,7 @@ import { TreeMapChart } from '@perfsee/components/treemap'
 import { ModuleTreeNode } from '@perfsee/shared'
 import { hierarchy, SearchEngine, Match } from '@perfsee/treemap'
 
+import { LegendList, UnusedLegendIcon } from './styled'
 import { BundleAnalyzerTooltip } from './tooltip'
 
 class BundleContentSearchEngine implements SearchEngine<ModuleTreeNode> {
@@ -47,26 +48,41 @@ class BundleContentSearchEngine implements SearchEngine<ModuleTreeNode> {
 
 export interface TreemapProps {
   content: ModuleTreeNode[]
+  showDiff?: boolean
 }
 
-export const Treemap: FC<TreemapProps> = ({ content }) => {
+export const Treemap: FC<TreemapProps> = ({ content, showDiff }) => {
   const treeMapData = useMemo(() => {
     if (content.length > 0) {
-      return hierarchy<ModuleTreeNode>({
+      return hierarchy<ModuleTreeNode & { highlight: number }>({
         name: 'root',
         children: content,
         value: 0,
-      } as ModuleTreeNode)
+      } as ModuleTreeNode & { highlight: number })
         .sum((d) => (d.children ? 0 : d.value || 0))
         .sort((a, b) => b.data.value - a.data.value)
+        .each((node) => {
+          showDiff &&
+            (node.data.highlight = node.data.baseline
+              ? (Math.max(node.data.value - node.data.baseline.size.raw, 0) / node.data.value) * -1
+              : -1)
+        })
     } else {
       return null
     }
-  }, [content])
+  }, [content, showDiff])
 
   const handleSearchEngine = useCallback((queryText: string) => new BundleContentSearchEngine(queryText), [])
   return treeMapData ? (
-    <TreeMapChart onSearchEngine={handleSearchEngine} data={treeMapData} tooltip={BundleAnalyzerTooltip} skipRoot />
+    <>
+      {showDiff ? (
+        <LegendList>
+          <UnusedLegendIcon />
+          Diff
+        </LegendList>
+      ) : null}
+      <TreeMapChart onSearchEngine={handleSearchEngine} data={treeMapData} tooltip={BundleAnalyzerTooltip} skipRoot />
+    </>
   ) : (
     <Empty withIcon title="No data" styles={{ root: { height: '100%' } }} />
   )

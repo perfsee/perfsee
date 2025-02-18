@@ -22,7 +22,10 @@ import { useMemo } from 'react'
 
 import { PrettyBytes } from '@perfsee/utils'
 
+import { DANGEROUS_SIZE_THROTTLE, WARNING_SIZE_THROTTLE } from '../constants'
 import { Diff, Size } from '../types'
+
+import { getColor } from './colored-size'
 
 export type NumberDiffProps = Diff<number> & {
   showPercentile?: boolean
@@ -125,6 +128,9 @@ export type ByteSizeWithDiffProps = Diff<Size> & {
   underline?: boolean
   showNewBellow?: boolean
   showNewIfIsNew?: boolean
+  colored?: boolean
+  horizontal?: boolean
+  hoverCardHeader?: JSX.Element
 }
 
 export function ByteSizeWithDiff({
@@ -135,12 +141,16 @@ export function ByteSizeWithDiff({
   underline = false,
   hideIfNonComparable = false,
   showNewIfIsNew = false,
+  colored = false,
+  horizontal = false,
+  hoverCardHeader,
 }: ByteSizeWithDiffProps) {
   const theme = useTheme()
   const plainCardProps = useMemo<IPlainCardProps>(
     () => ({
       onRenderPlainCard: () => (
         <Stack tokens={{ childrenGap: '8px', padding: '10px' }}>
+          {hoverCardHeader}
           {Object.entries(current).map(([key, value]) => (
             <Stack key={key} horizontal tokens={{ childrenGap: 8 }}>
               <ByteSize label={key} size={value} hightlight />
@@ -150,7 +160,7 @@ export function ByteSizeWithDiff({
         </Stack>
       ),
     }),
-    [baseline, current],
+    [baseline, current, hoverCardHeader],
   )
 
   if (showDiffBellow) {
@@ -159,8 +169,8 @@ export function ByteSizeWithDiff({
     )
     return (
       <HoverCard plainCardProps={plainCardProps} type={HoverCardType.plain}>
-        <Stack>
-          <ByteSize underline={underline} size={current.raw} className={className} />
+        <Stack horizontal={horizontal} verticalAlign="center" tokens={{ childrenGap: horizontal ? 16 : 0 }}>
+          <ByteSize underline={underline} size={current.raw} className={className} colored={colored} />
           {showNewIfIsNew ? baseline ? numberDiff : <span style={{ color: theme.colors.error }}>new</span> : numberDiff}
         </Stack>
       </HoverCard>
@@ -169,7 +179,7 @@ export function ByteSizeWithDiff({
 
   return (
     <HoverCard plainCardProps={plainCardProps} type={HoverCardType.plain}>
-      <ByteSize underline={underline} size={current.raw} className={className} />
+      <ByteSize underline={underline} size={current.raw} className={className} colored={colored} />
     </HoverCard>
   )
 }
@@ -181,6 +191,7 @@ export interface ByteSizeProps {
   signed?: boolean
   className?: string
   underline?: boolean
+  colored?: boolean
 }
 
 const ByteSizeLabel = styled('label')({})
@@ -208,11 +219,14 @@ const ByteSizeWrapper = styled.div<{ hightlight?: boolean; underline?: boolean }
   }),
 )
 
-export function ByteSize({ label, size, hightlight, signed, className, underline }: ByteSizeProps) {
+export function ByteSize({ label, size, hightlight, signed, className, underline, colored }: ByteSizeProps) {
   const bytes = PrettyBytes.create(size, { signed })
+  const theme = useTheme()
+
+  const color = getColor(theme, size, WARNING_SIZE_THROTTLE, DANGEROUS_SIZE_THROTTLE)
 
   return (
-    <ByteSizeWrapper hightlight={hightlight} underline={underline}>
+    <ByteSizeWrapper hightlight={hightlight} underline={underline} style={{ color: colored ? color : 'unset' }}>
       {label && <ByteSizeLabel>{label}: </ByteSizeLabel>}
       <ByteSizeNumber className={className}>
         {bytes.prefix}

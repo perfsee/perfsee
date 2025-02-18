@@ -185,7 +185,7 @@ export const StyledInfoItem = styled.div(({ theme }) => ({
     fontWeight: 'bold',
   },
   '> div:not(:first-of-type)': {
-    width: 150,
+    width: 250,
   },
 }))
 

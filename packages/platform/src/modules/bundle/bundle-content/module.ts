@@ -16,8 +16,8 @@ limitations under the License.
 
 import { Module, EffectModule, Effect, ImmerReducer, Reducer } from '@sigi/core'
 import { Draft, freeze } from 'immer'
-import { Observable } from 'rxjs'
-import { switchMap, map, filter, startWith, endWith, withLatestFrom } from 'rxjs/operators'
+import { concat, forkJoin, Observable, of } from 'rxjs'
+import { switchMap, map, filter, withLatestFrom, mergeAll } from 'rxjs/operators'
 
 import { createErrorCatcher, RxFetch, GraphQLClient } from '@perfsee/platform/common'
 import { artifactQuery } from '@perfsee/schema'
@@ -27,6 +27,7 @@ import { ProjectModule } from '../../shared'
 
 interface State {
   content: ModuleTreeNode[] | null
+  baselineContent: ModuleTreeNode[] | null
   loading: boolean
 }
 
@@ -34,6 +35,7 @@ interface State {
 export class BundleContentModule extends EffectModule<State> {
   defaultState = {
     content: null,
+    baselineContent: null,
     loading: false,
   }
 
@@ -53,6 +55,14 @@ export class BundleContentModule extends EffectModule<State> {
     }
   }
 
+  @Reducer()
+  setBaselineContent(state: Draft<State>, data: ModuleTreeNode[]): State {
+    return {
+      ...state,
+      baselineContent: freeze(data),
+    }
+  }
+
   @ImmerReducer()
   setLoading(state: Draft<State>, data: boolean) {
     state.loading = data
@@ -65,37 +75,63 @@ export class BundleContentModule extends EffectModule<State> {
   }
 
   @Effect()
-  getContent(payload$: Observable<number>) {
+  getContent(payload$: Observable<{ current: number; baseline?: number }>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
       filter(([, { project }]) => !!project),
-      switchMap(([id, { project }]) =>
-        this.client
-          .query({
-            query: artifactQuery,
-            variables: {
-              id,
-              projectId: project!.id,
-            },
-          })
-          .pipe(
-            createErrorCatcher('Failed to get bundle content storage key'),
-            map((data) => this.getActions().fetchContentFromStorage(data.project.artifact.contentLink)),
-            startWith(this.getActions().setLoading(true)),
-          ),
-      ),
+      switchMap(([{ current, baseline }, { project }]) => {
+        const getArtifact = (id: number, isBaseline?: boolean) =>
+          this.client
+            .query({
+              query: artifactQuery,
+              variables: {
+                id,
+                projectId: project!.id,
+              },
+            })
+            .pipe(
+              createErrorCatcher('Failed to get bundle content storage key'),
+              map((data) =>
+                this.getActions()[isBaseline ? 'fetchBaselineContentFromStorage' : 'fetchContentFromStorage'](
+                  data.project.artifact.contentLink,
+                ),
+              ),
+            )
+
+        const requests = baseline
+          ? forkJoin([getArtifact(current), getArtifact(baseline, true)])
+          : getArtifact(current).pipe(map((action) => [action]))
+
+        return concat(
+          of(this.getActions().setLoading(true)),
+          requests.pipe(mergeAll()),
+          of(this.getActions().setLoading(false)),
+        )
+      }),
     )
   }
 
   @Effect()
-  fetchContentFromStorage(payload$: Observable<string | null | undefined>) {
+  fetchContentFromStorage(payload$: Observable<string | undefined | null>) {
     return payload$.pipe(
       filter((key) => !!key),
       switchMap((key) =>
         this.fetch.get<ModuleTreeNode[]>(key!).pipe(
           createErrorCatcher('Failed to fetch bundle content.'),
           map((res) => this.getActions().setContent(res)),
-          endWith(this.getActions().setLoading(false)),
+        ),
+      ),
+    )
+  }
+
+  @Effect()
+  fetchBaselineContentFromStorage(payload$: Observable<string | undefined | null>) {
+    return payload$.pipe(
+      filter((key) => !!key),
+      switchMap((key) =>
+        this.fetch.get<ModuleTreeNode[]>(key!).pipe(
+          createErrorCatcher('Failed to fetch bundle content.'),
+          map((res) => this.getActions().setBaselineContent(res)),
         ),
       ),
     )
