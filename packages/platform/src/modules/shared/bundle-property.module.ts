@@ -109,6 +109,9 @@ export class BundlePropertiesModule extends EffectModule<State> {
               projectId: project!.id,
               artifactName,
               branch,
+              pagination: {
+                first: 100,
+              },
             },
           })
           .pipe(
