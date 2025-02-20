@@ -1,5 +1,5 @@
-query recentEntrypoints($projectId: ID!, $branch: String, $artifactName: String) {
+query recentEntrypoints($projectId: ID!, $branch: String, $artifactName: String, $pagination: PaginationInput) {
   project(id: $projectId) {
-    entrypointNames(branch: $branch, artifactName: $artifactName)
+    entrypointNames(branch: $branch, artifactName: $artifactName, pagination: $pagination)
   }
 }
