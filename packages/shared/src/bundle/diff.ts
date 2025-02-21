@@ -484,13 +484,13 @@ function getBaseModuleName(name: string): string {
   return name.split(' + ')[0]
 }
 
-function splitNestedFolders(node: ModuleTreeNode): ModuleTreeNode {
+function splitNestedFolders(node: ModuleTreeNode, isTopLevel = true): ModuleTreeNode {
   const baseName = getBaseModuleName(node.name)
 
-  if (!baseName.includes('/')) {
+  if (!baseName.includes('/') || isTopLevel) {
     return {
       ...node,
-      children: node.children?.map((child) => splitNestedFolders(child)),
+      children: node.children?.map((child) => splitNestedFolders(child, false)),
     }
   }
 
@@ -522,7 +522,7 @@ function splitNestedFolders(node: ModuleTreeNode): ModuleTreeNode {
   const lastNode: ModuleTreeNode = {
     ...node,
     name: parts[parts.length - 1] + concatenatedSuffix,
-    children: node.children?.map((child) => splitNestedFolders(child)),
+    children: node.children?.map((child) => splitNestedFolders(child, false)),
   }
 
   currentNode.children!.push(lastNode)
