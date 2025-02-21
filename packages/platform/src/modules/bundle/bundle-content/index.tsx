@@ -16,34 +16,62 @@ limitations under the License.
 
 import { Spinner, SpinnerSize } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useParams, useHistory, useLocation } from 'react-router'
 import { Link } from 'react-router-dom'
 
 import { BundleContent, RouterContext } from '@perfsee/bundle-report'
+import { useQueryString } from '@perfsee/components'
+import { diffBundleContent } from '@perfsee/shared'
 
 import { useProject } from '../../shared'
+import { BundleModule } from '../detail/module'
 
 import { BundleContentModule } from './module'
 
 export const BundleContentContainer = () => {
-  const [{ content, loading }, dispatcher] = useModule(BundleContentModule)
+  const [{ content, loading, baselineContent }, dispatcher] = useModule(BundleContentModule)
   const project = useProject()
   const { bundleId: routeBundleId } = useParams<{
     bundleId: string
   }>()
+  const [{ baseline }] = useQueryString<{ baseline?: string }>()
   const history = useHistory()
   const location = useLocation()
+  const [state, bundleDispatcher] = useModule(BundleModule)
+  const bundleId = parseInt(routeBundleId)
 
   useEffect(() => {
-    const bundleId = parseInt(routeBundleId)
-
-    dispatcher.getContent(bundleId)
+    dispatcher.getContent({ current: bundleId, baseline: Number(baseline) })
 
     return () => {
       dispatcher.dispose()
     }
-  }, [dispatcher, routeBundleId])
+  }, [dispatcher, baseline, bundleId])
+
+  useEffect(() => {
+    if (!state.diff) {
+      baseline ? bundleDispatcher.getBundle(bundleId) : bundleDispatcher.getBundleWithBaseline(bundleId)
+    }
+  }, [state, baseline, bundleDispatcher, bundleId])
+
+  useEffect(() => {
+    state.baseline && !baselineContent && dispatcher.fetchBaselineContentFromStorage(state.baseline?.contentLink)
+  }, [state.baseline, dispatcher, baselineContent])
+
+  useEffect(() => {
+    baseline && bundleDispatcher.updateBaseline(Number(baseline))
+  }, [baseline, bundleDispatcher])
+
+  useEffect(() => {
+    return bundleDispatcher.reset
+  }, [bundleDispatcher, baseline, bundleId])
+
+  const moduleTreeNodes = useMemo(() => {
+    return state.diff && content && baselineContent
+      ? diffBundleContent(state.current, state.baseline, state.diff, content, baselineContent)
+      : content || []
+  }, [content, baselineContent, state])
 
   if (loading) {
     return <Spinner size={SpinnerSize.large} />
@@ -55,7 +83,12 @@ export const BundleContentContainer = () => {
 
   return (
     <RouterContext.Provider value={{ location, history, Link }}>
-      <BundleContent content={content} project={project!} bundleId={parseInt(routeBundleId)} />
+      <BundleContent
+        content={moduleTreeNodes}
+        project={project!}
+        bundleId={parseInt(routeBundleId)}
+        showDiff={!!state.baseline}
+      />
     </RouterContext.Provider>
   )
 }

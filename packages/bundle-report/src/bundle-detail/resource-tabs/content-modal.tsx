@@ -24,6 +24,7 @@ import { AssetInfo, ModuleTreeNode } from '@perfsee/shared'
 
 export interface ContentModalProps {
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
+  showDiff?: boolean
 }
 
 const ChartWrapper = styled.div({
@@ -32,7 +33,7 @@ const ChartWrapper = styled.div({
   padding: '0 12px',
 })
 
-export const ContentModal: FC<ContentModalProps> = forwardRef(({ getAssetContent }, ref) => {
+export const ContentModal: FC<ContentModalProps> = forwardRef(({ getAssetContent, showDiff }, ref) => {
   const [content, setContent] = useState<ModuleTreeNode[] | null>(null)
   const [open, setOpen] = useState(false)
 
@@ -88,7 +89,7 @@ export const ContentModal: FC<ContentModalProps> = forwardRef(({ getAssetContent
               </p>
             </ShortcutTips>
           </Header>
-          <Treemap content={content} />
+          <Treemap content={content} showDiff={!!showDiff} />
         </ChartWrapper>
       ) : (
         <Spinner size={SpinnerSize.large} />

@@ -37,9 +37,10 @@ export interface BundleContentProps {
     name: string
   }
   bundleId?: number
+  showDiff?: boolean
 }
 
-export const BundleContent: FC<BundleContentProps> = ({ project, content, bundleId }) => {
+export const BundleContent: FC<BundleContentProps> = ({ project, content, bundleId, showDiff }) => {
   useWideScreen()
   const entryPoints = useMemo(() => {
     return union(...content.map((v) => v.entryPoints))
@@ -69,7 +70,7 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
     <Container>
       <Header>
         {project && bundleId && Link ? (
-          <Link to={pathFactory.project.bundle.detail({ projectId: project.id, bundleId })}>
+          <Link to={pathFactory.project.bundle.detail({ projectId: project.id, bundleId }) + location.search}>
             <ArrowLeftOutlined />
             <span>Back</span>
           </Link>
@@ -100,7 +101,7 @@ export const BundleContent: FC<BundleContentProps> = ({ project, content, bundle
         </ShortcutTips>
       </Header>
       <ChartWrapper>
-        <Treemap content={filteredContent} />
+        <Treemap content={filteredContent} showDiff={!!showDiff} />
       </ChartWrapper>
     </Container>
   )

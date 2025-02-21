@@ -95,3 +95,25 @@ export const ModuleLabel = styled.span<{ warning?: boolean; color?: string }>(({
   backgroundColor: warning ? theme.colors.warning : color,
   borderRadius: 4,
 }))
+
+export const LegendList = styled.div({
+  height: '32px',
+  display: 'flex',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  padding: '0 32px',
+  fontWeight: 600,
+})
+
+export const UnusedLegendIcon = styled.div({
+  width: '24px',
+  height: '24px',
+  margin: '0 16px',
+  background:
+    'repeating-linear-gradient( -45deg, hsla(0, 0%, 0%, 0), hsla(0, 0%, 0%, 0) 2px, hsla(7, 85%, 56%, 0.3) 2px, hsla(7, 85%, 56%, 0.3) 4px )',
+})
+
+export const ChartContainer = styled.div({
+  width: '100%',
+  height: 'calc(100vh - 350px)',
+})

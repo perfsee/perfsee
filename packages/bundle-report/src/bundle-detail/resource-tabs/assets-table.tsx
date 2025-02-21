@@ -21,22 +21,24 @@ import { FC, MouseEvent, useCallback, useMemo, useRef, useState } from 'react'
 
 import { TableColumnProps, Table, TooltipWithEllipsis, ForeignLink } from '@perfsee/components'
 import { SharedColors, lighten } from '@perfsee/dls'
-import { AssetTypeEnum, AssetInfo, EntryDiff, BundleAuditScore, ModuleTreeNode } from '@perfsee/shared'
+import { AssetTypeEnum, AssetInfo, EntryDiff, BundleAuditScore, ModuleTreeNode, assetsMatcher } from '@perfsee/shared'
 
 import { ModuleItem } from '../../bundle-content/treeview'
-import { ColoredSize, TransferTime } from '../components'
+import { ByteSizeWithDiff, TransferTime } from '../components'
 import { TableHeaderFilterWrap, TraceIconWrap } from '../style'
 import { ItemAudit } from '../types'
 
 import { AssetFilter } from './asset-filter'
 import { onAssetTableRenderRow } from './assets-table-row'
 import { ContentModal } from './content-modal'
+import { SizeDiffHoverCardHeader } from './style'
 import { useAuditScore } from './use-audit-score'
 
-type AssetRow = AssetInfo & {
+export type AssetRow = AssetInfo & {
   isNew: boolean
   audits: ItemAudit[]
   exclusive: boolean
+  baseline?: AssetInfo | null
 }
 
 interface Props {
@@ -46,6 +48,7 @@ interface Props {
   onClickModule?: (item: ModuleItem) => void
   onClickSideEffects?: (item: ModuleItem) => void
 }
+
 export const AssetsTable: FC<Props> = ({
   diff,
   hasMultipleEntries,
@@ -123,6 +126,7 @@ export const AssetsTable: FC<Props> = ({
             isNew: !baselineAssets?.find((a) => a.name === asset.name),
             audits: assetsAuditMap[asset.name] || [],
             exclusive: exclusiveAssets.has(asset.ref),
+            baseline: assetsMatcher.findBestMatch(asset, baselineAssets || []).baseline,
           }
         }),
       )
@@ -180,11 +184,12 @@ export const AssetsTable: FC<Props> = ({
           )
         },
       },
+
       {
         key: 'new',
         name: 'New',
-        minWidth: 60,
-        maxWidth: 100,
+        minWidth: 32,
+        maxWidth: 80,
         onRender: (asset) => {
           if (asset.isNew) {
             return <FileAddOutlined style={{ color: SharedColors.red10 }} />
@@ -194,6 +199,7 @@ export const AssetsTable: FC<Props> = ({
         },
         sorter: (a) => (a.isNew ? 1 : -1),
       },
+
       {
         key: 'exclusive',
         name: 'Exclusive',
@@ -220,8 +226,8 @@ export const AssetsTable: FC<Props> = ({
       {
         key: 'type',
         name: 'Type',
-        minWidth: 60,
-        maxWidth: 100,
+        minWidth: 40,
+        maxWidth: 80,
         onRender: (asset) => {
           if (asset.intermediate) {
             return <span style={{ color: SharedColors.gray10 }}>Intermediate</span>
@@ -238,9 +244,24 @@ export const AssetsTable: FC<Props> = ({
       {
         key: 'size',
         name: 'Size',
-        minWidth: 60,
-        maxWidth: 100,
-        onRender: (asset) => <ColoredSize size={asset.size} />,
+        minWidth: 120,
+        maxWidth: 200,
+        onRender: (asset) => (
+          <ByteSizeWithDiff
+            underline={true}
+            current={asset.size}
+            baseline={asset.isNew ? asset.baseline?.size : undefined}
+            hideIfNonComparable={true}
+            showDiffBellow={!!diff.assetsDiff.baseline && asset.isNew}
+            showNewIfIsNew
+            colored
+            hoverCardHeader={
+              asset.baseline && asset.isNew ? (
+                <SizeDiffHoverCardHeader>compare with: {asset.baseline.name}</SizeDiffHoverCardHeader>
+              ) : undefined
+            }
+          />
+        ),
         isSorted: true,
         isSortedDescending: true,
         sorter: (a, b) => a.size.raw - b.size.raw,
@@ -295,7 +316,7 @@ export const AssetsTable: FC<Props> = ({
         },
       },
     ],
-    [searchText, scoreItemsMap, onShowContentModal],
+    [searchText, scoreItemsMap, onShowContentModal, diff.assetsDiff.baseline],
   )
 
   const filteredColumns = useMemo(() => {
@@ -312,8 +333,8 @@ export const AssetsTable: FC<Props> = ({
   }, [baselineAssets, columns, hasMultipleEntries, items])
 
   const onRenderRow = useMemo(() => {
-    return onAssetTableRenderRow(getAssetContent, onClickModule, onClickSideEffects)
-  }, [getAssetContent, onClickModule, onClickSideEffects])
+    return onAssetTableRenderRow(getAssetContent, onClickModule, onClickSideEffects, !!diff.assetsDiff.baseline)
+  }, [getAssetContent, onClickModule, onClickSideEffects, diff.assetsDiff.baseline])
 
   return (
     <Stack>
@@ -325,7 +346,7 @@ export const AssetsTable: FC<Props> = ({
         disableVirtualization={items.length < 100}
         onRenderRow={onRenderRow}
       />
-      <ContentModal getAssetContent={getAssetContent} ref={contentModalRef} />
+      <ContentModal getAssetContent={getAssetContent} ref={contentModalRef} showDiff={!!diff.assetsDiff.baseline} />
     </Stack>
   )
 }

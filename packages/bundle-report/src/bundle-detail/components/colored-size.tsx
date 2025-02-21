@@ -24,7 +24,7 @@ import { PrettyBytes } from '@perfsee/utils'
 
 import { DANGEROUS_SIZE_THROTTLE, WARNING_SIZE_THROTTLE } from '../constants'
 
-const getColor = (theme: Theme, size: number, warningThrottle: number, dangerousThrottle: number) => {
+export const getColor = (theme: Theme, size: number, warningThrottle: number, dangerousThrottle: number) => {
   return size >= dangerousThrottle
     ? theme.colors.error
     : size >= warningThrottle

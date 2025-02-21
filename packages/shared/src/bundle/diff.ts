@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { keyBy, sortBy, uniq, pick } from 'lodash'
+import { keyBy, sortBy, uniq, pick, uniqBy } from 'lodash'
+
+import { ArtifactQuery } from '@perfsee/schema'
 
 import {
   Asset,
@@ -26,11 +28,13 @@ import {
   Chunk,
   DuplicatePackage,
   EntryPoint,
+  ModuleTreeNode,
   NoteType,
   PackageAppendix,
   Size,
 } from '../types'
 
+import { assetsMatcher } from './matcher'
 import { addSize, getDefaultSize } from './size'
 
 export interface Diff<T = Size> {
@@ -474,4 +478,219 @@ export function calculateJobTotalSize(jobResult: BundleResult): Size {
   return jobResult.assets.reduce((total, asset) => {
     return addSize(total, asset.size)
   }, getDefaultSize())
+}
+
+function getBaseModuleName(name: string): string {
+  return name.split(' + ')[0]
+}
+
+function splitNestedFolders(node: ModuleTreeNode): ModuleTreeNode {
+  const baseName = getBaseModuleName(node.name)
+
+  if (!baseName.includes('/')) {
+    return {
+      ...node,
+      children: node.children?.map((child) => splitNestedFolders(child)),
+    }
+  }
+
+  const parts = baseName.split('/')
+  const concatenatedSuffix = node.name.includes(' + ') ? node.name.slice(node.name.indexOf(' + ')) : ''
+
+  let currentNode: ModuleTreeNode = {
+    name: parts[0],
+    value: node.value,
+    gzip: node.gzip,
+    brotli: node.brotli,
+    children: [],
+  }
+
+  const result = currentNode
+
+  for (let i = 1; i < parts.length - 1; i++) {
+    const newNode: ModuleTreeNode = {
+      name: parts[i],
+      value: node.value,
+      gzip: node.gzip,
+      brotli: node.brotli,
+      children: [],
+    }
+    currentNode.children!.push(newNode)
+    currentNode = newNode
+  }
+
+  const lastNode: ModuleTreeNode = {
+    ...node,
+    name: parts[parts.length - 1] + concatenatedSuffix,
+    children: node.children?.map((child) => splitNestedFolders(child)),
+  }
+
+  currentNode.children!.push(lastNode)
+
+  return result
+}
+
+function mergeNestedFolders(node: ModuleTreeNode, isTopLevel = true): ModuleTreeNode {
+  if (!node.children || node.children.length === 0) {
+    return node
+  }
+
+  let processedData = {
+    ...node,
+    children: node.children.map((child) => mergeNestedFolders(child, false)),
+  }
+
+  if (isTopLevel) {
+    return processedData
+  }
+
+  while (processedData.children && processedData.children.length === 1 && processedData.children[0].children) {
+    const onlyChild = processedData.children[0]
+    const baseName = getBaseModuleName(processedData.name)
+    const childBaseName = getBaseModuleName(onlyChild.name)
+    const concatenatedSuffix = onlyChild.name.includes(' + ') ? onlyChild.name.slice(onlyChild.name.indexOf(' + ')) : ''
+
+    processedData = {
+      ...processedData,
+      name: `${baseName}/${childBaseName}${concatenatedSuffix}`,
+      children: onlyChild.children || [],
+      value: processedData.value,
+      gzip: processedData.gzip,
+      brotli: processedData.brotli,
+      ...(processedData.modules && { modules: processedData.modules }),
+      ...(processedData.concatenated && { concatenated: processedData.concatenated }),
+      ...(processedData.entryPoints && { entryPoints: processedData.entryPoints }),
+      ...(processedData.dynamic && { dynamic: processedData.dynamic }),
+      ...(processedData.unused && { unused: processedData.unused }),
+      ...(processedData.esm && { esm: processedData.esm }),
+      ...(processedData.sideEffects && { sideEffects: processedData.sideEffects }),
+      ...(processedData.baseline && { baseline: processedData.baseline }),
+    }
+  }
+
+  return processedData
+}
+
+function findMatchingNode(
+  node: ModuleTreeNode,
+  baselineNodes: ModuleTreeNode[],
+  currentContent: ModuleTreeNode[],
+  baselineContent: ModuleTreeNode[],
+  diff: BundleDiff,
+  currentPath: string[] = [],
+  isTopLevel = true,
+): ModuleTreeNode | undefined {
+  if (isTopLevel && node.name.match(/\.m?js$/)) {
+    currentPath = []
+  }
+
+  if (currentPath.length === 0 && node.name.match(/\.m?js$/) && isTopLevel) {
+    const currentAssets = uniqBy(
+      Object.values(diff)
+        .map((entryDiff) => entryDiff.assetsDiff)
+        .flatMap((assetsDiff) => assetsDiff.current),
+      'name',
+    )
+    const baselineAssets = uniqBy(
+      Object.values(diff)
+        .map((entryDiff) => entryDiff.assetsDiff)
+        .flatMap((assetsDiff) => assetsDiff.baseline || []),
+      'name',
+    )
+
+    const currentAsset = currentAssets.find((a) => a.name === node.name)
+    if (currentAsset) {
+      const matchResult = assetsMatcher.findBestMatch(currentAsset, baselineAssets, currentContent, baselineContent)
+      if (matchResult.baseline) {
+        node.baseline = {
+          name: matchResult.baseline.name,
+          size: matchResult.baseline.size,
+        }
+        return baselineNodes.find((n) => n.name === matchResult.baseline?.name)
+      }
+    }
+  }
+
+  const currentName = getBaseModuleName(node.name)
+  const nodePath = [...currentPath, currentName].join('/')
+
+  const directMatch = baselineNodes.find((n) => {
+    const baselineName = getBaseModuleName(n.name)
+    const baselinePath = [...currentPath, baselineName].join('/')
+    return (
+      baselinePath === nodePath &&
+      (!n.concatenated || !node.concatenated || getBaseModuleName(n.name) === getBaseModuleName(node.name))
+    )
+  })
+
+  if (directMatch) {
+    return directMatch
+  }
+
+  for (const baselineNode of baselineNodes) {
+    if (baselineNode.children) {
+      const baseNodeName = getBaseModuleName(baselineNode.name)
+      const childMatch = findMatchingNode(
+        node,
+        baselineNode.children,
+        currentContent,
+        baselineContent,
+        diff,
+        [...currentPath, baseNodeName],
+        false,
+      )
+      if (childMatch) {
+        return childMatch
+      }
+    }
+  }
+
+  return undefined
+}
+
+export type Bundle = ArtifactQuery['project']['artifact']
+
+export function diffBundleContent(
+  currentBundle: Bundle | null,
+  baselineBundle: Bundle | null,
+  diff: BundleDiff,
+  current: ModuleTreeNode[],
+  baseline?: ModuleTreeNode[] | null,
+  isTopLevel = true,
+): ModuleTreeNode[] {
+  if (!baseline || currentBundle?.name !== baselineBundle?.name) {
+    return current
+  }
+
+  const splitCurrent = isTopLevel ? current.map((node) => splitNestedFolders(node)) : current
+  const splitBaseline = isTopLevel ? baseline.map((node) => splitNestedFolders(node)) : baseline
+
+  const processedNodes = splitCurrent.map((node) => {
+    const baselineNode = findMatchingNode(node, splitBaseline, current, baseline, diff)
+
+    const result: ModuleTreeNode = {
+      ...node,
+      baseline: baselineNode
+        ? {
+            size: { raw: baselineNode.value, gzip: baselineNode.gzip, brotli: baselineNode.brotli },
+            name: isTopLevel ? baselineNode.name : undefined,
+          }
+        : null,
+    }
+
+    if (node.children) {
+      result.children = diffBundleContent(
+        currentBundle,
+        baselineBundle,
+        diff,
+        node.children,
+        baselineNode?.children || null,
+        false,
+      )
+    }
+
+    return result
+  })
+
+  return processedNodes.map((node) => mergeNestedFolders(node))
 }

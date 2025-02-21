@@ -8,15 +8,17 @@ import { AssetInfo, AssetTypeEnum, ModuleTreeNode, SOURCE_CODE_PATH } from '@per
 
 import { ModuleItem, TreeView } from '../../bundle-content/treeview'
 import { RouterContext } from '../../router-context'
-import { ColoredSize } from '../components'
+import { ByteSizeWithDiff } from '../components'
 import { PackageTraceContext } from '../context'
 import { TableExtraWrap, StyledPivot, StyledInfoItem } from '../style'
 
 import { AssetFilter } from './asset-filter'
+import { AssetRow } from './assets-table'
 import { ModuleExplorerContainer } from './style'
 
 type Props = {
-  item: AssetInfo
+  item: AssetRow
+  hasBaseline?: boolean
   getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
   searchText?: string
   onClickModule?: (item: ModuleItem) => void
@@ -102,10 +104,27 @@ const TableExtraInfo = (props: Props) => {
               return <StyledInfoItem key={pkg}>{pkg}</StyledInfoItem>
             }
 
+            const baselinePkg = item.baseline?.packages.find((p) => {
+              if (typeof p === 'string') {
+                return false
+              }
+
+              return p.name === pkg.name
+            })
+
             return (
               <StyledInfoItem key={pkg.path}>
                 <TooltipWithEllipsis content={pkg.name + (pkg.version ? `@${pkg.version}` : '')} />
-                <ColoredSize size={pkg.size} hoverable={false} />
+                <ByteSizeWithDiff
+                  underline
+                  current={pkg.size}
+                  baseline={typeof baselinePkg === 'string' ? undefined : baselinePkg?.size}
+                  showNewIfIsNew
+                  showDiffBellow={!!props.hasBaseline}
+                  hideIfNonComparable
+                  colored
+                  horizontal
+                />
                 {pkg.path !== SOURCE_CODE_PATH ? <Link onClick={onClickTrace(pkg.ref)}>Trace</Link> : null}
               </StyledInfoItem>
             )
@@ -124,6 +143,7 @@ const DetailRowItem = (
     getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>
     onClickModule?: (item: ModuleItem) => void
     onClickSideEffects?: (item: ModuleItem) => void
+    hasBaseline?: boolean
   },
 ) => {
   const [opened, setOpened] = useState<boolean>()
@@ -153,6 +173,7 @@ const DetailRowItem = (
       {opened && (
         <TableExtraInfo
           item={props.item}
+          hasBaseline={props.hasBaseline}
           getAssetContent={props.getAssetContent}
           onClickModule={props.onClickModule}
           onClickSideEffects={props.onClickSideEffects}
@@ -167,6 +188,7 @@ export const onAssetTableRenderRow =
     getAssetContent: (asset: AssetInfo) => Promise<ModuleTreeNode[]>,
     onClickModule?: (item: ModuleItem) => void,
     onClickSideEffects?: (item: ModuleItem) => void,
+    hasBaseline?: boolean,
   ) =>
   (props?: IDetailsRowProps) => {
     if (props) {
@@ -176,6 +198,7 @@ export const onAssetTableRenderRow =
           getAssetContent={getAssetContent}
           onClickModule={onClickModule}
           onClickSideEffects={onClickSideEffects}
+          hasBaseline={hasBaseline}
         />
       )
     }

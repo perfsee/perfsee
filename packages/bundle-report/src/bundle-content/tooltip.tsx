@@ -14,15 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { useTheme } from '@emotion/react'
 import styled from '@emotion/styled'
+import { Stack } from '@fluentui/react'
 
 import { TreeMapTooltipProps } from '@perfsee/components/treemap'
-import { PrettyBytes, ModuleTreeNode } from '@perfsee/shared'
+import { ModuleTreeNode } from '@perfsee/shared'
+
+import { ByteSize, NumberDiff } from '../bundle-detail/components'
 
 const Information = styled.div({
   fontSize: '12px',
   lineHeight: 1.4,
-  whiteSpace: 'nowrap',
+  whiteSpace: 'pre',
 })
 
 const Modules = styled.ul({
@@ -36,16 +40,38 @@ const Name = styled.h3({
 })
 
 export const BundleAnalyzerTooltip: React.FC<TreeMapTooltipProps<ModuleTreeNode>> = ({ data }) => {
-  const { name, value, concatenated, modules, gzip, brotli } = data
+  const { name, value, concatenated, modules, gzip, brotli, baseline } = data
+  const theme = useTheme()
 
   const namePart = name ? <Name>{name}</Name> : null
 
   return (
     <>
-      {namePart}
-      <Information>Raw Size: {PrettyBytes.create(value).toString()}</Information>
-      <Information>Gzipped Size: {PrettyBytes.create(gzip).toString()}</Information>
-      <Information>Brotlied Size: {PrettyBytes.create(brotli).toString()}</Information>
+      {namePart} {baseline?.name ? `(compare with ${baseline.name})` : ''}
+      <Information>
+        <Stack horizontal verticalAlign="baseline" tokens={{ childrenGap: 8 }}>
+          Raw Size: <ByteSize size={value} />
+          {baseline === undefined ? null : baseline ? (
+            <NumberDiff current={value} baseline={baseline.size.raw} hideIfNonComparable isBytes />
+          ) : (
+            <span style={{ color: theme.colors.error }}>new</span>
+          )}
+        </Stack>
+      </Information>
+      <Information>
+        <Stack horizontal verticalAlign="baseline" tokens={{ childrenGap: 8 }}>
+          Gzipped: <ByteSize size={gzip} />
+          {baseline ? <NumberDiff current={gzip} baseline={baseline.size.gzip} hideIfNonComparable isBytes /> : null}
+        </Stack>
+      </Information>
+      <Information>
+        <Stack horizontal verticalAlign="baseline" tokens={{ childrenGap: 8 }}>
+          Brotli: <ByteSize size={brotli} />
+          {baseline ? (
+            <NumberDiff current={brotli} baseline={baseline.size.brotli} hideIfNonComparable isBytes />
+          ) : null}
+        </Stack>
+      </Information>
       {concatenated && modules?.length && (
         <Modules>
           {modules.map((path, i) => (

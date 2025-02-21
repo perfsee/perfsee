@@ -21,3 +21,8 @@ export const ModuleExplorerContainer = styled.div(({ theme }) => ({
   overflowY: 'auto',
   maxWidth: `calc(${theme.layout.mainMaxWidth} - 158px)`,
 }))
+
+export const SizeDiffHoverCardHeader = styled.span(({ theme }) => ({
+  color: theme.text.colorSecondary,
+  fontSize: 12,
+}))

@@ -17,3 +17,4 @@ limitations under the License.
 export * from './diff'
 export * from './size'
 export * from './hashcode'
+export * from './matcher'
