@@ -18,6 +18,7 @@ export class AssetsMatcher {
   private readonly similarityCache = new Map<string, number>()
   private readonly contentSimilarityCache = new Map<string, number>()
   private readonly bestMatchCache = new Map<string, AssetMatch>()
+  private readonly treeSimilarityCache = new Map<string, number>()
 
   findBestMatch(
     current: AssetInfo,
@@ -39,34 +40,35 @@ export class AssetsMatcher {
       }
     }
 
-    let bestMatch: AssetMatch = {
+    const quickMatch = this.findQuickMatch(current, baselineAssets)
+    if (quickMatch && quickMatch.score > 80) {
+      return quickMatch
+    }
+
+    let bestMatch: AssetMatch = quickMatch || {
       current,
       baseline: null,
       score: 0,
     }
 
-    for (const baselineAsset of baselineAssets) {
-      let score = this.calculateMatchScore(current, baselineAsset)
-
-      if (currentContent && baselineContent) {
-        const contentScore =
-          this.calculateContentSimilarity(current.name, baselineAsset.name, currentContent, baselineContent) * 100 // 转换为0-100分制
-
-        const baselineNameParts = this.parseFileName(baselineAsset.name)
-        const currentNameParts = this.parseFileName(current.name)
-        const nameMatch =
-          currentNameParts.nameWithoutHash === baselineNameParts.nameWithoutHash &&
-          currentNameParts.path === baselineNameParts.path
-
-        const baseScoreWeight = nameMatch ? 0.8 : 0.4
-        score = score * baseScoreWeight + contentScore * (1 - baseScoreWeight)
+    if (currentContent && baselineContent) {
+      bestMatch = {
+        current,
+        baseline: null,
+        score: 0,
       }
 
-      if (score > bestMatch.score) {
-        bestMatch = {
-          current: current,
-          baseline: baselineAsset,
-          score,
+      const potentialMatches = this.findPotentialMatches(current, baselineAssets)
+
+      for (const baselineAsset of potentialMatches) {
+        const score = this.calculateFullMatchScore(current, baselineAsset, currentContent, baselineContent)
+
+        if (score > bestMatch.score) {
+          bestMatch = {
+            current,
+            baseline: baselineAsset,
+            score,
+          }
         }
       }
     }
@@ -91,6 +93,131 @@ export class AssetsMatcher {
     this.similarityCache.clear()
     this.contentSimilarityCache.clear()
     this.bestMatchCache.clear()
+    this.treeSimilarityCache.clear()
+  }
+
+  private calculateFullMatchScore(
+    current: AssetInfo,
+    baseline: AssetInfo,
+    currentContent?: ModuleTreeNode[],
+    baselineContent?: ModuleTreeNode[],
+  ): number {
+    let score = 0
+    const currentParts = this.parseFileName(current.name)
+    const baselineParts = this.parseFileName(baseline.name)
+
+    if (currentParts.path === baselineParts.path) {
+      if (currentParts.nameWithoutHash === baselineParts.nameWithoutHash) {
+        score += 30
+      } else if (currentParts.isHashOnly && baselineParts.isHashOnly) {
+        score += 20
+      }
+    }
+
+    const sizeDiff = Math.abs(current.size.raw - baseline.size.raw)
+    const maxSize = Math.max(current.size.raw, baseline.size.raw)
+    const sizeRatio = maxSize > 0 ? 1 - sizeDiff / maxSize : 1
+    score += sizeRatio * 10
+
+    const packageScore = this.calculatePackageSimilarity(
+      // @ts-expect-error
+      current.packages.filter((p) => typeof p === 'object'),
+      baseline.packages.filter((p) => typeof p === 'object'),
+    )
+    score += packageScore * 20
+
+    if (currentContent && baselineContent) {
+      const contentScore = this.calculateContentSimilarity(current.name, baseline.name, currentContent, baselineContent)
+      score += contentScore * 60
+    }
+
+    return score
+  }
+
+  private findQuickMatch(current: AssetInfo, baselineAssets: AssetInfo[]): AssetMatch | null {
+    let bestMatch: AssetMatch = {
+      current,
+      baseline: null,
+      score: 0,
+    }
+
+    for (const baseline of baselineAssets) {
+      const score = this.calculateMatchScore(current, baseline)
+      if (score > bestMatch.score) {
+        bestMatch = {
+          current,
+          baseline,
+          score,
+        }
+      }
+    }
+
+    return bestMatch
+  }
+
+  private calculateQuickScore(current: AssetInfo, baseline: AssetInfo): number {
+    let score = 0
+
+    const currentParts = this.parseFileName(current.name)
+    const baselineParts = this.parseFileName(baseline.name)
+
+    if (currentParts.path === baselineParts.path) {
+      if (currentParts.nameWithoutHash === baselineParts.nameWithoutHash) {
+        score += 50
+      } else if (currentParts.isHashOnly && baselineParts.isHashOnly) {
+        score += 35
+      } else {
+        score += 20
+      }
+    }
+
+    const sizeDiff = Math.abs(current.size.raw - baseline.size.raw)
+    const maxSize = Math.max(current.size.raw, baseline.size.raw)
+    const sizeRatio = maxSize > 0 ? 1 - sizeDiff / maxSize : 1
+
+    if (sizeRatio > 0.9) {
+      score += 30
+    } else if (sizeRatio > 0.7) {
+      score += 20
+    } else if (sizeRatio > 0.5) {
+      score += 10
+    }
+
+    if (current.initial === baseline.initial) {
+      score += 10
+    }
+
+    const currentMainPkgs = current.packages
+      .filter((p): p is PackageInfo => typeof p === 'object')
+      .sort((a, b) => b.size.raw - a.size.raw)
+      .slice(0, 3)
+
+    const baselineMainPkgs = baseline.packages
+      .filter((p): p is PackageInfo => typeof p === 'object')
+      .sort((a, b) => b.size.raw - a.size.raw)
+      .slice(0, 3)
+
+    const currentPkgNames = new Set(currentMainPkgs.map((p) => p.name))
+    const baselinePkgNames = new Set(baselineMainPkgs.map((p) => p.name))
+
+    const commonPkgs = [...currentPkgNames].filter((name) => baselinePkgNames.has(name))
+    if (commonPkgs.length > 0) {
+      score += 10 * (commonPkgs.length / Math.max(currentPkgNames.size, baselinePkgNames.size))
+    }
+
+    return score
+  }
+
+  private findPotentialMatches(current: AssetInfo, baselineAssets: AssetInfo[]): AssetInfo[] {
+    return baselineAssets
+      .map((asset) => ({
+        asset,
+        score: this.calculateQuickScore(current, asset),
+      }))
+      .filter((item) => item.score > 30)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map((item) => item.asset)
   }
 
   private getBestMatchCacheKey(currentName: string, baselineNames: string[]): string {
@@ -147,7 +274,34 @@ export class AssetsMatcher {
     })
   }
 
-  private calculateTreeSimilarity(current: ModuleTreeNode, baseline: ModuleTreeNode): number {
+  private calculateBasicSimilarity(current: ModuleTreeNode, baseline: ModuleTreeNode): number {
+    const nameMatch = getBaseModuleName(current.name) === getBaseModuleName(baseline.name)
+    const sizeSimilarity = this.calculateSizeSimilarity(current, baseline)
+    return (nameMatch ? 0.7 : 0) + sizeSimilarity * 0.3
+  }
+
+  private getTreeSimilarityCacheKey(current: ModuleTreeNode, baseline: ModuleTreeNode): string {
+    return `${current.name}::${baseline.name}`
+  }
+
+  private calculateTreeSimilarity(current: ModuleTreeNode, baseline: ModuleTreeNode, depth = 0, maxDepth = 4): number {
+    const cacheKey = this.getTreeSimilarityCacheKey(current, baseline)
+    const cached = this.treeSimilarityCache.get(cacheKey)
+    if (cached !== undefined) return cached
+
+    if (depth >= maxDepth) {
+      return this.calculateBasicSimilarity(current, baseline)
+    }
+
+    const MIN_SIZE_THRESHOLD = 1024 // 1KB
+    if (
+      current.value &&
+      baseline.value &&
+      (current.value < MIN_SIZE_THRESHOLD || baseline.value < MIN_SIZE_THRESHOLD)
+    ) {
+      return this.calculateBasicSimilarity(current, baseline)
+    }
+
     const weights = {
       moduleStructure: 0.5,
       size: 0.2,
@@ -156,7 +310,7 @@ export class AssetsMatcher {
 
     let score = 0
 
-    const structureScore = this.calculateModuleStructureSimilarity(current, baseline)
+    const structureScore = this.calculateModuleStructureSimilarity(current, baseline, depth)
     score += structureScore * weights.moduleStructure
 
     const sizeScore = this.calculateSizeSimilarity(current, baseline)
@@ -165,13 +319,25 @@ export class AssetsMatcher {
     const dependencyScore = this.calculateDependencySimilarity(current, baseline)
     score += dependencyScore * weights.dependencies
 
+    this.treeSimilarityCache.set(cacheKey, score)
     return score
   }
 
-  private calculateModuleStructureSimilarity(current: ModuleTreeNode, baseline: ModuleTreeNode): number {
-    if (!current.children && !baseline.children) {
+  private calculateModuleStructureSimilarity(current: ModuleTreeNode, baseline: ModuleTreeNode, depth: number): number {
+    if (!current.children || !baseline.children) {
       return getBaseModuleName(current.name) === getBaseModuleName(baseline.name) ? 1 : 0
     }
+
+    const MIN_CHILD_SIZE = 512
+    const significantCurrentChildren = current.children
+      .filter((child) => !child.value || child.value > MIN_CHILD_SIZE)
+      .sort((a, b) => (b.value || 0) - (a.value || 0))
+      .slice(0, 5)
+
+    const significantBaselineChildren = baseline.children
+      .filter((child) => !child.value || child.value > MIN_CHILD_SIZE)
+      .sort((a, b) => (b.value || 0) - (a.value || 0))
+      .slice(0, 5)
 
     if (!current.children || !baseline.children) {
       return 0.2
@@ -180,16 +346,16 @@ export class AssetsMatcher {
     let childrenSimilarity = 0
     const processedBaselineNodes = new Set<string>()
 
-    for (const currentChild of current.children) {
+    for (const currentChild of significantCurrentChildren) {
       let bestChildScore = 0
       let bestMatch: ModuleTreeNode | null = null
 
-      for (const baselineChild of baseline.children) {
+      for (const baselineChild of significantBaselineChildren) {
         if (processedBaselineNodes.has(baselineChild.name)) {
           continue
         }
 
-        const childScore = this.calculateTreeSimilarity(currentChild, baselineChild)
+        const childScore = this.calculateTreeSimilarity(currentChild, baselineChild, depth + 1)
         if (childScore > bestChildScore) {
           bestChildScore = childScore
           bestMatch = baselineChild
@@ -202,8 +368,8 @@ export class AssetsMatcher {
       }
     }
 
-    const currentModules = new Set(current.children.map((node) => getBaseModuleName(node.name)))
-    const baselineModules = new Set(baseline.children.map((node) => getBaseModuleName(node.name)))
+    const currentModules = new Set(significantCurrentChildren.map((node) => getBaseModuleName(node.name)))
+    const baselineModules = new Set(significantBaselineChildren.map((node) => getBaseModuleName(node.name)))
 
     const intersection = new Set([...currentModules].filter((x) => baselineModules.has(x)))
     const union = new Set([...currentModules, ...baselineModules])
@@ -212,7 +378,8 @@ export class AssetsMatcher {
       Math.abs(currentModules.size - baselineModules.size) / Math.max(currentModules.size, baselineModules.size)
 
     const directScore = intersection.size / union.size
-    const normalizedChildrenSimilarity = current.children.length > 0 ? childrenSimilarity / current.children.length : 0
+    const normalizedChildrenSimilarity =
+      significantCurrentChildren.length > 0 ? childrenSimilarity / significantCurrentChildren.length : 0
 
     const finalScore = (directScore * 0.4 + normalizedChildrenSimilarity * 0.6) * (1 - sizeDiffPenalty * 0.3)
 

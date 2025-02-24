@@ -692,5 +692,5 @@ export function diffBundleContent(
     return result
   })
 
-  return processedNodes.map((node) => mergeNestedFolders(node))
+  return isTopLevel ? processedNodes.map((node) => mergeNestedFolders(node)) : processedNodes
 }
