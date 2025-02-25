@@ -11,7 +11,7 @@ interface AssetMatch {
 type PackageInfo = { path: string; size: Size; name: string; version?: string; ref: number }
 
 function getBaseModuleName(name: string): string {
-  return name.split(' + ')[0].replace(/@\d+\.\d+\.\d+(?:-[\w.-]+)?/, '')
+  return name.split(' + ')[0].replaceAll(/@\d+\.\d+\.\d+(?:-[\w.-]+)?\//g, '/')
 }
 
 export class AssetsMatcher {
