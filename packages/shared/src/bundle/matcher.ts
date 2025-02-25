@@ -108,7 +108,7 @@ export class AssetsMatcher {
 
     if (currentParts.path === baselineParts.path) {
       if (currentParts.nameWithoutHash === baselineParts.nameWithoutHash) {
-        score += 30
+        score += 50
       } else if (currentParts.isHashOnly && baselineParts.isHashOnly) {
         score += 20
       }
