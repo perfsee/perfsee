@@ -474,7 +474,7 @@ export class AssetsMatcher {
     const weights = {
       pathMatch: 45,
       initialFlag: 5,
-      packageSimilarity: 50,
+      packageSimilarity: 60,
       sizeMatch: 10,
     }
 
@@ -534,7 +534,7 @@ export class AssetsMatcher {
       let packageScore = 0
 
       if (getBaseModuleName(currentPkg.path) === getBaseModuleName(baselinePkg.path)) {
-        packageScore += 0.3
+        packageScore += 0.5
       }
 
       if (currentPkg.version === baselinePkg.version) {
@@ -552,7 +552,7 @@ export class AssetsMatcher {
       const sizeDiff = Math.abs(currentPkg.size.raw - baselinePkg.size.raw)
       const maxSize = Math.max(currentPkg.size.raw, baselinePkg.size.raw)
       const sizeRatio = maxSize > 0 ? 1 - sizeDiff / maxSize : 1
-      packageScore += sizeRatio * 0.6
+      packageScore += sizeRatio * 0.8
 
       const currentWeight = currentPkg.size.raw / currentTotalSize
       const baselineWeight = baselinePkg.size.raw / baselineTotalSize

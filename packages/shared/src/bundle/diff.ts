@@ -481,7 +481,7 @@ export function calculateJobTotalSize(jobResult: BundleResult): Size {
 }
 
 function getBaseModuleName(name: string): string {
-  return name.split(' + ')[0]
+  return name.split(' + ')[0].replaceAll(/@\d+\.\d+\.\d+(?:[-_].+?)?/g, '')
 }
 
 function splitNestedFolders(node: ModuleTreeNode, isTopLevel = true): ModuleTreeNode {
