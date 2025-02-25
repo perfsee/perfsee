@@ -11,7 +11,7 @@ interface AssetMatch {
 type PackageInfo = { path: string; size: Size; name: string; version?: string; ref: number }
 
 function getBaseModuleName(name: string): string {
-  return name.split(' + ')[0]
+  return name.split(' + ')[0].replace(/@\d+\.\d+\.\d+(?:-[\w.-]+)?/, '')
 }
 
 export class AssetsMatcher {
@@ -474,7 +474,7 @@ export class AssetsMatcher {
     const weights = {
       pathMatch: 45,
       initialFlag: 5,
-      packageSimilarity: 40,
+      packageSimilarity: 50,
       sizeMatch: 10,
     }
 
@@ -533,8 +533,8 @@ export class AssetsMatcher {
 
       let packageScore = 0
 
-      if (currentPkg.path === baselinePkg.path) {
-        packageScore += 0.1
+      if (getBaseModuleName(currentPkg.path) === getBaseModuleName(baselinePkg.path)) {
+        packageScore += 0.3
       }
 
       if (currentPkg.version === baselinePkg.version) {
@@ -544,7 +544,7 @@ export class AssetsMatcher {
         const [baselineMajor, baselineMinor] = (baselinePkg.version || '').split('.')
         if (currentMajor === baselineMajor && currentMinor === baselineMinor) {
           packageScore += 0.25
-        } else {
+        } else if (currentMajor === baselineMajor) {
           packageScore += 0.15
         }
       }
