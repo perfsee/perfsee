@@ -526,6 +526,7 @@ export class AssetsMatcher {
 
     let totalScore = 0
     let processedSize = 0
+    let matchedBaselineSize = 0
 
     for (const currentPkg of sortedCurrentPkgs) {
       const baselinePkg = baselinePkgMap.get(currentPkg.name)
@@ -560,15 +561,23 @@ export class AssetsMatcher {
 
       totalScore += packageScore * weight
       processedSize += currentPkg.size.raw
+      matchedBaselineSize += baselinePkg.size.raw
 
       if (processedSize / currentTotalSize > 0.8) {
         break
       }
     }
 
-    this.similarityCache.set(cacheKey, totalScore)
+    const sizeRatioCurrent = Math.min(processedSize / (currentTotalSize * 0.8), 1)
+    const sizeRatioBaseline = Math.min(matchedBaselineSize / (baselineTotalSize * 0.8), 1)
+    const packageCountRatio =
+      Math.min(currentPkgs.length, baselinePkgs.length) / Math.max(currentPkgs.length, baselinePkgs.length)
 
-    return totalScore
+    const finalScore = totalScore * Math.min(sizeRatioCurrent, sizeRatioBaseline) * Math.sqrt(packageCountRatio)
+
+    this.similarityCache.set(cacheKey, finalScore)
+
+    return finalScore
   }
 }
 
