@@ -77,11 +77,10 @@ class DomainManager {
     `
 
     const checkbox = div.querySelector('input')!
-    checkbox.addEventListener('change', () => this.toggleDomain(domain, checkbox.checked))
+    checkbox.style.pointerEvents = 'none'
     div.addEventListener('click', () => {
       checkbox.checked = !checkbox.checked
-      const event = new Event('change')
-      checkbox.dispatchEvent(event)
+      void this.toggleDomain(domain, checkbox.checked)
     })
 
     return div
