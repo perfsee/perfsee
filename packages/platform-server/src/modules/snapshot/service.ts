@@ -133,7 +133,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       qb.andWhere('snapshot.id < :after', { after })
     }
 
-    if (trigger) {
+    if (typeof trigger === 'number') {
       qb.andWhere('snapshot.trigger = :trigger', { trigger })
     }
 
