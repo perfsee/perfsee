@@ -27,5 +27,10 @@ mutation takeTempSnapshot(
       PartialCompleted
       Failed
     }
+    version {
+      branch
+      version
+      commitMessage
+    }
   }
 }

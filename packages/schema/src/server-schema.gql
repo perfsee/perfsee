@@ -1689,7 +1689,7 @@ type Mutation {
   dispatchSnapshotReport(projectId: ID!, snapshotReportId: Int!): Boolean!
 
   """
-  Set the commit hash associated with the snapshot, and the associated version cannot be modified. If the status of the snapshot is not completed will throw an error.
+  Set the commit hash associated with the snapshot. If the status of the snapshot is not completed will throw an error.
   """
   setSnapshotHash(projectId: ID!, snapshotId: Int!, hash: String!): Boolean!
 
