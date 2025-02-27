@@ -26,7 +26,7 @@ import {
   GraphQLISODateTime,
 } from '@nestjs/graphql'
 
-import { Snapshot, Project, User, SnapshotTrigger, ReportsStatusCount } from '@perfsee/platform-server/db'
+import { Snapshot, Project, User, SnapshotTrigger, ReportsStatusCount, AppVersion } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { PaginationInput, PaginatedType, paginate, Paginated } from '@perfsee/platform-server/graphql'
 import { SnapshotStatus } from '@perfsee/server-common'
@@ -246,5 +246,10 @@ export class SnapshotResolver {
     await this.service.setSnapshotTitle(projectRawId, iid, title)
 
     return true
+  }
+
+  @ResolveField(() => AppVersion, { nullable: true })
+  async version(@Parent() snapshot: Snapshot) {
+    return this.service.getSnapshotVersion(snapshot)
   }
 }
