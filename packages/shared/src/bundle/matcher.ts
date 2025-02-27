@@ -1,4 +1,4 @@
-import { ModuleTreeNode, Size } from '@perfsee/bundle-analyzer'
+import { AssetTypeEnum, detectFileType, ModuleTreeNode, Size } from '@perfsee/bundle-analyzer'
 
 import { AssetInfo } from './diff'
 
@@ -480,6 +480,18 @@ export class AssetsMatcher {
 
     const currentFileParts = this.parseFileName(current.name)
     const baselineFileParts = this.parseFileName(baseline.name)
+
+    if (detectFileType(current.name) !== AssetTypeEnum.Js) {
+      if (
+        currentFileParts.path === baselineFileParts.path &&
+        currentFileParts.nameWithoutHash === baselineFileParts.nameWithoutHash &&
+        !currentFileParts.isHashOnly &&
+        !baselineFileParts.isHashOnly
+      ) {
+        return 100
+      }
+      return 0
+    }
 
     if (currentFileParts.isHashOnly && baselineFileParts.isHashOnly) {
       if (currentFileParts.path === baselineFileParts.path) {
