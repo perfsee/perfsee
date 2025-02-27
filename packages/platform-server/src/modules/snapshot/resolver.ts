@@ -34,7 +34,6 @@ import { SnapshotStatus } from '@perfsee/server-common'
 import { CurrentUser } from '../auth'
 import { PermissionGuard, Permission } from '../permission'
 import { ProjectService } from '../project/service'
-import { SourceService } from '../source/service'
 
 import { SnapshotService } from './service'
 import { SnapshotReportService } from './snapshot-report/service'
@@ -107,7 +106,6 @@ export class SnapshotResolver {
   constructor(
     private readonly service: SnapshotService,
     private readonly reportService: SnapshotReportService,
-    private readonly sourceService: SourceService,
     private readonly projectService: ProjectService,
   ) {}
 
@@ -217,7 +215,7 @@ export class SnapshotResolver {
   @Mutation(() => Boolean, {
     name: 'setSnapshotHash',
     description:
-      'Set the commit hash associated with the snapshot, and the associated version cannot be modified. If the status of the snapshot is not completed will throw an error.',
+      'Set the commit hash associated with the snapshot. If the status of the snapshot is not completed will throw an error.',
   })
   async setSnapshotHash(
     @Args({ name: 'projectId', type: () => ID }) projectId: string,
@@ -225,9 +223,7 @@ export class SnapshotResolver {
     @Args({ name: 'hash', type: () => String }) hash: string,
   ) {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
-    const snapshot = await this.service.setSnapshotHash(projectRawId, iid, hash)
-    const reports = await this.reportService.getReportsBySnapshotId(snapshot.id)
-    await this.sourceService.startSourceIssueAnalyze(reports)
+    await this.service.setSnapshotHash(projectRawId, iid, hash)
 
     return true
   }

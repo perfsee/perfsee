@@ -14,14 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  OnApplicationBootstrap,
-} from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common'
 import { times, omit } from 'lodash'
 import { In, Not, IsNull, Brackets } from 'typeorm'
 
@@ -888,10 +881,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       iid,
     })
 
-    if (snapshot.hash && snapshot.hash !== hash) {
-      throw new BadRequestException('Snapshot hash already set')
-    }
-
+    const originHash = snapshot.hash
     snapshot.hash = hash
     await Snapshot.save(snapshot, { reload: false })
 
@@ -899,6 +889,11 @@ export class SnapshotService implements OnApplicationBootstrap {
       projectId,
       hash,
     })
+
+    if (hash && hash !== originHash) {
+      const reports = await this.reportService.getReportsBySnapshotId(snapshot.id)
+      await this.source.startSourceIssueAnalyze(reports)
+    }
 
     return snapshot
   }

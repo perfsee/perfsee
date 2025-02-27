@@ -42,11 +42,7 @@ export const SnapshotMeta: FC<Props> = ({ snapshot }) => {
       <SnapshotCardCommitContainer>
         <InfoTitle>Commit: </InfoTitle>
         <InfoText>
-          {snapshot.hash ? (
-            <Commit hash={snapshot.hash} commitMessage={snapshot.version?.commitMessage + 'asdasdasdxzcxzczcx'} />
-          ) : (
-            'unknown'
-          )}
+          {snapshot.hash ? <Commit hash={snapshot.hash} commitMessage={snapshot.version?.commitMessage} /> : 'unknown'}
         </InfoText>
       </SnapshotCardCommitContainer>
       <div>

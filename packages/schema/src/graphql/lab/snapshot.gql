@@ -16,6 +16,11 @@ query snapshot($projectId: ID!, $snapshotId: Int!) {
         PartialCompleted
         Failed
       }
+      version {
+        branch
+        version
+        commitMessage
+      }
     }
   }
 }

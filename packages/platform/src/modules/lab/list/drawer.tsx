@@ -29,7 +29,7 @@ import { LabListModule } from './module'
 import { LabReportList } from './report-list'
 import { SnapshotMeta } from './snapshot-meta'
 import { SnapshotStatusTag } from './status-tag'
-import { DrawerArtifactSelectWarning, DrawerSetVersionButton, DrawerTitle } from './style'
+import { DrawerSetVersionButton, DrawerTitle } from './style'
 
 type SnapshotDrawerProps = {
   visible: boolean
@@ -137,22 +137,12 @@ export const SnapshotDrawer: FC<SnapshotDrawerProps> = (props) => {
       onOuterClick={noop}
       onRenderHeader={onRenderHeader}
     >
-      {snapshot.status === SnapshotStatus.Completed && typeof snapshot.hash !== 'string' && (
+      {snapshot.status === SnapshotStatus.Completed && (
         <DrawerSetVersionButton onClick={showArtifactSelect}>Set Commit</DrawerSetVersionButton>
       )}
       <SnapshotMeta snapshot={snapshot} />
       <LabReportList onClose={onClose} snapshotId={snapshot.id} failedReason={snapshot.failedReason} />
-      {artifactSelectVisible && (
-        <ArtifactSelect
-          description={
-            <DrawerArtifactSelectWarning>
-              Commit hash can only set once and can't be modified!
-            </DrawerArtifactSelectWarning>
-          }
-          onSelect={onSelectArtifact}
-          onDismiss={hideArtifactSelect}
-        />
-      )}
+      {artifactSelectVisible && <ArtifactSelect onSelect={onSelectArtifact} onDismiss={hideArtifactSelect} />}
     </Panel>
   )
 }
