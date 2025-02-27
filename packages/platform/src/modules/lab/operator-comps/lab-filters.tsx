@@ -36,7 +36,7 @@ triggerOptions.push({
 type Props = {
   title?: string
   trigger?: SnapshotTrigger
-  onChangeTrigger: (platform: string) => void
+  onChangeTrigger: (platform?: string) => void
   onChangeTitle: (title?: string) => void
 }
 
@@ -45,8 +45,11 @@ export const SnapshotFilters: FC<Props> = (props) => {
 
   const onTriggerChange = useCallback(
     (key?: string) => {
-      if (!key || key === 'all') {
+      if (!key) {
         return
+      }
+      if (key === 'all') {
+        return onChangeTrigger()
       }
       onChangeTrigger(key)
     },

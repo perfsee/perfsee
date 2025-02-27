@@ -60,7 +60,7 @@ export const PaginationSnapshotList = () => {
   )
 
   const onTriggerFilterChange = useCallback(
-    (value: string) => {
+    (value?: string) => {
       updateQueryString({
         page: 1,
         trigger: value as SnapshotTrigger,
