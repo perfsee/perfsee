@@ -483,6 +483,7 @@ type Snapshot {
 
   """the status of reports"""
   reportsStatusCount: ReportsStatusCount!
+  version: AppVersion
 
   """get reports with given snapshot id"""
   snapshotReports: [SnapshotReport!]!

@@ -19,6 +19,11 @@ query snapshots($projectId: ID!, $pagination: PaginationInput, $trigger: Snapsho
             PartialCompleted
             Failed
           }
+          version {
+            branch
+            version
+            commitMessage
+          }
         }
       }
       pageInfo {

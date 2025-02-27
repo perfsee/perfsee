@@ -43,6 +43,7 @@ import {
   JobStatus,
   ReportsStatusCount,
   CookieTargetType,
+  AppVersion,
 } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
 import { EventEmitter, OnEvent } from '@perfsee/platform-server/event'
@@ -916,6 +917,17 @@ export class SnapshotService implements OnApplicationBootstrap {
 
   async getSnapshotCount(projectId: number) {
     return Snapshot.countBy({ projectId })
+  }
+
+  async getSnapshotVersion(snapshot: Snapshot) {
+    if (!snapshot.hash) {
+      return null
+    }
+
+    return AppVersion.findOneBy({
+      projectId: snapshot.projectId,
+      hash: snapshot.hash,
+    })
   }
 
   @OnEvent(`${JobType.LabAnalyze}.update`)

@@ -25,7 +25,7 @@ import { ProjectModule } from '../../shared'
 import { StatusText } from '../style'
 
 import { SnapshotSchema } from './module'
-import { InfoTitle, InfoText } from './style'
+import { InfoTitle, InfoText, SnapshotCardCommitContainer } from './style'
 
 interface Props {
   snapshot: SnapshotSchema
@@ -38,17 +38,23 @@ export const SnapshotMeta: FC<Props> = ({ snapshot }) => {
   }
 
   return (
-    <Stack tokens={{ padding: '12px', childrenGap: '4px' }}>
-      <div>
+    <Stack tokens={{ padding: '12px', childrenGap: '4px' }} styles={{ root: { overflow: 'hidden' } }}>
+      <SnapshotCardCommitContainer>
         <InfoTitle>Commit: </InfoTitle>
-        <InfoText>{snapshot.hash ? <Commit hash={snapshot.hash} /> : 'unknown'}</InfoText>
-      </div>
+        <InfoText>
+          {snapshot.hash ? (
+            <Commit hash={snapshot.hash} commitMessage={snapshot.version?.commitMessage + 'asdasdasdxzcxzczcx'} />
+          ) : (
+            'unknown'
+          )}
+        </InfoText>
+      </SnapshotCardCommitContainer>
       <div>
         <InfoTitle>Created at: </InfoTitle>
         <InfoText>{new Date(snapshot.createdAt).toLocaleString()}</InfoText>
       </div>
       <div>
-        <InfoTitle>Created by: </InfoTitle>
+        <InfoTitle>Trigger: </InfoTitle>
         <InfoText>{snapshot.trigger}</InfoText>
       </div>
       <div>

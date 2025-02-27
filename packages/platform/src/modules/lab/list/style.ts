@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import styled from '@emotion/styled'
-import { DefaultButton, IDocumentCardStyles } from '@fluentui/react'
+import { DefaultButton, IDocumentCardStyles, SharedColors } from '@fluentui/react'
 
 import { NeutralColors } from '@perfsee/dls'
 
@@ -26,13 +26,16 @@ export const cardStyle: IDocumentCardStyles = {
   },
 }
 
-export const InfoText = styled.span(({ theme }) => ({
+export const InfoText = styled.span(() => ({
   fontSize: '12px',
-  color: theme.text.colorSecondary,
+  color: SharedColors.gray20,
+  display: 'inline-flex',
+  overflow: 'hidden',
 }))
 
 export const InfoTitle = styled(InfoText)(({ theme }) => ({
   color: theme.text.color,
+  flexShrink: '0',
 }))
 
 export const DrawerTitle = styled.span(({ theme }) => ({
@@ -84,3 +87,9 @@ export const DrawerSetVersionButton = styled(DefaultButton)({
 export const DrawerArtifactSelectWarning = styled.span(({ theme }) => ({
   color: theme.colors.error,
 }))
+
+export const SnapshotCardCommitContainer = styled.div({
+  overflow: 'hidden',
+  whiteSpace: 'pre',
+  display: 'flex',
+})
