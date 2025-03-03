@@ -592,6 +592,9 @@ type SnapshotReport {
   """the link to trace data detail file"""
   traceDataLink: String
 
+  """the link to trace event detail file"""
+  traceEventLink: String
+
   """the link to all requests detail file"""
   requestsLink: String
 
