@@ -53,7 +53,6 @@ export const PerformanceRadarChart: FC<Props> = memo(({ metricsScores }) => {
         indicator: [
           { name: 'FCP', max: 100 },
           { name: 'LCP', max: 100 },
-          { name: 'TTI', max: 100 },
           { name: 'CLS', max: 100 },
           { name: 'SI', max: 100 },
           { name: 'TBT', max: 100 },

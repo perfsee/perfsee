@@ -80,10 +80,6 @@ export const PerformanceKeys = [
     id: LighthouseScoreType.LCP,
   },
   {
-    key: 'TTI',
-    id: LighthouseScoreType.TTI,
-  },
-  {
     key: 'CLS',
     id: LighthouseScoreType.CLS,
   },
