@@ -133,7 +133,7 @@ export class ReportResolver {
   }
 
   @ResolveField(() => String, { nullable: true, description: 'the link to trace event detail file' })
-  traceEventLink(@Parent() report: SnapshotReport) {
+  traceEventsLink(@Parent() report: SnapshotReport) {
     return artifactLink(report.traceEventsStorageKey)
   }
 
