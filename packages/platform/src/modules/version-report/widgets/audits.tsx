@@ -111,7 +111,7 @@ const LabAuditItem = ({ audit }: { audit: LighthouseAudit }) => {
   )
 }
 
-const LongTaskAudit = ({ issue }: LongTaskAuditProps) => {
+export const LongTaskAudit = ({ issue }: LongTaskAuditProps) => {
   if (!issue || !issue.issues?.length) {
     return null
   }

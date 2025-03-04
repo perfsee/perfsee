@@ -34,6 +34,7 @@ export const getColor = (theme: Theme, size: number, warningThrottle: number, da
 
 interface Props {
   size: Size
+  fontSize?: number | string
   hoverable?: boolean
 }
 
@@ -53,7 +54,7 @@ const SizeNumber = styled('span')<{ color: string }>(({ theme, color }) => ({
   fontSize: '12px',
 }))
 
-export const ColoredSize = ({ size, hoverable = true }: Props) => {
+export const ColoredSize = ({ size, hoverable = true, fontSize }: Props) => {
   const theme = useTheme()
 
   const sizeColor = getColor(theme, size.raw, WARNING_SIZE_THROTTLE, DANGEROUS_SIZE_THROTTLE)
@@ -82,11 +83,11 @@ export const ColoredSize = ({ size, hoverable = true }: Props) => {
 
   const content = useMemo(
     () => (
-      <Wrapper underline={hoverable} color={sizeColor} style={{ cursor: hoverable ? 'pointer' : 'unset' }}>
+      <Wrapper underline={hoverable} color={sizeColor} style={{ cursor: hoverable ? 'pointer' : 'unset', fontSize }}>
         {PrettyBytes.create(size.raw).toString()}
       </Wrapper>
     ),
-    [size.raw, sizeColor, hoverable],
+    [size.raw, sizeColor, hoverable, fontSize],
   )
 
   return hoverable ? (

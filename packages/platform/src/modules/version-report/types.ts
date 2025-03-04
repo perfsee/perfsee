@@ -14,8 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ArtifactByCommitQuery, SnapshotReportsByCommitQuery, IssuesByReportIdQuery } from '@perfsee/schema'
-import { AuditsSchema, LHStoredSchema, MetricScoreSchema } from '@perfsee/shared'
+import {
+  ArtifactByCommitQuery,
+  SnapshotReportsByCommitQuery,
+  IssuesByReportIdQuery,
+  AppVersionsQuery,
+} from '@perfsee/schema'
+import { AuditsSchema, BundleResult, LHStoredSchema, MetricScoreSchema } from '@perfsee/shared'
 
 type Unwrap<Element> = Element extends Array<infer S> ? S : unknown
 
@@ -23,16 +28,23 @@ export type Artifact = NonNullable<ArtifactByCommitQuery['project']['artifactByC
 
 export type SourceIssue = IssuesByReportIdQuery['project']['snapshotReport']['issues'][0]
 
+export type Version = AppVersionsQuery['project']['appVersions'][0]
+
 interface WithLoading {
   loading: boolean
 }
 
 export interface VersionCommits extends WithLoading {
   commits: string[]
+  versions: Record<string, Version>
 }
 
 export interface VersionArtifactJob extends WithLoading {
   artifact?: Artifact
+}
+
+export interface VersionArtifactDetail extends WithLoading {
+  artifactDetail?: BundleResult
 }
 
 export type ReportNode = Unwrap<NonNullable<SnapshotReportsByCommitQuery['project']['snapshotReports']>>
@@ -60,7 +72,7 @@ export interface VersionIssue extends WithLoading {
 
 export type VersionIssues = Record<number, VersionIssue>
 
-export type LighthouseContent = Pick<LHStoredSchema, 'lhrAudit' | 'lhrCategories' | 'metricScores'>
+export type LighthouseContent = LHStoredSchema
 
 export type EntryPointSchema = NonNullable<Artifact['entrypoints']>[0]
 
@@ -68,5 +80,7 @@ export type VersionLHContent = {
   audits?: AuditsSchema
   categories?: LHStoredSchema['lhrCategories']
   metricScores: MetricScoreSchema[]
+  entities?: LH.Result.Entities
+  fullPageScreenshot?: LH.Result.FullPageScreenshot
   loading: boolean
 }

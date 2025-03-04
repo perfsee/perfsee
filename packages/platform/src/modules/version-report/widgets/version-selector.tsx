@@ -16,30 +16,42 @@ limitations under the License.
 
 import { FC, useMemo } from 'react'
 
-import { Select } from '@perfsee/components'
+import { SearchSelect } from '@perfsee/components'
+
+import { Version } from '../types'
 
 type Props = {
   commit: string
   allCommits: string[]
+  versions: Record<string, Version>
   onChange: (key: string) => void
 }
 
-export const CommitSelector: FC<Props> = ({ commit, allCommits, onChange }) => {
+export const CommitSelector: FC<Props> = ({ commit, allCommits, versions, onChange }) => {
   const options = useMemo(() => {
-    return allCommits.map((commit) => ({ key: commit, text: commit }))
-  }, [allCommits])
+    return allCommits.map((commit) => ({
+      key: commit,
+      text:
+        commit.slice(0, 8) +
+        (versions[commit]?.commitMessage ? ` | ${versions[commit]?.commitMessage}` : '') +
+        (versions[commit]?.version ? ` | ${versions[commit].version}` : ''),
+    }))
+  }, [allCommits, versions])
 
   if (!allCommits.length) {
     return null
   }
 
   return (
-    <Select
-      dropdownMaxWidth={200}
-      useComboBoxAsMenuWidth={true}
-      selectedKey={commit}
-      options={options}
-      onKeyChange={onChange}
-    />
+    <div style={{ width: 600 }}>
+      <SearchSelect
+        title="Commit"
+        onChange={onChange}
+        options={options}
+        selectOptions={options}
+        value={commit}
+        required
+      />
+    </div>
   )
 }

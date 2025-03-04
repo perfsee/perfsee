@@ -16,12 +16,11 @@ limitations under the License.
 
 import { Stack, IStackTokens } from '@fluentui/react'
 import { useDispatchers, useModule } from '@sigi/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import { ContentCard, Select } from '@perfsee/components'
 import { SnapshotStatus } from '@perfsee/schema'
 
-import { VersionPerformanceOverview } from '../../components'
+import { VersionReport } from '../../version-report'
 import { VersionSnapshotReport } from '../../version-report/types'
 import { HashReportModule } from '../../version-report/version-report.module'
 
@@ -34,30 +33,13 @@ const stackTokens: IStackTokens = {
 
 export const Statistics = () => {
   const { reset } = useDispatchers(StatisticsModule)
-  const [{ allCommits, lab, artifactJob, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
+  const [{ allCommits, lab }, dispatcher] = useModule(HashReportModule)
 
   const [selectedReport, setReport] = useState<VersionSnapshotReport | undefined>()
 
   const reports = useMemo(() => {
     return lab.reports?.filter((r) => r.status === SnapshotStatus.Completed) ?? []
   }, [lab.reports])
-
-  const versionOptions = useMemo(() => {
-    return reports.map((r) => {
-      return {
-        key: r.id,
-        text: `#${r.id} ${r.page.name} * ${r.profile.name} * ${r.environment.name}`,
-      }
-    })
-  }, [reports])
-
-  const onReportChange = useCallback(
-    (key: number) => {
-      const report = reports.find((r) => r.id === key)
-      setReport(report)
-    },
-    [reports],
-  )
 
   useEffect(() => {
     dispatcher.getRecentCommits()
@@ -66,16 +48,6 @@ export const Statistics = () => {
       dispatcher.reset()
     }
   }, [dispatcher, reset])
-
-  useEffect(() => {
-    if (allCommits.commits.length) {
-      const latestCommit = allCommits.commits[0]
-
-      dispatcher.getArtifactByCommit(latestCommit)
-      dispatcher.getSnapshotByCommit({ hash: latestCommit })
-      dispatcher.fetchSourceIssueCount({ hash: latestCommit })
-    }
-  }, [allCommits.commits, dispatcher])
 
   useEffect(() => {
     if (!selectedReport && reports.length) {
@@ -91,34 +63,7 @@ export const Statistics = () => {
 
   return (
     <Stack tokens={stackTokens}>
-      <ContentCard
-        // eslint-disable-next-line react/jsx-no-bind
-        onRenderHeader={() => (
-          <>
-            <span>Latest Version Report</span>
-            <Stack horizontal tokens={{ childrenGap: '8px' }} verticalAlign="center">
-              {!!versionOptions.length && (
-                <Select<number>
-                  title="Report"
-                  selectedKey={selectedReport?.id}
-                  options={versionOptions}
-                  onKeyChange={onReportChange}
-                />
-              )}
-              {/* <MoreVersionSpan>View More Versions</MoreVersionSpan> */}
-            </Stack>
-          </>
-        )}
-      >
-        <VersionPerformanceOverview
-          hash={allCommits.commits[0]}
-          snapshotReport={selectedReport}
-          artifact={artifactJob.artifact}
-          lhContent={lhContent}
-          loading={allCommits.loading || lab.loading}
-          sourceIssueCount={currentIssueCount}
-        />
-      </ContentCard>
+      <VersionReport hash={allCommits.commits[0]} />
       <TrendsChart />
     </Stack>
   )
