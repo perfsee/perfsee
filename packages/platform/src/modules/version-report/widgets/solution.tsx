@@ -18,7 +18,9 @@ import { IPivotItemProps, Pivot, PivotItem, Spinner } from '@fluentui/react'
 import { useModuleState } from '@sigi/react'
 import { useCallback, useMemo } from 'react'
 
+import { Audits as BundleAudits } from '@perfsee/bundle-report/bundle-detail/resource-tabs/audits'
 import { Empty, useQueryString } from '@perfsee/components'
+import { AdviceList } from '@perfsee/lab-report'
 import { getGroupedAuditLists } from '@perfsee/lab-report/pivot-content-performance/utils'
 import { LighthouseAudit, LighthouseGroupType } from '@perfsee/lab-report/snapshot-type'
 import { LighthouseScoreMetric } from '@perfsee/shared'
@@ -26,7 +28,7 @@ import { LighthouseScoreMetric } from '@perfsee/shared'
 import { EntryPointSchema } from '../types'
 import { HashReportModule } from '../version-report.module'
 
-import { LabAudits, LongTaskAuditProps, NoAudit } from './audits'
+import { LongTaskAudit, LongTaskAuditProps, NoAudit } from './audits'
 import { SecondPivotStyle } from './styled'
 
 const RenderPivotItem = (tab: { title: string; count?: number | null }) => (props?: IPivotItemProps) => {
@@ -49,7 +51,7 @@ interface Props {
 }
 
 export const Solution = ({ entrypoint }: Props) => {
-  const { lhContent, issues } = useModuleState(HashReportModule)
+  const { lhContent, issues, artifactDetail } = useModuleState(HashReportModule)
   const [{ reportId, solution: tabName = 'bundle' }, updateQueryString] = useQueryString<{
     reportId: number
     version: string
@@ -76,7 +78,9 @@ export const Solution = ({ entrypoint }: Props) => {
       let count: number | undefined
 
       if (lhContent.audits && auditRefs) {
-        const opportunities = getGroupedAuditLists(lhContent.audits, auditRefs, true)[LighthouseGroupType.opportunity]
+        const opportunities = getGroupedAuditLists(lhContent.audits, auditRefs, true).result[
+          LighthouseGroupType.opportunity
+        ]
         count = opportunities.length
         labAudits = opportunities
       }
@@ -90,34 +94,46 @@ export const Solution = ({ entrypoint }: Props) => {
           key={tab.id}
           headerText={tab.title}
         >
-          <PerformanceContent labAudits={labAudits} issue={issue} />
+          <PerformanceContent
+            labAudits={labAudits}
+            issue={issue}
+            entities={lhContent.entities}
+            fullPageScreenshot={lhContent.fullPageScreenshot}
+          />
         </PivotItem>
       )
     })
-  }, [issues, lhContent.audits, lhContent.categories, reportId])
+  }, [issues, lhContent.audits, lhContent.categories, reportId, lhContent.entities, lhContent.fullPageScreenshot])
 
   if (lhContent.loading) {
     return <Spinner />
   }
 
-  if (!entrypoint && !lhContent.audits) {
+  const bundleAudits = artifactDetail.artifactDetail?.entryPoints
+    .find((e) => e.name === entrypoint?.entrypoint)
+    ?.audits?.filter((a) => a.score <= 1)
+
+  if (!bundleAudits?.length && !lhContent.audits) {
     return <Empty withIcon={true} styles={{ root: { margin: '10px' } }} title="Nothing here!" />
   }
 
   return (
     <>
       <Pivot styles={SecondPivotStyle} linkFormat="tabs" selectedKey={tabName} onLinkClick={onLinkClick}>
-        {/* disable bundle solution here */}
-        {/* need a new design for version report */}
-        {/* <PivotItem
-          onRenderItemLink={RenderPivotItem({ title: 'Bundle', count: bundleAudits.length })}
-          itemKey={'bundle'}
-          key={'bundle'}
-          headerText="Bundle"
-        >
-          <BundleContent bundleAudits={bundleAudits} />
-        </PivotItem> */}
-        {otherPivots}
+        {bundleAudits?.length ? (
+          <PivotItem
+            onRenderItemLink={RenderPivotItem({
+              title: 'Bundle',
+              count: bundleAudits?.length,
+            })}
+            itemKey={'bundle'}
+            key={'bundle'}
+            headerText="Bundle"
+          >
+            <BundleAudits audits={bundleAudits} />
+          </PivotItem>
+        ) : null}
+        ){otherPivots}
       </Pivot>
     </>
   )
@@ -125,14 +141,26 @@ export const Solution = ({ entrypoint }: Props) => {
 
 interface PerformanceProps extends LongTaskAuditProps {
   labAudits: LighthouseAudit[]
+  entities?: LH.Result.Entities
+  fullPageScreenshot?: LH.Result.FullPageScreenshot
 }
 
 const PerformanceContent = (props: PerformanceProps) => {
-  const { labAudits, issue } = props
+  const { labAudits, issue, entities, fullPageScreenshot } = props
 
   if (!labAudits.length) {
     return <NoAudit />
   }
 
-  return <LabAudits audits={labAudits} issue={issue} />
+  return (
+    <div className="lh-vars">
+      <LongTaskAudit issue={issue} />
+      <AdviceList
+        list={labAudits}
+        type={LighthouseGroupType.opportunity}
+        entities={entities}
+        fullPageScreenshot={fullPageScreenshot}
+      />
+    </div>
+  )
 }

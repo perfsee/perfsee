@@ -4,6 +4,7 @@ query appVersions($projectId: ID!, $from: DateTime, $to: DateTime, $length: Int)
       hash
       branch
       version
+      commitMessage
     }
   }
 }

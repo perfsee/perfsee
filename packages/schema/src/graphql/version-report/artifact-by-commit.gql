@@ -8,6 +8,7 @@ query artifactByCommit($projectId: ID!, $hash: String!) {
       score
       reportLink
       entrypoints {
+        score
         entrypoint
         size {
           raw

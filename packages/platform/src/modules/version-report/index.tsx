@@ -14,19 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { LeftOutlined } from '@ant-design/icons'
 import { NeutralColors, Pivot, PivotItem, Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import { capitalize } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useHistory } from 'react-router'
 
 import { useQueryString, ContentCard } from '@perfsee/components'
 import { SnapshotStatus } from '@perfsee/schema'
-import { pathFactory } from '@perfsee/shared/routes'
 
 import { VersionPerformanceOverview } from '../components'
-import { useProjectRouteGenerator } from '../shared'
 
 import { EntryPointSchema, VersionSnapshotReport } from './types'
 import { HashReportModule } from './version-report.module'
@@ -37,12 +33,9 @@ enum PivotKey {
   Solution = 'solution',
 }
 
-export const VersionReport = () => {
-  const generateProjectRoute = useProjectRouteGenerator()
-  const history = useHistory()
-
+export const VersionReport = (props: { hash?: string }) => {
   const [{ allCommits, artifactJob, lab, lhContent, currentIssueCount }, dispatcher] = useModule(HashReportModule)
-  const [{ hash = '', reportId, tabName = PivotKey.Overview }, updateQueryString] = useQueryString<{
+  const [{ hash = props.hash || '', reportId, tabName = PivotKey.Overview }, updateQueryString] = useQueryString<{
     hash: string
     reportId: number
     tabName: string
@@ -64,10 +57,6 @@ export const VersionReport = () => {
     },
     [dispatcher, updateQueryString, hash],
   )
-
-  const backToHome = useCallback(() => {
-    history.push(generateProjectRoute(pathFactory.project.home, {}))
-  }, [generateProjectRoute, history])
 
   const reports = useMemo(() => {
     return lab.reports?.filter((r) => r.status === SnapshotStatus.Completed) ?? []
@@ -139,13 +128,17 @@ export const VersionReport = () => {
 
   const onRenderHeader = useCallback(
     () => (
-      <Stack verticalAlign="center" horizontal={true}>
-        <LeftOutlined onClick={backToHome} style={{ color: NeutralColors.gray100, marginRight: '14px' }} />
+      <Stack verticalAlign="center" horizontal horizontalAlign="space-between" styles={{ root: { width: '100%' } }}>
         <b style={{ fontSize: '16px', marginRight: '20px' }}>Version Report</b>
-        <CommitSelector commit={hash} allCommits={allCommits.commits} onChange={onChangeCommit} />
+        <CommitSelector
+          commit={hash}
+          allCommits={allCommits.commits}
+          onChange={onChangeCommit}
+          versions={allCommits.versions}
+        />
       </Stack>
     ),
-    [allCommits, backToHome, onChangeCommit, hash],
+    [allCommits, onChangeCommit, hash],
   )
 
   useEffect(() => {
@@ -153,6 +146,12 @@ export const VersionReport = () => {
       dispatcher.fetchReportDetail(selectedReport.reportLink)
     }
   }, [dispatcher, selectedReport])
+
+  useEffect(() => {
+    if (artifactJob.artifact?.reportLink) {
+      dispatcher.fetchArtifactDetail(artifactJob.artifact.reportLink)
+    }
+  }, [dispatcher, artifactJob.artifact])
 
   return (
     <ContentCard onRenderHeader={onRenderHeader}>
@@ -180,6 +179,7 @@ export const VersionReport = () => {
             loading={allCommits.loading || lab.loading}
             hideBasic={true}
             sourceIssueCount={currentIssueCount}
+            entrypoint={entrypoint?.entrypoint}
           />
         </PivotItem>
         <PivotItem itemKey={PivotKey.Solution} headerText={capitalize(PivotKey.Solution)}>

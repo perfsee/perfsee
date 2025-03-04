@@ -19,7 +19,7 @@ import { Draft } from 'immer'
 import { Observable } from 'rxjs'
 import { map, startWith, endWith, switchMap, withLatestFrom, filter, delay } from 'rxjs/operators'
 
-import { GraphQLClient, createErrorCatcher, RxFetch } from '@perfsee/platform/common'
+import { GraphQLClient, createErrorCatcher, RxFetch, BundleResult } from '@perfsee/platform/common'
 import {
   ArtifactByCommitQuery,
   artifactByCommitQuery,
@@ -35,6 +35,8 @@ import { ProjectModule } from '../shared'
 import {
   LighthouseContent,
   SourceIssue,
+  Version,
+  VersionArtifactDetail,
   VersionArtifactJob,
   VersionCommits,
   VersionIssues,
@@ -45,6 +47,7 @@ import {
 interface State {
   allCommits: VersionCommits
   artifactJob: VersionArtifactJob
+  artifactDetail: VersionArtifactDetail
   lab: VersionLab
   issues: VersionIssues
   lhContent: VersionLHContent
@@ -66,7 +69,7 @@ export class HashReportModule extends EffectModule<State> {
   @ImmerReducer()
   setLoading(
     state: Draft<State>,
-    { key, value }: { key: 'allCommits' | 'artifactJob' | 'lab' | 'lhContent'; value: boolean },
+    { key, value }: { key: 'allCommits' | 'artifactJob' | 'lab' | 'lhContent' | 'artifactDetail'; value: boolean },
   ) {
     state[key].loading = value
   }
@@ -85,8 +88,9 @@ export class HashReportModule extends EffectModule<State> {
   }
 
   @ImmerReducer()
-  setCommits(state: Draft<State>, payload: string[]) {
-    state.allCommits.commits = payload
+  setCommits(state: Draft<State>, payload: Version[]) {
+    state.allCommits.commits = payload.map((p) => p.hash)
+    state.allCommits.versions = payload.reduce((obj, cur) => ({ ...obj, [cur.hash]: cur }), {})
   }
 
   @ImmerReducer()
@@ -95,6 +99,16 @@ export class HashReportModule extends EffectModule<State> {
       audits: payload.lhrAudit,
       categories: payload.lhrCategories,
       metricScores: payload.metricScores,
+      entities: payload.entities,
+      fullPageScreenshot: payload.fullPageScreenshot,
+      loading: false,
+    }
+  }
+
+  @ImmerReducer()
+  setArtifactDetail(state: Draft<State>, payload: BundleResult) {
+    state.artifactDetail = {
+      artifactDetail: payload,
       loading: false,
     }
   }
@@ -150,12 +164,12 @@ export class HashReportModule extends EffectModule<State> {
         this.client
           .query({
             query: appVersionsQuery,
-            variables: { projectId: project!.id, length: 30 },
+            variables: { projectId: project!.id, length: 100 },
           })
           .pipe(
             createErrorCatcher('Failed to fetch commits from snapshots.'),
             map((res) => {
-              return this.getActions().setCommits(res.project.appVersions.map(({ hash }) => hash))
+              return this.getActions().setCommits(res.project.appVersions)
             }),
             startWith(this.getActions().setLoading({ key: 'allCommits', value: true })),
             endWith(this.getActions().delaySetCommitLoading()),
@@ -266,6 +280,21 @@ export class HashReportModule extends EffectModule<State> {
   }
 
   @Effect()
+  fetchArtifactDetail(payload$: Observable<string | null>) {
+    return payload$.pipe(
+      filter((storageKey) => !!storageKey),
+      switchMap((storageKey) =>
+        this.fetch.get<BundleResult>(storageKey!).pipe(
+          createErrorCatcher('Failed to fetch version report artifact detail.'),
+          map((res) => this.getActions().setArtifactDetail(res)),
+          startWith(this.getActions().setLoading({ key: 'artifactDetail', value: true })),
+          endWith(this.getActions().setLoading({ key: 'artifactDetail', value: false })),
+        ),
+      ),
+    )
+  }
+
+  @Effect()
   fetchSourceIssueCount(payload$: Observable<{ hash: string }>) {
     return payload$.pipe(
       withLatestFrom(this.projectModule.state$),
@@ -302,6 +331,9 @@ export class HashReportModule extends EffectModule<State> {
       },
       currentIssueCount: 0,
       lhContent: { loading: false, metricScores: [] },
+      artifactDetail: {
+        loading: false,
+      },
     }
   }
 
@@ -309,6 +341,7 @@ export class HashReportModule extends EffectModule<State> {
     return {
       allCommits: {
         commits: [],
+        versions: {},
         loading: true,
       },
       ...this.getModuleInitState(),

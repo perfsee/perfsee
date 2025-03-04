@@ -26,11 +26,13 @@ import { VersionSnapshotReport, Artifact, VersionLHContent } from '../../version
 
 import { LoadingSpan, LoadingWrap, VersionDetailWrap } from './styled'
 import { ArtifactScore, BaseInfo, LhOtherScore, PerformanceRadarChart, PerformanceScore } from './widgets'
+import { PerformanceRadarWrap } from './widgets/styled'
 import { getSnapshotReportURL } from './widgets/utils'
 
 type Props = {
   hash?: string
   snapshotReport?: VersionSnapshotReport
+  entrypoint?: string
   artifact?: Artifact | null
   lhContent: VersionLHContent
   loading: boolean
@@ -43,6 +45,7 @@ export const VersionPerformanceOverview: FC<Props> = ({
   hash,
   snapshotReport,
   artifact,
+  entrypoint,
   lhContent,
   loading,
   sourceIssueCount,
@@ -69,11 +72,11 @@ export const VersionPerformanceOverview: FC<Props> = ({
     )
   }
 
-  if (!hash || !snapshotReport || !project) {
+  if (!hash || !project) {
     return <Empty withIcon={true} styles={{ root: { margin: '10px' } }} title="No report" />
   }
 
-  if (snapshotReport.status !== SnapshotStatus.Completed) {
+  if (snapshotReport && snapshotReport.status !== SnapshotStatus.Completed) {
     return (
       <Stack horizontalAlign="center">
         <p>The report is {snapshotReport.status}</p>
@@ -82,36 +85,52 @@ export const VersionPerformanceOverview: FC<Props> = ({
     )
   }
 
+  const entry = artifact?.entrypoints?.find((e) => e.entrypoint === entrypoint)
+
   return (
     <>
-      {hideBasic ? undefined : (
+      {hideBasic ? undefined : snapshotReport ? (
         <BaseInfo
           reportId={snapshotReport.id}
           hash={hash}
           snapshotCreatedAt={snapshotReport.createdAt}
           artifact={artifact}
         />
-      )}
+      ) : null}
       <VersionDetailWrap>
         <div>
-          <PerformanceScore
-            reportLink={getSnapshotReportURL(project.id, snapshotReport)}
-            performanceScore={snapshotReport.performanceScore}
-            status={snapshotReport.status}
-            sourceIssueCount={sourceIssueCount}
-            hash={hash}
-            reportId={snapshotReport.id}
-          />
-          {artifact && (
+          {snapshotReport ? (
+            <PerformanceScore
+              reportLink={getSnapshotReportURL(project.id, snapshotReport)}
+              performanceScore={snapshotReport.performanceScore}
+              status={snapshotReport.status}
+              sourceIssueCount={sourceIssueCount}
+              hash={hash}
+              reportId={snapshotReport.id}
+            />
+          ) : null}
+          {snapshotReport ? <LhOtherScore project={project} report={snapshotReport} scores={scores} /> : null}
+          {artifact ? (
             <ArtifactScore
               bundleId={artifact.id}
-              score={artifact.score}
+              score={entry?.score || null}
               size={artifact.entrypoints?.reduce((total, { size }) => addSize(total, size), getDefaultSize())}
+              entryInitialSize={entry?.initialSize}
+              entrySize={entry?.size}
             />
+          ) : (
+            <div style={{ marginTop: 24 }}>
+              <Empty title="No artifact found with this commit" />
+            </div>
           )}
-          <LhOtherScore project={project} report={snapshotReport} scores={scores} />
         </div>
-        <PerformanceRadarChart metricsScores={metricScores ?? []} />
+        {snapshotReport ? (
+          <PerformanceRadarChart metricsScores={metricScores ?? []} />
+        ) : (
+          <PerformanceRadarWrap>
+            <Empty withIcon title="No snapshot report found with this commit" />
+          </PerformanceRadarWrap>
+        )}
       </VersionDetailWrap>
     </>
   )

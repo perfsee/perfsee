@@ -38,9 +38,11 @@ type Props = {
   bundleId: number
   score: number | null
   size?: Size | null
+  entrySize?: Size | null
+  entryInitialSize?: Size | null
 }
 
-export const ArtifactScore: FC<Props> = ({ score, size, bundleId }) => {
+export const ArtifactScore: FC<Props> = ({ score, size, bundleId, entrySize, entryInitialSize }) => {
   const generateProjectRoute = useProjectRouteGenerator()
   const bundleLink = generateProjectRoute(pathFactory.project.bundle.detail, { bundleId })
 
@@ -52,7 +54,7 @@ export const ArtifactScore: FC<Props> = ({ score, size, bundleId }) => {
       </VersionDetailItemHeader>
       <FlexCenterWrap>
         <ScoreDisplayItem>
-          <ProjectSubCountName>Bundle Score</ProjectSubCountName>
+          <ProjectSubCountName>Entry Score</ProjectSubCountName>
           <Stack tokens={{ childrenGap: 4 }} horizontal verticalAlign="end">
             <ProjectSubCountNum color={getScoreColors(score).textColor}>{score ?? '-'}</ProjectSubCountNum>
           </Stack>
@@ -62,12 +64,12 @@ export const ArtifactScore: FC<Props> = ({ score, size, bundleId }) => {
           <SizeDisplay size={size?.raw} />
         </ScoreDisplayItem>
         <ScoreDisplayItem>
-          <ProjectSubCountName>Gzip Size</ProjectSubCountName>
-          <SizeDisplay size={size?.gzip} />
+          <ProjectSubCountName>Entry Size</ProjectSubCountName>
+          <SizeDisplay size={entrySize?.raw} />
         </ScoreDisplayItem>
         <ScoreDisplayItem>
-          <ProjectSubCountName>Brotil Size</ProjectSubCountName>
-          <SizeDisplay size={size?.brotli} />
+          <ProjectSubCountName>Entry Initial Size</ProjectSubCountName>
+          <SizeDisplay size={entryInitialSize?.raw} />
         </ScoreDisplayItem>
       </FlexCenterWrap>
     </VersionDetailItem>
