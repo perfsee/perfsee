@@ -222,7 +222,7 @@ export class Profile extends BaseEntity {
     nullable: true,
   })
   @Column({ type: 'json', default: null, nullable: true, comment: 'lighthouse flags' })
-  lighthouseFlags!: LH.Flags
+  lighthouseFlags!: LH.Flags | null
 }
 
 @ObjectType({ description: 'environment used to measure pages' })

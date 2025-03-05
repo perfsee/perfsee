@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { HttpException, HttpStatus, Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common'
-import { times, omit } from 'lodash'
+import { times, omit, mapValues } from 'lodash'
 import { In, Not, IsNull, Brackets } from 'typeorm'
 
 import { Config } from '@perfsee/platform-server/config'
@@ -56,7 +56,7 @@ import {
   PingJobPayload,
   CreateJobEvent,
 } from '@perfsee/server-common'
-import { computeMedianRun } from '@perfsee/shared'
+import { computeMedianRun, LighthouseScoreMetric, MetricKeyType, MetricType } from '@perfsee/shared'
 
 import { getLighthouseRunData, createDataLoader, getLabPingData, checkUserScript } from '../../utils'
 import { AppVersionService } from '../app-version/service'
@@ -450,18 +450,21 @@ export class SnapshotService implements OnApplicationBootstrap {
   async emitLabJobs(
     projectId: number,
     reports: SnapshotReport[],
-    { pages, envs }: { pages: Page[]; envs: Environment[]; profiles: Profile[] },
+    { pages, envs, profiles }: { pages: Page[]; envs: Environment[]; profiles: Profile[] },
   ) {
     const pageMap = new Map(pages.map((page) => [page.id, page]))
     const envMap = new Map(envs.map((env) => [env.id, env]))
+    const profileMap = new Map(profiles.map((profile) => [profile.id, profile]))
 
     if (reports.length) {
       const jobEvents: CreateJobEvent[] = []
 
-      for (const { id, pageId, envId } of reports) {
+      for (const { id, pageId, envId, profileId } of reports) {
         const zone = envMap.get(envId)!.zone
-        const distribute = this.config.job.lab.distributedConfig?.[zone]
-        if (distribute) {
+        const profile = profileId ? profileMap.get(profileId)! : undefined
+        const lighthouseFlags = profile?.lighthouseFlags
+        const distribute = lighthouseFlags?.distribute || this.config.job.lab.distributedConfig?.[zone]
+        if (distribute?.count && Number(distribute.count)) {
           await this.redis.set(`report-distribute-total-${id}`, distribute.count)
         }
         jobEvents.push(
@@ -553,14 +556,26 @@ export class SnapshotService implements OnApplicationBootstrap {
             snapshotReport.status = SnapshotStatus.Completed
             return snapshotReport
           }
+
+          let primaryMetric: MetricKeyType = LighthouseScoreMetric.Performance
+          let secondaryMetric: MetricKeyType = MetricType.LCP
+          const report = await this.reportService.loader.load(snapshotReport.id)
+          if (report) {
+            const profile = await Profile.findOneBy({ id: report.profileId })
+            if (profile?.lighthouseFlags) {
+              profile.lighthouseFlags.primaryMetric &&
+                (primaryMetric = profile.lighthouseFlags.primaryMetric as MetricKeyType)
+              profile.lighthouseFlags.secondaryMetric &&
+                (secondaryMetric = profile.lighthouseFlags.secondaryMetric as MetricKeyType)
+            }
+          }
           const medianIndex = computeMedianRun(
             reportList.map((r, i) => ({
               index: i,
-              lcp: r.metrics?.['largest-contentful-paint'] || 0,
-              performance: r.metrics?.performance || 0,
+              ...mapValues(r.metrics, (v) => Number(v) || 0),
             })),
-            'performance',
-            'lcp',
+            primaryMetric,
+            secondaryMetric,
           )
 
           this.logger.verbose(`Get median result of report ${snapshotReport.id}`, reportList[medianIndex])
