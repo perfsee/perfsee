@@ -9002,7 +9002,7 @@ __metadata:
     open: ^8.4.2
     package-json-type: ^1.0.3
     puppeteer-core: ^21.11.0
-    simple-git: ^3.15.0
+    simple-git: 3.15.0
     tar: ^6.1.13
     ts-node: ^10.9.1
     tslib: ^2.5.0
@@ -9153,7 +9153,7 @@ __metadata:
     node-fetch: ^2.6.2
     open: ^8.4.2
     query-string: ^7.1.1
-    simple-git: ^3.15.0
+    simple-git: 3.15.0
     table: ^6.8.0
     tar: ^6.1.11
     tslib: ^2.4.0
@@ -9194,7 +9194,7 @@ __metadata:
     graphql: ^16.0.0
     lodash: ^4.17.21
     node-fetch: ^2.6.2
-    simple-git: ^3.15.0
+    simple-git: 3.15.0
   bin:
     perfsee: ./bin/cli.js
   languageName: unknown
@@ -34211,14 +34211,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simple-git@npm:^3.15.0":
-  version: 3.16.0
-  resolution: "simple-git@npm:3.16.0"
+"simple-git@npm:3.15.0":
+  version: 3.15.0
+  resolution: "simple-git@npm:3.15.0"
   dependencies:
     "@kwsites/file-exists": ^1.1.1
     "@kwsites/promise-deferred": ^1.1.1
     debug: ^4.3.4
-  checksum: fd28eb43be39d158d2c321cd34eb00f61c365513478ff2bb31f4da06315dcd018e03c6ece9f99558f3fd8834171072850aed1376bf50f8d922b0e2dadede0c2d
+  checksum: 4733d1b769965a7608254c3a5b27532e02e60d4369bc9b397ce47159dd153344a3774739fd2602f693947ed64631b30145b970988fb007b5b779459e9abcdee8
   languageName: node
   linkType: hard
 
