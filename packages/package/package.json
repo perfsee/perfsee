@@ -50,7 +50,7 @@
     "node-fetch": "^2.6.2",
     "open": "^8.4.2",
     "puppeteer-core": "^21.11.0",
-    "simple-git": "^3.15.0",
+    "simple-git": "3.15.0",
     "tar": "^6.1.13",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0"
