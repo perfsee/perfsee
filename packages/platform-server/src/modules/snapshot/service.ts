@@ -1061,14 +1061,23 @@ export class SnapshotService implements OnApplicationBootstrap {
       if (!reportList.length || reportList.length <= 1) {
         return report
       }
+
+      let primaryMetric: MetricKeyType = LighthouseScoreMetric.Performance
+      let secondaryMetric: MetricKeyType = MetricType.LCP
+      const profile = await Profile.findOneBy({ id: reportEntity.profileId })
+      if (profile?.lighthouseFlags) {
+        profile.lighthouseFlags.primaryMetric &&
+          (primaryMetric = profile.lighthouseFlags.primaryMetric as MetricKeyType)
+        profile.lighthouseFlags.secondaryMetric &&
+          (secondaryMetric = profile.lighthouseFlags.secondaryMetric as MetricKeyType)
+      }
       const medianIndex = computeMedianRun(
         reportList.map((r, i) => ({
           index: i,
-          lcp: r.metrics?.['largest-contentful-paint'] || 0,
-          performance: r.metrics?.performance || 0,
+          ...mapValues(r.metrics, (v) => Number(v) || 0),
         })),
-        'performance',
-        'lcp',
+        primaryMetric,
+        secondaryMetric,
       )
 
       this.logger.log(`Getting median result of report ${id}: `, JSON.stringify(reportList.map((r) => r.metrics)))
