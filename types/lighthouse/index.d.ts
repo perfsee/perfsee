@@ -54,6 +54,12 @@ declare module LH {
     bypassServiceWorker?: boolean
     originToForceQuicOn?: string[]
     proxyExcludeHost?: string[]
+    primaryMetric?: string
+    secondaryMetric?: string
+    distribute?: {
+      runs?: number
+      count?: number
+    }
   }
 
   export interface ScreencastGathererResult {

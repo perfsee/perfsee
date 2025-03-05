@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { MetricKeyType } from '../types'
+
 type KeyAuditName = 'first-contentful-paint' | 'interactive' | 'total-blocking-time' | 'largest-contentful-paint'
 
 export const getNumericValue = (lhr: LH.Result, auditName: KeyAuditName) => lhr.audits[auditName]?.numericValue ?? NaN
@@ -24,11 +26,8 @@ export const getTBTScore = (lhr: LH.Result) => getScore(lhr, 'total-blocking-tim
 export const getLCPScore = (lhr: LH.Result) => getScore(lhr, 'largest-contentful-paint')
 export const getPerformance = (lhr: LH.Result) => lhr.categories['performance']?.score ?? NaN
 
-export type MetricsRecord = {
+export type MetricsRecord = Record<MetricKeyType, number> & {
   index: number
-  lcp: number
-  tbt: number
-  performance: number
   benchmarkIndex: number
   cpuSlowdownMultiplier?: number
 }

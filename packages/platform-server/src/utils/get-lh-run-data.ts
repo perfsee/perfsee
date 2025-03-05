@@ -58,7 +58,9 @@ export function getLighthouseRunData(
       headers: env.headers,
       cookies: env.cookies,
       e2eScript: page.e2eScript,
-      runs: process.env.NODE_ENV === 'development' ? 1 : distributed ? distributed.runs : 5,
+      runs:
+        profile.lighthouseFlags?.distribute?.runs ||
+        (process.env.NODE_ENV === 'development' ? 1 : distributed ? distributed.runs : 5),
       localStorage: env.localStorage ?? [],
       sessionStorage: env.sessionStorage ?? [],
       reactProfiling: profile.reactProfiling ?? false,

@@ -33,12 +33,9 @@ import {
   ReactDevtoolProfilingDataExport,
   RequestSchema,
   computeMedianRun,
-  getLCPScore,
-  getTBTScore,
   getTTI,
   MetricsRecord,
   getMeanValue,
-  getPerformance,
   LHTosUserFlowSchema,
   TimelineSchema,
   SessionStorageType,
@@ -596,7 +593,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
   }
 
   protected async runLighthouse() {
-    const { url, enableProxy } = this.payload
+    const { url, enableProxy, lighthouseFlags } = this.payload
     let runs = this.payload.runs
 
     let result: LH.PerfseeRunnerResult | undefined
@@ -622,11 +619,9 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
           if (runs > 1) {
             const metrics = {
               index: i,
-              lcp: getLCPScore(lhResult.lhr),
-              tbt: getTBTScore(lhResult.lhr),
               benchmarkIndex: lhResult.lhr.environment.benchmarkIndex,
               cpuSlowdownMultiplier: lighthouseFlags.throttling?.cpuSlowdownMultiplier,
-              performance: getPerformance(lhResult.lhr),
+              ...mapValues(this.getMetrics(lhResult.lhr), (v) => Number(v) || 0),
             }
             this.logger.info('Avaliable result: ', metrics)
             metricsList.push(metrics)
@@ -688,7 +683,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       const index =
         metricsList.length < 3
           ? metricsList[metricsList.length - 1].index
-          : computeMedianRun(metricsList, 'performance', 'lcp')
+          : computeMedianRun(
+              metricsList,
+              (lighthouseFlags?.primaryMetric || LighthouseScoreMetric.Performance) as MetricKeyType,
+              (lighthouseFlags?.secondaryMetric || MetricType.LCP) as MetricKeyType,
+            )
       const inputFile = join(tmpDir, `${index}-artifacts.json`)
       try {
         result = JSON.parse(await readFile(inputFile, { encoding: 'utf-8' })) as LH.PerfseeRunnerResult
