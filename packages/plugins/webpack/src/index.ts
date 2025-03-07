@@ -172,9 +172,18 @@ export class PerfseePlugin implements WebpackPluginInstance {
     await generateReports(this.stats, this.outputPath, this.options)
   }
 
-  private parseModuleSource(compilation: Compilation, module: Module, reasonsMap: Map<ID, Reason[]>) {
+  private parseModuleSource(
+    compilation: Compilation,
+    module: Module,
+    reasonsMap: Map<ID, Reason[]>,
+    visited = new Set<ID>(),
+  ) {
+    if (visited.has(module.id)) {
+      return
+    }
+    visited.add(module.id)
     // @ts-expect-error
-    module.modules?.forEach((module) => this.parseModuleSource(compilation, module, reasonsMap))
+    module.modules?.forEach((module) => this.parseModuleSource(compilation, module, reasonsMap, visited))
     // @ts-expect-error
     const source: string | Buffer = module.originalSource?.()?.source() ?? module._source?.source()
     if (!source) {
