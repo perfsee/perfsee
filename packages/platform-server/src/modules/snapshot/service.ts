@@ -1008,7 +1008,7 @@ export class SnapshotService implements OnApplicationBootstrap {
   }
 
   private async handlePreventVariability(report: LabJobResult['snapshotReport'], jobId?: number) {
-    const { id, performanceScore, status } = report
+    const { id, status, metrics } = report
     if (status !== SnapshotStatus.Completed) {
       if (await this.redis.get(`report-flagged-count-${id}`)) {
         const left = Number((await this.redis.get(`report-distribute-total-${id}`)) || 0)
@@ -1020,12 +1020,21 @@ export class SnapshotService implements OnApplicationBootstrap {
     if (!reportEntity) {
       return report
     }
+    let primaryMetric: MetricKeyType = LighthouseScoreMetric.Performance
+    let secondaryMetric: MetricKeyType = MetricType.LCP
+    const profile = await Profile.findOneBy({ id: reportEntity.profileId })
+    if (profile?.lighthouseFlags) {
+      profile.lighthouseFlags.primaryMetric && (primaryMetric = profile.lighthouseFlags.primaryMetric as MetricKeyType)
+      profile.lighthouseFlags.secondaryMetric &&
+        (secondaryMetric = profile.lighthouseFlags.secondaryMetric as MetricKeyType)
+    }
+
     const recentReports = await this.findRecentReports(reportEntity)
     if (!recentReports.length) {
       this.logger.log(`Report ${id} has no recent reports.`)
       return report
     }
-    const average = recentReports.reduce((sum, b) => sum + (b.performanceScore || 0), 0) / recentReports.length
+    const average = recentReports.reduce((sum, b) => sum + (b.metrics?.[primaryMetric] || 0), 0) / recentReports.length
     const flaggedCount = await this.redis.incr(`report-flagged-count-${id}`)
     const earliestJob = await Job.findOne({
       where: { entityId: reportEntity.id, projectId: reportEntity.projectId, startedAt: Not(IsNull()) },
@@ -1035,7 +1044,8 @@ export class SnapshotService implements OnApplicationBootstrap {
       flaggedCount >= 3 ||
       (earliestJob?.startedAt &&
         Date.now() - new Date(earliestJob.startedAt).valueOf() >= 1000 * 60 * 60) /* 1 HOUR */ ||
-      Math.abs((performanceScore || 0) - average) <= (this.config.job.lab.variabilityThreshold || Infinity)
+      Math.abs((metrics?.[primaryMetric] || 0) - average) <=
+        (profile?.lighthouseFlags?.variabilityThreshold || this.config.job.lab.variabilityThreshold || Infinity)
     ) {
       this.logger.log(
         `Report flagged more than 3 times or has reached time limit. Collecting the most reliable result.`,
@@ -1062,15 +1072,6 @@ export class SnapshotService implements OnApplicationBootstrap {
         return report
       }
 
-      let primaryMetric: MetricKeyType = LighthouseScoreMetric.Performance
-      let secondaryMetric: MetricKeyType = MetricType.LCP
-      const profile = await Profile.findOneBy({ id: reportEntity.profileId })
-      if (profile?.lighthouseFlags) {
-        profile.lighthouseFlags.primaryMetric &&
-          (primaryMetric = profile.lighthouseFlags.primaryMetric as MetricKeyType)
-        profile.lighthouseFlags.secondaryMetric &&
-          (secondaryMetric = profile.lighthouseFlags.secondaryMetric as MetricKeyType)
-      }
       const medianIndex = computeMedianRun(
         reportList.map((r, i) => ({
           index: i,
@@ -1102,7 +1103,7 @@ export class SnapshotService implements OnApplicationBootstrap {
     }
 
     this.logger.log(
-      `Re-dispatching report ${id} time ${flaggedCount}. Current score ${performanceScore} (average ${average})`,
+      `Re-dispatching report ${id} time ${flaggedCount}. Current value ${metrics?.[primaryMetric]} (average ${average})`,
     )
 
     await this.dispatchReport(reportEntity, SnapshotStatus.PartialCompleted)

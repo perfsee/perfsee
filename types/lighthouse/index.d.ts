@@ -60,6 +60,8 @@ declare module LH {
       runs?: number
       count?: number
     }
+    variabilityThreshold?: number
+    shouldHaveLcp?: boolean
   }
 
   export interface ScreencastGathererResult {

@@ -138,6 +138,10 @@ export abstract class LabWithFlowJobWorker extends LighthouseJobWorker {
     }
   }
 
+  protected shouldHaveFcp(): boolean {
+    return false
+  }
+
   protected shouldHaveLcp(): boolean {
     return false
   }
