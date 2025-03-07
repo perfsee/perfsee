@@ -110,8 +110,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
     return getLighthouseMetricScores(lhr.gatherMode, lhr.audits, artifacts, timings)
   }
 
-  protected shouldHaveLcp() {
+  protected shouldHaveFcp() {
     return true
+  }
+
+  protected shouldHaveLcp() {
+    return this.payload.lighthouseFlags?.shouldHaveLcp || false
   }
 
   protected async collectResults(lhResult: LH.PerfseeRunnerResult, flowResults?: LHTosUserFlowSchema[]) {
@@ -154,8 +158,12 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         })
       | null
 
-    if (this.shouldHaveLcp() && !Number.isFinite(getScore(lhr, 'first-contentful-paint'))) {
+    if (this.shouldHaveFcp() && !Number.isFinite(getScore(lhr, 'first-contentful-paint'))) {
       failedReason = 'No valid FCP result emitted.'
+    }
+
+    if (this.shouldHaveLcp() && !Number.isFinite(getScore(lhr, 'largest-contentful-paint'))) {
+      failedReason = 'No valid LCP result emitted.'
     }
 
     if (this.hasRedirection(lhr)) {
