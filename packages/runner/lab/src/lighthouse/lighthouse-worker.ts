@@ -19,7 +19,7 @@ import { join, dirname, basename } from 'path'
 
 import { PuppeteerAgent } from '@midscene/web/puppeteer'
 import { groupBy, mapValues, omit } from 'lodash'
-import { Target, Page } from 'puppeteer-core'
+import { HTTPResponse, Target, Page } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
 import { JobWorker, clearProxyCache, dynamicImport, startProxyServer } from '@perfsee/job-runner-shared'
@@ -406,6 +406,14 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
     if (loginScript) {
       const onRequest = onRequestFactory(url, headers)
+      const onResponse = (res: HTTPResponse) => {
+        if (res.status() < 200 || res.status() >= 300) {
+          this.logger.warn(`Request ${res.url()} failed with status code ${res.status()}`, {
+            headers: res.headers(),
+          })
+        }
+      }
+
       const browser = await createBrowser()
       const page = await browser.newPage()
       await page.setRequestInterception(true)
@@ -425,6 +433,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         sessionStorageContent,
       )
       page.on('request', onRequest)
+      page.on('response', onResponse)
       const wrapperOptions = {
         browser,
         page,
