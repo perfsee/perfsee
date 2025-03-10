@@ -572,7 +572,7 @@ export class SnapshotService implements OnApplicationBootstrap {
           const medianIndex = computeMedianRun(
             reportList.map((r, i) => ({
               index: i,
-              ...mapValues(r.metrics, (v) => Number(v) || 0),
+              ...mapValues(r.metrics, (v) => Number(v) || Infinity),
             })),
             primaryMetric,
             secondaryMetric,
@@ -1029,7 +1029,9 @@ export class SnapshotService implements OnApplicationBootstrap {
         (secondaryMetric = profile.lighthouseFlags.secondaryMetric as MetricKeyType)
     }
 
-    const recentReports = await this.findRecentReports(reportEntity)
+    const recentReports = (await this.findRecentReports(reportEntity)).filter(
+      (b) => typeof b.metrics?.[primaryMetric] === 'number',
+    )
     if (!recentReports.length) {
       this.logger.log(`Report ${id} has no recent reports.`)
       return report
@@ -1075,7 +1077,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       const medianIndex = computeMedianRun(
         reportList.map((r, i) => ({
           index: i,
-          ...mapValues(r.metrics, (v) => Number(v) || 0),
+          ...mapValues(r.metrics, (v) => Number(v) || Infinity),
         })),
         primaryMetric,
         secondaryMetric,

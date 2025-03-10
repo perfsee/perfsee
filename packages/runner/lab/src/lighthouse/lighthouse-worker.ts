@@ -638,7 +638,7 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
               index: i,
               benchmarkIndex: lhResult.lhr.environment.benchmarkIndex,
               cpuSlowdownMultiplier: lighthouseFlags.throttling?.cpuSlowdownMultiplier,
-              ...mapValues(this.getMetrics(lhResult.lhr), (v) => Number(v) || 0),
+              ...mapValues(this.getMetrics(lhResult.lhr), (v) => Number(v) || Infinity),
             }
             this.logger.info('Avaliable result: ', metrics)
             metricsList.push(metrics)
