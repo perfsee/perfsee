@@ -161,9 +161,12 @@ export const Log = styled(({ log, className }: { log: LogType; className?: strin
           {!!log.payload && <LogPayload payload={log.payload} id={log.id} />}
           <ChildrenLogs>
             {log.children.map((log, j) => (
-              <Line key={`${log.level}-${j}`} level={log.level}>
-                {log.message} <Time>+{log.elapsed}ms</Time>
-              </Line>
+              <>
+                <Line key={`${log.level}-${j}`} level={log.level}>
+                  {log.message} <Time>+{log.elapsed}ms</Time>
+                </Line>
+                {!!log.payload && <LogPayload payload={log.payload} id={log.id} />}
+              </>
             ))}
           </ChildrenLogs>
         </div>
