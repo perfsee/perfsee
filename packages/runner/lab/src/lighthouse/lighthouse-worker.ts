@@ -166,6 +166,22 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
       failedReason = 'No valid LCP result emitted.'
     }
 
+    if (lhr.gatherMode === 'navigation') {
+      if (
+        this.payload.lighthouseFlags?.primaryMetric &&
+        !Number.isFinite(metrics[this.payload.lighthouseFlags.primaryMetric])
+      ) {
+        failedReason = `No ${this.payload.lighthouseFlags.primaryMetric} result emitted.`
+      }
+
+      if (
+        this.payload.lighthouseFlags?.secondaryMetric &&
+        !Number.isFinite(metrics[this.payload.lighthouseFlags.secondaryMetric])
+      ) {
+        failedReason = `No ${this.payload.lighthouseFlags.secondaryMetric} result emitted.`
+      }
+    }
+
     if (this.hasRedirection(lhr)) {
       failedReason =
         'The page has been redirected (may due to login failure), please check the report detail. If you want to ignore redirection, please set lighthouse running flags `{"ignoreRedirection": true}` in the profile.'
