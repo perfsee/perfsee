@@ -7751,6 +7751,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@monaco-editor/loader@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@monaco-editor/loader@npm:1.5.0"
+  dependencies:
+    state-local: ^1.0.6
+  checksum: 45e5f56ea9b1e5c16e3d40b05f8c365af830627d2aa8215c86cfac57384419c1b896927408c1261a12dc182a08419d4f20a0d0949d3e76ca42ccc68f4ffec508
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/react@npm:^4.7.0":
+  version: 4.7.0
+  resolution: "@monaco-editor/react@npm:4.7.0"
+  dependencies:
+    "@monaco-editor/loader": ^1.5.0
+  peerDependencies:
+    monaco-editor: ">= 0.25.0 < 1"
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 8b3bd8adfcd6af70dc5f965e986932269e1e2c2a0f6beb5a3c632c8c7942c1341f6086d9664f9a949983bdf4a04a706e529a93bfec3b5884642915dfcc0354c3
+  languageName: node
+  linkType: hard
+
 "@napi-rs/cli@npm:^2.11.4":
   version: 2.11.4
   resolution: "@napi-rs/cli@npm:2.11.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40napi-rs%2Fcli%2F-%2Fcli-2.11.4.tgz"
@@ -9092,6 +9114,7 @@ __metadata:
     "@fluentui/theme": ^2.6.22
     "@fluentui/utilities": ^8.13.6
     "@mdx-js/react": ^2.1.2
+    "@monaco-editor/react": ^4.7.0
     "@perfsee/bundle-report": "workspace:*"
     "@perfsee/dls": "workspace:*"
     "@perfsee/flamechart": "workspace:*"
@@ -34916,6 +34939,13 @@ __metadata:
   version: 2.1.0
   resolution: "standard-as-callback@npm:2.1.0"
   checksum: 88bec83ee220687c72d94fd86a98d5272c91d37ec64b66d830dbc0d79b62bfa6e47f53b71646011835fc9ce7fae62739545d13124262b53be4fbb3e2ebad551c
+  languageName: node
+  linkType: hard
+
+"state-local@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "state-local@npm:1.0.7"
+  checksum: d1afcf1429e7e6eb08685b3a94be8797db847369316d4776fd51f3962b15b984dacc7f8e401ad20968e5798c9565b4b377afedf4e4c4d60fe7495e1cbe14a251
   languageName: node
   linkType: hard
 

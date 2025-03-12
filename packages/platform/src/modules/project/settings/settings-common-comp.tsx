@@ -82,6 +82,9 @@ export const SettingDialogs = memo((props: Props) => {
         } ${type}`}
       </Stack>
     ),
+    styles: {
+      content: { overflowX: 'hidden' },
+    },
   }
 
   return (
