@@ -15,11 +15,13 @@ limitations under the License.
 */
 
 import { Stack, Checkbox, Link } from '@fluentui/react'
-import { FormEvent, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 
-import { ForeignLink, IconWithTips, LabelWithTips, RequiredTextField } from '@perfsee/components'
+import { ForeignLink, IconWithTips, LabelWithTips } from '@perfsee/components'
 import { useSettings } from '@perfsee/platform/modules/shared'
 import { staticPath } from '@perfsee/shared/routes'
+
+import { ScriptEditor } from '../script-editor'
 
 export interface LoginScriptProps {
   defaultScript?: string | null
@@ -83,7 +85,7 @@ export const LoginScriptForm = forwardRef(({ defaultScript }: LoginScriptProps, 
     setToggle(!!checked)
   }, [])
 
-  const onTextChange = useCallback((e?: FormEvent<HTMLElement | HTMLInputElement>, value?: string) => {
+  const onTextChange = useCallback((value?: string, e?: any) => {
     if (!e || value === undefined) {
       return
     }
@@ -122,10 +124,8 @@ export const LoginScriptForm = forwardRef(({ defaultScript }: LoginScriptProps, 
               record with devtools
             </ForeignLink>
           </Stack>
-          <RequiredTextField
-            multiline
+          <ScriptEditor
             onChange={onTextChange}
-            maxLength={65535}
             value={script ?? ''}
             placeholder={
               settings.enableMidscene
@@ -138,7 +138,8 @@ await ai('Click "Login"')
 ` + placeholder
                 : placeholder
             }
-            rows={15}
+            supportMidscene={settings.enableMidscene}
+            required
           />
         </Stack>
       )}

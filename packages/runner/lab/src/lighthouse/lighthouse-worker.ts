@@ -668,11 +668,11 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
 
       if (enableProxy && runs >= 3 && i === runs - 1) {
         // after last run, we drop results that has a obvious variability
-        const stableRuns = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 70)
+        const stableRuns = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 100)
         if (stableRuns.length) {
           metricsList = stableRuns
         } else {
-          metricsList = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 100)
+          metricsList = metricsList.filter((metric) => Math.abs(metric.benchmarkIndex - this.benchmarkIndex) <= 150)
         }
 
         // and run more test to get enough stable results

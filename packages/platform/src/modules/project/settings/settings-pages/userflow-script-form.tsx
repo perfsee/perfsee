@@ -15,11 +15,13 @@ limitations under the License.
 */
 
 import { Stack, Checkbox, Link } from '@fluentui/react'
-import { FC, FormEvent, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
+import { FC, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 
-import { ForeignLink, IconWithTips, LabelWithTips, LazyMDX, RequiredTextField } from '@perfsee/components'
+import { ForeignLink, IconWithTips, LabelWithTips, LazyMDX } from '@perfsee/components'
 import { useSettings } from '@perfsee/platform/modules/shared'
 import { staticPath } from '@perfsee/shared/routes'
+
+import { ScriptEditor } from '../script-editor'
 
 export interface UserflowScriptProps {
   defaultScript?: string | null
@@ -37,12 +39,6 @@ const puppeteer = require('puppeteer');
 (async () => {
     const browser = await puppeteer.launch();
     const targetPage = await browser.newPage();
-    {
-        const promises = [];
-        promises.push(targetPage.waitForNavigation());
-        await targetPage.goto('https://test.com/');
-        await Promise.all(promises);
-    }
     {
         await targetPage.locator('#test_button').click();
     }
@@ -93,7 +89,7 @@ export const UserflowScriptForm: FC<UserflowScriptProps> = forwardRef(({ default
     setToggle(!!checked)
   }, [])
 
-  const onTextChange = useCallback((e?: FormEvent<HTMLElement | HTMLInputElement>, value?: string) => {
+  const onTextChange = useCallback((value?: string, e?: any) => {
     if (!e || value === undefined) {
       return
     }
@@ -143,11 +139,9 @@ export const UserflowScriptForm: FC<UserflowScriptProps> = forwardRef(({ default
               record with devtools
             </ForeignLink>
           </Stack>
-          <RequiredTextField
-            multiline
-            onChange={onTextChange}
-            maxLength={65535}
+          <ScriptEditor
             value={script ?? ''}
+            onChange={onTextChange}
             placeholder={
               settings.enableMidscene
                 ? `// MidScene AI supported!!!
@@ -159,7 +153,8 @@ await ai('Click "Search"')
 ` + placeholder
                 : placeholder
             }
-            rows={20}
+            supportMidscene={settings.enableMidscene}
+            required
           />
         </Stack>
       )}

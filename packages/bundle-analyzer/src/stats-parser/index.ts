@@ -451,6 +451,7 @@ export class StatsParser {
             moduleId: issuer!.moduleId,
           }))
           .uniqWith((a, b) => a.loc === b.loc && a.moduleId === b.moduleId && a.type === b.type)
+          .slice(0, 10000)
           .groupBy('moduleId')
           .mapValues((issuers) => {
             issuers = issuers.filter((i) => i.type !== 'cjs self exports reference')

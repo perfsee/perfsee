@@ -22,6 +22,7 @@
     "@fluentui/theme": "^2.6.22",
     "@fluentui/utilities": "^8.13.6",
     "@mdx-js/react": "^2.1.2",
+    "@monaco-editor/react": "^4.7.0",
     "@perfsee/bundle-report": "workspace:*",
     "@perfsee/dls": "workspace:*",
     "@perfsee/flamechart": "workspace:*",
