@@ -10,6 +10,11 @@ query bundleHistory($projectId: ID!, $from: DateTime, $to: DateTime, $length: In
         gzip
         brotli
       }
+      initialSize {
+        raw
+        gzip
+        brotli
+      }
       baselineSize {
         raw
         gzip

@@ -17,15 +17,14 @@ limitations under the License.
 import { SelectOutlined } from '@ant-design/icons'
 import { IconButton, IIconProps, SelectionMode, Stack, TooltipHost } from '@fluentui/react'
 import { useModule } from '@sigi/react'
-import { groupBy } from 'lodash'
+import { get, groupBy } from 'lodash'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import { ForeignLink, Table, TableColumnProps } from '@perfsee/components'
+import { ForeignLink, getScoreColor, Table, TableColumnProps } from '@perfsee/components'
 import { PrettyBytes } from '@perfsee/platform/common'
 import { useProject } from '@perfsee/platform/modules/shared'
-import { Size } from '@perfsee/shared'
 import { pathFactory, staticPath } from '@perfsee/shared/routes'
 
 import { ArtifactNameSelector, BranchSelector } from '../../components'
@@ -54,8 +53,11 @@ const BARCHART_LENGTH = 15
 const ArtifactSizeHistoryBarChart = memo<{
   history: BundleEntrypoint[]
   title: string
-  propertyName: keyof Size
-}>(({ history, title, propertyName }) => {
+  propertyName: string
+  valueFormatter?: (value: number) => string
+  getColor?: (value: number) => string
+  maxValue?: number
+}>(({ history, title, propertyName, valueFormatter, getColor, maxValue }) => {
   const generateProjectRoute = useProjectRouteGenerator()
 
   const onRenderArtifactId = useCallback(
@@ -74,7 +76,7 @@ const ArtifactSizeHistoryBarChart = memo<{
         .slice(-15)
         .filter((a) => !!a.artifactId)
         .map((artifact) => {
-          const value = artifact.size?.[propertyName]
+          const value = get(artifact, propertyName)
           return {
             type: value ? 'success' : 'missing',
             value,
@@ -84,7 +86,9 @@ const ArtifactSizeHistoryBarChart = memo<{
         })}
       minLength={BARCHART_LENGTH}
       onRenderId={onRenderArtifactId}
-      valueFormatter={formatSize}
+      valueFormatter={valueFormatter || formatSize}
+      getColor={getColor}
+      maxValue={maxValue}
     />
   )
 })
@@ -99,30 +103,39 @@ const artifactColumns: TableColumnProps<BundleAggregation>[] = [
     },
   },
   {
-    key: 'raw',
-    name: 'Bundle Size',
+    key: 'score',
+    name: 'Score',
     minWidth: 250,
     maxWidth: 250,
     onRender: ({ data }) => {
-      return <ArtifactSizeHistoryBarChart title="Bundle Size" history={data} propertyName="raw" />
+      return (
+        <ArtifactSizeHistoryBarChart
+          title="Score"
+          history={data}
+          propertyName="score"
+          getColor={getScoreColor}
+          // eslint-disable-next-line
+          valueFormatter={(s) => s.toString()}
+        />
+      )
     },
   },
   {
-    key: 'gzip',
-    name: 'gzip',
+    key: 'total',
+    name: 'Total Size',
     minWidth: 250,
     maxWidth: 250,
     onRender: ({ data }) => {
-      return <ArtifactSizeHistoryBarChart title="Gzip Size" history={data} propertyName="gzip" />
+      return <ArtifactSizeHistoryBarChart title="Total Size" history={data} propertyName="size.raw" />
     },
   },
   {
-    key: 'brotli',
-    name: 'brotli',
+    key: 'initial',
+    name: 'Initial Size',
     minWidth: 250,
     maxWidth: 250,
     onRender: ({ data }) => {
-      return <ArtifactSizeHistoryBarChart title="Brotli Size" history={data} propertyName="brotli" />
+      return <ArtifactSizeHistoryBarChart title="Initial Size" history={data} propertyName="initialSize.raw" />
     },
   },
   {
