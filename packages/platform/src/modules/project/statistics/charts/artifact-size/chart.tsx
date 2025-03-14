@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { LinkOutlined } from '@ant-design/icons'
-import { Stack, Toggle } from '@fluentui/react'
+import { Stack } from '@fluentui/react'
 import { useModule } from '@sigi/react'
 import dayjs from 'dayjs'
 import { compact, floor } from 'lodash'
@@ -35,6 +35,7 @@ import { useProject, useProjectRouteGenerator } from '@perfsee/platform/modules/
 import { PrettyBytes, Size } from '@perfsee/shared'
 import { pathFactory } from '@perfsee/shared/routes'
 
+import { MeasureSelector } from '../components'
 import { CustomTooltip, ColorDot } from '../style'
 
 import { EntrypointsChartModule } from './module'
@@ -44,10 +45,25 @@ type DataType = {
   hash: string
   artifactName: string
   entryPoint: string
+  score: number
 } & Size
 
-const yAxisLabel = {
-  formatter: (item: string | number) => `${item} KB`,
+const Metrics = {
+  ['Total Size']: {
+    title: 'Total Size',
+    des: 'Total size of the entrypoint',
+    formatter: 'duration',
+  },
+  ['Initial Size']: {
+    title: 'Initial Size',
+    des: 'Initial size of the entrypoint',
+    formatter: 'duration',
+  },
+  ['Score']: {
+    title: 'Score',
+    des: 'Score of the entrypoint',
+    formatter: 'duration',
+  },
 }
 
 const xAxisLabel = {
@@ -57,7 +73,6 @@ const xAxisLabel = {
 export const ArtifactSizeChart = () => {
   const project = useProject()
   const generateProjectRoute = useProjectRouteGenerator()
-  const [useInitialSize, setUseInitialSize] = useState(false)
   const [
     {
       startTime = dayjs().subtract(1, 'months').startOf('day').unix(),
@@ -73,6 +88,10 @@ export const ArtifactSizeChart = () => {
   const endDate = useMemo(() => dayjs.unix(endTime).toDate(), [endTime])
 
   const [{ entrypoints }, { getAggregatedEntrypoints }] = useModule(EntrypointsChartModule)
+  const [measure, setMeasure] = useState<string>('Total Size')
+
+  const useInitialSize = measure === 'Initial Size'
+  const useScore = measure === 'Score'
 
   const handleStartDateSelect = useCallback(
     (date?: Date | null) => {
@@ -113,10 +132,6 @@ export const ArtifactSizeChart = () => {
     [updateQueryString],
   )
 
-  const onToggleInitialSize = useCallback((_ev: any, checked?: boolean) => {
-    setUseInitialSize(!!checked)
-  }, [])
-
   useEffect(() => {
     getAggregatedEntrypoints({
       from: dayjs.unix(startTime).toISOString(),
@@ -127,6 +142,16 @@ export const ArtifactSizeChart = () => {
     })
   }, [startTime, endTime, branch, name, entrypoint, getAggregatedEntrypoints])
 
+  const yAxisLabel = useMemo(() => {
+    return useScore
+      ? {
+          formatter: (item: string | number) => `${item}`,
+        }
+      : {
+          formatter: (item: string | number) => `${item} KB`,
+        }
+  }, [useScore])
+
   const { flatData, largest, smallest } = useMemo(() => {
     const data: DataType[] = []
     let largest = 0
@@ -136,7 +161,7 @@ export const ArtifactSizeChart = () => {
       largest = 1000
       smallest = 0
     } else {
-      entrypoints.forEach(({ artifactName, entrypoint, artifactId, hash, size, initialSize }) => {
+      entrypoints.forEach(({ artifactName, entrypoint, artifactId, hash, size, initialSize, score }) => {
         const record = {
           id: artifactId,
           hash,
@@ -145,6 +170,7 @@ export const ArtifactSizeChart = () => {
           raw: useInitialSize ? initialSize.raw / 1000 : size.raw / 1000,
           gzip: useInitialSize ? initialSize.gzip / 1000 : size.gzip / 1000,
           brotli: useInitialSize ? initialSize.brotli / 1000 : size.brotli / 1000,
+          score,
         } as DataType
         largest = Math.max(largest, record.raw)
         smallest = Math.min(smallest, record.raw)
@@ -157,8 +183,8 @@ export const ArtifactSizeChart = () => {
   }, [entrypoints, useInitialSize])
 
   const { data, groupData } = useMemo(() => {
-    return formatChartData<DataType, DataType>(flatData, 'entryPoint', 'id', 'raw')
-  }, [flatData])
+    return formatChartData<DataType, DataType>(flatData, 'entryPoint', 'id', useScore ? 'score' : 'raw')
+  }, [flatData, useScore])
 
   const range = useMemo(() => {
     const gap = (largest - smallest) / 2
@@ -221,19 +247,21 @@ export const ArtifactSizeChart = () => {
                 <th />
                 <th>artifact name</th>
                 <th>entrypoint</th>
+                <th>score</th>
                 <th>raw{useInitialSize ? '(initial)' : ''}</th>
                 <th>gzip{useInitialSize ? '(initial)' : ''}</th>
                 <th>brotli{useInitialSize ? '(initial)' : ''}</th>
               </tr>
             </thead>
             <tbody>
-              {items.map(({ color, artifactName, entryPoint, raw, gzip, brotli }, i) => (
+              {items.map(({ color, artifactName, entryPoint, raw, gzip, brotli, score }, i) => (
                 <tr key={i}>
                   <td>
                     <ColorDot color={color} />
                   </td>
                   <td>{artifactName}</td>
                   <td>{entryPoint}</td>
+                  <td>{score}</td>
                   <td>{PrettyBytes.create(raw * 1000).toString()}</td>
                   <td>{PrettyBytes.create(gzip * 1000).toString()}</td>
                   <td>{PrettyBytes.create(brotli * 1000).toString()}</td>
@@ -256,16 +284,16 @@ export const ArtifactSizeChart = () => {
       },
       yAxis: {
         axisLabel: yAxisLabel,
-        minInterval: 100,
-        min: floor(Math.max(0, smallest - range)),
-        max: floor(largest + range + 1),
+        minInterval: useScore ? 1 : 100,
+        min: useScore ? 0 : floor(Math.max(0, smallest - range)),
+        max: useScore ? 100 : floor(largest + range + 1),
       },
       xAxis: {
         axisLabel: xAxisLabel,
       },
       series: chartSeries,
     }),
-    [chartSeries, largest, range, smallest, tooltipFormatter],
+    [chartSeries, largest, range, smallest, tooltipFormatter, yAxisLabel, useScore],
   )
 
   if (!project) {
@@ -274,9 +302,10 @@ export const ArtifactSizeChart = () => {
 
   return (
     <Chart option={option} showLoading={!entrypoints} notMerge={true} hideBorder>
-      <ChartHeader title="Entrypoint Size History">
+      <ChartHeader title={`Entrypoint ${measure} History`}>
         <Space wrap>
           <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 12 }}>
+            <MeasureSelector isFirst={true} metrics={Metrics} measure={measure} onChange={setMeasure} />
             <ArtifactNameSelector defaultArtifactName={name} onChange={handleArtifactNameSelect} />
             <BranchSelector defaultBranch={branch} onChange={handleBranchSelect} />
             <EntrypointSelector
@@ -284,17 +313,6 @@ export const ArtifactSizeChart = () => {
               artifactName={name}
               branch={branch}
               onChange={handleEntrypointsSelect}
-            />
-            <Toggle
-              onText="Initial Size"
-              offText="Total Size"
-              styles={{
-                root: { alignSelf: 'stretch', marginBottom: 0, display: 'flex' },
-                container: { alignItems: 'center' },
-              }}
-              inlineLabel
-              label="Total / Initial"
-              onChange={onToggleInitialSize}
             />
           </Stack>
           <DateRangeSelector

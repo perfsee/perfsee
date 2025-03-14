@@ -33,7 +33,6 @@ export const SelectorTitle = styled.h3<{ isFirst?: boolean }>(({ isFirst }) => (
   alignItems: 'center',
   padding: `0 10px 0 ${isFirst ? 0 : '10px'}`,
   cursor: 'pointer',
-  wordSpacing: '-5px',
   span: {
     display: 'inline-flex',
     maxWidth: '400px',
