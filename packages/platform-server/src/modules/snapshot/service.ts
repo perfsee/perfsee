@@ -554,6 +554,18 @@ export class SnapshotService implements OnApplicationBootstrap {
           }
           if (!reportList.length || reportList.length <= 1) {
             snapshotReport.status = SnapshotStatus.Completed
+            try {
+              if (job) {
+                job.extra ||= {}
+                job.extra.picked = 'true'
+                await job.save()
+              }
+            } catch (e) {
+              this.logger.error(`Failed to set picked to jobId ${job?.id}`, {
+                error: e,
+                phase: 'handle distributed report',
+              })
+            }
             return snapshotReport
           }
 
@@ -1028,12 +1040,24 @@ export class SnapshotService implements OnApplicationBootstrap {
       profile.lighthouseFlags.secondaryMetric &&
         (secondaryMetric = profile.lighthouseFlags.secondaryMetric as MetricKeyType)
     }
-
+    const job = jobId ? await Job.findOneBy({ id: jobId }) : null
     const recentReports = (await this.findRecentReports(reportEntity)).filter(
       (b) => typeof b.metrics?.[primaryMetric] === 'number',
     )
     if (!recentReports.length) {
       this.logger.log(`Report ${id} has no recent reports.`)
+      try {
+        if (job) {
+          job.extra ||= {}
+          job.extra.finalPicked = 'true'
+          await job.save()
+        }
+      } catch (e) {
+        this.logger.error(`Failed to set picked to jobId ${job?.id}`, {
+          error: e,
+          phase: 'handle distributed report',
+        })
+      }
       return report
     }
     const average = recentReports.reduce((sum, b) => sum + (b.metrics?.[primaryMetric] || 0), 0) / recentReports.length
@@ -1052,7 +1076,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       this.logger.log(
         `Report flagged more than 3 times or has reached time limit. Collecting the most reliable result.`,
       )
-      const job = jobId ? await Job.findOneBy({ id: jobId }) : null
+
       const zone = job?.zone
       const distributedCount = this.config.job.lab.distributedConfig?.[zone!]?.count || 1
 
@@ -1071,6 +1095,18 @@ export class SnapshotService implements OnApplicationBootstrap {
         }
       }
       if (!reportList.length || reportList.length <= 1) {
+        try {
+          if (job) {
+            job.extra ||= {}
+            job.extra.finalPicked = 'true'
+            await job.save()
+          }
+        } catch (e) {
+          this.logger.error(`Failed to set picked to jobId ${job?.id}`, {
+            error: e,
+            phase: 'handle distributed report',
+          })
+        }
         return report
       }
 

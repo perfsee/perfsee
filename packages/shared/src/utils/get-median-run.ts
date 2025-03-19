@@ -58,6 +58,10 @@ export function computeMedianRun<T extends { index: number; [key: string]: numbe
   primaryKey: keyof T,
   secondaryKey: keyof T,
 ) {
+  if (!runs.length) {
+    return -1
+  }
+
   const runsWithPrimary = filterToValidRuns(runs, primaryKey)
 
   if (!runsWithPrimary.length) {
@@ -65,11 +69,21 @@ export function computeMedianRun<T extends { index: number; [key: string]: numbe
   }
 
   const runsWithSecondary = filterToValidRuns(runsWithPrimary, secondaryKey)
+  const medianPrimary = getMedianValue(runsWithPrimary.map((run) => run[primaryKey]))
+
   if (runsWithSecondary.length > 0 && runsWithSecondary.length < 3) {
     return runsWithSecondary[0].index
   }
 
-  const medianPrimary = getMedianValue(runsWithPrimary.map((run) => run[primaryKey]))
+  if (!runsWithSecondary.length) {
+    const sortedByProximityToPrimaryMedian = runsWithPrimary.sort((a, b) => {
+      const aPrimary = a[primaryKey]
+      const bPrimary = b[primaryKey]
+      return getMedianSortValue(aPrimary, medianPrimary) - getMedianSortValue(bPrimary, medianPrimary)
+    })
+    return sortedByProximityToPrimaryMedian[0].index
+  }
+
   const medianSecondary = getMedianValue(runsWithSecondary.map((run) => run[secondaryKey]))
 
   // Sort by proximity to the medians, breaking ties with the secondary.
