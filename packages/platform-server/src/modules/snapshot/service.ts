@@ -552,7 +552,7 @@ export class SnapshotService implements OnApplicationBootstrap {
             const tempReport = JSON.parse(storageString)
             reportList.push(tempReport)
           }
-          if (!reportList.length || reportList.length <= 1) {
+          if (!reportList.length) {
             snapshotReport.status = SnapshotStatus.Completed
             try {
               if (job) {
@@ -625,7 +625,7 @@ export class SnapshotService implements OnApplicationBootstrap {
       }
     } else if (
       (await this.redis.get(`report-distribute-complete-${redisKey}`)) ||
-      (await this.redis.get(`report-flagged-count-$${redisKey}`))
+      (await this.redis.get(`report-flagged-count-${redisKey}`))
     ) {
       snapshotReport.status = SnapshotStatus.PartialCompleted
       await this.redis.del(`report-running-${redisKey}`)
@@ -1022,11 +1022,19 @@ export class SnapshotService implements OnApplicationBootstrap {
   private async handlePreventVariability(report: LabJobResult['snapshotReport'], jobId?: number) {
     const { id, status, metrics } = report
     if (status !== SnapshotStatus.Completed) {
+      let shouldSkip = true
       if (await this.redis.get(`report-flagged-count-${id}`)) {
         const left = Number((await this.redis.get(`report-distribute-total-${id}`)) || 0)
-        report.status = left <= 0 ? SnapshotStatus.Completed : SnapshotStatus.PartialCompleted
+        if (left <= 0) {
+          report.status = SnapshotStatus.Completed
+          shouldSkip = false
+        } else {
+          report.status = SnapshotStatus.PartialCompleted
+        }
       }
-      return report
+      if (shouldSkip) {
+        return report
+      }
     }
     const reportEntity = await SnapshotReport.findOneBy({ id })
     if (!reportEntity) {
@@ -1070,8 +1078,9 @@ export class SnapshotService implements OnApplicationBootstrap {
       flaggedCount >= 3 ||
       (earliestJob?.startedAt &&
         Date.now() - new Date(earliestJob.startedAt).valueOf() >= 1000 * 60 * 60) /* 1 HOUR */ ||
-      Math.abs((metrics?.[primaryMetric] || 0) - average) <=
-        (profile?.lighthouseFlags?.variabilityThreshold || this.config.job.lab.variabilityThreshold || Infinity)
+      (metrics &&
+        Math.abs((metrics[primaryMetric] || 0) - average) <=
+          (profile?.lighthouseFlags?.variabilityThreshold || this.config.job.lab.variabilityThreshold || Infinity))
     ) {
       this.logger.log(
         `Report flagged more than 3 times or has reached time limit. Collecting the most reliable result.`,
@@ -1094,7 +1103,7 @@ export class SnapshotService implements OnApplicationBootstrap {
           }
         }
       }
-      if (!reportList.length || reportList.length <= 1) {
+      if (!reportList.length) {
         try {
           if (job) {
             job.extra ||= {}
