@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { BundleToolkit } from './stats'
+import { BundleToolkit, ID } from './stats'
 
 export interface Size {
   raw: number
@@ -39,6 +39,7 @@ export interface Asset {
   size: Size
   path?: string
   packageRefs: Array<{ ref: number; size: Size }>
+  moduleRefs: ID[]
 }
 
 export interface Chunk {
