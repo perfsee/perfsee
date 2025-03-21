@@ -1545,6 +1545,9 @@ type Query {
   NOTE: Limited by github endpoint, pagination.skip must be a multiple of pagination.first for this function. pagination.after is not supported.
   """
   githubSearchRepositories(installationId: Int!, query: String!, pagination: PaginationInput = {first: 10, skip: 0}): PaginatedGithubRepositories!
+
+  """get common modules between given artifacts"""
+  commonModules(projectId: ID!, artifactIds: [Int!]!): JSON
   pendingJobsAggregation: [JobAggregation!]!
   runner(id: ID!): Runner!
   runners(filter: RunnerQueryFilter!): PaginatedRunners!
