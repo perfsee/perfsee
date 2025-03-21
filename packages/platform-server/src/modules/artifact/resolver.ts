@@ -24,7 +24,9 @@ import {
   GraphQLISODateTime,
   ObjectType,
   ID,
+  Query,
 } from '@nestjs/graphql'
+import GraphQLJSON from 'graphql-type-json'
 
 import { Artifact, Project, ArtifactEntrypoint, AppVersion } from '@perfsee/platform-server/db'
 import { UserError } from '@perfsee/platform-server/error'
@@ -44,7 +46,7 @@ class PaginatedEntrypoints extends Paginated(ArtifactEntrypoint) {}
 
 @Resolver(() => Project)
 export class ProjectArtifactResolver {
-  constructor(private readonly service: ArtifactService) {}
+  constructor(private readonly service: ArtifactService, private readonly projectService: ProjectService) {}
 
   @ResolveField(() => Artifact, { name: 'artifact', description: 'get artifact by id' })
   artifact(@Parent() project: Project, @Args({ name: 'id', type: () => Int, description: 'artifact id' }) id: number) {
@@ -182,6 +184,22 @@ export class ProjectArtifactResolver {
     )
 
     return paginate(entrypoints, 'id', paginationOption, totalCount)
+  }
+
+  @PermissionGuard(Permission.Read, 'projectId')
+  @Query(() => GraphQLJSON, {
+    nullable: true,
+    description: 'get common modules between given artifacts',
+  })
+  async commonModules(
+    @Args({ name: 'projectId', type: () => ID }) projectId: string,
+    @Args({ name: 'artifactIds', type: () => [Int] }) artifactIds: number[],
+  ) {
+    if (artifactIds.length > 5) {
+      throw new UserError('Too many artifacts, max 5')
+    }
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+    return this.service.getCommonModules(projectRawId, artifactIds)
   }
 }
 

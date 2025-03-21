@@ -355,6 +355,7 @@ export class StatsParser {
           intermediate,
           sourcemap: existsSync(filepath + '.map'),
           packageRefs: [],
+          moduleRefs: [],
         }
 
         if (existsSync(filepath) && isStringContentType(type)) {
