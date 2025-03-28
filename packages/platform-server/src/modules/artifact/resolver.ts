@@ -201,6 +201,22 @@ export class ProjectArtifactResolver {
     const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
     return this.service.getCommonModules(projectRawId, artifactIds)
   }
+
+  @PermissionGuard(Permission.Read, 'projectId')
+  @Query(() => GraphQLJSON, {
+    nullable: true,
+    description: 'get common packages between given artifacts',
+  })
+  async commonPackages(
+    @Args({ name: 'projectId', type: () => ID }) projectId: string,
+    @Args({ name: 'artifactIds', type: () => [Int] }) artifactIds: number[],
+  ) {
+    if (artifactIds.length > 5) {
+      throw new UserError('Too many artifacts, max 5')
+    }
+    const projectRawId = await this.projectService.resolveRawProjectIdBySlug(projectId)
+    return this.service.getCommonPackages(projectRawId, artifactIds)
+  }
 }
 
 @Resolver(() => Artifact)

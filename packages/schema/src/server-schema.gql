@@ -1548,6 +1548,9 @@ type Query {
 
   """get common modules between given artifacts"""
   commonModules(projectId: ID!, artifactIds: [Int!]!): JSON
+
+  """get common packages between given artifacts"""
+  commonPackages(projectId: ID!, artifactIds: [Int!]!): JSON
   pendingJobsAggregation: [JobAggregation!]!
   runner(id: ID!): Runner!
   runners(filter: RunnerQueryFilter!): PaginatedRunners!

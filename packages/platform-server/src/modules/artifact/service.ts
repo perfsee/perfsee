@@ -26,7 +26,7 @@ import { Metric } from '@perfsee/platform-server/metrics'
 import { ObjectStorage } from '@perfsee/platform-server/storage'
 import { createDataLoader } from '@perfsee/platform-server/utils'
 import { BundleJobPayload, BundleJobUpdate, BundleJobStatus, JobType } from '@perfsee/server-common'
-import type { BundleResult, ModuleMap } from '@perfsee/shared'
+import type { BasePackage, BundleResult, ModuleMap } from '@perfsee/shared'
 
 import { ProjectUsageService } from '../project-usage/service'
 import { ScriptFileService } from '../script-file/service'
@@ -396,6 +396,75 @@ export class ArtifactService implements OnApplicationBootstrap {
     )
 
     return true
+  }
+
+  async getCommonPackages(projectId: number, artifactIids: number[]) {
+    const artifacts = await Artifact.createQueryBuilder()
+      .where('project_id = :projectId', { projectId })
+      .andWhere('iid in (:...artifactIds)', { artifactIds: artifactIids })
+      .getMany()
+    const commonPackageMap = new Map<
+      string,
+      Map<
+        string,
+        {
+          id: number
+          name: string
+          entrypoints: string[]
+        }
+      >
+    >()
+    for (const artifact of artifacts) {
+      if (!artifact.reportKey || !artifact.moduleMapKey) {
+        throw new NotFoundException(`artifact with id ${artifact.id} not found`)
+      }
+      const report: BundleResult = JSON.parse((await this.storage.get(artifact.reportKey)).toString())
+      const packagesMap: Record<number, BasePackage> = {}
+      report.packages.forEach((p) => {
+        packagesMap[p.ref] = p
+      })
+      const assets = report.assets
+      const assetRefEntryPointsMap = new Map<number, string[]>()
+      for (const entryPoint of report.entryPoints) {
+        for (const assetRef of entryPoint.assetRefs) {
+          const e = assetRefEntryPointsMap.get(assetRef)
+          if (e) {
+            e.push(entryPoint.name)
+          } else {
+            assetRefEntryPointsMap.set(assetRef, [entryPoint.name])
+          }
+        }
+      }
+
+      for (const asset of assets) {
+        const assetPackages = asset.packageRefs.map((ref) => packagesMap[ref.ref]).filter(Boolean)
+        const entrypoints = assetRefEntryPointsMap.get(asset.ref) || []
+        assetPackages.forEach((p) => {
+          const key = `${p.path}@${p.version}`
+          if (!commonPackageMap.has(key)) {
+            commonPackageMap.set(key, new Map())
+          }
+          commonPackageMap.get(key)!.set(asset.name, {
+            id: artifact.id,
+            name: artifact.name,
+            entrypoints,
+          })
+        })
+      }
+    }
+
+    Array.from(commonPackageMap.entries()).forEach(([modulePath, artifactMap]) => {
+      if (artifactMap.size === 1) {
+        commonPackageMap.delete(modulePath)
+      }
+    })
+
+    return Object.fromEntries(
+      Array.from(commonPackageMap.entries()).map(([modulePath, artifactMap]) => [
+        modulePath,
+        Object.fromEntries(artifactMap.entries()),
+      ]),
+    )
   }
 
   async getCommonModules(projectId: number, artifactIids: number[]) {
