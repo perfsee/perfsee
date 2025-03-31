@@ -1,6 +1,6 @@
 {
   "name": "@examples/split-chunks",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "Split chunks example",
   "main": "./src/index.tsx",
   "private": true,

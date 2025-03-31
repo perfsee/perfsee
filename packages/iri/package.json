@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/iri",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "Proxy server with http2/https support",
   "private": true,
   "keywords": [

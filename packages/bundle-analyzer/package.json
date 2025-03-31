@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/bundle-analyzer",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "Bundle analyzer by perfsee",
   "sideEffect": false,
   "main": "dist/index.js",
