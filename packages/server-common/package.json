@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/server-common",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "Common module for nodejs servers",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
