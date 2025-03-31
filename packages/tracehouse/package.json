@@ -1,6 +1,6 @@
 {
   "name": "@perfsee/tracehouse",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Chrome trace event parser",
   "repository": "https://github.com/perfsee/perfsee",
   "license": "Apache-2.0",
