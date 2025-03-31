@@ -28,6 +28,9 @@
     "tar": "^6.1.11",
     "tslib": "^2.4.0"
   },
+  "devDependencies": {
+    "isolated-vm": "^4.7.2"
+  },
   "peerDependencies": {
     "isolated-vm": "^4.7.2"
   },
