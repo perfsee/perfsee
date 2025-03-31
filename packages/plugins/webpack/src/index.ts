@@ -256,7 +256,10 @@ export class PerfseePlugin implements WebpackPluginInstance {
 
     try {
       this.setStats(compilation.getStats())
-      this.collectModuleSources(compilation)
+      // @ts-expect-error
+      if (webpackStatsToJsonOptions?.reasons !== false && webpackStatsToJsonOptions?.source !== false) {
+        this.collectModuleSources(compilation)
+      }
     } catch (e) {
       console.error(chalk.red(`Parse webpack stats failed, due to: ${(e as Error).message}`))
     }
