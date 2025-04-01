@@ -18,7 +18,7 @@ import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, dirname, basename } from 'path'
 
 import { PuppeteerAgent } from '@midscene/web/puppeteer'
-import { groupBy, mapValues, omit } from 'lodash'
+import { groupBy, mapValues, omit, truncate } from 'lodash'
 import { HTTPResponse, Target, Page } from 'puppeteer-core'
 import { v4 as uuid } from 'uuid'
 
@@ -456,6 +456,13 @@ export abstract class LighthouseJobWorker extends JobWorker<LabJobPayload> {
         ignoreEmulate: true,
         logger: this.logger,
       }
+      page.on('console', (msg) => {
+        const type = msg.type()
+        const text = msg.text()
+        this.logger[type === 'error' ? 'error' : type === 'warning' ? 'warn' : 'info'].bind(this.logger)(
+          `[From Page] ${truncate(text, { length: 200 })}`,
+        )
+      })
       const wrappedPuppeteer = puppeteerNodeWrapper.wrap({} as any, wrapperOptions)
       const wrappedPage = await (await wrappedPuppeteer.launch()).newPage()
       const mid = midsceneWrapper.wrap(new PuppeteerAgent(page, { cacheId: this.getCacheId() }), wrapperOptions)

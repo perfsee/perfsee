@@ -47,8 +47,15 @@ export class ProjectSourceIssueResolver {
       description: 'git commit hash',
     })
     hash?: string,
+    @Args({
+      name: 'code',
+      type: () => String,
+      nullable: true,
+      description: 'issue code',
+    })
+    issueCode?: string,
   ): Promise<PaginatedType<SourceIssue>> {
-    const [issues, totalCount] = await this.service.getSourceIssues(project.id, paginationOption, hash)
+    const [issues, totalCount] = await this.service.getSourceIssues(project.id, paginationOption, hash, issueCode)
 
     return paginate(issues, 'id', paginationOption, totalCount)
   }

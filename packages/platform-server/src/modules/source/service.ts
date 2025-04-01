@@ -243,7 +243,7 @@ export class SourceService implements OnApplicationBootstrap {
     }
   }
 
-  async getSourceIssues(projectId: number, { first, after, skip }: PaginationInput, hash?: string) {
+  async getSourceIssues(projectId: number, { first, after, skip }: PaginationInput, hash?: string, issueCode?: string) {
     const qb = SourceIssue.createQueryBuilder('issue')
       .where('issue.project_id = :projectId', { projectId })
       .orderBy('id', 'DESC')
@@ -256,6 +256,10 @@ export class SourceService implements OnApplicationBootstrap {
 
     if (hash) {
       qb.andWhere('hash = :hash', { hash })
+    }
+
+    if (issueCode) {
+      qb.andWhere('code = :issueCode', { issueCode })
     }
 
     return qb.getManyAndCount()
