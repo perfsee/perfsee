@@ -1,6 +1,6 @@
-query sourceIssues($projectId: ID!, $pagination: PaginationInput, $hash: String) {
+query sourceIssues($projectId: ID!, $pagination: PaginationInput, $hash: String, $code: String) {
   project(id: $projectId) {
-    sourceIssues(pagination: $pagination, hash: $hash) {
+    sourceIssues(pagination: $pagination, hash: $hash, code: $code) {
       edges {
         cursor
         node {

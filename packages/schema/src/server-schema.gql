@@ -352,6 +352,9 @@ type Project {
 
     """git commit hash"""
     hash: String
+
+    """issue code"""
+    code: String
   ): PaginatedSourceIssues!
 
   """all versions that have source issues in recent 3 months"""
