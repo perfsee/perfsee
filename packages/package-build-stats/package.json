@@ -52,7 +52,7 @@
     "@babel/plugin-proposal-export-default-from": "^7.12.13",
     "@babel/traverse": "^7.13.0",
     "autoprefixer": "^9.7.6",
-    "babel-eslint": "^10.1.0",
+    "@babel/eslint-parser": "^7.11.0",
     "babel-loader": "^8.3.0",
     "builtin-modules": "^3.1.0",
     "css-loader": "^4.3.0",
