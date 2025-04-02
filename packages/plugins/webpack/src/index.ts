@@ -178,10 +178,11 @@ export class PerfseePlugin implements WebpackPluginInstance {
     reasonsMap: Map<ID, Reason[]>,
     visited = new Set<ID>(),
   ) {
-    if (visited.has(module.id)) {
+    const moduleId = compilation.chunkGraph.getModuleId(module)
+    if (visited.has(moduleId)) {
       return
     }
-    visited.add(module.id)
+    visited.add(moduleId)
     // @ts-expect-error
     module.modules?.forEach((module) => this.parseModuleSource(compilation, module, reasonsMap, visited))
     // @ts-expect-error
