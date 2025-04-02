@@ -282,6 +282,7 @@ export class ArtifactService implements OnApplicationBootstrap {
       artifact.contentKey = update.contentKey!
       artifact.moduleMapKey = update.moduleMapKey!
       artifact.moduleSourceKey = update.moduleReasonsKey!
+      artifact.sourceContextKey = update.sourceContextKey!
       artifact.duration = update.duration!
       artifact.score = update.score!
       artifact.size = update.totalSize!

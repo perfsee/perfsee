@@ -78,6 +78,9 @@ type Artifact {
 
   """the link to modules reasons of a build"""
   moduleReasonsLink: String
+
+  """the link to source context of a build"""
+  sourceContextLink: String
 }
 
 enum BundleJobStatus {

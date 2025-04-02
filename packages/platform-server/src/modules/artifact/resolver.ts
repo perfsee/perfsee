@@ -310,6 +310,11 @@ export class ArtifactResolver {
   moduleReasonsLink(@Parent() artifact: Artifact) {
     return artifactLink(artifact.moduleSourceKey)
   }
+
+  @ResolveField(() => String, { nullable: true, description: 'the link to source context of a build' })
+  sourceContextLink(@Parent() artifact: Artifact) {
+    return artifactLink(artifact.sourceContextKey)
+  }
 }
 
 @Resolver(() => ArtifactEntrypoint)

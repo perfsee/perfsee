@@ -16,7 +16,7 @@ limitations under the License.
 
 import { dirname, resolve } from 'path'
 
-import { Plugin } from 'rollup'
+import { NormalizedInputOptions, Plugin } from 'rollup'
 
 import {
   getBuildEnv,
@@ -26,6 +26,7 @@ import {
   CommonPluginOptions as Options,
   initOptions,
   BuildUploadClient,
+  serializeBundlerOptions,
 } from '@perfsee/plugin-utils'
 
 import { rollupOutput2WebpackStats } from './adaptor'
@@ -50,6 +51,7 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
   const modulesMap = new Map<string, [version: string, sideEffects?: boolean | string[]]>()
   const buildPath = process.cwd()
   const repoPath = getBuildEnv().pwd
+  let inputOptions: NormalizedInputOptions | undefined
   let publicPath = '/'
 
   return {
@@ -73,6 +75,9 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
         modulesMap.set(name, [version, sideEffects])
       }
     },
+    buildStart(options) {
+      inputOptions = options
+    },
     async writeBundle(outputOptions, outputBundle) {
       const outputPath = outputOptions.dir ?? (outputOptions.file && dirname(outputOptions.file)) ?? process.cwd()
 
@@ -80,6 +85,7 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
         outputPath,
         publicPath,
         packageVersions: getAllPackagesVersions(getBuildEnv().pwd, modulesMap),
+        buildOptions: serializeBundlerOptions({ inputOptions, outputOptions }),
       })
 
       const client = new BuildUploadClient(options, outputPath, version)

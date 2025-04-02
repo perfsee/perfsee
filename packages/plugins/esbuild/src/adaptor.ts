@@ -25,7 +25,12 @@ import {
   BundleToolkit,
   BundleChunkGroup,
 } from '@perfsee/bundle-analyzer'
-import { getBuildEnv, getAllPackagesVersions, resolveModuleVersion } from '@perfsee/plugin-utils'
+import {
+  getBuildEnv,
+  getAllPackagesVersions,
+  resolveModuleVersion,
+  serializeBundlerOptions,
+} from '@perfsee/plugin-utils'
 
 import { Chunk } from './type'
 import {
@@ -184,5 +189,6 @@ export const esbuildResult2Stats = (
     entrypoints,
     buildTool: BundleToolkit.Esbuild,
     metafile,
+    buildOptions: serializeBundlerOptions(options),
   }
 }

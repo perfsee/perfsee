@@ -124,6 +124,7 @@ export type BundleJobPassedUpdate = {
   contentKey: string | undefined
   moduleMapKey: string | undefined
   moduleReasonsKey: string | undefined
+  sourceContextKey: string | undefined
   entryPoints: Record<string, BundleJobEntryPoint>
   duration: number
   score: number
