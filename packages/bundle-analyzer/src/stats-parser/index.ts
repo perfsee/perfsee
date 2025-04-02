@@ -136,6 +136,7 @@ export class StatsParser {
             sideEffects: Object.fromEntries(this.sideEffectsMap.entries()),
           }
         : undefined,
+      sourceContext: this.stats.buildOptions ? { buildOptions: this.stats.buildOptions } : undefined,
     }
   }
 

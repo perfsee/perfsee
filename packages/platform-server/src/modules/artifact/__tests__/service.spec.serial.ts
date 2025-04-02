@@ -215,6 +215,7 @@ test.serial('on job update', async (t) => {
     contentKey: faker.datatype.string(),
     moduleMapKey: faker.datatype.string(),
     moduleReasonsKey: faker.datatype.string(),
+    sourceContextKey: faker.datatype.string(),
     entryPoints: { main: bundleEntrypoint },
     duration: faker.datatype.number(),
     score: 10,

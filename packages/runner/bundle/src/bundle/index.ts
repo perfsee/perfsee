@@ -61,7 +61,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
 
     // parse bundle
     const stats = await readStatsFile(this.statsFilePath)
-    const { report, moduleTree, assets, moduleMap, moduleReasons } = await StatsParser.FromStats(
+    const { report, moduleTree, assets, moduleMap, moduleReasons, sourceContext } = await StatsParser.FromStats(
       stats,
       parse(this.statsFilePath).dir,
       this.logger,
@@ -89,6 +89,13 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
     if (moduleReasons?.moduleSource && Object.keys(moduleReasons.moduleSource).length) {
       moduleReasonsKey = await this.client.uploadArtifact(moduleSourceName, Buffer.from(JSON.stringify(moduleReasons)))
       this.logger.info(`Module reasons uploaded to artifacts. key is: ${moduleReasonsKey}`)
+    }
+
+    const sourceContextName = `source-context/${uuid()}.json`
+    let sourceContextKey
+    if (sourceContext) {
+      sourceContextKey = await this.client.uploadArtifact(sourceContextName, Buffer.from(JSON.stringify(sourceContext)))
+      this.logger.info(`Source context uploaded to artifacts. key is: ${sourceContextKey}`)
     }
 
     let baselineResult: BundleResult | null = null
@@ -126,6 +133,7 @@ export class BundleWorker extends JobWorker<BundleJobPayload> {
       contentKey: bundleContentKey,
       moduleMapKey: moduleMapKey,
       moduleReasonsKey: moduleReasonsKey,
+      sourceContextKey: sourceContextKey,
       score: calcBundleScore(report.entryPoints),
       entryPoints,
       duration: this.timeSpent,

@@ -44,6 +44,7 @@ import {
   generateReports,
   getBuildEnv,
   catchModuleVersionFromRequest,
+  serializeBundlerOptions,
 } from '@perfsee/plugin-utils'
 
 export interface StatsReport {
@@ -154,13 +155,15 @@ export class PerfseePlugin implements WebpackPluginInstance {
   }
 
   // @internal
-  setStats(stats: Stats) {
+  setStats(compilation: Compilation) {
+    const stats = compilation.getStats()
     this.stats = stats.toJson(webpackStatsToJsonOptions) as any
     this.stats.packageVersions = getAllPackagesVersions(getBuildEnv().pwd, this.modules)
     this.stats.repoPath = getBuildEnv().pwd
     this.stats.buildPath = this.context || process.cwd()
     // @ts-expect-error
     this.stats.buildTool = this.stats.rspackVersion ? BundleToolkit.Rspack : BundleToolkit.Webpack
+    this.stats.buildOptions = serializeBundlerOptions(compilation.compiler.options)
 
     return this
   }
@@ -256,7 +259,7 @@ export class PerfseePlugin implements WebpackPluginInstance {
     }
 
     try {
-      this.setStats(compilation.getStats())
+      this.setStats(compilation)
       // @ts-expect-error
       if (webpackStatsToJsonOptions?.reasons !== false && webpackStatsToJsonOptions?.source !== false) {
         this.collectModuleSources(compilation)
