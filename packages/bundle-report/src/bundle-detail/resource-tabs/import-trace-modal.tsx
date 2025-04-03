@@ -245,7 +245,6 @@ export const ImportTraceModal: FC<Props> = ({
 
   const importLocations = getModuleReasons ? (
     <Stack
-      verticalAlign="stretch"
       styles={{
         root: { flexBasis: '40%', overflowX: 'hidden', overflowY: 'auto', height: '85vh', paddingBottom: 24 },
       }}
