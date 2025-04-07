@@ -1,4 +1,4 @@
-const MAX_DEPTH = 10
+const MAX_DEPTH = 4
 
 export function serializeBundlerOptions(options: any) {
   const processed = new WeakMap()
