@@ -80,6 +80,9 @@ export function serializeBundlerOptions(options: any) {
     const result = {}
 
     for (const key of Object.keys(value)) {
+      if (key === 'plugins') {
+        continue
+      }
       try {
         result[key] = serialize(value[key], depth + 1, path ? `${path}.${key}` : key)
       } catch (error: any) {
