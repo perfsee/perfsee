@@ -16,7 +16,13 @@ limitations under the License.
 
 import { Plugin, PluginBuild } from 'esbuild'
 
-import { CommonPluginOptions as Options, initOptions, BuildUploadClient, generateReports } from '@perfsee/plugin-utils'
+import {
+  CommonPluginOptions as Options,
+  initOptions,
+  BuildUploadClient,
+  generateReports,
+  serializeBundlerOptions,
+} from '@perfsee/plugin-utils'
 
 import { esbuildResult2Stats } from './adaptor'
 import { getOutputPath } from './util'
@@ -50,6 +56,10 @@ export const PerfseePlugin = (options: Options = {}): Plugin => {
 
       build.onEnd(async ({ outputFiles, ...result }) => {
         const stats = esbuildResult2Stats(result, build.initialOptions)
+
+        if (!options.ignoreBuildOptions) {
+          stats.buildOptions = serializeBundlerOptions(build.initialOptions)
+        }
 
         const client = new BuildUploadClient(options, outputPath, version)
         await client.uploadBuild(stats)

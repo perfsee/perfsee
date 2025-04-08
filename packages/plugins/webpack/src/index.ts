@@ -163,7 +163,9 @@ export class PerfseePlugin implements WebpackPluginInstance {
     this.stats.buildPath = this.context || process.cwd()
     // @ts-expect-error
     this.stats.buildTool = this.stats.rspackVersion ? BundleToolkit.Rspack : BundleToolkit.Webpack
-    this.stats.buildOptions = serializeBundlerOptions(compilation.compiler.options)
+    if (!this.options.ignoreBuildOptions) {
+      this.stats.buildOptions = serializeBundlerOptions(compilation.compiler.options)
+    }
 
     return this
   }

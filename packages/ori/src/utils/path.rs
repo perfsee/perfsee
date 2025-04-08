@@ -32,7 +32,7 @@ pub fn join<P: AsRef<Path>>(paths: Vec<P>) -> PathBuf {
           if cur.is_empty() {
             builder.push("../")
           } else {
-            match builder.components().last().unwrap() {
+            match builder.components().next_back().unwrap() {
               Component::Normal(..) => {
                 builder.pop();
               }
