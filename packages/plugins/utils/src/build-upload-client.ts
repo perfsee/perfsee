@@ -145,13 +145,18 @@ export class BuildUploadClient {
       stats.htmlExclusive = this.options.htmlExclusive
       stats.strictChunkRelations = this.options.strictChunkRelations
 
-      pipeline(Readable.from(encodeStatsJson(stats)), createGzip(), createWriteStream(statsFile), (err) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(statsFile)
-        }
-      })
+      pipeline(
+        Readable.from(encodeStatsJson(stats)),
+        createGzip(this.options.zlibOptions),
+        createWriteStream(statsFile),
+        (err) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(statsFile)
+          }
+        },
+      )
     })
   }
 

@@ -85,7 +85,9 @@ export const PerfseePlugin = (userOptions: Options = {}): Plugin => {
         outputPath,
         publicPath,
         packageVersions: getAllPackagesVersions(getBuildEnv().pwd, modulesMap),
-        buildOptions: serializeBundlerOptions({ inputOptions, outputOptions }),
+        buildOptions: userOptions.ignoreBuildOptions
+          ? undefined
+          : serializeBundlerOptions({ inputOptions, outputOptions }),
       })
 
       const client = new BuildUploadClient(options, outputPath, version)

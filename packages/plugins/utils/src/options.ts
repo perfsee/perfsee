@@ -161,6 +161,13 @@ export interface CommonPluginOptions {
    * Zlib options on compressing artifacts.
    */
   zlibOptions?: ZlibOptions
+
+  /**
+   * If true, Perfsee will not parse and upload build options.
+   *
+   * @default false
+   */
+  ignoreBuildOptions?: boolean
 }
 
 export function getDefaultOptions(): Required<

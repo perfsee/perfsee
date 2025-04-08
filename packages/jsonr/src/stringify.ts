@@ -122,6 +122,11 @@ export function* JSONRStringify(
             yield jsonr
             jsonr = ''
           }
+        } else if (obj === Infinity || obj === -Infinity) {
+          if (output('n')) {
+            yield jsonr
+            jsonr = ''
+          }
         } else {
           if (output(obj.toString())) {
             yield jsonr
