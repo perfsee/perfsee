@@ -207,7 +207,7 @@ export const MultiContentRequests: FC<Props> = (props) => {
           ? pathFactory.project.lab.report({
               projectId: project.id,
               reportId: report.id,
-              tabName: PerformanceTabType.Asset,
+              tabName: PerformanceTabType.Requests,
             })
           : undefined
 

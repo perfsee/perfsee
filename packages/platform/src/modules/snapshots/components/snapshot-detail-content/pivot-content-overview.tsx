@@ -33,9 +33,9 @@ export const OverviewPivotContent = (props: Props) => {
     history.push(pathFactory.project.lab.report({ projectId, reportId, tabName: 'flamechart' }))
   }, [history, projectId, reportId])
 
-  const goToAssets = useCallback(() => {
+  const goToRequests = useCallback(() => {
     history.push(pathFactory.project.lab.report({ projectId, reportId, tabName: 'asset' }))
   }, [history, projectId, reportId])
 
-  return <Overview snapshot={props.snapshot} goToAssets={goToAssets} goToFlamechart={goToFlamechart} />
+  return <Overview snapshot={props.snapshot} goToRequests={goToRequests} goToFlamechart={goToFlamechart} />
 }

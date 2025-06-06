@@ -51,7 +51,7 @@ export const PivotContent = (props: PivotContentProps) => {
   switch (type) {
     case PerformanceTabType.Overview:
       return <OverviewPivotContent snapshot={snapshot} />
-    case PerformanceTabType.Asset:
+    case PerformanceTabType.Requests:
       return <AssetContent snapshot={snapshot} />
     case PerformanceTabType.Flamechart:
       return <FlameChartPivotContent snapshot={snapshot} />
@@ -82,7 +82,7 @@ export const MultiReportPivotContent = (props: Props) => {
       return <MultiContentOverview snapshots={snapshots} />
     case PerformanceTabType.Flamechart:
       return <MultiContentFlamechart snapshots={snapshots} />
-    case PerformanceTabType.Asset:
+    case PerformanceTabType.Requests:
       return <MultiContentRequests snapshots={snapshots} />
     case PerformanceTabType.Report:
       return <MultiContentReport snapshots={snapshots} />
