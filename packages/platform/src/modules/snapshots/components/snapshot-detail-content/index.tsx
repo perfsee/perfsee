@@ -40,7 +40,7 @@ import { pathFactory } from '@perfsee/shared/routes'
 import { SnapshotModule } from '../../snapshot.module'
 import {
   OverviewTab,
-  AssetTab,
+  RequestsTab,
   FlamechartTab,
   SourceCoverageTab,
   ReactTab,
@@ -120,7 +120,7 @@ const sourceLoadingProps: IButtonProps = {
 }
 
 const overviewPivot = <PivotItem itemKey={OverviewTab.id} key={OverviewTab.id} headerText={OverviewTab.title} />
-const assetPivot = <PivotItem itemKey={AssetTab.id} key={AssetTab.id} headerText={AssetTab.title} />
+const assetPivot = <PivotItem itemKey={RequestsTab.id} key={RequestsTab.id} headerText={RequestsTab.title} />
 const reportPivot = <PivotItem itemKey={ReportTab.id} key={ReportTab.id} headerText={ReportTab.title} />
 const flamechartPivot = <PivotItem itemKey={FlamechartTab.id} key={FlamechartTab.id} headerText={FlamechartTab.title} />
 const flamechartLoadingPivot = (

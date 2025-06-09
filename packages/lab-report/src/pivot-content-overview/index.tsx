@@ -52,13 +52,13 @@ import { getCategoryAcorms, isLHCalculator } from './util'
 
 interface Props {
   snapshot: SnapshotDetailType
-  goToAssets?: () => void
+  goToRequests?: () => void
   goToFlamechart?: () => void
 }
 
 export const OverviewContent = (props: Props) => {
   const { traceData, timings, metricScores, timelines, categories, requests } = props.snapshot
-  const { goToAssets, goToFlamechart } = props
+  const { goToRequests, goToFlamechart } = props
   const report = 'report' in props.snapshot ? props.snapshot.report : null
   const [queryString, updateQueryString] = useQueryString<{
     category?: string
@@ -170,9 +170,9 @@ export const OverviewContent = (props: Props) => {
                   <b>Assets transferred by type</b>
                 </RenderTimelineHead>
                 <Stack verticalAlign="center">
-                  {goToAssets ? (
-                    <OperationButton onClick={goToAssets}>
-                      View in assets <ArrowUpRightIcon />
+                  {goToRequests ? (
+                    <OperationButton onClick={goToRequests}>
+                      View in requests <ArrowUpRightIcon />
                     </OperationButton>
                   ) : null}
                 </Stack>

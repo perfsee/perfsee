@@ -48,7 +48,7 @@ export enum RecordType {
 export enum PerformanceTabType {
   Overview = 'overview',
   UserFlow = 'user-flow',
-  Asset = 'asset',
+  Requests = 'requests',
   Report = 'analysis-report',
   Flamechart = 'flamechart',
   SourceCoverage = 'source-coverage',

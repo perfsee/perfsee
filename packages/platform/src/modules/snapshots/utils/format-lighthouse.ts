@@ -21,9 +21,9 @@ export const OverviewTab = {
   title: 'Overview',
 }
 
-export const AssetTab = {
-  id: PerformanceTabType.Asset,
-  title: 'Asset',
+export const RequestsTab = {
+  id: PerformanceTabType.Requests,
+  title: 'Requests',
 }
 
 export const ReportTab = {
@@ -38,7 +38,7 @@ export const FlamechartTab = {
 
 export const SourceCoverageTab = {
   id: PerformanceTabType.SourceCoverage,
-  title: 'Treemap',
+  title: 'Coverage',
 }
 
 export const LogTab = {
