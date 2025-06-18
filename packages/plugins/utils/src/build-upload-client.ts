@@ -16,7 +16,7 @@ limitations under the License.
 
 import { createReadStream, createWriteStream, statSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
-import { join } from 'path'
+import { basename, join } from 'path'
 import { Readable, pipeline } from 'stream'
 import { promisify } from 'util'
 import { createGzip } from 'zlib'
@@ -164,12 +164,13 @@ export class BuildUploadClient {
     return new Promise<string>((resolve, reject) => {
       const packPath = `${tmpdir()}/build-${uuid()}.tar.gz`
       const includedAssets = new Set([statsPath])
+      const includedSourcemaps = new Set<string>()
 
       stats.assets?.forEach((a) => {
         const asset = join(this.outputPath, a.name)
         includedAssets.add(asset)
         if (/\.m?js$/i.test(asset) || /\.css$/i.test(asset)) {
-          includedAssets.add(`${asset}.map`)
+          includedSourcemaps.add(`${basename(asset)}.map`)
         }
       })
 
@@ -185,7 +186,10 @@ export class BuildUploadClient {
             }
 
             // ignore media files to reduce artifact size
-            return includedAssets.has(path) && !/\.(mp4|webm|mkv|flv|avi|wmv)$/i.test(path)
+            return (
+              (includedAssets.has(path) || includedSourcemaps.has(basename(path))) &&
+              !/\.(mp4|webm|mkv|flv|avi|wmv)$/i.test(path)
+            )
           },
         },
         ['./'],

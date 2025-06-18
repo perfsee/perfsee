@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { statSync } from 'fs'
+import { readdirSync } from 'fs'
 import { mkdir, rm, writeFile, readFile } from 'fs/promises'
 import { basename, join, parse, relative } from 'path'
 
@@ -61,7 +61,7 @@ interface BundleMeta {
     entryPoints: string[]
     async: boolean
     size: Size
-    sourceMap: boolean
+    sourcemapPath: string | undefined
   }[]
   bundles: {
     [k: string]: {
@@ -302,6 +302,26 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     for (const { artifactId, artifactIid, artifactName, hash, bundlePath, bundleReport, moduleMap } of bundleList) {
       const baseDir = parse(bundlePath).dir
 
+      const sourcemapFiles = new Set<string>()
+
+      const listAllMapFiles = (dir: string) => {
+        try {
+          const files = readdirSync(dir, { withFileTypes: true })
+          for (const file of files) {
+            const res = join(dir, file.name)
+            if (file.isDirectory()) {
+              listAllMapFiles(res)
+            } else if (file.name.endsWith('.map')) {
+              sourcemapFiles.add(basename(file.name))
+            }
+          }
+        } catch (e: any) {
+          this.logger.warn(`Failed to list files in ${dir}`, { error: e })
+        }
+      }
+
+      listAllMapFiles(baseDir)
+
       bundleReport.assets.forEach((asset) => {
         if (asset.name.endsWith('.js')) {
           const chunks = bundleReport.chunks.filter((c) => c.assetRefs.includes(asset.ref))
@@ -311,21 +331,16 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
             .filter((entry) => entryChunks.some((c) => entry.chunkRefs.includes(c.ref)))
             .map((entry) => entry.name)
 
-          const diskPath = join(baseDir, asset.path ?? asset.name)
-          let sourceMap = false
-          try {
-            const stats = statSync(diskPath)
-            sourceMap = stats.isFile()
-          } catch {
-            // ignore error
-          }
+          const sourcemapPath = sourcemapFiles.has(basename(asset.path ?? asset.name) + '.map')
+            ? basename(asset.path ?? asset.name) + '.map'
+            : undefined
 
           files.push({
             fileName: asset.name,
             bundleId: artifactId.toString(),
             diskPath: join(baseDir, asset.path ?? asset.name),
             entryPoints,
-            sourceMap,
+            sourcemapPath,
             async,
             size: asset.size,
           })
@@ -553,7 +568,7 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     // sourceMapCount
     {
       result.sourceMapCount = this.payload.snapshotReport.scripts?.filter((s) => {
-        return this.bundleMeta.files.find((f) => f.fileName.endsWith(s.fileName))?.sourceMap
+        return this.bundleMeta.files.find((f) => f.fileName.endsWith(s.fileName))?.sourcemapPath
       }).length
     }
 
