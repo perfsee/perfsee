@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { existsSync, readFileSync } from 'fs'
-import { join, parse, relative } from 'path'
+import { existsSync, readFileSync, readdirSync } from 'fs'
+import { basename, join, parse, relative } from 'path'
 
 import { uniqBy, chain, uniq, omit } from 'lodash'
 
@@ -331,6 +331,26 @@ export class StatsParser {
       let ref = 1
       const assets: Asset[] = []
       const { buildTool } = this.stats
+
+      const sourcemapFiles = new Set<string>()
+      const listAllMapFiles = (dir: string) => {
+        try {
+          const entries = readdirSync(dir, { withFileTypes: true })
+          for (const entry of entries) {
+            const fullPath = join(dir, entry.name)
+            if (entry.isDirectory()) {
+              listAllMapFiles(fullPath)
+            } else if (entry.name.endsWith('.map')) {
+              sourcemapFiles.add(entry.name)
+            }
+          }
+        } catch (e) {
+          // ignore error
+          this.logger.warn(`Failed to read directory ${dir}: ${(e as Error).message}`)
+        }
+      }
+      listAllMapFiles(this.assetsPath)
+
       for (const outputAsset of this.stats.assets) {
         // @ts-expect-error
         const { name, size: parsedSize, intermediate, path, chunks } = outputAsset
@@ -354,7 +374,7 @@ export class StatsParser {
           type,
           modules,
           intermediate,
-          sourcemap: existsSync(filepath + '.map'),
+          sourcemap: sourcemapFiles.has(basename(realName) + '.map'),
           packageRefs: [],
           moduleRefs: [],
         }

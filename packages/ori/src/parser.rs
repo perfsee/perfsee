@@ -51,8 +51,8 @@ pub struct FunctionLocation {
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct FileMeta {
   file_name: String,
-  disk_path: String,
   bundle_id: String,
+  sourcemap_path: String,
 }
 
 #[derive(Deserialize)]
@@ -93,7 +93,7 @@ impl BundleMeta {
       .files
       .par_iter()
       .filter_map(|meta| {
-        let source_map_file = meta.disk_path.clone() + ".map";
+        let source_map_file = meta.sourcemap_path.clone();
 
         match File::open(&source_map_file) {
           Ok(file_reader) => match RawSourceMap::from_reader(file_reader) {

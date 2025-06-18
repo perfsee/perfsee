@@ -178,7 +178,7 @@ fn create_tokio_rt(
 }
 
 fn error(err: String) -> io::Error {
-  io::Error::new(io::ErrorKind::Other, err)
+  io::Error::other(err)
 }
 
 async fn run_server(
