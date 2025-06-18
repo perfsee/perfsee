@@ -214,6 +214,7 @@ export class SnapshotReportService {
 
     const stepsReports = await SnapshotReport.find({ where: { projectId, stepOfId: report.id } })
     const allReports = stepsReports.concat(report)
+    await SourceIssue.delete({ snapshotReportId: In(allReports.map((r) => r.id)) })
     await SnapshotReport.remove(allReports)
     await this.projectUsage.recordStorageUsage(projectId, -allReports.reduce((sum, cur) => sum + cur.uploadSize, 0))
     await this.storage.bulkDelete(
