@@ -302,17 +302,17 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
     for (const { artifactId, artifactIid, artifactName, hash, bundlePath, bundleReport, moduleMap } of bundleList) {
       const baseDir = parse(bundlePath).dir
 
-      const sourcemapFiles = new Set<string>()
+      const sourcemapFiles: string[] = []
 
       const listAllMapFiles = (dir: string) => {
         try {
           const files = readdirSync(dir, { withFileTypes: true })
           for (const file of files) {
-            const res = join(dir, file.name)
+            const filePath = join(dir, file.name)
             if (file.isDirectory()) {
-              listAllMapFiles(res)
+              listAllMapFiles(filePath)
             } else if (file.name.endsWith('.map')) {
-              sourcemapFiles.add(basename(file.name))
+              sourcemapFiles.push(filePath)
             }
           }
         } catch (e: any) {
@@ -331,9 +331,9 @@ export class SourceJobWorker extends JobWorker<SourceAnalyzeJob> {
             .filter((entry) => entryChunks.some((c) => entry.chunkRefs.includes(c.ref)))
             .map((entry) => entry.name)
 
-          const sourcemapPath = sourcemapFiles.has(basename(asset.path ?? asset.name) + '.map')
-            ? basename(asset.path ?? asset.name) + '.map'
-            : undefined
+          const sourcemapPath =
+            sourcemapFiles.find((file) => file.endsWith(basename(asset.path ?? asset.name) + '.map')) ||
+            join(baseDir, asset.path ?? asset.name)
 
           files.push({
             fileName: asset.name,

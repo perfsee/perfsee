@@ -52,6 +52,7 @@ pub struct FunctionLocation {
 pub struct FileMeta {
   file_name: String,
   bundle_id: String,
+  disk_path: String,
   sourcemap_path: String,
 }
 
@@ -93,9 +94,9 @@ impl BundleMeta {
       .files
       .par_iter()
       .filter_map(|meta| {
-        let source_map_file = meta.sourcemap_path.clone();
+        let source_map_file = meta.disk_path.clone() + ".map";
 
-        match File::open(&source_map_file) {
+        match File::open(&source_map_file).map_err(|_| File::open(meta.sourcemap_path.clone())) {
           Ok(file_reader) => match RawSourceMap::from_reader(file_reader) {
             Ok(source_map) => Some((
               meta.bundle_id.as_str(),
