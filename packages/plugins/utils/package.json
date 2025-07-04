@@ -24,7 +24,7 @@
     "@perfsee/jsonr": "workspace:*",
     "@perfsee/utils": "workspace:*",
     "chalk": "^4.1.2",
-    "debug": "4.3.4",
+    "debug": "4.4.1",
     "env-ci": "^7.2.1",
     "find-cache-dir": "^3.3.2",
     "lodash": "^4.17.21",

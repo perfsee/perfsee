@@ -44,7 +44,7 @@
     "chalk": "^4.1.2",
     "clipanion": "^3.1.0",
     "env-ci": "^7.2.1",
-    "esbuild": "^0.17.11",
+    "esbuild": "^0.25.0",
     "find-cache-dir": "^3.3.2",
     "glob": "^9.2.1",
     "node-fetch": "^2.6.2",
