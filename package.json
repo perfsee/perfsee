@@ -55,7 +55,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-sonarjs": "^0.18.0",
+    "eslint-plugin-sonarjs": "^0.25.0",
     "eslint-plugin-unicorn": "^45.0.0",
     "extract-comments": "^1.1.0",
     "fdir": "^5.2.0",
