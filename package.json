@@ -98,7 +98,7 @@
     "wait-on": "^7.0.0",
     "webpack": "^5.73.0",
     "webpack-cli": "^5.0.0",
-    "webpack-dev-server": "^4.9.3",
+    "webpack-dev-server": "^5.0.0",
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
     "why-is-node-running": "^2.2.2",
