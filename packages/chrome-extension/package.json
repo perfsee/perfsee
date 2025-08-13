@@ -13,7 +13,7 @@
   ],
   "devDependencies": {
     "chrome-types": "^0.1.234",
-    "esbuild": "^0.19.5"
+    "esbuild": "^0.25.0"
   },
   "scripts": {
     "dev": "node ./scripts/build.cjs",
