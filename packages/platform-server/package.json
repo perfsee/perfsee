@@ -44,7 +44,7 @@
     "nest-router": "^1.0.9",
     "node-abort-controller": "^3.0.1",
     "node-fetch": "^2.6.2",
-    "nodemailer": "^6.7.7",
+    "nodemailer": "^8.0.0",
     "prom-client": "14.1.1",
     "query-string": "^7.1.1",
     "redlock": "^4.2.0",
