@@ -8,6 +8,6 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@maizzle/framework": "^4.0.2"
+    "@maizzle/framework": "^5.0.0"
   }
 }
