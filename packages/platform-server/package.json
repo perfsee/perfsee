@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "dependencies": {
-    "@apollo/server": "^4.6.0",
+    "@apollo/server": "^5.0.0",
     "@aws-sdk/client-s3": "^3.449.0",
     "@aws-sdk/lib-storage": "^3.449.0",
     "@nestjs/apollo": "^11.0.5",
